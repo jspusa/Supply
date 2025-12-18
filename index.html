@@ -5,204 +5,246 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>SKU 工具：速度/訂單/美國總數/可銷售天數 + 下單清單 + 台灣廠篩選</title>
   <style>
-    :root { font-family: system-ui, -apple-system, "Segoe UI", Arial, "Noto Sans TC", sans-serif; }
-    body { margin: 24px; }
-    h1 { font-size: 18px; margin: 0 0 12px; }
-    h2 { font-size: 14px; margin: 18px 0 8px; }
+    :root { font-family: system-ui, -apple-system, "Segoe UI", Arial, "Noto Sans TC", sans-serif; color: #0f1d2b; }
+    body { margin: 0; padding: 32px 18px 48px; background: radial-gradient(circle at 10% 20%, #f3f6ff 0, #f7f9fc 30%, #f9fbff 60%, #fff 100%); }
+    .page { max-width: 1200px; margin: 0 auto; }
+    h1 { font-size: 22px; margin: 0 0 16px; color: #0b1624; letter-spacing: 0.4px; }
+    h2 { font-size: 15px; margin: 0 0 6px; }
     .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
-    textarea { width: 100%; min-height: 180px; padding: 12px; font-size: 13px; line-height: 1.4; }
-    button { padding: 8px 12px; cursor: pointer; }
+    textarea { width: 100%; min-height: 120px; padding: 12px; font-size: 13px; line-height: 1.4; border-radius: 10px; border: 1px solid #d7deea; background: #fff; box-shadow: inset 0 1px 2px rgba(15, 29, 43, 0.03); }
+    button { padding: 10px 14px; cursor: pointer; border-radius: 10px; border: 1px solid #d1d9e5; background: #0b6bcb; color: #fff; font-weight: 600; box-shadow: 0 3px 10px rgba(11, 107, 203, 0.15); transition: transform 0.05s ease, box-shadow 0.15s ease; }
+    button:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(11, 107, 203, 0.25); }
+    button.secondary { background: #fff; color: #0f1d2b; border-color: #d1d9e5; box-shadow: none; }
     label, select, input { font-size: 12px; }
-    select, input[type="number"] { padding: 6px; }
-    .hint { color: #555; font-size: 12px; }
+    select, input[type="number"] { padding: 8px 10px; border-radius: 8px; border: 1px solid #d1d9e5; background: #fff; }
+    .hint { color: #4a5565; font-size: 12px; line-height: 1.5; }
     .grid { display: grid; grid-template-columns: 1fr; gap: 18px; }
-    .card { border: 1px solid #ddd; border-radius: 10px; padding: 12px; }
-    .tableWrap { max-height: 520px; overflow: auto; border: 1px solid #eee; border-radius: 8px; }
+    .card { border: 1px solid #dfe6f0; border-radius: 14px; padding: 0; background: #fff; box-shadow: 0 10px 35px rgba(17, 24, 39, 0.06); overflow: hidden; }
+    .card summary { padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; list-style: none; cursor: pointer; user-select: none; }
+    .card summary::-webkit-details-marker { display: none; }
+    .card[open] summary { border-bottom: 1px solid #eef2f7; background: linear-gradient(90deg, #f7f9ff, #f0f4ff); }
+    .card:not([open]) summary { background: #f9fbff; }
+    .cardContent { padding: 16px; }
+    .subGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+    .subCard { border: 1px dashed #d9e1ee; border-radius: 10px; padding: 0; overflow: hidden; background: #fdfefe; }
+    .subCard summary { padding: 12px 14px; list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 8px; font-weight: 700; color: #0f1d2b; }
+    .subCard summary::-webkit-details-marker { display: none; }
+    .subCard[open] summary { background: #f4f7fd; border-bottom: 1px solid #e6ecf7; }
+    .subCardContent { padding: 12px 14px 14px; }
+    .eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #71829e; margin: 0; }
+    .pill { display:inline-block; padding:6px 10px; border:1px solid #d1d9e5; border-radius:999px; font-size:12px; color:#0f1d2b; background: #f6f9ff; }
+    .modeTag { display:inline-block; padding:6px 10px; border:1px solid #d1d9e5; border-radius:999px; font-size:12px; background:#fff; }
+    .tableWrap { max-height: 520px; overflow: auto; border: 1px solid #eef2f7; border-radius: 10px; background: #fbfcff; box-shadow: inset 0 1px 2px rgba(0,0,0,0.03); }
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { border: 1px solid #ddd; padding: 8px; font-size: 13px; }
-    th { background: #f6f6f6; text-align: left; position: sticky; top: 0; }
-    .bad { background: #fff3f3; }
-    .ok  { background: #f6fff6; }
-    .warn { background: #fff9e6; }
+    th, td { border: 1px solid #e5ecf5; padding: 8px; font-size: 13px; }
+    th { background: #f4f7fd; text-align: left; position: sticky; top: 0; color: #0f1d2b; }
+    .bad { background: #fff4f4; }
+    .ok  { background: #f1fbf5; }
+    .warn { background: #fff8eb; }
     .count { font-weight: 600; }
-    .footer { margin-top: 10px; font-size: 12px; color: #666; }
+    .footer { margin-top: 12px; font-size: 12px; color: #55657b; text-align: right; }
     code { background: #f4f4f4; padding: 1px 4px; border-radius: 4px; }
-    .pill { display:inline-block; padding:2px 8px; border:1px solid #ccc; border-radius:999px; font-size:12px; color:#333; }
-    details summary { cursor: pointer; user-select: none; }
-    details[open] summary { margin-bottom: 8px; }
-    .modeTag { display:inline-block; padding:2px 8px; border:1px solid #aaa; border-radius:999px; font-size:12px; }
+    .priority { border: 1px solid #c7d7f8; box-shadow: 0 10px 35px rgba(11, 107, 203, 0.08); }
   </style>
 </head>
 <body>
-  <h1>SKU 自動整理：速度 / 訂單 / 美國總數 / 可銷售天數 + 下單清單</h1>
+  <div class="page">
+    <h1>SKU 自動整理：速度 / 訂單 / 美國總數 / 可銷售天數 + 下單清單</h1>
 
-  <div class="row">
-    <button id="btnBuild">整理（重建表格）</button>
-    <button id="btnClear">清空</button>
+    <div class="row">
+      <button id="btnBuild">整理（重建表格）</button>
+      <button class="secondary" id="btnClear">清空</button>
 
-    <label style="display:flex; gap:6px; align-items:center;">
-      <input type="checkbox" id="chkDedupe" checked />
-      H10 去重（以 ASIN+SKU）
-    </label>
-    <label style="display:flex; gap:6px; align-items:center;">
-      <input type="checkbox" id="chkMissingOrderAsZero" checked />
-      H10 找不到訂單時填 0
-    </label>
-    <label style="display:flex; gap:6px; align-items:center;">
-      <input type="checkbox" id="chkMissingUsAsBlank" />
-      H10 找不到美國總數時留空（不勾選則填 0）
-    </label>
-    <label style="display:flex; gap:6px; align-items:center;">
-      <input type="checkbox" id="chkNormalizeSku" checked />
-      SKU 正規化（去空白、轉大寫）
-    </label>
-  </div>
-
-  <div class="row">
-    <label>主表排序：</label>
-    <select id="sortMode">
-      <option value="normal">正常（速度由大到小）</option>
-      <option value="days_asc">可銷售天數由小到大</option>
-    </select>
-
-    <label>下單門檻（天）：</label>
-    <input id="daysThreshold" type="number" min="1" step="1" value="180" />
-
-    <span class="hint">可銷售天數 = (美國總數 + 訂單) ÷ 速度</span>
-  </div>
-
-  <div class="row">
-    <label>工廠篩選：</label>
-    <button id="btnHideTW">隱藏台灣廠（E 開頭）</button>
-    <button id="btnOnlyTW">只看台灣廠（E 開頭）</button>
-    <button id="btnShowAll">顯示全部</button>
-    <span class="modeTag" id="factoryModeTag">目前：顯示全部</span>
-    <span class="hint">提示：此篩選會套用在「下單清單 / 主表 / 新品表」</span>
-  </div>
-
-  <div class="grid">
-    <div class="card">
-      <h2>① Helium 10 原始文字（解析 SKU / ASIN / 速度）</h2>
-      <div class="hint">
-        會抓取 <code>ASIN(10碼)</code> + 緊接其後的 <code>SKU</code>，並取該位置後面第一個數字作為速度。
-      </div>
-      <textarea id="inputH10" placeholder="貼 Helium 10 內容..."></textarea>
+      <label style="display:flex; gap:6px; align-items:center;">
+        <input type="checkbox" id="chkDedupe" checked />
+        H10 去重（以 ASIN+SKU）
+      </label>
+      <label style="display:flex; gap:6px; align-items:center;">
+        <input type="checkbox" id="chkMissingOrderAsZero" checked />
+        H10 找不到訂單時填 0
+      </label>
+      <label style="display:flex; gap:6px; align-items:center;">
+        <input type="checkbox" id="chkMissingUsAsBlank" />
+        H10 找不到美國總數時留空（不勾選則填 0）
+      </label>
+      <label style="display:flex; gap:6px; align-items:center;">
+        <input type="checkbox" id="chkNormalizeSku" checked />
+        SKU 正規化（去空白、轉大寫）
+      </label>
     </div>
 
-    <div class="card">
-      <h2>② 訂單清單（解析 SKU / 訂單）</h2>
-      <div class="hint">
-        Tab/空白皆可。每行第 1 欄是 SKU；數量只從「SKU 後面欄位」抓數字。重複 SKU 會加總。
-      </div>
-      <textarea id="inputOrders" placeholder="例如：
+    <div class="row">
+      <label>主表排序：</label>
+      <select id="sortMode">
+        <option value="normal">正常（速度由大到小）</option>
+        <option value="days_asc">可銷售天數由小到大</option>
+      </select>
+
+      <label>下單門檻（天）：</label>
+      <input id="daysThreshold" type="number" min="1" step="1" value="180" />
+
+      <span class="hint">可銷售天數 = (美國總數 + 訂單) ÷ 速度</span>
+    </div>
+
+    <div class="row">
+      <label>工廠篩選：</label>
+      <button class="secondary" id="btnHideTW">隱藏台灣廠（E 開頭）</button>
+      <button class="secondary" id="btnOnlyTW">只看台灣廠（E 開頭）</button>
+      <button class="secondary" id="btnShowAll">顯示全部</button>
+      <span class="modeTag" id="factoryModeTag">目前：顯示全部</span>
+      <span class="hint">提示：此篩選會套用在「下單清單 / 主表 / 新品表」</span>
+    </div>
+
+    <div class="grid">
+      <details class="card" open>
+        <summary>
+          <div>
+            <p class="eyebrow">資料輸入區</p>
+            <h2>貼上來源資料</h2>
+            <div class="hint">直接貼 raw 文字即可，系統會自動解析 SKU / ASIN / 數量。</div>
+          </div>
+          <span class="pill">可收合</span>
+        </summary>
+        <div class="cardContent">
+          <div class="subGrid">
+            <details class="subCard" open>
+              <summary>Helium 10 原始文字</summary>
+              <div class="subCardContent">
+                <div class="hint">抓取 <code>ASIN(10碼)</code> + 後面的 <code>SKU</code>，再取第一個數字作為速度。</div>
+                <textarea id="inputH10" placeholder="貼 Helium 10 內容..."></textarea>
+              </div>
+            </details>
+            <details class="subCard" open>
+              <summary>訂單清單</summary>
+              <div class="subCardContent">
+                <div class="hint">Tab/空白皆可。每行第 1 欄是 SKU；數量只從「SKU 後面欄位」抓數字。重複 SKU 會加總。</div>
+                <textarea id="inputOrders" placeholder="例如：
 AFA11AM	5040
 AFA12AM	27360
 TTS05AM-1	170100
 ..."></textarea>
-    </div>
-
-    <div class="card">
-      <h2>③ 美國總數（解析 SKU / 美國總數）</h2>
-      <div class="hint">
-        Tab/空白皆可。每行第 1 欄是 SKU；數量只從「SKU 後面欄位」抓數字。重複 SKU 會加總。
-      </div>
-      <textarea id="inputUS" placeholder="例如：
+              </div>
+            </details>
+            <details class="subCard" open>
+              <summary>美國總數</summary>
+              <div class="subCardContent">
+                <div class="hint">Tab/空白皆可。每行第 1 欄是 SKU；數量只從「SKU 後面欄位」抓數字。重複 SKU 會加總。</div>
+                <textarea id="inputUS" placeholder="例如：
 TTS05AM-1 57223
 TTR01AM-4 14125
 ..."></textarea>
-    </div>
-
-    <!-- 180天內清單 -->
-    <div class="card">
-      <div class="row" style="justify-content: space-between;">
-        <div>
-          <h2 style="margin:0;">④ 門檻內可售品項：建議下單清單</h2>
-          <div class="hint">只抓「可銷售天數 <= 門檻」且速度 > 0 的 SKU</div>
+              </div>
+            </details>
+          </div>
         </div>
-        <div class="hint">
-          筆數：<span class="count" id="countReorder">0</span>
-          <span class="pill" id="sumReorderAvail">可售總量(美國+訂單)：0</span>
-        </div>
-      </div>
+      </details>
 
-      <div class="row">
-        <button id="btnCopyReorderTSV">複製下單清單 TSV</button>
-        <button id="btnDownloadReorderCSV">下載下單清單 CSV</button>
-      </div>
-
-      <div class="tableWrap" id="reorderTableWrap"></div>
-    </div>
-
-    <!-- 主表 -->
-    <div class="card">
-      <div class="row" style="justify-content: space-between;">
-        <div>
-          <h2 style="margin:0;">⑤ 主表（H10 產品）</h2>
-          <div class="hint">SKU / ASIN / 速度 / 訂單 / 美國總數 / 可銷售天數</div>
-        </div>
-        <div class="hint">
-          筆數：<span class="count" id="countMain">0</span>
-          <span class="pill" id="sumOrdersMain">訂單總和：0</span>
-          <span class="pill" id="sumUsMain">美國總數總和：0</span>
-          <span class="pill" id="sumAvailMain">可售總量(美國+訂單)：0</span>
-        </div>
-      </div>
-
-      <div class="row">
-        <button id="btnCopyMainTSV">複製主表 TSV</button>
-        <button id="btnDownloadMainCSV">下載主表 CSV</button>
-      </div>
-
-      <div class="tableWrap" id="mainTableWrap"></div>
-    </div>
-
-    <!-- 新品（訂單有但H10沒有） -->
-    <div class="card">
-      <div class="row" style="justify-content: space-between;">
-        <div>
-          <h2 style="margin:0;">⑥ 新品（訂單有，但 H10 沒有）</h2>
-          <div class="hint">SKU / 訂單 / 美國總數(若有)</div>
-        </div>
-        <div class="hint">
-          筆數：<span class="count" id="countNewOrder">0</span>
-        </div>
-      </div>
-
-      <div class="row">
-        <button id="btnCopyNewOrderTSV">複製新品(訂單) TSV</button>
-        <button id="btnDownloadNewOrderCSV">下載新品(訂單) CSV</button>
-      </div>
-
-      <div class="tableWrap" id="newOrderWrap"></div>
-    </div>
-
-    <!-- 新品（美國總數有但H10沒有且訂單也沒有） 預設收折 -->
-    <div class="card">
-      <details id="newUSDetails">
+      <!-- 180天內清單 -->
+      <details class="card priority" open>
         <summary>
-          <strong>⑦ 新品（美國總數有，但 H10 沒有，且訂單也沒有）</strong>
+          <div>
+            <p class="eyebrow">重點檢視 ①</p>
+            <h2>門檻內可售品項：建議下單清單</h2>
+            <div class="hint">只抓「可銷售天數 &lt;= 門檻」且速度 &gt; 0 的 SKU</div>
+          </div>
+          <div class="hint">
+            筆數：<span class="count" id="countReorder">0</span>
+            <span class="pill" id="sumReorderAvail">可售總量(美國+訂單)：0</span>
+          </div>
+        </summary>
+
+        <div class="cardContent">
+          <div class="row">
+            <button id="btnCopyReorderTSV">複製下單清單 TSV</button>
+            <button class="secondary" id="btnDownloadReorderCSV">下載下單清單 CSV</button>
+          </div>
+
+          <div class="tableWrap" id="reorderTableWrap"></div>
+        </div>
+      </details>
+
+      <!-- 主表 -->
+      <details class="card priority" open>
+        <summary>
+          <div>
+            <p class="eyebrow">重點檢視 ②</p>
+            <h2>主表（H10 產品）</h2>
+            <div class="hint">SKU / ASIN / 速度 / 訂單 / 美國總數 / 可銷售天數</div>
+          </div>
+          <div class="hint" style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+            <div>筆數：<span class="count" id="countMain">0</span></div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end;">
+              <span class="pill" id="sumOrdersMain">訂單總和：0</span>
+              <span class="pill" id="sumUsMain">美國總數總和：0</span>
+              <span class="pill" id="sumAvailMain">可售總量(美國+訂單)：0</span>
+            </div>
+          </div>
+        </summary>
+
+        <div class="cardContent">
+          <div class="row">
+            <button id="btnCopyMainTSV">複製主表 TSV</button>
+            <button class="secondary" id="btnDownloadMainCSV">下載主表 CSV</button>
+          </div>
+
+          <div class="tableWrap" id="mainTableWrap"></div>
+        </div>
+      </details>
+
+      <!-- 新品（訂單有但H10沒有） -->
+      <details class="card priority" open>
+        <summary>
+          <div>
+            <p class="eyebrow">重點檢視 ③</p>
+            <h2>新品（訂單有，但 H10 沒有）</h2>
+            <div class="hint">SKU / 訂單 / 美國總數(若有)</div>
+          </div>
+          <div class="hint">
+            筆數：<span class="count" id="countNewOrder">0</span>
+          </div>
+        </summary>
+
+        <div class="cardContent">
+          <div class="row">
+            <button id="btnCopyNewOrderTSV">複製新品(訂單) TSV</button>
+            <button class="secondary" id="btnDownloadNewOrderCSV">下載新品(訂單) CSV</button>
+          </div>
+
+          <div class="tableWrap" id="newOrderWrap"></div>
+        </div>
+      </details>
+
+      <!-- 新品（美國總數有但H10沒有且訂單也沒有） 預設收折 -->
+      <details class="card" id="newUSDetails">
+        <summary>
+          <div>
+            <p class="eyebrow">其他</p>
+            <h2 style="margin:0;">美國總數有，但 H10 沒有，且訂單也沒有</h2>
+          </div>
           <span class="hint">（預設收折，點此展開）</span>
         </summary>
 
-        <div class="row" style="justify-content: space-between;">
-          <div class="hint">SKU / 美國總數</div>
-          <div class="hint">
-            筆數：<span class="count" id="countNewUS">0</span>
+        <div class="cardContent">
+          <div class="row" style="justify-content: space-between;">
+            <div class="hint">SKU / 美國總數</div>
+            <div class="hint">
+              筆數：<span class="count" id="countNewUS">0</span>
+            </div>
           </div>
-        </div>
 
-        <div class="row">
-          <button id="btnCopyNewUSTSV">複製新品(美國總數) TSV</button>
-          <button id="btnDownloadNewUSCSV">下載新品(美國總數) CSV</button>
-        </div>
+          <div class="row">
+            <button id="btnCopyNewUSTSV">複製新品(美國總數) TSV</button>
+            <button class="secondary" id="btnDownloadNewUSCSV">下載新品(美國總數) CSV</button>
+          </div>
 
-        <div class="tableWrap" id="newUSWrap"></div>
+          <div class="tableWrap" id="newUSWrap"></div>
+        </div>
       </details>
     </div>
-  </div>
 
-  <div class="footer">
-    註：速度為 0 或抓不到速度 → 不計算可銷售天數，且不會進入「下單清單」。
+    <div class="footer">
+      註：速度為 0 或抓不到速度 → 不計算可銷售天數，且不會進入「下單清單」。
+    </div>
   </div>
 
 <script>
