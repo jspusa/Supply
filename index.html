@@ -15,6 +15,7 @@
     button { padding: 10px 14px; cursor: pointer; border-radius: 10px; border: 1px solid #d1d9e5; background: #0b6bcb; color: #fff; font-weight: 600; box-shadow: 0 3px 10px rgba(11, 107, 203, 0.15); transition: transform 0.05s ease, box-shadow 0.15s ease; }
     button:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(11, 107, 203, 0.25); }
     button.secondary { background: #fff; color: #0f1d2b; border-color: #d1d9e5; box-shadow: none; }
+    button.secondary.active { background: #0b6bcb; color: #fff; border-color: #0b6bcb; box-shadow: 0 3px 10px rgba(11, 107, 203, 0.18); }
     label, select, input { font-size: 12px; }
     select, input[type="number"] { padding: 8px 10px; border-radius: 8px; border: 1px solid #d1d9e5; background: #fff; }
     .hint { color: #4a5565; font-size: 12px; line-height: 1.5; }
@@ -33,7 +34,6 @@
     .subCardContent { padding: 12px 14px 14px; }
     .eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #71829e; margin: 0; }
     .pill { display:inline-block; padding:6px 10px; border:1px solid #d1d9e5; border-radius:999px; font-size:12px; color:#0f1d2b; background: #f6f9ff; }
-    .modeTag { display:inline-block; padding:6px 10px; border:1px solid #d1d9e5; border-radius:999px; font-size:12px; background:#fff; }
     .tableWrap { max-height: 520px; overflow: auto; border: 1px solid #eef2f7; border-radius: 10px; background: #fbfcff; box-shadow: inset 0 1px 2px rgba(0,0,0,0.03); }
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
     th, td { border: 1px solid #e5ecf5; padding: 8px; font-size: 13px; }
@@ -55,59 +55,27 @@
       <button id="btnBuild">整理表格</button>
       <button class="secondary" id="btnClear">清空</button>
 
-      <label>主表排序：</label>
-      <select id="sortMode">
-        <option value="normal">正常（速度由大到小）</option>
-        <option value="days_asc">可銷售天數由小到大</option>
-      </select>
-
       <label>下單門檻（天）：</label>
       <input id="daysThreshold" type="number" min="1" step="1" value="180" />
     </div>
 
     <div class="row">
       <label>工廠篩選：</label>
-      <button class="secondary" id="btnHideTW">隱藏台灣廠（E 開頭）</button>
-      <button class="secondary" id="btnOnlyTW">只看台灣廠（E 開頭）</button>
-      <button class="secondary" id="btnShowAll">顯示全部</button>
-      <span class="modeTag" id="factoryModeTag">目前：顯示全部</span>
+      <select id="factoryFilter">
+        <option value="all">顯示全部</option>
+        <option value="hideTW">隱藏台灣廠（E 開頭）</option>
+        <option value="onlyTW">只看台灣廠（E 開頭）</option>
+      </select>
     </div>
 
     <div class="row">
       <label>品項篩選：</label>
-      <button class="secondary" id="btnHideNonTurkey">非火雞筋品項</button>
-      <span class="modeTag" id="itemFilterTag">目前：顯示全部</span>
+      <select id="itemFilter">
+        <option value="all">顯示全部</option>
+        <option value="onlyNonTurkey">非火雞筋品項</option>
+        <option value="onlyTurkey">只看火雞筋</option>
+      </select>
     </div>
-
-    <details class="card" id="advancedSettings">
-      <summary>
-        <div>
-          <p class="eyebrow">設定</p>
-          <h2>進階設定（可展開）</h2>
-        </div>
-        <span class="pill">可收合</span>
-      </summary>
-      <div class="cardContent">
-        <div class="row">
-          <label style="display:flex; gap:6px; align-items:center;">
-            <input type="checkbox" id="chkDedupe" checked />
-            H10 去重（以 ASIN+SKU）
-          </label>
-          <label style="display:flex; gap:6px; align-items:center;">
-            <input type="checkbox" id="chkMissingOrderAsZero" checked />
-            H10 找不到訂單時填 0
-          </label>
-          <label style="display:flex; gap:6px; align-items:center;">
-            <input type="checkbox" id="chkMissingUsAsBlank" />
-            H10 找不到美國總數時留空（不勾選則填 0）
-          </label>
-          <label style="display:flex; gap:6px; align-items:center;">
-            <input type="checkbox" id="chkNormalizeSku" checked />
-            SKU 正規化（去空白、轉大寫）
-          </label>
-        </div>
-      </div>
-    </details>
 
     <div class="grid">
       <details class="card" open>
@@ -163,7 +131,6 @@ TTR01AM-4 14125
           </div>
           <div class="hint">
             筆數：<span class="count" id="countReorder">0</span>
-            <span class="pill" id="sumReorderAvail">可售總量(美國+訂單)：0</span>
           </div>
         </summary>
 
@@ -189,7 +156,6 @@ TTR01AM-4 14125
             <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end;">
               <span class="pill" id="sumOrdersMain">訂單總和：0</span>
               <span class="pill" id="sumUsMain">美國總數總和：0</span>
-              <span class="pill" id="sumAvailMain">可售總量(美國+訂單)：0</span>
             </div>
           </div>
         </summary>
@@ -197,6 +163,11 @@ TTR01AM-4 14125
         <div class="cardContent">
           <div class="row">
             <button class="secondary" id="btnDownloadMainCSV">下載主表 CSV</button>
+            <div class="row" style="margin:0;">
+              <span class="hint">主表排序：</span>
+              <button class="secondary" id="btnSortSpeed">速度由大到小</button>
+              <button class="secondary" id="btnSortDays">可銷售天數由小到大</button>
+            </div>
           </div>
 
           <div class="tableWrap" id="mainTableWrap"></div>
@@ -252,6 +223,36 @@ TTR01AM-4 14125
       </details>
     </div>
 
+    <details class="card" id="advancedSettings">
+      <summary>
+        <div>
+          <p class="eyebrow">設定</p>
+          <h2>進階設定（可展開）</h2>
+        </div>
+        <span class="pill">可收合</span>
+      </summary>
+      <div class="cardContent">
+        <div class="row">
+          <label style="display:flex; gap:6px; align-items:center;">
+            <input type="checkbox" id="chkDedupe" checked />
+            H10 去重（以 ASIN+SKU）
+          </label>
+          <label style="display:flex; gap:6px; align-items:center;">
+            <input type="checkbox" id="chkMissingOrderAsZero" checked />
+            H10 找不到訂單時填 0
+          </label>
+          <label style="display:flex; gap:6px; align-items:center;">
+            <input type="checkbox" id="chkMissingUsAsBlank" />
+            H10 找不到美國總數時留空（不勾選則填 0）
+          </label>
+          <label style="display:flex; gap:6px; align-items:center;">
+            <input type="checkbox" id="chkNormalizeSku" checked />
+            SKU 正規化（去空白、轉大寫）
+          </label>
+        </div>
+      </div>
+    </details>
+
     <div class="footer">
       註：速度為 0 或抓不到速度 → 不計算可銷售天數，且不會進入「下單清單」。
     </div>
@@ -268,8 +269,11 @@ TTR01AM-4 14125
   const chkMissingUsAsBlank = document.getElementById('chkMissingUsAsBlank');
   const chkNormalizeSku = document.getElementById('chkNormalizeSku');
 
-  const sortModeEl = document.getElementById('sortMode');
   const daysThresholdEl = document.getElementById('daysThreshold');
+  const factoryFilterEl = document.getElementById('factoryFilter');
+  const itemFilterEl = document.getElementById('itemFilter');
+  const btnSortSpeed = document.getElementById('btnSortSpeed');
+  const btnSortDays = document.getElementById('btnSortDays');
 
   const mainWrap = document.getElementById('mainTableWrap');
   const reorderWrap = document.getElementById('reorderTableWrap');
@@ -283,16 +287,13 @@ TTR01AM-4 14125
 
   const sumOrdersMainEl = document.getElementById('sumOrdersMain');
   const sumUsMainEl = document.getElementById('sumUsMain');
-  const sumAvailMainEl = document.getElementById('sumAvailMain');
-  const sumReorderAvailEl = document.getElementById('sumReorderAvail');
 
-  const factoryModeTag = document.getElementById('factoryModeTag');
-  const itemFilterTag = document.getElementById('itemFilterTag');
   const newUSDetails = document.getElementById('newUSDetails');
 
   // 工廠篩選狀態：all | hideTW | onlyTW
   let factoryMode = "all";
-  let hideNonTurkey = false;
+  let itemFilterMode = "all";
+  let sortMode = "normal";
 
   const nonTurkeySkuSet = new Set(`
     AFA13AM AFA14AM
@@ -306,6 +307,7 @@ TTR01AM-4 14125
     GTPL05 GTBL05
     GSFL01 GSFL02
     ATS01 ATB01 ATR01AM ATP01 ATZ01
+    ATR01
     ATB03 ATR03 ATP03 ATZ03
     ATB05 ATP05 ATA01 ATAL01
     KTB01AM TRP01AM TTR01AM TPZ01AM
@@ -368,18 +370,13 @@ TTR01AM-4 14125
 
   function applyFilters(list) {
     let rows = applyFactoryFilter(list);
-    if (!hideNonTurkey) return rows;
-    return rows.filter(r => !nonTurkeySkuSet.has(normalizeSkuValue(r.sku)));
-  }
-
-  function updateFactoryTag() {
-    if (factoryMode === "all") factoryModeTag.textContent = "目前：顯示全部";
-    if (factoryMode === "hideTW") factoryModeTag.textContent = "目前：隱藏台灣廠（E 開頭）";
-    if (factoryMode === "onlyTW") factoryModeTag.textContent = "目前：只看台灣廠（E 開頭）";
-  }
-
-  function updateItemFilterTag() {
-    itemFilterTag.textContent = hideNonTurkey ? "目前：已隱藏非火雞筋品項" : "目前：顯示全部";
+    if (itemFilterMode === "onlyNonTurkey") {
+      return rows.filter(r => nonTurkeySkuSet.has(normalizeSkuValue(r.sku)));
+    }
+    if (itemFilterMode === "onlyTurkey") {
+      return rows.filter(r => !nonTurkeySkuSet.has(normalizeSkuValue(r.sku)));
+    }
+    return rows;
   }
 
   function parseH10ToRows(raw) {
@@ -456,8 +453,7 @@ TTR01AM-4 14125
   }
 
   function sortMain(rows) {
-    const mode = sortModeEl.value;
-    if (mode === "days_asc") {
+    if (sortMode === "days_asc") {
       rows.sort((a,b) => {
         const ad = (a.days === null ? Infinity : a.days);
         const bd = (b.days === null ? Infinity : b.days);
@@ -554,7 +550,6 @@ TTR01AM-4 14125
   function renderReorder() {
     const rows = applyFilters(reorderRowsAll);
     countReorderEl.textContent = String(rows.length);
-    sumReorderAvailEl.textContent = `可售總量(美國+訂單)：${sum(rows, "avail")}`;
 
     if (rows.length === 0) { reorderWrap.innerHTML = ""; return; }
 
@@ -565,7 +560,6 @@ TTR01AM-4 14125
         <td class="ok">${escapeHtml(String(r.speed))}</td>
         <td class="ok">${escapeHtml(String(r.order))}</td>
         <td class="ok">${escapeHtml(String(r.us))}</td>
-        <td class="ok">${escapeHtml(String(r.avail))}</td>
         <td class="warn">${escapeHtml(fmtDays(r.days))}</td>
       </tr>
     `).join("");
@@ -574,7 +568,7 @@ TTR01AM-4 14125
       <table>
         <thead>
           <tr>
-            <th>#</th><th>SKU</th><th>速度</th><th>訂單</th><th>美國總數</th><th>可售總量</th><th>可銷售天數</th>
+            <th>#</th><th>SKU</th><th>速度</th><th>訂單</th><th>美國總數</th><th>可銷售天數</th>
           </tr>
         </thead>
         <tbody>${body}</tbody>
@@ -587,7 +581,6 @@ TTR01AM-4 14125
     countMainEl.textContent = String(rows.length);
     sumOrdersMainEl.textContent = `訂單總和：${sum(rows, "order")}`;
     sumUsMainEl.textContent = `美國總數總和：${sum(rows, "us")}`;
-    sumAvailMainEl.textContent = `可售總量(美國+訂單)：${sum(rows, "avail")}`;
 
     if (rows.length === 0) { mainWrap.innerHTML = ""; return; }
 
@@ -595,7 +588,6 @@ TTR01AM-4 14125
       const speedCell = (r.speed === null) ? `<td class="bad">(未抓到)</td>` : `<td class="ok">${escapeHtml(String(r.speed))}</td>`;
       const orderCell = (r.order === null) ? `<td class="bad">(未對應)</td>` : `<td class="ok">${escapeHtml(String(r.order))}</td>`;
       const usCell = (r.us === null) ? `<td class="bad">(未對應)</td>` : `<td class="ok">${escapeHtml(String(r.us))}</td>`;
-      const availCell = (r.avail === null) ? `<td class="bad">(無)</td>` : `<td class="ok">${escapeHtml(String(r.avail))}</td>`;
       const daysCell = (r.days === null) ? `<td class="bad">(不可算)</td>` : `<td class="ok">${escapeHtml(fmtDays(r.days))}</td>`;
 
       return `
@@ -605,7 +597,6 @@ TTR01AM-4 14125
           ${speedCell}
           ${orderCell}
           ${usCell}
-          ${availCell}
           ${daysCell}
         </tr>
       `;
@@ -615,7 +606,7 @@ TTR01AM-4 14125
       <table>
         <thead>
           <tr>
-            <th>#</th><th>SKU</th><th>速度</th><th>訂單</th><th>美國總數</th><th>可售總量</th><th>可銷售天數</th>
+            <th>#</th><th>SKU</th><th>速度</th><th>訂單</th><th>美國總數</th><th>可銷售天數</th>
           </tr>
         </thead>
         <tbody>${body}</tbody>
@@ -733,28 +724,43 @@ TTR01AM-4 14125
     mainWrap.innerHTML = ""; reorderWrap.innerHTML = ""; newOrderWrap.innerHTML = ""; newUSWrap.innerHTML = "";
     countMainEl.textContent = "0"; countReorderEl.textContent = "0"; countNewOrderEl.textContent = "0"; countNewUSEl.textContent = "0";
     sumOrdersMainEl.textContent = "訂單總和：0"; sumUsMainEl.textContent = "美國總數總和：0";
-    sumAvailMainEl.textContent = "可售總量(美國+訂單)：0"; sumReorderAvailEl.textContent = "可售總量(美國+訂單)：0";
-    factoryMode = "all"; updateFactoryTag();
-    hideNonTurkey = false; updateItemFilterTag();
+    factoryMode = "all";
+    itemFilterMode = "all";
+    sortMode = "normal";
+    factoryFilterEl.value = "all";
+    itemFilterEl.value = "all";
+    updateSortButtons();
     // ⑦維持收折（預設）
     newUSDetails.open = false;
   });
 
-  sortModeEl.addEventListener("change", () => buildTables());
   daysThresholdEl.addEventListener("change", () => buildTables());
 
-  // Factory filter buttons
-  document.getElementById("btnHideTW").addEventListener("click", () => {
-    factoryMode = "hideTW"; updateFactoryTag(); renderAll();
+  factoryFilterEl.addEventListener("change", (event) => {
+    factoryMode = event.target.value;
+    renderAll();
   });
-  document.getElementById("btnOnlyTW").addEventListener("click", () => {
-    factoryMode = "onlyTW"; updateFactoryTag(); renderAll();
+
+  itemFilterEl.addEventListener("change", (event) => {
+    itemFilterMode = event.target.value;
+    renderAll();
   });
-  document.getElementById("btnShowAll").addEventListener("click", () => {
-    factoryMode = "all"; updateFactoryTag(); renderAll();
+
+  function updateSortButtons() {
+    btnSortSpeed.classList.toggle("active", sortMode === "normal");
+    btnSortDays.classList.toggle("active", sortMode === "days_asc");
+  }
+
+  btnSortSpeed.addEventListener("click", () => {
+    sortMode = "normal";
+    updateSortButtons();
+    buildTables();
   });
-  document.getElementById("btnHideNonTurkey").addEventListener("click", () => {
-    hideNonTurkey = !hideNonTurkey; updateItemFilterTag(); renderAll();
+
+  btnSortDays.addEventListener("click", () => {
+    sortMode = "days_asc";
+    updateSortButtons();
+    buildTables();
   });
 
   // Export buttons
@@ -780,8 +786,7 @@ TTR01AM-4 14125
 
   // ⑦ 預設收折
   newUSDetails.open = false;
-  updateFactoryTag();
-  updateItemFilterTag();
+  updateSortButtons();
 })();
 </script>
 </body>
