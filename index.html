@@ -53,10 +53,6 @@
 
     <div class="row">
       <button id="btnBuild">整理表格</button>
-      <button class="secondary" id="btnClear">清空</button>
-
-      <label>下單門檻（天）：</label>
-      <input id="daysThreshold" type="number" min="1" step="1" value="180" />
     </div>
 
     <div class="row">
@@ -66,15 +62,17 @@
         <option value="hideTW">隱藏台灣廠（E 開頭）</option>
         <option value="onlyTW">只看台灣廠（E 開頭）</option>
       </select>
-    </div>
-
-    <div class="row">
       <label>品項篩選：</label>
       <select id="itemFilter">
         <option value="all">顯示全部</option>
         <option value="onlyNonTurkey">非火雞筋品項</option>
         <option value="onlyTurkey">只看火雞筋</option>
       </select>
+    </div>
+
+    <div class="row">
+      <label>下單門檻（天）：</label>
+      <input id="daysThreshold" type="number" min="1" step="1" value="180" />
     </div>
 
     <div class="grid">
@@ -150,13 +148,6 @@ TTR01AM-4 14125
             <p class="eyebrow">重點檢視 ②</p>
             <h2>主表（H10 產品）</h2>
             <div class="hint">SKU / 速度 / 訂單 / 美國總數 / 可銷售天數</div>
-          </div>
-          <div class="hint" style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
-            <div>筆數：<span class="count" id="countMain">0</span></div>
-            <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end;">
-              <span class="pill" id="sumOrdersMain">訂單總和：0</span>
-              <span class="pill" id="sumUsMain">美國總數總和：0</span>
-            </div>
           </div>
         </summary>
 
@@ -280,13 +271,9 @@ TTR01AM-4 14125
   const newOrderWrap = document.getElementById('newOrderWrap');
   const newUSWrap = document.getElementById('newUSWrap');
 
-  const countMainEl = document.getElementById('countMain');
   const countReorderEl = document.getElementById('countReorder');
   const countNewOrderEl = document.getElementById('countNewOrder');
   const countNewUSEl = document.getElementById('countNewUS');
-
-  const sumOrdersMainEl = document.getElementById('sumOrdersMain');
-  const sumUsMainEl = document.getElementById('sumUsMain');
 
   const newUSDetails = document.getElementById('newUSDetails');
 
@@ -371,10 +358,10 @@ TTR01AM-4 14125
   function applyFilters(list) {
     let rows = applyFactoryFilter(list);
     if (itemFilterMode === "onlyNonTurkey") {
-      return rows.filter(r => nonTurkeySkuSet.has(normalizeSkuValue(r.sku)));
+      return rows.filter(r => !nonTurkeySkuSet.has(normalizeSkuValue(r.sku)));
     }
     if (itemFilterMode === "onlyTurkey") {
-      return rows.filter(r => !nonTurkeySkuSet.has(normalizeSkuValue(r.sku)));
+      return rows.filter(r => nonTurkeySkuSet.has(normalizeSkuValue(r.sku)));
     }
     return rows;
   }
@@ -536,10 +523,6 @@ TTR01AM-4 14125
     renderAll();
   }
 
-  function sum(list, key) {
-    return list.reduce((acc, r) => acc + (Number(r[key] ?? 0) || 0), 0);
-  }
-
   function renderAll() {
     renderReorder();
     renderMain();
@@ -578,10 +561,6 @@ TTR01AM-4 14125
 
   function renderMain() {
     const rows = applyFilters(mainRowsAll);
-    countMainEl.textContent = String(rows.length);
-    sumOrdersMainEl.textContent = `訂單總和：${sum(rows, "order")}`;
-    sumUsMainEl.textContent = `美國總數總和：${sum(rows, "us")}`;
-
     if (rows.length === 0) { mainWrap.innerHTML = ""; return; }
 
     const body = rows.map((r, idx) => {
@@ -717,22 +696,6 @@ TTR01AM-4 14125
 
   // ---- UI wiring ----
   document.getElementById("btnBuild").addEventListener("click", buildTables);
-
-  document.getElementById("btnClear").addEventListener("click", () => {
-    h10El.value = ""; ordersEl.value = ""; usEl.value = "";
-    mainRowsAll = []; reorderRowsAll = []; newOrderRowsAll = []; newUSRowsAll = [];
-    mainWrap.innerHTML = ""; reorderWrap.innerHTML = ""; newOrderWrap.innerHTML = ""; newUSWrap.innerHTML = "";
-    countMainEl.textContent = "0"; countReorderEl.textContent = "0"; countNewOrderEl.textContent = "0"; countNewUSEl.textContent = "0";
-    sumOrdersMainEl.textContent = "訂單總和：0"; sumUsMainEl.textContent = "美國總數總和：0";
-    factoryMode = "all";
-    itemFilterMode = "all";
-    sortMode = "normal";
-    factoryFilterEl.value = "all";
-    itemFilterEl.value = "all";
-    updateSortButtons();
-    // ⑦維持收折（預設）
-    newUSDetails.open = false;
-  });
 
   daysThresholdEl.addEventListener("change", () => buildTables());
 
