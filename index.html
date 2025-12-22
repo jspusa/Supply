@@ -1542,11 +1542,12 @@ const allProducts = [
     return window.availMap.get(code) ?? 0;
   }
 
-  function formatEstimatedDays(prod, quantity) {
+  function formatEstimatedDays(prod, quantity, units) {
     const speed = getSpeedForProduct(prod.productCode);
     if (!speed || speed <= 0) return '—';
     const baseAvail = getAvailForProduct(prod.productCode);
-    const total = baseAvail + (Number(quantity) || 0);
+    const addUnits = Number.isFinite(units) && units > 0 ? units : (Number(quantity) || 0);
+    const total = baseAvail + addUnits;
     if (!Number.isFinite(total)) return '—';
     const days = total / speed;
     if (!Number.isFinite(days)) return '—';
@@ -1557,7 +1558,9 @@ const allProducts = [
     const cell = row.querySelector('.estimated-days');
     if (!cell) return;
     const quantity = parseFloat(row.querySelector('.edit-quantity-input')?.value) || 0;
-    cell.textContent = formatEstimatedDays(prod, quantity);
+    const packOrBox = row.querySelector('.edit-pack-input') || row.querySelector('.edit-box-input');
+    const units = packOrBox ? (parseFloat(packOrBox.value) || 0) : 0;
+    cell.textContent = formatEstimatedDays(prod, quantity, units);
   }
 
   // 搜尋品號/快速新增
@@ -1627,7 +1630,7 @@ const allProducts = [
           <span>${prod.boxSize} cm</span>
         </td>
         <td class="pallet-days">${formatPalletDays(prod)}</td>
-        <td class="estimated-days">${formatEstimatedDays(prod, 0)}</td>
+        <td class="estimated-days">${formatEstimatedDays(prod, 0, 0)}</td>
         <td class="action-button-group">
           <button type="button" class="action-button" onclick="moveUp(this)" title="上移"><i class="fa-solid fa-arrow-up"></i></button>
           <button type="button" class="action-button" onclick="moveDown(this)" title="下移"><i class="fa-solid fa-arrow-down"></i></button>
