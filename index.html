@@ -303,14 +303,14 @@
       <label>工廠篩選：</label>
       <select id="factoryFilter">
         <option value="all">顯示全部</option>
-        <option value="hideTW">隱藏台灣廠（E 開頭）</option>
-        <option value="onlyTW">只看台灣廠（E 開頭）</option>
+        <option value="hideTW">越南廠</option>
+        <option value="onlyTW">台灣廠</option>
       </select>
       <label>品項篩選：</label>
       <select id="itemFilter">
         <option value="all">顯示全部</option>
-        <option value="onlyNonTurkey">非火雞筋品項</option>
-        <option value="onlyTurkey">只看火雞筋</option>
+        <option value="onlyNonTurkey">非火雞筋</option>
+        <option value="onlyTurkey">火雞筋</option>
       </select>
     </div>
 
@@ -330,6 +330,139 @@
           <span class="pill">可收合</span>
         </summary>
         <div class="cardContent">
+          <section class="order-generator">
+            <div class="container">
+              <div class="header-bar">
+                <div class="factory-switch">
+                  <label><input type="radio" name="countrySelect" value="VN" checked> 越南廠</label>
+                  <label><input type="radio" name="countrySelect" value="TW"> 台灣廠</label>
+                  <label><input type="radio" name="countrySelect" value="Others"> 其他</label>
+                </div>
+                <h2>
+                  <i class="fa-solid fa-cube"></i> 訂單產生器
+                  <span style="font-size: 1rem; color:#8ab2e0; margin-left:12px;font-weight:400;">Order Generator</span>
+                </h2>
+                <button class="box-size-button" onclick="openModal()">
+                  <i class="fa-solid fa-ruler-combined"></i> 紙箱尺寸
+                </button>
+              </div>
+              <div class="search-container">
+                <input type="text" id="searchInput" class="search-input" placeholder="🔎 以品號搜尋/快速加入" oninput="searchProduct()">
+                <div id="searchResults" class="search-results"></div>
+              </div>
+              <div class="table-responsive">
+                <table id="productTable">
+                  <thead>
+                    <tr>
+                      <th>序號</th>
+                      <th>品號</th>
+                      <th>包數</th>
+                      <th>袋數/盒數</th>
+                      <th>目標數量</th>
+                      <th>箱數</th>
+                      <th>棧板數</th>
+                      <th>紙箱尺寸 (cm)</th>
+                      <th>每棧板可售天數</th>
+                      <th>預計銷售天數</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+              <div class="generator-hint">
+                可售天數以 H10 速度計算：有袋/盒時先用袋/盒速度，無袋/盒才用包數速度。
+              </div>
+              <div class="totals-container">
+                <div class="total">
+                  <i class="fa-solid fa-boxes-stacked"></i>
+                  總包數: <span id="totalQuantity">0</span> |
+                  總箱數: <span id="totalCartons">0</span> |
+                  總棧板數: <span id="totalPallets">0</span>
+                </div>
+                <div class="box-counts" id="boxCounts"></div>
+              </div>
+              <div id="containerInfo" class="container-info"></div>
+              <button class="export-button" onclick="exportToExcel()">
+                <i class="fa-solid fa-file-arrow-down"></i> 匯出 Excel
+              </button>
+            </div>
+
+            <!-- 紙箱規格 Modal -->
+            <div id="boxSizeModal" class="modal">
+              <div class="modal-content">
+                <span class="close-modal" onclick="closeModal()">&times;</span>
+                <h2 style="color:#3777eb;font-size:1.25rem;margin-bottom:16px;">
+                  <i class="fa-solid fa-ruler-combined"></i> 紙箱常用尺寸
+                </h2>
+                <div style="font-size:1.06rem;line-height:1.8;">
+                  <p><b>50×40×30 cm</b>（20×16×12 in）</p>
+                  <p><b>58.5×34.5×35 cm</b>（23×14×14 in）</p>
+                  <p><b>50×40×40 cm</b>（20×16×16 in）</p>
+                  <p><b>48×38×28 cm</b>（19×15×11 in）<strong> (中三箱)</strong></p>
+                  <p style="color:#5974b6;">也可於新品產生器「自訂」其他尺寸</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 新品產生器浮動按鈕 -->
+            <button id="newItemGeneratorBtn" title="新品產生器">
+              <i class="fa-solid fa-plus"></i>
+            </button>
+            <!-- 新品產生器 Modal -->
+            <div id="newItemModal" class="modal">
+              <div class="modal-content">
+                <span class="close-modal" onclick="closeNewItemModal()">&times;</span>
+                <h2 style="color:#3376ed"><i class="fa-solid fa-cube"></i> 新品產生器</h2>
+                <div style="font-size:0.97rem;color:#3d5c90;margin-bottom:12px;">
+                  依序輸入新商品資訊，<span style="color:#eb3d3d;">* 必填</span>
+                </div>
+                <label>品號 <span style="color:#eb3d3d">*</span>
+                  <input type="text" id="newItemCode" placeholder="必填 (如 AFA11AM)">
+                </label>
+                <label>品名 <span style="color:#eb3d3d">*</span>
+                  <input type="text" id="newItemName" placeholder="必填">
+                </label>
+                <label>紙箱尺寸 <span style="color:#eb3d3d">*</span>
+                  <select id="newItemBoxSize" onchange="boxSizeChanged()">
+                    <option value="50*40*30">50×40×30cm (20×16×12in)</option>
+                    <option value="58.5*34.5*35">58.5×34.5×35cm (23×14×14in)</option>
+                    <option value="50*40*40">50×40×40cm (20×16×16in)</option>
+                    <option value="48*38*28">48×38×28cm (19×15×11in) (中三箱)</option>
+                    <option value="">自訂...</option>
+                  </select>
+                  <input type="text" id="newItemBoxSizeCustom" placeholder="輸入尺寸, 例50*40*30" style="display:none;">
+                </label>
+                <label>棧板箱數 <span style="color:#eb3d3d">*</span>
+                  <input type="number" id="newItemPallet" placeholder="自動帶入，可修改">
+                </label>
+                <label>生產國別
+                  <select id="newItemCountry">
+                    <option value="VN">VN (越南)</option>
+                    <option value="TW">TW (台灣)</option>
+                    <option value="Others">Others</option>
+                  </select>
+                </label>
+                <label>包裝類型
+                  <select id="newItemPackagingType" onchange="packagingTypeChanged()">
+                    <option value="single">單包</option>
+                    <option value="bag">袋裝</option>
+                    <option value="box">盒裝</option>
+                  </select>
+                </label>
+                <div id="packagingFields"></div>
+                <button class="product-button" style="background:#3a7afe;" onclick="addNewItemLine()">
+                  <i class="fa-solid fa-cart-plus"></i> 加入
+                </button>
+                <hr>
+                <div style="font-size:.95rem;color:#8895b1;margin-bottom:6px;">結果（可複製給工程師）：</div>
+                <textarea id="newItemResult" style="width:100%;height:80px;background:#f6f7fa;border-radius:8px;border:1px solid #d1dae4;padding:8px 11px;font-size:.96rem;"></textarea>
+                <button class="product-button" style="background:#23c87d;" onclick="copyNewItems()">
+                  <i class="fa-solid fa-copy"></i> 複製結果
+                </button>
+              </div>
+            </div>
+          </section>
           <div class="subGrid">
             <details class="subCard" open>
               <summary>Helium 10 原始文字</summary>
@@ -379,6 +512,7 @@ TTR01AM-4 14125
         <div class="cardContent">
           <div class="row">
             <button class="secondary" id="btnDownloadReorderCSV">下載下單清單 CSV</button>
+            <button class="secondary" id="btnAddReorderToGenerator">一鍵加入訂單產生器</button>
           </div>
 
           <div class="tableWrap" id="reorderTableWrap"></div>
@@ -492,138 +626,6 @@ TTR01AM-4 14125
       註：速度為 0 或抓不到速度 → 不計算可銷售天數，且不會進入「下單清單」。
     </div>
 
-    <section class="order-generator">
-      <div class="container">
-        <div class="header-bar">
-          <div class="factory-switch">
-            <label><input type="radio" name="countrySelect" value="VN" checked> 越南廠</label>
-            <label><input type="radio" name="countrySelect" value="TW"> 台灣廠</label>
-            <label><input type="radio" name="countrySelect" value="Others"> 其他</label>
-          </div>
-          <h2>
-            <i class="fa-solid fa-cube"></i> 訂單產生器
-            <span style="font-size: 1rem; color:#8ab2e0; margin-left:12px;font-weight:400;">Order Generator</span>
-          </h2>
-          <button class="box-size-button" onclick="openModal()">
-            <i class="fa-solid fa-ruler-combined"></i> 紙箱尺寸
-          </button>
-        </div>
-        <div class="search-container">
-          <input type="text" id="searchInput" class="search-input" placeholder="🔎 以品號搜尋/快速加入" oninput="searchProduct()">
-          <div id="searchResults" class="search-results"></div>
-        </div>
-        <div class="table-responsive">
-          <table id="productTable">
-            <thead>
-              <tr>
-                <th>序號</th>
-                <th>品號</th>
-                <th>包數</th>
-                <th>袋數/盒數</th>
-                <th>目標數量</th>
-                <th>箱數</th>
-                <th>棧板數</th>
-                <th>紙箱尺寸 (cm)</th>
-                <th>每棧板可售天數</th>
-                <th>操作</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-        <div class="generator-hint">
-          可售天數以 H10 速度計算：有袋/盒時先用袋/盒速度，無袋/盒才用包數速度。
-        </div>
-        <div class="totals-container">
-          <div class="total">
-            <i class="fa-solid fa-boxes-stacked"></i>
-            總包數: <span id="totalQuantity">0</span> |
-            總箱數: <span id="totalCartons">0</span> |
-            總棧板數: <span id="totalPallets">0</span>
-          </div>
-          <div class="box-counts" id="boxCounts"></div>
-        </div>
-        <div id="containerInfo" class="container-info"></div>
-        <button class="export-button" onclick="exportToExcel()">
-          <i class="fa-solid fa-file-arrow-down"></i> 匯出 Excel
-        </button>
-      </div>
-
-      <!-- 紙箱規格 Modal -->
-      <div id="boxSizeModal" class="modal">
-        <div class="modal-content">
-          <span class="close-modal" onclick="closeModal()">&times;</span>
-          <h2 style="color:#3777eb;font-size:1.25rem;margin-bottom:16px;">
-            <i class="fa-solid fa-ruler-combined"></i> 紙箱常用尺寸
-          </h2>
-          <div style="font-size:1.06rem;line-height:1.8;">
-            <p><b>50×40×30 cm</b>（20×16×12 in）</p>
-            <p><b>58.5×34.5×35 cm</b>（23×14×14 in）</p>
-            <p><b>50×40×40 cm</b>（20×16×16 in）</p>
-            <p><b>48×38×28 cm</b>（19×15×11 in）<strong> (中三箱)</strong></p>
-            <p style="color:#5974b6;">也可於新品產生器「自訂」其他尺寸</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- 新品產生器浮動按鈕 -->
-      <button id="newItemGeneratorBtn" title="新品產生器">
-        <i class="fa-solid fa-plus"></i>
-      </button>
-      <!-- 新品產生器 Modal -->
-      <div id="newItemModal" class="modal">
-        <div class="modal-content">
-          <span class="close-modal" onclick="closeNewItemModal()">&times;</span>
-          <h2 style="color:#3376ed"><i class="fa-solid fa-cube"></i> 新品產生器</h2>
-          <div style="font-size:0.97rem;color:#3d5c90;margin-bottom:12px;">
-            依序輸入新商品資訊，<span style="color:#eb3d3d;">* 必填</span>
-          </div>
-          <label>品號 <span style="color:#eb3d3d">*</span>
-            <input type="text" id="newItemCode" placeholder="必填 (如 AFA11AM)">
-          </label>
-          <label>品名 <span style="color:#eb3d3d">*</span>
-            <input type="text" id="newItemName" placeholder="必填">
-          </label>
-          <label>紙箱尺寸 <span style="color:#eb3d3d">*</span>
-            <select id="newItemBoxSize" onchange="boxSizeChanged()">
-              <option value="50*40*30">50×40×30cm (20×16×12in)</option>
-              <option value="58.5*34.5*35">58.5×34.5×35cm (23×14×14in)</option>
-              <option value="50*40*40">50×40×40cm (20×16×16in)</option>
-              <option value="48*38*28">48×38×28cm (19×15×11in) (中三箱)</option>
-              <option value="">自訂...</option>
-            </select>
-            <input type="text" id="newItemBoxSizeCustom" placeholder="輸入尺寸, 例50*40*30" style="display:none;">
-          </label>
-          <label>棧板箱數 <span style="color:#eb3d3d">*</span>
-            <input type="number" id="newItemPallet" placeholder="自動帶入，可修改">
-          </label>
-          <label>生產國別
-            <select id="newItemCountry">
-              <option value="VN">VN (越南)</option>
-              <option value="TW">TW (台灣)</option>
-              <option value="Others">Others</option>
-            </select>
-          </label>
-          <label>包裝類型
-            <select id="newItemPackagingType" onchange="packagingTypeChanged()">
-              <option value="single">單包</option>
-              <option value="bag">袋裝</option>
-              <option value="box">盒裝</option>
-            </select>
-          </label>
-          <div id="packagingFields"></div>
-          <button class="product-button" style="background:#3a7afe;" onclick="addNewItemLine()">
-            <i class="fa-solid fa-cart-plus"></i> 加入
-          </button>
-          <hr>
-          <div style="font-size:.95rem;color:#8895b1;margin-bottom:6px;">結果（可複製給工程師）：</div>
-          <textarea id="newItemResult" style="width:100%;height:80px;background:#f6f7fa;border-radius:8px;border:1px solid #d1dae4;padding:8px 11px;font-size:.96rem;"></textarea>
-          <button class="product-button" style="background:#23c87d;" onclick="copyNewItems()">
-            <i class="fa-solid fa-copy"></i> 複製結果
-          </button>
-        </div>
-      </div>
-    </section>
   </div>
 
   <!-- xlsx -->
@@ -904,6 +906,7 @@ TTR01AM-4 14125
     reorderRowsAll = reorder;
     newOrderRowsAll = newOrder;
     newUSRowsAll = newUS;
+    window.availMap = new Map(h10Rows.map(r => [r.sku, (r.avail ?? 0)]));
 
     renderAll();
     if (window.refreshGeneratorSpeedMetrics) {
@@ -945,6 +948,36 @@ TTR01AM-4 14125
         <tbody>${body}</tbody>
       </table>
     `;
+  }
+
+  function calculateReorderQuantity(row, thresholdDays) {
+    const speed = Number(row.speed || 0);
+    const currentDays = Number(row.days || 0);
+    if (!speed || !Number.isFinite(speed)) return 0;
+    const gapDays = Math.max(0, thresholdDays - currentDays);
+    return Math.ceil(gapDays * speed);
+  }
+
+  function addReorderRowsToGenerator() {
+    const rows = applyFilters(reorderRowsAll);
+    if (rows.length === 0) {
+      showTip('目前沒有可加入的下單品項', 'error');
+      return;
+    }
+    const threshold = Math.max(1, Number(daysThresholdEl.value || 180));
+    const missing = [];
+    rows.forEach(row => {
+      const prod = getProductSpecByCode(row.sku);
+      if (!prod) {
+        missing.push(row.sku);
+        return;
+      }
+      const qty = calculateReorderQuantity(row, threshold);
+      addProduct(prod, qty);
+    });
+    if (missing.length) {
+      showTip(`以下 SKU 找不到品項資料：${missing.join(', ')}`, 'error');
+    }
   }
 
   function renderMain() {
@@ -1123,6 +1156,10 @@ TTR01AM-4 14125
   document.getElementById("btnDownloadReorderCSV").addEventListener("click", () => {
     const ex = exportReorderRowsFiltered();
     download("下單清單.csv", "\uFEFF" + csvFromRows(ex.headers, ex.body), "text/csv;charset=utf-8");
+  });
+
+  document.getElementById("btnAddReorderToGenerator").addEventListener("click", () => {
+    addReorderRowsToGenerator();
   });
 
   document.getElementById("btnDownloadNewOrderCSV").addEventListener("click", () => {
@@ -1489,18 +1526,42 @@ const allProducts = [
       return `${days.toFixed(1)} 天`;
     }
 
-    window.refreshGeneratorSpeedMetrics = function refreshGeneratorSpeedMetrics() {
-      document.querySelectorAll('#productTable tbody tr').forEach(row => {
-        const code = row.dataset.product;
-        const prod = getProductSpecByCode(code);
-        if (!prod) return;
-        const cell = row.querySelector('.pallet-days');
-        if (cell) cell.textContent = formatPalletDays(prod);
-      });
-    };
+  window.refreshGeneratorSpeedMetrics = function refreshGeneratorSpeedMetrics() {
+    document.querySelectorAll('#productTable tbody tr').forEach(row => {
+      const code = row.dataset.product;
+      const prod = getProductSpecByCode(code);
+      if (!prod) return;
+      const cell = row.querySelector('.pallet-days');
+      if (cell) cell.textContent = formatPalletDays(prod);
+      updateEstimatedDays(row, prod);
+    });
+  };
 
-    // 搜尋品號/快速新增
-    function searchProduct(){
+  function getAvailForProduct(code) {
+    if (!window.availMap) return 0;
+    return window.availMap.get(code) ?? 0;
+  }
+
+  function formatEstimatedDays(prod, quantity) {
+    const speed = getSpeedForProduct(prod.productCode);
+    if (!speed || speed <= 0) return '—';
+    const baseAvail = getAvailForProduct(prod.productCode);
+    const total = baseAvail + (Number(quantity) || 0);
+    if (!Number.isFinite(total)) return '—';
+    const days = total / speed;
+    if (!Number.isFinite(days)) return '—';
+    return `${days.toFixed(1)} 天`;
+  }
+
+  function updateEstimatedDays(row, prod) {
+    const cell = row.querySelector('.estimated-days');
+    if (!cell) return;
+    const quantity = parseFloat(row.querySelector('.edit-quantity-input')?.value) || 0;
+    cell.textContent = formatEstimatedDays(prod, quantity);
+  }
+
+  // 搜尋品號/快速新增
+  function searchProduct(){
       const val = document.getElementById('searchInput').value.trim().toUpperCase();
       const res = document.getElementById('searchResults');
       res.innerHTML = '';
@@ -1528,11 +1589,21 @@ const allProducts = [
       }
     }
 
-    function addProduct(prod){
+    function addProduct(prod, quantity = null){
       const tbody = document.querySelector('#productTable tbody');
-      if(Array.from(tbody.querySelectorAll('tr')).some(r => r.cells[1].textContent === prod.productCode)){
-        showTip('該產品已在列表', 'error');
-        return;
+      const existingRow = Array.from(tbody.querySelectorAll('tr')).find(r => r.cells[1].textContent === prod.productCode);
+      if(existingRow){
+        if (quantity !== null && Number.isFinite(quantity)) {
+          const qtyInput = existingRow.querySelector('.edit-quantity-input');
+          if (qtyInput) {
+            qtyInput.value = quantity.toFixed(0);
+            updateFields(qtyInput, prod.productCode);
+          }
+          showTip('已更新產品數量', 'success');
+        } else {
+          showTip('該產品已在列表', 'error');
+        }
+        return existingRow;
       }
       const rowIndex = tbody.children.length + 1;
       const {hasPack, hasBox} = checkPackageType(prod);
@@ -1556,6 +1627,7 @@ const allProducts = [
           <span>${prod.boxSize} cm</span>
         </td>
         <td class="pallet-days">${formatPalletDays(prod)}</td>
+        <td class="estimated-days">${formatEstimatedDays(prod, 0)}</td>
         <td class="action-button-group">
           <button type="button" class="action-button" onclick="moveUp(this)" title="上移"><i class="fa-solid fa-arrow-up"></i></button>
           <button type="button" class="action-button" onclick="moveDown(this)" title="下移"><i class="fa-solid fa-arrow-down"></i></button>
@@ -1564,8 +1636,17 @@ const allProducts = [
         </td>
       </tr>`;
       tbody.insertAdjacentHTML('beforeend', rowHTML);
+      const newRow = tbody.lastElementChild;
       updateRowNumbers();
+      if (quantity !== null && Number.isFinite(quantity)) {
+        const qtyInput = newRow.querySelector('.edit-quantity-input');
+        if (qtyInput) {
+          qtyInput.value = quantity.toFixed(0);
+          updateFields(qtyInput, prod.productCode);
+        }
+      }
       showTip('已加入產品', 'success');
+      return newRow;
     }
     function checkPackageType(prod){
       const hasPack = (typeof prod.perPack !== 'undefined' && prod.perPack > 0);
@@ -1598,6 +1679,7 @@ const allProducts = [
       }
       const target = row.querySelector('.target-input');
       if(target) checkTarget(target);
+      updateEstimatedDays(row, prod);
       updateTotals();
     }
     function getChangedField(input){
