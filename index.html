@@ -46,6 +46,16 @@
     .footer { margin-top: 12px; font-size: 12px; color: #55657b; text-align: right; }
     code { background: #f4f4f4; padding: 1px 4px; border-radius: 4px; }
     .priority { border: 1px solid #c7d7f8; box-shadow: 0 10px 35px rgba(11, 107, 203, 0.08); }
+    .salesChartGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 12px; }
+    .salesChartCard { border: 1px solid #e6edf7; border-radius: 12px; padding: 16px; background: #fbfdff; box-shadow: inset 0 1px 0 rgba(255,255,255,0.6); }
+    .pieRow { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+    .pieChart { width: 180px; height: 180px; border-radius: 50%; background: #eff3fb; box-shadow: inset 0 0 0 1px #e1e8f3; position: relative; }
+    .pieChart::after { content: ""; position: absolute; inset: 10px; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 1px #eef2f8; }
+    .pieLegend { display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: #2f3d52; }
+    .legendRow { display: flex; align-items: center; gap: 8px; }
+    .legendSwatch { width: 12px; height: 12px; border-radius: 4px; }
+    .salesSummary { margin-top: 12px; font-size: 12px; color: #516178; line-height: 1.6; }
+    .salesMissing { margin-top: 8px; font-size: 12px; color: #a04646; }
 
     .order-generator { margin-top: 36px; font-family: "Noto Sans TC", Arial, sans-serif; color: #273042; }
     .order-generator .container {
@@ -622,6 +632,46 @@ TTR01AM-4 14125
       </div>
     </details>
 
+    <details class="card" id="salesPieDetails">
+      <summary>
+        <div>
+          <p class="eyebrow">銷售額分析</p>
+          <h2>銷售額圓餅圖</h2>
+          <div class="hint">貼上「SKU + 訂購產品銷售額」資料，系統會依工廠與品項分類產生圓餅圖。</div>
+        </div>
+        <span class="pill">可收合</span>
+      </summary>
+      <div class="cardContent">
+        <div class="row">
+          <textarea id="salesInput" placeholder="SKU&#9;訂購產品銷售額&#10;TTS05AM-1&#9;US$366,151.00"></textarea>
+        </div>
+        <div class="row">
+          <button id="btnBuildSalesCharts" class="secondary">產生圓餅圖</button>
+          <span class="hint">可直接貼上整段資料（含標題行），支援 US$ 金額格式。</span>
+        </div>
+        <div class="salesChartGrid">
+          <div class="salesChartCard">
+            <p class="eyebrow">工廠篩選</p>
+            <h2>台灣廠 vs 越南廠</h2>
+            <div class="pieRow">
+              <div class="pieChart" id="factoryPie"></div>
+              <div class="pieLegend" id="factoryLegend"></div>
+            </div>
+          </div>
+          <div class="salesChartCard">
+            <p class="eyebrow">品項篩選</p>
+            <h2>火雞筋 vs 非火雞筋</h2>
+            <div class="pieRow">
+              <div class="pieChart" id="itemPie"></div>
+              <div class="pieLegend" id="itemLegend"></div>
+            </div>
+          </div>
+        </div>
+        <div class="salesSummary" id="salesSummary"></div>
+        <div class="salesMissing" id="salesMissing"></div>
+      </div>
+    </details>
+
     <div class="footer">
       註：速度為 0 或抓不到速度 → 不計算可銷售天數，且不會進入「下單清單」。
     </div>
@@ -695,6 +745,7 @@ TTR01AM-4 14125
     VTS01-1 VTB01-4 VTR01-4 VTB05-1 VTB06-4
     HDR01AM HDP01AM HDS03AM
   `.trim().split(/\s+/).filter(Boolean).map(s => s.trim().toUpperCase()));
+  window.turkeySkuSet = nonTurkeySkuSet;
 
   /** @type {{sku:string, asin:string, speed:(number|null), order:(number|null), us:(number|null), avail:(number|null), days:(number|null)}[]} */
   let mainRowsAll = [];
@@ -2025,6 +2076,158 @@ const allProducts = [
         document.execCommand("copy");
         showTip("已複製結果", "success");
       }
+    }
+
+    const salesInputEl = document.getElementById('salesInput');
+    const btnBuildSalesCharts = document.getElementById('btnBuildSalesCharts');
+    const factoryPieEl = document.getElementById('factoryPie');
+    const itemPieEl = document.getElementById('itemPie');
+    const factoryLegendEl = document.getElementById('factoryLegend');
+    const itemLegendEl = document.getElementById('itemLegend');
+    const salesSummaryEl = document.getElementById('salesSummary');
+    const salesMissingEl = document.getElementById('salesMissing');
+
+    const currencyFormatter = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const productMap = new Map(allProducts.map(p => [String(p.productCode).trim().toUpperCase(), p]));
+    const turkeySkuSet = window.turkeySkuSet || new Set();
+
+    function formatCurrency(value) {
+      return `US$${currencyFormatter.format(value)}`;
+    }
+
+    function normalizeSalesSku(sku) {
+      return String(sku ?? "").trim().toUpperCase();
+    }
+
+    function parseAmount(value) {
+      if (!value) return null;
+      const cleaned = String(value).replace(/US\$/i, '').replace(/,/g, '').replace(/[^\d.-]/g, '');
+      const num = Number(cleaned);
+      return Number.isFinite(num) ? num : null;
+    }
+
+    function parseSalesInput(text) {
+      const lines = String(text ?? '').split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+      const records = [];
+      const missingSkus = new Set();
+      lines.forEach(line => {
+        if (line.includes('SKU') && line.includes('銷售額')) return;
+        const tabParts = line.split(/\t+/);
+        let sku = '';
+        let amountRaw = '';
+        if (tabParts.length >= 2) {
+          sku = tabParts[0];
+          amountRaw = tabParts.slice(1).join(' ');
+        } else {
+          const match = line.match(/^([A-Za-z0-9-]+)\s+US?\$?\s*([\d,]+(?:\.\d+)?)/i);
+          if (match) {
+            sku = match[1];
+            amountRaw = match[2];
+          }
+        }
+        if (!sku) return;
+        const amount = parseAmount(amountRaw);
+        if (!Number.isFinite(amount)) return;
+        const normalizedSku = normalizeSalesSku(sku);
+        if (!productMap.has(normalizedSku)) {
+          missingSkus.add(normalizedSku);
+        }
+        records.push({ sku: normalizedSku, amount });
+      });
+      return { records, missingSkus: Array.from(missingSkus) };
+    }
+
+    function isTurkeySku(sku) {
+      if (turkeySkuSet.has(sku)) return true;
+      const prod = productMap.get(sku);
+      return Boolean(prod && /turkey tendon/i.test(prod.productName));
+    }
+
+    function renderPieChart(pieEl, legendEl, slices) {
+      const total = slices.reduce((sum, slice) => sum + slice.value, 0);
+      if (total <= 0) {
+        pieEl.style.background = '#f0f3f9';
+        legendEl.innerHTML = '<div class="legendRow">尚無資料</div>';
+        return;
+      }
+      let cumulative = 0;
+      const segments = slices.map(slice => {
+        const percent = (slice.value / total) * 100;
+        const start = cumulative;
+        cumulative += percent;
+        return `${slice.color} ${start}% ${cumulative}%`;
+      });
+      pieEl.style.background = `conic-gradient(${segments.join(', ')})`;
+      legendEl.innerHTML = slices.map(slice => {
+        const percent = total > 0 ? ((slice.value / total) * 100).toFixed(1) : '0.0';
+        return `
+          <div class="legendRow">
+            <span class="legendSwatch" style="background:${slice.color}"></span>
+            <span>${slice.label}</span>
+            <strong>${formatCurrency(slice.value)}</strong>
+            <span>${percent}%</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function buildSalesCharts() {
+      const { records, missingSkus } = parseSalesInput(salesInputEl.value);
+      const totals = {
+        factory: { TW: 0, VN: 0, unknown: 0 },
+        item: { turkey: 0, nonTurkey: 0, unknown: 0 },
+        total: 0,
+      };
+      records.forEach(record => {
+        const prod = productMap.get(record.sku);
+        if (prod?.country === 'TW') {
+          totals.factory.TW += record.amount;
+        } else if (prod?.country === 'VN') {
+          totals.factory.VN += record.amount;
+        } else {
+          totals.factory.unknown += record.amount;
+        }
+
+        if (isTurkeySku(record.sku)) {
+          totals.item.turkey += record.amount;
+        } else if (prod) {
+          totals.item.nonTurkey += record.amount;
+        } else {
+          totals.item.unknown += record.amount;
+        }
+
+        totals.total += record.amount;
+      });
+
+      renderPieChart(factoryPieEl, factoryLegendEl, [
+        { label: '台灣廠', value: totals.factory.TW, color: '#4c8bf5' },
+        { label: '越南廠', value: totals.factory.VN, color: '#63c47a' },
+      ]);
+      renderPieChart(itemPieEl, itemLegendEl, [
+        { label: '火雞筋', value: totals.item.turkey, color: '#f1b94b' },
+        { label: '非火雞筋', value: totals.item.nonTurkey, color: '#8c9caf' },
+      ]);
+
+      const notes = [];
+      if (totals.factory.unknown > 0) {
+        notes.push(`未對應工廠：${formatCurrency(totals.factory.unknown)}`);
+      }
+      if (totals.item.unknown > 0) {
+        notes.push(`未對應品項：${formatCurrency(totals.item.unknown)}`);
+      }
+      salesSummaryEl.textContent = totals.total > 0
+        ? `總銷售額：${formatCurrency(totals.total)}${notes.length ? `（${notes.join(' / ')}）` : ''}`
+        : '尚未偵測到可解析的銷售額資料。';
+
+      if (missingSkus.length > 0) {
+        salesMissingEl.textContent = `找不到品項資料的 SKU：${missingSkus.join(', ')}`;
+      } else {
+        salesMissingEl.textContent = '';
+      }
+    }
+
+    if (btnBuildSalesCharts) {
+      btnBuildSalesCharts.addEventListener('click', buildSalesCharts);
     }
 </script>
 </body>
