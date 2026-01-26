@@ -586,7 +586,7 @@ TTR01AM-4 14125
 
         <div class="cardContent">
           <div class="row">
-            <button class="secondary" id="btnDownloadMainCSV">下載主表 CSV</button>
+    <button class="secondary" id="btnDownloadMainCSV">下載主表 Excel</button>
             <div class="row" style="margin:0;">
               <span class="hint">主表排序：</span>
               <button class="secondary" id="btnSortSpeed">速度由大到小</button>
@@ -1212,11 +1212,25 @@ function getDiscontinuedReason(sku) {
     document.body.appendChild(a); a.click(); a.remove();
     URL.revokeObjectURL(url);
   }
+  function downloadRowsAsExcel(headers, rows, filename, sheetName = "主表") {
+    const wb = XLSX.utils.book_new();
+    const sheetData = [headers, ...rows];
+    const ws = XLSX.utils.aoa_to_sheet(sheetData);
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    XLSX.writeFile(wb, filename);
+  }
   function csvFromRows(headers, rows) {
     const q = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
     const head = headers.map(q).join(",");
     const body = rows.map(r => r.map(q).join(",")).join("\n");
     return head + "\n" + body;
+  }
+  function getDateStamp() {
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    const dd = String(now.getDate()).padStart(2, "0");
+    return `${yyyy}${mm}${dd}`;
   }
 
   function exportMainRowsFiltered() {
@@ -1288,7 +1302,9 @@ function getDiscontinuedReason(sku) {
   // Export buttons
   document.getElementById("btnDownloadMainCSV").addEventListener("click", () => {
     const ex = exportMainRowsFiltered();
-    download("主表.csv", "\uFEFF" + csvFromRows(ex.headers, ex.body), "text/csv;charset=utf-8");
+    const dateStamp = getDateStamp();
+    const filename = `${dateStamp}_Supply.xlsx`;
+    downloadRowsAsExcel(ex.headers, ex.body, filename, "Supply");
   });
 
   document.getElementById("btnDownloadReorderCSV").addEventListener("click", () => {
