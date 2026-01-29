@@ -1334,8 +1334,8 @@ function getDiscontinuedReason(sku) {
 <script>
   // 商品資料範例
 const allProducts = [
-  { productCode: "1GBRD019A0", productName: "Gootoe - Buffalo Bites Bone Shaped - 1.5lb (Pack of 3)", boxSize: "50*40*30", perCarton: 24, perPack: 3, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1GBRD029A0", productName: "Gootoe - Buffalo Bites Stick (Large) - 1.5lb (Pack of 3)", boxSize: "50*40*30", perCarton: 27, perPack: 3, perBox: null, perPallet: 42, country: "VN" },
+  { productCode: "1GBRD019A0", productName: "Gootoe - Buffalo Bites Bone Shaped - 1.5lb (Pack of 3)", boxSize: "50*40*30", perCarton: 9, perPack: 3, perBox: null, perPallet: 42, country: "VN" },
+  { productCode: "1GBRD029A0", productName: "Gootoe - Buffalo Bites Stick (Large) - 1.5lb (Pack of 3)", boxSize: "50*40*30", perCarton: 8, perPack: 3, perBox: null, perPallet: 42, country: "VN" },
   { productCode: "1AWDD010A0", productName: "A freschi Air-Dried Dog Food-Turkey Recipe , 0.9oz", boxSize: "50*40*30", perCarton: 250, perPack: null, perBox: null, perPallet: 42, country: "VN" },
   { productCode: "1AWDD170A0", productName: "A freschi Air-Dried Dog Food-Turkey & Salmon Recipe , 0.9oz", boxSize: "50*40*30", perCarton: 250, perPack: null, perBox: null, perPallet: 42, country: "VN" },
   { productCode: "1AWDD073A0", productName: "A Freschi  Air-dried Dog Food-Chicken & Salmon Recipe , 1lb", boxSize: "50*40*30", perCarton: 38, perPack: null, perBox: null, perPallet: 42, country: "VN" },
@@ -1352,11 +1352,11 @@ const allProducts = [
   { productCode: "1AWDD460A0", productName: "A Freschi srl  Air-dried Dog Food - Buffalo & Chicken Recipe , 0.9oz", boxSize: "50*40*30", perCarton: 250, perPack: null, perBox: null, perPallet: 42, country: "VN" },
   { productCode: "1VADD063A0", productName: "VITADAY - Air-Dried Dog Food - Chicken Recipe - Stomach Support Formula - 454g", boxSize: "50*40*30", perCarton: 38, perPack: null, perBox: null, perPallet: 42, country: "VN" },
   { productCode: "1VADD073A0", productName: "VITADAY - Air-Dried Dog Food - Chicken & Mackerels Recipe - Joint Support Formula - 454g", boxSize: "50*40*30", perCarton: 38, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1GCRD017A0", productName: "Gootoe - Chicken Fillet Jerky - 1lb (Pack of 3)", boxSize: "50*40*30", perCarton: 27, perPack: 3, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1GCRD027A0", productName: "Gootoe - Chicken Breast Jerky - 1lb (Pack of 3)", boxSize: "50*40*30", perCarton: 33, perPack: 3, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1GCRD037A0", productName: "Gootoe - Chicken Chips - 1lb (Pack of 3)", boxSize: "50*40*30", perCarton: 27, perPack: 3, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1GQRD017A0", productName: "Gootoe - Soft Chicken Breast Strips - 1lb (Pack of 3)", boxSize: "50*40*30", perCarton: 30, perPack: 3, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1GQRD027A0", productName: "Gootoe - Soft Chicken Sticks - 1lb (Pack of 3)", boxSize: "50*40*30", perCarton: 33, perPack: 3, perBox: null, perPallet: 42, country: "VN" },
+  { productCode: "1GCRD017A0", productName: "Gootoe - Chicken Fillet Jerky - 1lb (Pack of 3)", boxSize: "50*40*30", perCarton: 9, perPack: 3, perBox: null, perPallet: 42, country: "VN" },
+  { productCode: "1GCRD027A0", productName: "Gootoe - Chicken Breast Jerky - 1lb (Pack of 3)", boxSize: "50*40*30", perCarton: 11, perPack: 3, perBox: null, perPallet: 42, country: "VN" },
+  { productCode: "1GCRD037A0", productName: "Gootoe - Chicken Chips - 1lb (Pack of 3)", boxSize: "50*40*30", perCarton: 9, perPack: 3, perBox: null, perPallet: 42, country: "VN" },
+  { productCode: "1GQRD017A0", productName: "Gootoe - Soft Chicken Breast Strips - 1lb (Pack of 3)", boxSize: "50*40*30", perCarton: 10, perPack: 3, perBox: null, perPallet: 42, country: "VN" },
+  { productCode: "1GQRD027A0", productName: "Gootoe - Soft Chicken Sticks - 1lb (Pack of 3)", boxSize: "50*40*30", perCarton: 11, perPack: 3, perBox: null, perPallet: 42, country: "VN" },
   { productCode: "1GSDD011A0", productName: "GooToE Chicken Breast Wrapped Salmon Sticks , 6oz", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
   { productCode: "1GSDD015A0", productName: "GooToE Chicken Breast Wrapped Salmon Sticks , 1.5lb", boxSize: "50*40*30", perCarton: 28, perPack: null, perBox: null, perPallet: 42, country: "VN" },
   { productCode: "1GCRD005A0", productName: "GooToE Chicken Breast Wrapped Sticks , 6oz", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
