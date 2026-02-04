@@ -1113,6 +1113,24 @@ function isHeroHotSku(sku) {
     });
   }
 
+  function sortByMode(rows) {
+    if (sortMode === "days_asc") {
+      return [...rows].sort((a,b) => {
+        const ad = (a.days === null ? Infinity : a.days);
+        const bd = (b.days === null ? Infinity : b.days);
+        if (ad !== bd) return ad - bd;
+        const as = (a.speed === null ? -Infinity : a.speed);
+        const bs = (b.speed === null ? -Infinity : b.speed);
+        return bs - as;
+      });
+    }
+    return [...rows].sort((a,b) => {
+      const as = (a.speed === null ? -Infinity : a.speed);
+      const bs = (b.speed === null ? -Infinity : b.speed);
+      return bs - as;
+    });
+  }
+
   function buildTables() {
     const rawH10 = h10El.value || "";
     const rawOrders = ordersEl.value || "";
@@ -1521,6 +1539,30 @@ function isHeroHotSku(sku) {
     updateSortSelects();
     renderAll();
   }));
+
+  btnSortReorderSpeed.addEventListener("click", () => {
+    sortMode = "normal";
+    updateSortButtons();
+    buildTables();
+  });
+
+  btnSortReorderDays.addEventListener("click", () => {
+    sortMode = "days_asc";
+    updateSortButtons();
+    buildTables();
+  });
+
+  btnSortHotSpeed.addEventListener("click", () => {
+    sortMode = "normal";
+    updateSortButtons();
+    buildTables();
+  });
+
+  btnSortHotDays.addEventListener("click", () => {
+    sortMode = "days_asc";
+    updateSortButtons();
+    buildTables();
+  });
 
   // Export buttons
   document.getElementById("btnDownloadMainCSV").addEventListener("click", () => {
