@@ -312,6 +312,12 @@
       border-radius: 999px; font-size: 11px; font-weight: 700;
       background: #fbe6ff; color: #a21caf; border: 1px solid #f0b3ff;
     }
+    .summary-actions {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
     .discontinued-list-wrap { max-height: 380px; overflow: auto; }
     /* user-tip提示 */
     .order-generator .user-tip {
@@ -571,19 +577,25 @@ TTR01AM-4 14125
             <h2>門檻內可售品項：建議下單清單</h2>
             <div class="hint">只抓「可銷售天數 &lt;= 門檻」且速度 &gt; 0 的 SKU</div>
           </div>
-          <div class="hint">
-            筆數：<span class="count" id="countReorder">0</span>
+          <div class="summary-actions">
+            <button class="secondary" id="btnDownloadReorderCSV">下載Excel</button>
           </div>
         </summary>
 
         <div class="cardContent">
           <div class="row">
-            <button class="secondary" id="btnDownloadReorderCSV">下載下單清單 Excel</button>
             <button class="secondary" id="btnAddReorderToGenerator">一鍵加入訂單產生器</button>
             <div class="row" style="margin:0;">
               <span class="hint">排序：</span>
-              <button class="secondary" id="btnSortReorderSpeed">速度由大到小</button>
-              <button class="secondary" id="btnSortReorderDays">可銷售天數由小到大</button>
+              <select id="sortReorderSpeed">
+                <option value="desc" selected>速度由大到小</option>
+                <option value="asc">速度由小到大</option>
+              </select>
+              <select id="sortReorderDays">
+                <option value="none" selected>可銷售天數不排序</option>
+                <option value="asc">可銷售天數由小到大</option>
+                <option value="desc">可銷售天數由大到小</option>
+              </select>
             </div>
           </div>
 
@@ -599,15 +611,24 @@ TTR01AM-4 14125
             <h2>主表（H10 產品）</h2>
             <div class="hint">SKU / 速度 / 訂單 / 美國總數 / 可銷售天數</div>
           </div>
+          <div class="summary-actions">
+            <button class="secondary" id="btnDownloadMainCSV">下載Excel</button>
+          </div>
         </summary>
 
         <div class="cardContent">
           <div class="row">
-    <button class="secondary" id="btnDownloadMainCSV">下載主表 Excel</button>
             <div class="row" style="margin:0;">
-              <span class="hint">主表排序：</span>
-              <button class="secondary" id="btnSortSpeed">速度由大到小</button>
-              <button class="secondary" id="btnSortDays">可銷售天數由小到大</button>
+              <span class="hint">排序：</span>
+              <select id="sortMainSpeed">
+                <option value="desc" selected>速度由大到小</option>
+                <option value="asc">速度由小到大</option>
+              </select>
+              <select id="sortMainDays">
+                <option value="none" selected>可銷售天數不排序</option>
+                <option value="asc">可銷售天數由小到大</option>
+                <option value="desc">可銷售天數由大到小</option>
+              </select>
             </div>
           </div>
 
@@ -623,9 +644,6 @@ TTR01AM-4 14125
             <h2>熱銷品專區</h2>
             <div class="hint">SKU / 速度 / 訂單 / 美國總數 / 可銷售天數</div>
           </div>
-          <div class="hint">
-            筆數：<span class="count" id="countHot">0</span>
-          </div>
         </summary>
 
         <div class="cardContent">
@@ -633,8 +651,15 @@ TTR01AM-4 14125
             <button class="secondary" id="btnAddHotToGenerator">一鍵加入訂單產生器</button>
             <div class="row" style="margin:0;">
               <span class="hint">排序：</span>
-              <button class="secondary" id="btnSortHotSpeed">速度由大到小</button>
-              <button class="secondary" id="btnSortHotDays">可銷售天數由小到大</button>
+              <select id="sortHotSpeed">
+                <option value="desc" selected>速度由大到小</option>
+                <option value="asc">速度由小到大</option>
+              </select>
+              <select id="sortHotDays">
+                <option value="none" selected>可銷售天數不排序</option>
+                <option value="asc">可銷售天數由小到大</option>
+                <option value="desc">可銷售天數由大到小</option>
+              </select>
             </div>
           </div>
 
@@ -650,16 +675,12 @@ TTR01AM-4 14125
             <h2>新品（訂單有，但 H10 沒有）</h2>
             <div class="hint">SKU / 訂單 / 美國總數(若有)</div>
           </div>
-          <div class="hint">
-            筆數：<span class="count" id="countNewOrder">0</span>
+          <div class="summary-actions">
+            <button class="secondary" id="btnDownloadNewOrderCSV">下載Excel</button>
           </div>
         </summary>
 
         <div class="cardContent">
-          <div class="row">
-            <button class="secondary" id="btnDownloadNewOrderCSV">下載新品(訂單) Excel</button>
-          </div>
-
           <div class="tableWrap" id="newOrderWrap"></div>
         </div>
       </details>
@@ -672,18 +693,14 @@ TTR01AM-4 14125
             <h2 style="margin:0;">美國總數有，但 H10 沒有，且訂單也沒有</h2>
           </div>
           <span class="hint">（預設收折，點此展開）</span>
+          <div class="summary-actions">
+            <button class="secondary" id="btnDownloadNewUSCSV">下載Excel</button>
+          </div>
         </summary>
 
         <div class="cardContent">
           <div class="row" style="justify-content: space-between;">
             <div class="hint">SKU / 美國總數</div>
-            <div class="hint">
-              筆數：<span class="count" id="countNewUS">0</span>
-            </div>
-          </div>
-
-          <div class="row">
-            <button class="secondary" id="btnDownloadNewUSCSV">下載新品(美國總數) Excel</button>
           </div>
 
           <div class="tableWrap" id="newUSWrap"></div>
@@ -869,12 +886,12 @@ function isHeroHotSku(sku) {
   const daysThresholdEl = document.getElementById('daysThreshold');
   const factoryFilterEl = document.getElementById('factoryFilter');
   const itemFilterEl = document.getElementById('itemFilter');
-  const btnSortSpeed = document.getElementById('btnSortSpeed');
-  const btnSortDays = document.getElementById('btnSortDays');
-  const btnSortReorderSpeed = document.getElementById('btnSortReorderSpeed');
-  const btnSortReorderDays = document.getElementById('btnSortReorderDays');
-  const btnSortHotSpeed = document.getElementById('btnSortHotSpeed');
-  const btnSortHotDays = document.getElementById('btnSortHotDays');
+  const sortMainSpeed = document.getElementById('sortMainSpeed');
+  const sortMainDays = document.getElementById('sortMainDays');
+  const sortReorderSpeed = document.getElementById('sortReorderSpeed');
+  const sortReorderDays = document.getElementById('sortReorderDays');
+  const sortHotSpeed = document.getElementById('sortHotSpeed');
+  const sortHotDays = document.getElementById('sortHotDays');
 
   const mainWrap = document.getElementById('mainTableWrap');
   const reorderWrap = document.getElementById('reorderTableWrap');
@@ -892,7 +909,7 @@ function isHeroHotSku(sku) {
   // 工廠篩選狀態：all | hideTW | onlyTW
   let factoryMode = "all";
   let itemFilterMode = "all";
-  let sortMode = "normal";
+  let sortConfig = { speed: "desc", days: "none" };
 
   const nonTurkeySkuSet = new Set(`
     AFA13AM AFA14AM
@@ -946,14 +963,16 @@ function isHeroHotSku(sku) {
     const isHot = isHotSku(sku);
     const isHero = isHeroHotSku(sku);
     const label = escapeHtml(sku);
+    const showHero = isHero;
+    const showHot = isHot && !isHero;
     const tags = [
-      isHero ? ' <span class="hero-tag">Hero熱銷品</span>' : '',
-      isHot ? ' <span class="hot-tag">熱銷品</span>' : '',
+      showHero ? ' <span class="hero-tag">Hero熱銷品</span>' : '',
+      showHot ? ' <span class="hot-tag">熱銷品</span>' : '',
       isDiscontinued ? ' <span class="discontinued-tag">停產</span>' : ''
     ].join('');
     const className = [
-      isHero ? 'hero-text' : '',
-      isHot ? 'hot-text' : '',
+      showHero ? 'hero-text' : '',
+      showHot ? 'hot-text' : '',
       isDiscontinued ? 'discontinued-text' : ''
     ].filter(Boolean).join(' ');
     return `<td class="${className}">${label}${tags}</td>`;
@@ -1071,22 +1090,26 @@ function isHeroHotSku(sku) {
     r.days = r.avail / r.speed;
   }
 
-  function sortMain(rows) {
-    if (sortMode === "days_asc") {
-      rows.sort((a,b) => {
-        const ad = (a.days === null ? Infinity : a.days);
-        const bd = (b.days === null ? Infinity : b.days);
-        if (ad !== bd) return ad - bd;
-        const as = (a.speed === null ? -Infinity : a.speed);
-        const bs = (b.speed === null ? -Infinity : b.speed);
-        return bs - as;
-      });
-      return;
-    }
-    rows.sort((a,b) => {
-      const as = (a.speed === null ? -Infinity : a.speed);
-      const bs = (b.speed === null ? -Infinity : b.speed);
-      return bs - as;
+  function speedSortValue(val, direction) {
+    if (val === null || val === undefined) return direction === "asc" ? Infinity : -Infinity;
+    return val;
+  }
+  function daysSortValue(val, direction) {
+    if (val === null || val === undefined) return direction === "asc" ? Infinity : -Infinity;
+    return val;
+  }
+  function sortByConfig(rows) {
+    const speedDir = sortConfig.speed;
+    const daysDir = sortConfig.days;
+    return [...rows].sort((a, b) => {
+      if (daysDir !== "none") {
+        const ad = daysSortValue(a.days, daysDir);
+        const bd = daysSortValue(b.days, daysDir);
+        if (ad !== bd) return daysDir === "asc" ? ad - bd : bd - ad;
+      }
+      const as = speedSortValue(a.speed, speedDir);
+      const bs = speedSortValue(b.speed, speedDir);
+      return speedDir === "asc" ? as - bs : bs - as;
     });
   }
 
@@ -1184,7 +1207,6 @@ function isHeroHotSku(sku) {
         days: (r.days ?? 0)
       }));
 
-    sortMain(h10Rows);
     reorder.sort((a,b) => a.days - b.days);
     newOrder.sort((a,b) => b.order - a.order);
     newUS.sort((a,b) => b.us - a.us);
@@ -1211,8 +1233,8 @@ function isHeroHotSku(sku) {
   }
 
   function renderReorder() {
-    const rows = sortByMode(applyFilters(reorderRowsAll));
-    countReorderEl.textContent = String(rows.length);
+    const rows = sortByConfig(applyFilters(reorderRowsAll));
+    if (countReorderEl) countReorderEl.textContent = String(rows.length);
 
     if (rows.length === 0) { reorderWrap.innerHTML = ""; return; }
 
@@ -1307,7 +1329,7 @@ function isHeroHotSku(sku) {
   }
 
   function renderMain() {
-    const rows = sortByMode(applyFilters(mainRowsAll));
+    const rows = sortByConfig(applyFilters(mainRowsAll));
     if (rows.length === 0) { mainWrap.innerHTML = ""; return; }
 
     const body = rows.map((r, idx) => {
@@ -1341,8 +1363,8 @@ function isHeroHotSku(sku) {
   }
 
   function renderHot() {
-    const rows = sortByMode(applyFilters(hotRowsAll));
-    countHotEl.textContent = String(rows.length);
+    const rows = sortByConfig(applyFilters(hotRowsAll));
+    if (countHotEl) countHotEl.textContent = String(rows.length);
     if (rows.length === 0) { hotWrap.innerHTML = ""; return; }
 
     const body = rows.map((r, idx) => {
@@ -1376,7 +1398,7 @@ function isHeroHotSku(sku) {
 
   function renderNewOrder() {
     const rows = applyFilters(newOrderRowsAll);
-    countNewOrderEl.textContent = String(rows.length);
+    if (countNewOrderEl) countNewOrderEl.textContent = String(rows.length);
     if (rows.length === 0) { newOrderWrap.innerHTML = ""; return; }
 
     const body = rows.map((r, idx) => {
@@ -1404,7 +1426,7 @@ function isHeroHotSku(sku) {
   function renderNewUS() {
     const rows = applyFilters(newUSRowsAll);
     // countNewUS 只有在展開時才顯示也可以，但這裡保留更新
-    countNewUSEl.textContent = String(rows.length);
+    if (countNewUSEl) countNewUSEl.textContent = String(rows.length);
     if (rows.length === 0) { newUSWrap.innerHTML = ""; return; }
 
     const body = rows.map((r, idx) => `
@@ -1498,26 +1520,25 @@ function isHeroHotSku(sku) {
     renderAll();
   });
 
-  function updateSortButtons() {
-    btnSortSpeed.classList.toggle("active", sortMode === "normal");
-    btnSortDays.classList.toggle("active", sortMode === "days_asc");
-    btnSortReorderSpeed.classList.toggle("active", sortMode === "normal");
-    btnSortReorderDays.classList.toggle("active", sortMode === "days_asc");
-    btnSortHotSpeed.classList.toggle("active", sortMode === "normal");
-    btnSortHotDays.classList.toggle("active", sortMode === "days_asc");
+  const sortSpeedSelects = [sortMainSpeed, sortReorderSpeed, sortHotSpeed].filter(Boolean);
+  const sortDaysSelects = [sortMainDays, sortReorderDays, sortHotDays].filter(Boolean);
+
+  function updateSortSelects() {
+    sortSpeedSelects.forEach(sel => { sel.value = sortConfig.speed; });
+    sortDaysSelects.forEach(sel => { sel.value = sortConfig.days; });
   }
 
-  btnSortSpeed.addEventListener("click", () => {
-    sortMode = "normal";
-    updateSortButtons();
-    buildTables();
-  });
+  sortSpeedSelects.forEach(sel => sel.addEventListener("change", () => {
+    sortConfig.speed = sel.value;
+    updateSortSelects();
+    renderAll();
+  }));
 
-  btnSortDays.addEventListener("click", () => {
-    sortMode = "days_asc";
-    updateSortButtons();
-    buildTables();
-  });
+  sortDaysSelects.forEach(sel => sel.addEventListener("change", () => {
+    sortConfig.days = sel.value;
+    updateSortSelects();
+    renderAll();
+  }));
 
   btnSortReorderSpeed.addEventListener("click", () => {
     sortMode = "normal";
@@ -1579,7 +1600,10 @@ function isHeroHotSku(sku) {
 
   // ⑦ 預設收折
   newUSDetails.open = false;
-  updateSortButtons();
+  updateSortSelects();
+  document.querySelectorAll('.summary-actions button').forEach(btn => {
+    btn.addEventListener('click', (event) => event.stopPropagation());
+  });
 })();
 </script>
 <script>
@@ -2016,23 +2040,25 @@ const allProducts = [
       const discontinued = isDiscontinuedSku(code);
       const hot = isHotSku(code);
       const hero = isHeroHotSku(code);
+      const showHero = hero;
+      const showHot = hot && !hero;
       const skuCell = row.cells[1];
       if (skuCell) {
         skuCell.classList.toggle('discontinued-text', discontinued);
-        skuCell.classList.toggle('hot-text', hot);
-        skuCell.classList.toggle('hero-text', hero);
+        skuCell.classList.toggle('hot-text', showHot);
+        skuCell.classList.toggle('hero-text', showHero);
         const heroTag = skuCell.querySelector('.hero-tag');
-        if (hero && !heroTag) {
+        if (showHero && !heroTag) {
           skuCell.insertAdjacentHTML('beforeend', ' <span class="hero-tag">Hero熱銷品</span>');
         }
-        if (!hero && heroTag) {
+        if (!showHero && heroTag) {
           heroTag.remove();
         }
         const hotTag = skuCell.querySelector('.hot-tag');
-        if (hot && !hotTag) {
+        if (showHot && !hotTag) {
           skuCell.insertAdjacentHTML('beforeend', ' <span class="hot-tag">熱銷品</span>');
         }
-        if (!hot && hotTag) {
+        if (!showHot && hotTag) {
           hotTag.remove();
         }
         const tag = skuCell.querySelector('.discontinued-tag');
