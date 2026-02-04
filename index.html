@@ -300,6 +300,18 @@
       border-radius: 999px; font-size: 11px; font-weight: 700;
       background: #ffe5e5; color: #c62828; border: 1px solid #f2b3b3;
     }
+    .hot-text { color: #b45309; font-weight: 700; }
+    .hot-tag {
+      display: inline-block; margin-left: 6px; padding: 2px 7px;
+      border-radius: 999px; font-size: 11px; font-weight: 700;
+      background: #fff1d6; color: #b45309; border: 1px solid #ffd59a;
+    }
+    .hero-text { color: #a21caf; font-weight: 700; }
+    .hero-tag {
+      display: inline-block; margin-left: 6px; padding: 2px 7px;
+      border-radius: 999px; font-size: 11px; font-weight: 700;
+      background: #fbe6ff; color: #a21caf; border: 1px solid #f0b3ff;
+    }
     .discontinued-list-wrap { max-height: 380px; overflow: auto; }
     /* user-tip提示 */
     .order-generator .user-tip {
@@ -566,8 +578,13 @@ TTR01AM-4 14125
 
         <div class="cardContent">
           <div class="row">
-            <button class="secondary" id="btnDownloadReorderCSV">下載下單清單 CSV</button>
+            <button class="secondary" id="btnDownloadReorderCSV">下載下單清單 Excel</button>
             <button class="secondary" id="btnAddReorderToGenerator">一鍵加入訂單產生器</button>
+            <div class="row" style="margin:0;">
+              <span class="hint">排序：</span>
+              <button class="secondary" id="btnSortReorderSpeed">速度由大到小</button>
+              <button class="secondary" id="btnSortReorderDays">可銷售天數由小到大</button>
+            </div>
           </div>
 
           <div class="tableWrap" id="reorderTableWrap"></div>
@@ -598,11 +615,38 @@ TTR01AM-4 14125
         </div>
       </details>
 
-      <!-- 新品（訂單有但H10沒有） -->
+      <!-- 熱銷品專區 -->
       <details class="card priority" open>
         <summary>
           <div>
             <p class="eyebrow">重點檢視 ③</p>
+            <h2>熱銷品專區</h2>
+            <div class="hint">SKU / 速度 / 訂單 / 美國總數 / 可銷售天數</div>
+          </div>
+          <div class="hint">
+            筆數：<span class="count" id="countHot">0</span>
+          </div>
+        </summary>
+
+        <div class="cardContent">
+          <div class="row">
+            <button class="secondary" id="btnAddHotToGenerator">一鍵加入訂單產生器</button>
+            <div class="row" style="margin:0;">
+              <span class="hint">排序：</span>
+              <button class="secondary" id="btnSortHotSpeed">速度由大到小</button>
+              <button class="secondary" id="btnSortHotDays">可銷售天數由小到大</button>
+            </div>
+          </div>
+
+          <div class="tableWrap" id="hotTableWrap"></div>
+        </div>
+      </details>
+
+      <!-- 新品（訂單有但H10沒有） -->
+      <details class="card priority" open>
+        <summary>
+          <div>
+            <p class="eyebrow">重點檢視 ④</p>
             <h2>新品（訂單有，但 H10 沒有）</h2>
             <div class="hint">SKU / 訂單 / 美國總數(若有)</div>
           </div>
@@ -613,7 +657,7 @@ TTR01AM-4 14125
 
         <div class="cardContent">
           <div class="row">
-            <button class="secondary" id="btnDownloadNewOrderCSV">下載新品(訂單) CSV</button>
+            <button class="secondary" id="btnDownloadNewOrderCSV">下載新品(訂單) Excel</button>
           </div>
 
           <div class="tableWrap" id="newOrderWrap"></div>
@@ -639,7 +683,7 @@ TTR01AM-4 14125
           </div>
 
           <div class="row">
-            <button class="secondary" id="btnDownloadNewUSCSV">下載新品(美國總數) CSV</button>
+            <button class="secondary" id="btnDownloadNewUSCSV">下載新品(美國總數) Excel</button>
           </div>
 
           <div class="tableWrap" id="newUSWrap"></div>
@@ -754,6 +798,64 @@ function getDiscontinuedReason(sku) {
   return discontinuedSkuReasons.get(normalizeSkuKey(sku)) || "";
 }
 
+const hotSkuList = [
+  "TTS05AM-1",
+  "TTSL05",
+  "TTS05AM",
+  "AFA12AM",
+  "GTSL01",
+  "GTB01",
+  "GTS01",
+  "GTB05",
+  "TTR01AM",
+  "AFA11AM",
+  "GTBL05",
+  "KTB01AM-4",
+  "KTBL05",
+  "KTB05AM-1",
+  "VTS01-1",
+  "GCBL02",
+  "KTB01AM",
+  "ATA01",
+  "KTB05AM",
+  "AFA22AM",
+  "GBSL03",
+  "GSFL02",
+  "GTRL01",
+  "ASF01",
+  "GTPL03",
+  "GSCL01",
+  "ACBL03",
+  "1ABRD004A0",
+  "ASCL01"
+];
+const hotSkuSet = new Set(hotSkuList.map(sku => normalizeSkuKey(sku)));
+const heroHotSkuList = [
+  "TTS05AM-1",
+  "AFA12AM",
+  "GTSL01",
+  "GTB05",
+  "KTBL05",
+  "VTS01-1",
+  "GCBL02",
+  "ATA01",
+  "GBSL03",
+  "GSFL02",
+  "ASF01",
+  "GTPL03",
+  "GSCL01",
+  "ACBL03",
+  "1ABRD004A0",
+  "ASCL01"
+];
+const heroHotSkuSet = new Set(heroHotSkuList.map(sku => normalizeSkuKey(sku)));
+function isHotSku(sku) {
+  return hotSkuSet.has(normalizeSkuKey(sku));
+}
+function isHeroHotSku(sku) {
+  return heroHotSkuSet.has(normalizeSkuKey(sku));
+}
+
 (() => {
   const h10El = document.getElementById('inputH10');
   const ordersEl = document.getElementById('inputOrders');
@@ -769,13 +871,19 @@ function getDiscontinuedReason(sku) {
   const itemFilterEl = document.getElementById('itemFilter');
   const btnSortSpeed = document.getElementById('btnSortSpeed');
   const btnSortDays = document.getElementById('btnSortDays');
+  const btnSortReorderSpeed = document.getElementById('btnSortReorderSpeed');
+  const btnSortReorderDays = document.getElementById('btnSortReorderDays');
+  const btnSortHotSpeed = document.getElementById('btnSortHotSpeed');
+  const btnSortHotDays = document.getElementById('btnSortHotDays');
 
   const mainWrap = document.getElementById('mainTableWrap');
   const reorderWrap = document.getElementById('reorderTableWrap');
+  const hotWrap = document.getElementById('hotTableWrap');
   const newOrderWrap = document.getElementById('newOrderWrap');
   const newUSWrap = document.getElementById('newUSWrap');
 
   const countReorderEl = document.getElementById('countReorder');
+  const countHotEl = document.getElementById('countHot');
   const countNewOrderEl = document.getElementById('countNewOrder');
   const countNewUSEl = document.getElementById('countNewUS');
 
@@ -823,6 +931,8 @@ function getDiscontinuedReason(sku) {
   let mainRowsAll = [];
   /** @type {{sku:string, asin:string, speed:number, order:number, us:number, avail:number, days:number}[]} */
   let reorderRowsAll = [];
+  /** @type {{sku:string, asin:(string|null), speed:(number|null), order:(number|null), us:(number|null), avail:(number|null), days:(number|null)}[]} */
+  let hotRowsAll = [];
   /** @type {{sku:string, order:number, us:(number|null)}[]} */
   let newOrderRowsAll = [];
   /** @type {{sku:string, us:number}[]} */
@@ -833,10 +943,20 @@ function getDiscontinuedReason(sku) {
   }
   function renderSkuCell(sku) {
     const isDiscontinued = isDiscontinuedSku(sku);
+    const isHot = isHotSku(sku);
+    const isHero = isHeroHotSku(sku);
     const label = escapeHtml(sku);
-    const tag = isDiscontinued ? ' <span class="discontinued-tag">停產</span>' : '';
-    const className = isDiscontinued ? 'discontinued-text' : '';
-    return `<td class="${className}">${label}${tag}</td>`;
+    const tags = [
+      isHero ? ' <span class="hero-tag">Hero熱銷品</span>' : '',
+      isHot ? ' <span class="hot-tag">熱銷品</span>' : '',
+      isDiscontinued ? ' <span class="discontinued-tag">停產</span>' : ''
+    ].join('');
+    const className = [
+      isHero ? 'hero-text' : '',
+      isHot ? 'hot-text' : '',
+      isDiscontinued ? 'discontinued-text' : ''
+    ].filter(Boolean).join(' ');
+    return `<td class="${className}">${label}${tags}</td>`;
   }
   function normalizeNumber(s) {
     if (s === null || s === undefined) return null;
@@ -970,6 +1090,24 @@ function getDiscontinuedReason(sku) {
     });
   }
 
+  function sortByMode(rows) {
+    if (sortMode === "days_asc") {
+      return [...rows].sort((a,b) => {
+        const ad = (a.days === null ? Infinity : a.days);
+        const bd = (b.days === null ? Infinity : b.days);
+        if (ad !== bd) return ad - bd;
+        const as = (a.speed === null ? -Infinity : a.speed);
+        const bs = (b.speed === null ? -Infinity : b.speed);
+        return bs - as;
+      });
+    }
+    return [...rows].sort((a,b) => {
+      const as = (a.speed === null ? -Infinity : a.speed);
+      const bs = (b.speed === null ? -Infinity : b.speed);
+      return bs - as;
+    });
+  }
+
   function buildTables() {
     const rawH10 = h10El.value || "";
     const rawOrders = ordersEl.value || "";
@@ -987,6 +1125,7 @@ function getDiscontinuedReason(sku) {
     );
 
     const h10SkuSet = new Set(h10Rows.map(r => r.sku));
+    const h10RowMap = new Map(h10Rows.map(r => [r.sku, r]));
 
     for (const r of h10Rows) {
       const o = orderMap.get(r.sku);
@@ -1014,6 +1153,24 @@ function getDiscontinuedReason(sku) {
       }
     }
 
+    const hotRows = hotSkuList.map(rawSku => {
+      const sku = normalizeSkuValue(rawSku);
+      const h10Row = h10RowMap.get(sku);
+      const orderVal = orderMap.get(sku);
+      const usVal = usMap.get(sku);
+      const row = {
+        sku,
+        asin: h10Row?.asin ?? null,
+        speed: h10Row?.speed ?? null,
+        order: (orderVal === undefined) ? null : orderVal,
+        us: (usVal === undefined) ? null : usVal,
+        avail: null,
+        days: null
+      };
+      computeDerived(row);
+      return row;
+    });
+
     const threshold = Math.max(1, Number(daysThresholdEl.value || 180));
     const reorder = h10Rows
       .filter(r => r.days !== null && r.days <= threshold && r.speed !== null && r.speed > 0)
@@ -1034,6 +1191,7 @@ function getDiscontinuedReason(sku) {
 
     mainRowsAll = h10Rows;
     reorderRowsAll = reorder;
+    hotRowsAll = hotRows;
     newOrderRowsAll = newOrder;
     newUSRowsAll = newUS;
     window.availMap = new Map(h10Rows.map(r => [r.sku, (r.avail ?? 0)]));
@@ -1047,12 +1205,13 @@ function getDiscontinuedReason(sku) {
   function renderAll() {
     renderReorder();
     renderMain();
+    renderHot();
     renderNewOrder();
     renderNewUS();
   }
 
   function renderReorder() {
-    const rows = applyFilters(reorderRowsAll);
+    const rows = sortByMode(applyFilters(reorderRowsAll));
     countReorderEl.textContent = String(rows.length);
 
     if (rows.length === 0) { reorderWrap.innerHTML = ""; return; }
@@ -1118,8 +1277,37 @@ function getDiscontinuedReason(sku) {
     }
   }
 
+  function addHotRowsToGenerator() {
+    const rows = applyFilters(hotRowsAll);
+    if (rows.length === 0) {
+      showTip('目前沒有可加入的熱銷品', 'error');
+      return;
+    }
+    const missing = [];
+    const skipped = [];
+    rows.forEach(row => {
+      if (isDiscontinuedSku(row.sku)) {
+        skipped.push(row.sku);
+        return;
+      }
+      const prod = getProductSpecByCode(row.sku);
+      if (!prod) {
+        missing.push(row.sku);
+        return;
+      }
+      const qty = (row.order !== null && Number.isFinite(row.order)) ? row.order : null;
+      addProduct(prod, qty);
+    });
+    if (missing.length) {
+      showTip(`以下 SKU 找不到品項資料：${missing.join(', ')}`, 'error');
+    }
+    if (skipped.length) {
+      showTip(`停產品項未加入訂單產生器：${skipped.join(', ')}`, 'error');
+    }
+  }
+
   function renderMain() {
-    const rows = applyFilters(mainRowsAll);
+    const rows = sortByMode(applyFilters(mainRowsAll));
     if (rows.length === 0) { mainWrap.innerHTML = ""; return; }
 
     const body = rows.map((r, idx) => {
@@ -1141,6 +1329,40 @@ function getDiscontinuedReason(sku) {
     }).join("");
 
     mainWrap.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>SKU</th><th>速度</th><th>訂單</th><th>美國總數</th><th>可銷售天數</th>
+          </tr>
+        </thead>
+        <tbody>${body}</tbody>
+      </table>
+    `;
+  }
+
+  function renderHot() {
+    const rows = sortByMode(applyFilters(hotRowsAll));
+    countHotEl.textContent = String(rows.length);
+    if (rows.length === 0) { hotWrap.innerHTML = ""; return; }
+
+    const body = rows.map((r, idx) => {
+      const speedCell = (r.speed === null) ? `<td class="bad">(未抓到)</td>` : `<td class="ok">${escapeHtml(String(r.speed))}</td>`;
+      const orderCell = (r.order === null) ? `<td class="bad">(未對應)</td>` : `<td class="ok">${escapeHtml(String(r.order))}</td>`;
+      const usCell = (r.us === null) ? `<td class="bad">(未對應)</td>` : `<td class="ok">${escapeHtml(String(r.us))}</td>`;
+      const daysCell = (r.days === null) ? `<td class="bad">(不可算)</td>` : `<td class="ok">${escapeHtml(fmtDays(r.days))}</td>`;
+      return `
+        <tr>
+          <td>${idx + 1}</td>
+          ${renderSkuCell(r.sku)}
+          ${speedCell}
+          ${orderCell}
+          ${usCell}
+          ${daysCell}
+        </tr>
+      `;
+    }).join("");
+
+    hotWrap.innerHTML = `
       <table>
         <thead>
           <tr>
@@ -1219,12 +1441,6 @@ function getDiscontinuedReason(sku) {
     XLSX.utils.book_append_sheet(wb, ws, sheetName);
     XLSX.writeFile(wb, filename);
   }
-  function csvFromRows(headers, rows) {
-    const q = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-    const head = headers.map(q).join(",");
-    const body = rows.map(r => r.map(q).join(",")).join("\n");
-    return head + "\n" + body;
-  }
   function getDateStamp() {
     const now = new Date();
     const yyyy = now.getFullYear();
@@ -1285,6 +1501,10 @@ function getDiscontinuedReason(sku) {
   function updateSortButtons() {
     btnSortSpeed.classList.toggle("active", sortMode === "normal");
     btnSortDays.classList.toggle("active", sortMode === "days_asc");
+    btnSortReorderSpeed.classList.toggle("active", sortMode === "normal");
+    btnSortReorderDays.classList.toggle("active", sortMode === "days_asc");
+    btnSortHotSpeed.classList.toggle("active", sortMode === "normal");
+    btnSortHotDays.classList.toggle("active", sortMode === "days_asc");
   }
 
   btnSortSpeed.addEventListener("click", () => {
@@ -1294,6 +1514,30 @@ function getDiscontinuedReason(sku) {
   });
 
   btnSortDays.addEventListener("click", () => {
+    sortMode = "days_asc";
+    updateSortButtons();
+    buildTables();
+  });
+
+  btnSortReorderSpeed.addEventListener("click", () => {
+    sortMode = "normal";
+    updateSortButtons();
+    buildTables();
+  });
+
+  btnSortReorderDays.addEventListener("click", () => {
+    sortMode = "days_asc";
+    updateSortButtons();
+    buildTables();
+  });
+
+  btnSortHotSpeed.addEventListener("click", () => {
+    sortMode = "normal";
+    updateSortButtons();
+    buildTables();
+  });
+
+  btnSortHotDays.addEventListener("click", () => {
     sortMode = "days_asc";
     updateSortButtons();
     buildTables();
@@ -1309,21 +1553,28 @@ function getDiscontinuedReason(sku) {
 
   document.getElementById("btnDownloadReorderCSV").addEventListener("click", () => {
     const ex = exportReorderRowsFiltered();
-    download("下單清單.csv", "\uFEFF" + csvFromRows(ex.headers, ex.body), "text/csv;charset=utf-8");
+    const dateStamp = getDateStamp();
+    downloadRowsAsExcel(ex.headers, ex.body, `${dateStamp}_下單清單.xlsx`, "下單清單");
   });
 
   document.getElementById("btnAddReorderToGenerator").addEventListener("click", () => {
     addReorderRowsToGenerator();
   });
 
+  document.getElementById("btnAddHotToGenerator").addEventListener("click", () => {
+    addHotRowsToGenerator();
+  });
+
   document.getElementById("btnDownloadNewOrderCSV").addEventListener("click", () => {
     const ex = exportNewOrderRowsFiltered();
-    download("新品_訂單.csv", "\uFEFF" + csvFromRows(ex.headers, ex.body), "text/csv;charset=utf-8");
+    const dateStamp = getDateStamp();
+    downloadRowsAsExcel(ex.headers, ex.body, `${dateStamp}_新品_訂單.xlsx`, "新品_訂單");
   });
 
   document.getElementById("btnDownloadNewUSCSV").addEventListener("click", () => {
     const ex = exportNewUSRowsFiltered();
-    download("新品_美國總數.csv", "\uFEFF" + csvFromRows(ex.headers, ex.body), "text/csv;charset=utf-8");
+    const dateStamp = getDateStamp();
+    downloadRowsAsExcel(ex.headers, ex.body, `${dateStamp}_新品_美國總數.xlsx`, "新品_美國總數");
   });
 
   // ⑦ 預設收折
@@ -1760,12 +2011,30 @@ const allProducts = [
       }
     }
 
-    function applyDiscontinuedRowState(row, code) {
+    function applySkuRowState(row, code) {
       if (!row) return;
       const discontinued = isDiscontinuedSku(code);
+      const hot = isHotSku(code);
+      const hero = isHeroHotSku(code);
       const skuCell = row.cells[1];
       if (skuCell) {
         skuCell.classList.toggle('discontinued-text', discontinued);
+        skuCell.classList.toggle('hot-text', hot);
+        skuCell.classList.toggle('hero-text', hero);
+        const heroTag = skuCell.querySelector('.hero-tag');
+        if (hero && !heroTag) {
+          skuCell.insertAdjacentHTML('beforeend', ' <span class="hero-tag">Hero熱銷品</span>');
+        }
+        if (!hero && heroTag) {
+          heroTag.remove();
+        }
+        const hotTag = skuCell.querySelector('.hot-tag');
+        if (hot && !hotTag) {
+          skuCell.insertAdjacentHTML('beforeend', ' <span class="hot-tag">熱銷品</span>');
+        }
+        if (!hot && hotTag) {
+          hotTag.remove();
+        }
         const tag = skuCell.querySelector('.discontinued-tag');
         if (discontinued && !tag) {
           skuCell.insertAdjacentHTML('beforeend', ' <span class="discontinued-tag">停產</span>');
@@ -1780,7 +2049,7 @@ const allProducts = [
       const tbody = document.querySelector('#productTable tbody');
       const existingRow = Array.from(tbody.querySelectorAll('tr')).find(r => r.dataset.product === prod.productCode);
       if(existingRow){
-        applyDiscontinuedRowState(existingRow, prod.productCode);
+        applySkuRowState(existingRow, prod.productCode);
         if (quantity !== null && Number.isFinite(quantity)) {
           const qtyInput = existingRow.querySelector('.edit-quantity-input');
           if (qtyInput) {
@@ -1825,7 +2094,7 @@ const allProducts = [
       </tr>`;
       tbody.insertAdjacentHTML('beforeend', rowHTML);
       const newRow = tbody.lastElementChild;
-      applyDiscontinuedRowState(newRow, prod.productCode);
+      applySkuRowState(newRow, prod.productCode);
       updateRowNumbers();
       if (quantity !== null && Number.isFinite(quantity)) {
         const qtyInput = newRow.querySelector('.edit-quantity-input');
