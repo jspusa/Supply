@@ -573,29 +573,23 @@ TTR01AM-4 14125
       <details class="card priority" open>
         <summary>
           <div>
-            <p class="eyebrow">重點檢視 ①</p>
             <h2>門檻內可售品項：建議下單清單</h2>
             <div class="hint">只抓「可銷售天數 &lt;= 門檻」且速度 &gt; 0 的 SKU</div>
           </div>
           <div class="summary-actions">
+            <button class="secondary" id="btnAddReorderToGenerator">一鍵加入訂單產生器</button>
             <button class="secondary" id="btnDownloadReorderCSV">下載Excel</button>
           </div>
         </summary>
 
         <div class="cardContent">
           <div class="row">
-            <button class="secondary" id="btnAddReorderToGenerator">一鍵加入訂單產生器</button>
             <div class="row" style="margin:0;">
               <span class="hint">排序：</span>
-              <select id="sortReorderSpeed">
-                <option value="desc" selected>速度由大到小</option>
-                <option value="asc">速度由小到大</option>
-              </select>
-              <select id="sortReorderDays">
-                <option value="none" selected>可銷售天數不排序</option>
-                <option value="asc">可銷售天數由小到大</option>
-                <option value="desc">可銷售天數由大到小</option>
-              </select>
+              <button class="secondary" id="sortReorderFieldSpeed">銷售速度</button>
+              <button class="secondary" id="sortReorderFieldDays">可售天數</button>
+              <button class="secondary" id="sortReorderDirAsc">由小到大</button>
+              <button class="secondary" id="sortReorderDirDesc">由大到小</button>
             </div>
           </div>
 
@@ -607,7 +601,6 @@ TTR01AM-4 14125
       <details class="card priority" open>
         <summary>
           <div>
-            <p class="eyebrow">重點檢視 ②</p>
             <h2>主表（H10 產品）</h2>
             <div class="hint">SKU / 速度 / 訂單 / 美國總數 / 可銷售天數</div>
           </div>
@@ -620,15 +613,10 @@ TTR01AM-4 14125
           <div class="row">
             <div class="row" style="margin:0;">
               <span class="hint">排序：</span>
-              <select id="sortMainSpeed">
-                <option value="desc" selected>速度由大到小</option>
-                <option value="asc">速度由小到大</option>
-              </select>
-              <select id="sortMainDays">
-                <option value="none" selected>可銷售天數不排序</option>
-                <option value="asc">可銷售天數由小到大</option>
-                <option value="desc">可銷售天數由大到小</option>
-              </select>
+              <button class="secondary" id="sortMainFieldSpeed">銷售速度</button>
+              <button class="secondary" id="sortMainFieldDays">可售天數</button>
+              <button class="secondary" id="sortMainDirAsc">由小到大</button>
+              <button class="secondary" id="sortMainDirDesc">由大到小</button>
             </div>
           </div>
 
@@ -640,26 +628,22 @@ TTR01AM-4 14125
       <details class="card priority" open>
         <summary>
           <div>
-            <p class="eyebrow">重點檢視 ③</p>
             <h2>熱銷品專區</h2>
             <div class="hint">SKU / 速度 / 訂單 / 美國總數 / 可銷售天數</div>
+          </div>
+          <div class="summary-actions">
+            <button class="secondary" id="btnAddHotToGenerator">一鍵加入訂單產生器</button>
           </div>
         </summary>
 
         <div class="cardContent">
           <div class="row">
-            <button class="secondary" id="btnAddHotToGenerator">一鍵加入訂單產生器</button>
             <div class="row" style="margin:0;">
               <span class="hint">排序：</span>
-              <select id="sortHotSpeed">
-                <option value="desc" selected>速度由大到小</option>
-                <option value="asc">速度由小到大</option>
-              </select>
-              <select id="sortHotDays">
-                <option value="none" selected>可銷售天數不排序</option>
-                <option value="asc">可銷售天數由小到大</option>
-                <option value="desc">可銷售天數由大到小</option>
-              </select>
+              <button class="secondary" id="sortHotFieldSpeed">銷售速度</button>
+              <button class="secondary" id="sortHotFieldDays">可售天數</button>
+              <button class="secondary" id="sortHotDirAsc">由小到大</button>
+              <button class="secondary" id="sortHotDirDesc">由大到小</button>
             </div>
           </div>
 
@@ -671,7 +655,6 @@ TTR01AM-4 14125
       <details class="card priority" open>
         <summary>
           <div>
-            <p class="eyebrow">重點檢視 ④</p>
             <h2>新品（訂單有，但 H10 沒有）</h2>
             <div class="hint">SKU / 訂單 / 美國總數(若有)</div>
           </div>
@@ -886,12 +869,18 @@ function isHeroHotSku(sku) {
   const daysThresholdEl = document.getElementById('daysThreshold');
   const factoryFilterEl = document.getElementById('factoryFilter');
   const itemFilterEl = document.getElementById('itemFilter');
-  const sortMainSpeed = document.getElementById('sortMainSpeed');
-  const sortMainDays = document.getElementById('sortMainDays');
-  const sortReorderSpeed = document.getElementById('sortReorderSpeed');
-  const sortReorderDays = document.getElementById('sortReorderDays');
-  const sortHotSpeed = document.getElementById('sortHotSpeed');
-  const sortHotDays = document.getElementById('sortHotDays');
+  const sortMainFieldSpeed = document.getElementById('sortMainFieldSpeed');
+  const sortMainFieldDays = document.getElementById('sortMainFieldDays');
+  const sortMainDirAsc = document.getElementById('sortMainDirAsc');
+  const sortMainDirDesc = document.getElementById('sortMainDirDesc');
+  const sortReorderFieldSpeed = document.getElementById('sortReorderFieldSpeed');
+  const sortReorderFieldDays = document.getElementById('sortReorderFieldDays');
+  const sortReorderDirAsc = document.getElementById('sortReorderDirAsc');
+  const sortReorderDirDesc = document.getElementById('sortReorderDirDesc');
+  const sortHotFieldSpeed = document.getElementById('sortHotFieldSpeed');
+  const sortHotFieldDays = document.getElementById('sortHotFieldDays');
+  const sortHotDirAsc = document.getElementById('sortHotDirAsc');
+  const sortHotDirDesc = document.getElementById('sortHotDirDesc');
 
   const mainWrap = document.getElementById('mainTableWrap');
   const reorderWrap = document.getElementById('reorderTableWrap');
@@ -909,7 +898,7 @@ function isHeroHotSku(sku) {
   // 工廠篩選狀態：all | hideTW | onlyTW
   let factoryMode = "all";
   let itemFilterMode = "all";
-  let sortConfig = { speed: "desc", days: "none" };
+  let sortConfig = { field: "speed", direction: "desc" };
 
   const nonTurkeySkuSet = new Set(`
     AFA13AM AFA14AM
@@ -1099,35 +1088,17 @@ function isHeroHotSku(sku) {
     return val;
   }
   function sortByConfig(rows) {
-    const speedDir = sortConfig.speed;
-    const daysDir = sortConfig.days;
+    const field = sortConfig.field;
+    const direction = sortConfig.direction;
     return [...rows].sort((a, b) => {
-      if (daysDir !== "none") {
-        const ad = daysSortValue(a.days, daysDir);
-        const bd = daysSortValue(b.days, daysDir);
-        if (ad !== bd) return daysDir === "asc" ? ad - bd : bd - ad;
+      if (field === "days") {
+        const ad = daysSortValue(a.days, direction);
+        const bd = daysSortValue(b.days, direction);
+        return direction === "asc" ? ad - bd : bd - ad;
       }
-      const as = speedSortValue(a.speed, speedDir);
-      const bs = speedSortValue(b.speed, speedDir);
-      return speedDir === "asc" ? as - bs : bs - as;
-    });
-  }
-
-  function sortByMode(rows) {
-    if (sortMode === "days_asc") {
-      return [...rows].sort((a,b) => {
-        const ad = (a.days === null ? Infinity : a.days);
-        const bd = (b.days === null ? Infinity : b.days);
-        if (ad !== bd) return ad - bd;
-        const as = (a.speed === null ? -Infinity : a.speed);
-        const bs = (b.speed === null ? -Infinity : b.speed);
-        return bs - as;
-      });
-    }
-    return [...rows].sort((a,b) => {
-      const as = (a.speed === null ? -Infinity : a.speed);
-      const bs = (b.speed === null ? -Infinity : b.speed);
-      return bs - as;
+      const as = speedSortValue(a.speed, direction);
+      const bs = speedSortValue(b.speed, direction);
+      return direction === "asc" ? as - bs : bs - as;
     });
   }
 
@@ -1520,49 +1491,42 @@ function isHeroHotSku(sku) {
     renderAll();
   });
 
-  const sortSpeedSelects = [sortMainSpeed, sortReorderSpeed, sortHotSpeed].filter(Boolean);
-  const sortDaysSelects = [sortMainDays, sortReorderDays, sortHotDays].filter(Boolean);
+  const sortFieldButtons = [
+    sortMainFieldSpeed, sortMainFieldDays,
+    sortReorderFieldSpeed, sortReorderFieldDays,
+    sortHotFieldSpeed, sortHotFieldDays
+  ].filter(Boolean);
+  const sortDirButtons = [
+    sortMainDirAsc, sortMainDirDesc,
+    sortReorderDirAsc, sortReorderDirDesc,
+    sortHotDirAsc, sortHotDirDesc
+  ].filter(Boolean);
 
-  function updateSortSelects() {
-    sortSpeedSelects.forEach(sel => { sel.value = sortConfig.speed; });
-    sortDaysSelects.forEach(sel => { sel.value = sortConfig.days; });
+  function updateSortButtons() {
+    const fieldIsSpeed = sortConfig.field === "speed";
+    const dirIsAsc = sortConfig.direction === "asc";
+    const fieldSpeedButtons = [sortMainFieldSpeed, sortReorderFieldSpeed, sortHotFieldSpeed].filter(Boolean);
+    const fieldDaysButtons = [sortMainFieldDays, sortReorderFieldDays, sortHotFieldDays].filter(Boolean);
+    const dirAscButtons = [sortMainDirAsc, sortReorderDirAsc, sortHotDirAsc].filter(Boolean);
+    const dirDescButtons = [sortMainDirDesc, sortReorderDirDesc, sortHotDirDesc].filter(Boolean);
+
+    fieldSpeedButtons.forEach(btn => btn.classList.toggle("active", fieldIsSpeed));
+    fieldDaysButtons.forEach(btn => btn.classList.toggle("active", !fieldIsSpeed));
+    dirAscButtons.forEach(btn => btn.classList.toggle("active", dirIsAsc));
+    dirDescButtons.forEach(btn => btn.classList.toggle("active", !dirIsAsc));
   }
 
-  sortSpeedSelects.forEach(sel => sel.addEventListener("change", () => {
-    sortConfig.speed = sel.value;
-    updateSortSelects();
+  sortFieldButtons.forEach(btn => btn.addEventListener("click", () => {
+    sortConfig.field = btn.id.includes("FieldDays") ? "days" : "speed";
+    updateSortButtons();
     renderAll();
   }));
 
-  sortDaysSelects.forEach(sel => sel.addEventListener("change", () => {
-    sortConfig.days = sel.value;
-    updateSortSelects();
+  sortDirButtons.forEach(btn => btn.addEventListener("click", () => {
+    sortConfig.direction = btn.id.includes("DirAsc") ? "asc" : "desc";
+    updateSortButtons();
     renderAll();
   }));
-
-  btnSortReorderSpeed.addEventListener("click", () => {
-    sortMode = "normal";
-    updateSortButtons();
-    buildTables();
-  });
-
-  btnSortReorderDays.addEventListener("click", () => {
-    sortMode = "days_asc";
-    updateSortButtons();
-    buildTables();
-  });
-
-  btnSortHotSpeed.addEventListener("click", () => {
-    sortMode = "normal";
-    updateSortButtons();
-    buildTables();
-  });
-
-  btnSortHotDays.addEventListener("click", () => {
-    sortMode = "days_asc";
-    updateSortButtons();
-    buildTables();
-  });
 
   // Export buttons
   document.getElementById("btnDownloadMainCSV").addEventListener("click", () => {
@@ -1600,7 +1564,7 @@ function isHeroHotSku(sku) {
 
   // ⑦ 預設收折
   newUSDetails.open = false;
-  updateSortSelects();
+  updateSortButtons();
   document.querySelectorAll('.summary-actions button').forEach(btn => {
     btn.addEventListener('click', (event) => event.stopPropagation());
   });
