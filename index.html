@@ -2291,23 +2291,28 @@ const allProducts = [
     }
     function exportToExcel() {
       const wb = XLSX.utils.book_new();
+      const getRowProductCode = (row) => {
+        const fromDataset = row?.dataset?.product?.trim();
+        if (fromDataset) return fromDataset;
+        const rawCellText = row?.cells?.[1]?.childNodes?.[0]?.textContent || row?.cells?.[1]?.textContent || '';
+        return rawCellText.trim();
+      };
       const orderSheetData = [];
       const orderHeader = ["序號","品號","名稱","每箱","包裝類型","箱數","單位","棧板數","單位","紙箱尺寸(cm)"];
       orderSheetData.push(orderHeader);
       const rows = document.querySelectorAll('#productTable tbody tr');
       rows.forEach(row => {
         const idx = row.cells[0].textContent;
-        const code = row.cells[1].textContent;
-        const prod = allProducts.find(p => p.productCode === code);
-        if(!prod) return;
-        const name = prod.productName || '';
-        const eachCarton = prod.perCarton || 1;
+        const code = getRowProductCode(row);
+        const prod = getProductSpecByCode(code);
+        const name = prod?.productName || '';
+        const eachCarton = prod?.perCarton || 1;
         let pkgType = '單包';
-        if(prod.perPack && prod.perPack > 0) pkgType = '袋裝';
-        else if(prod.perBox && prod.perBox > 0) pkgType = '盒裝';
+        if(prod?.perPack && prod.perPack > 0) pkgType = '袋裝';
+        else if(prod?.perBox && prod.perBox > 0) pkgType = '盒裝';
         const cVal = parseFloat(row.querySelector('.edit-cartons-input')?.value) || 0;
         const pVal = parseFloat(row.querySelector('.edit-pallets-input')?.value) || 0;
-        const boxSize = prod.boxSize;
+        const boxSize = prod?.boxSize || row.cells[7]?.textContent?.replace(' cm', '').trim() || '';
         orderSheetData.push([
           idx, code, name, eachCarton, pkgType, cVal, "箱", pVal, "棧板", boxSize
         ]);
@@ -2319,10 +2324,9 @@ const allProducts = [
       detailSheetData.push(detailHeader);
       rows.forEach(row => {
         const idx = row.cells[0].textContent;
-        const code = row.cells[1].textContent;
-        const prod = allProducts.find(p => p.productCode === code);
-        if(!prod) return;
-        const name = prod.productName || '';
+        const code = getRowProductCode(row);
+        const prod = getProductSpecByCode(code);
+        const name = prod?.productName || '';
         const quantity = parseFloat(row.querySelector('.edit-quantity-input')?.value) || 0;
         let packOrBoxVal = '—';
         const packOrBoxInput = row.querySelector('.edit-pack-input') || row.querySelector('.edit-box-input');
@@ -2332,7 +2336,7 @@ const allProducts = [
         }
         const cartons = parseFloat(row.querySelector('.edit-cartons-input')?.value) || 0;
         const pallets = parseFloat(row.querySelector('.edit-pallets-input')?.value) || 0;
-        const boxSize = prod.boxSize;
+        const boxSize = prod?.boxSize || row.cells[7]?.textContent?.replace(' cm', '').trim() || '';
         detailSheetData.push([
           idx, code, name, quantity, packOrBoxVal, cartons, pallets, boxSize
         ]);
