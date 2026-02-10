@@ -1232,6 +1232,9 @@ function isHeroHotSku(sku) {
     if (window.refreshGeneratorSpeedMetrics) {
       window.refreshGeneratorSpeedMetrics();
     }
+    if (typeof renderSalesGantt === 'function') {
+      renderSalesGantt();
+    }
   }
 
   function renderAll() {
@@ -1279,6 +1282,33 @@ function isHeroHotSku(sku) {
     return Math.ceil(gapDays * speed);
   }
 
+  function calculateReorderPallets(row, prod, thresholdDays) {
+    const qty = calculateReorderQuantity(row, thresholdDays);
+    const unitsPerPallet = getUnitsPerPallet(prod);
+    if (!qty || !unitsPerPallet) return null;
+    return Math.ceil((qty / unitsPerPallet) * 100) / 100;
+  }
+
+  function applyPlannedQuantityToGenerator(prod, quantity, pallets = null) {
+    const rowEl = addProduct(prod, null);
+    if (!rowEl) return;
+    if (Number.isFinite(pallets) && pallets > 0) {
+      const palletsInput = rowEl.querySelector('.edit-pallets-input');
+      if (palletsInput) {
+        palletsInput.value = pallets.toFixed(2);
+        updateFields(palletsInput, prod.productCode);
+        return;
+      }
+    }
+    if (Number.isFinite(quantity) && quantity > 0) {
+      const qtyInput = rowEl.querySelector('.edit-quantity-input');
+      if (qtyInput) {
+        qtyInput.value = quantity.toFixed(0);
+        updateFields(qtyInput, prod.productCode);
+      }
+    }
+  }
+
   function addReorderRowsToGenerator() {
     const threshold = Math.max(1, Number(daysThresholdEl.value || 180));
     const rows = applyFilters(mainRowsAll).filter(row => row.days !== null && row.days <= threshold && row.speed !== null && row.speed > 0);
@@ -1299,7 +1329,8 @@ function isHeroHotSku(sku) {
         return;
       }
       const qty = calculateReorderQuantity(row, threshold);
-      addProduct(prod, qty);
+      const pallets = calculateReorderPallets(row, prod, threshold);
+      applyPlannedQuantityToGenerator(prod, qty, pallets);
     });
     if (missing.length) {
       showTip(`以下 SKU 找不到品項資料：${missing.join(', ')}`, 'error');
@@ -2725,9 +2756,6 @@ const allProducts = [
         window.buildSupplyTables();
       }
       const baseRows = Array.isArray(window.mainRowsAll) ? window.mainRowsAll : [];
-      const records = parseSalesInput(salesInputEl.value).records;
-      const activeSku = new Set(records.map(r => r.sku));
-      const useSalesSkuFilter = activeSku.size > 0;
       const mode = ganttDaysTypeEl?.value || 'usDays';
       const factoryMode = salesGanttFactoryEl?.value || 'all';
       const today = new Date();
@@ -2741,7 +2769,6 @@ const allProducts = [
       });
 
       const rows = baseRows.filter(r => {
-        if (useSalesSkuFilter && !activeSku.has(String(r.sku || '').toUpperCase())) return false;
         if (factoryMode === 'onlyTW') return String(r.sku || '').toUpperCase().startsWith('E');
         if (factoryMode === 'hideTW') return !String(r.sku || '').toUpperCase().startsWith('E');
         return true;
@@ -2848,11 +2875,8 @@ const allProducts = [
         if (salesCalendarWrapEl) salesCalendarWrapEl.style.display = 'none';
       }
       if (salesGanttHintEl) {
-        const scopeLabel = (parseSalesInput(salesInputEl.value).records.length > 0)
-          ? '已套用銷售額輸入中的 SKU 範圍'
-          : '未提供銷售額 SKU，已改用主表全部 SKU';
         const viewLabel = viewType === 'calendar' ? '月曆檢視' : '甘特表格';
-        salesGanttHintEl.textContent = `目前模式：${modeLabel} / ${viewLabel}。${scopeLabel}。`;
+        salesGanttHintEl.textContent = `目前模式：${modeLabel} / ${viewLabel}。`;
       }
     }
 
