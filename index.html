@@ -61,6 +61,20 @@
     .ganttTable td { vertical-align: top; font-size: 12px; }
     .ganttSkuList { margin: 0; padding-left: 16px; }
     .ganttSkuList li { margin-bottom: 4px; }
+    .salesCalendarWrap { margin-top: 14px; }
+    .salesCalendarGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+    .salesCalendarMonth { border: 1px solid #dfe8f6; border-radius: 10px; background: #fff; overflow: hidden; }
+    .salesCalendarTitle { padding: 10px 12px; font-weight: 700; font-size: 13px; color: #1f2f45; background: #f4f7fd; border-bottom: 1px solid #e6ecf7; }
+    .salesCalendarWeek { display:grid; grid-template-columns: repeat(7, minmax(0, 1fr)); background: #f8fbff; border-bottom: 1px solid #eef3fa; }
+    .salesCalendarWeek span { text-align:center; font-size:11px; padding: 6px 0; color:#6c7f99; }
+    .salesCalendarDays { display:grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+    .salesDayCell { min-height: 58px; border-right: 1px solid #eef3fa; border-bottom: 1px solid #eef3fa; padding: 4px; font-size: 11px; }
+    .salesDayCell:nth-child(7n) { border-right: 0; }
+    .salesDayCell.empty { background: #fbfdff; }
+    .salesDayNum { display:inline-flex; width: 18px; height:18px; border-radius: 50%; align-items:center; justify-content:center; color:#60718a; }
+    .salesDayCell.hasEvent .salesDayNum { background:#0b6bcb; color:#fff; }
+    .salesDayCount { margin-top:2px; color:#0b6bcb; font-weight:600; }
+    .salesDaySkus { margin-top:2px; color:#3f4e64; line-height:1.35; word-break: break-word; }
 
     .order-generator { margin-top: 36px; font-family: "Noto Sans TC", Arial, sans-serif; color: #273042; }
     .order-generator .container {
@@ -747,9 +761,20 @@ TTR01AM-4 14125
         </div>
         <div class="salesSummary" id="salesSummary"></div>
         <div class="salesMissing" id="salesMissing"></div>
-        <div class="ganttCard">
+      </div>
+    </details>
+
+    <details class="card" id="salesGanttDetails">
+      <summary>
+        <div>
           <p class="eyebrow">缺貨預測</p>
-          <h2>銷售甘特圖（未來 12 個月）</h2>
+          <h2>銷售甘特圖 / 月曆（未來 12 個月）</h2>
+          <div class="hint">獨立區塊顯示銷售甘特圖，支援表格與月曆檢視並可匯出 Excel。</div>
+        </div>
+        <span class="pill">可收合</span>
+      </summary>
+      <div class="cardContent">
+        <div class="ganttCard" style="margin-top:0;">
           <div class="ganttControls">
             <label for="ganttDaysType">天數模式：</label>
             <select id="ganttDaysType">
@@ -762,13 +787,18 @@ TTR01AM-4 14125
               <option value="hideTW">越南廠（排除台灣廠）</option>
               <option value="onlyTW">台灣廠</option>
             </select>
+            <label for="salesGanttViewType">檢視模式：</label>
+            <select id="salesGanttViewType">
+              <option value="table">甘特表格</option>
+              <option value="calendar">月曆檢視</option>
+            </select>
             <button id="btnBuildSalesGantt" class="secondary">產生甘特圖</button>
             <button id="btnExportSalesGantt" class="secondary">匯出 Excel</button>
           </div>
           <div class="tableWrap" id="salesGanttWrap"></div>
+          <div class="salesCalendarWrap" id="salesCalendarWrap" style="display:none;"></div>
           <div class="hint" id="salesGanttHint"></div>
         </div>
-
       </div>
     </details>
 
@@ -2535,9 +2565,11 @@ const allProducts = [
     const salesMissingEl = document.getElementById('salesMissing');
     const ganttDaysTypeEl = document.getElementById('ganttDaysType');
     const salesGanttFactoryEl = document.getElementById('salesGanttFactory');
+    const salesGanttViewTypeEl = document.getElementById('salesGanttViewType');
     const btnBuildSalesGantt = document.getElementById('btnBuildSalesGantt');
     const btnExportSalesGantt = document.getElementById('btnExportSalesGantt');
     const salesGanttWrapEl = document.getElementById('salesGanttWrap');
+    const salesCalendarWrapEl = document.getElementById('salesCalendarWrap');
     const salesGanttHintEl = document.getElementById('salesGanttHint');
 
     let latestSalesGanttRows = [];
@@ -2718,11 +2750,55 @@ const allProducts = [
         const bucket = monthBuckets.find(m => m.key === monthKey);
         if (!bucket) return;
         const dateText = `${outDate.getMonth() + 1}/${outDate.getDate()}`;
-        bucket.items.push({ sku: r.sku, dateText });
+        bucket.items.push({ sku: r.sku, dateText, outDate: new Date(outDate) });
       });
 
       monthBuckets.forEach(m => m.items.sort((a,b) => a.sku.localeCompare(b.sku)));
       return { monthBuckets, mode, factoryMode };
+    }
+
+    function renderSalesCalendar(monthBuckets) {
+      if (!salesCalendarWrapEl) return;
+      const weekLabels = ['日', '一', '二', '三', '四', '五', '六'];
+      const monthHtml = monthBuckets.map(m => {
+        const [yearText, monthText] = m.key.split('-');
+        const year = Number(yearText);
+        const monthIndex = Number(monthText) - 1;
+        const firstDay = new Date(year, monthIndex, 1);
+        const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+        const events = new Map();
+        m.items.forEach(item => {
+          const day = item.outDate instanceof Date ? item.outDate.getDate() : Number(String(item.dateText).split('/')[1]);
+          if (!events.has(day)) events.set(day, []);
+          events.get(day).push(item.sku);
+        });
+
+        const cells = [];
+        for (let i = 0; i < firstDay.getDay(); i += 1) {
+          cells.push('<div class="salesDayCell empty"></div>');
+        }
+        for (let day = 1; day <= daysInMonth; day += 1) {
+          const skus = events.get(day) || [];
+          const preview = skus.slice(0, 2).join('、');
+          const extra = skus.length > 2 ? ` +${skus.length - 2}` : '';
+          cells.push(`
+            <div class="salesDayCell ${skus.length ? 'hasEvent' : ''}">
+              <div class="salesDayNum">${day}</div>
+              ${skus.length ? `<div class="salesDayCount">${skus.length} 項</div>` : ''}
+              ${skus.length ? `<div class="salesDaySkus" title="${skus.join('、')}">${preview}${extra}</div>` : ''}
+            </div>
+          `);
+        }
+
+        return `
+          <div class="salesCalendarMonth">
+            <div class="salesCalendarTitle">${m.label}</div>
+            <div class="salesCalendarWeek">${weekLabels.map(w => `<span>${w}</span>`).join('')}</div>
+            <div class="salesCalendarDays">${cells.join('')}</div>
+          </div>
+        `;
+      }).join('');
+      salesCalendarWrapEl.innerHTML = `<div class="salesCalendarGrid">${monthHtml}</div>`;
     }
 
     function renderSalesGantt() {
@@ -2730,6 +2806,7 @@ const allProducts = [
       const { monthBuckets, mode } = buildSalesGanttData();
       latestSalesGanttRows = monthBuckets;
       const modeLabel = mode === 'usDays' ? '美國可售天數甘特圖' : '含訂單可售天數甘特圖';
+      const viewType = salesGanttViewTypeEl?.value || 'table';
       const body = monthBuckets.map(m => {
         const skuList = m.items.length
           ? `<ul class="ganttSkuList">${m.items.map(i => `<li>${i.sku}（${i.dateText} 缺貨）</li>`).join('')}</ul>`
@@ -2742,11 +2819,20 @@ const allProducts = [
           <tbody>${body}</tbody>
         </table>
       `;
+      renderSalesCalendar(monthBuckets);
+      if (viewType === 'calendar') {
+        salesGanttWrapEl.style.display = 'none';
+        if (salesCalendarWrapEl) salesCalendarWrapEl.style.display = 'block';
+      } else {
+        salesGanttWrapEl.style.display = 'block';
+        if (salesCalendarWrapEl) salesCalendarWrapEl.style.display = 'none';
+      }
       if (salesGanttHintEl) {
         const scopeLabel = (parseSalesInput(salesInputEl.value).records.length > 0)
           ? '已套用銷售額輸入中的 SKU 範圍'
           : '未提供銷售額 SKU，已改用主表全部 SKU';
-        salesGanttHintEl.textContent = `目前模式：${modeLabel}。${scopeLabel}。`;
+        const viewLabel = viewType === 'calendar' ? '月曆檢視' : '甘特表格';
+        salesGanttHintEl.textContent = `目前模式：${modeLabel} / ${viewLabel}。${scopeLabel}。`;
       }
     }
 
@@ -2754,12 +2840,21 @@ const allProducts = [
       if (!latestSalesGanttRows.length) renderSalesGantt();
       const mode = ganttDaysTypeEl?.value || 'usDays';
       const modeLabel = mode === 'usDays' ? '美國可售天數甘特圖' : '含訂單可售天數甘特圖';
-      const headers = ['月份', '預估缺貨品項數', '缺貨品項（含日期）'];
-      const body = latestSalesGanttRows.map(m => [
-        m.label,
-        m.items.length,
-        m.items.map(i => `${i.sku}(${i.dateText})`).join('、')
-      ]);
+      const headers = ['月份', '預估缺貨品項數', '缺貨品項（含日期）', '月曆每日彙總'];
+      const body = latestSalesGanttRows.map(m => {
+        const dayMap = new Map();
+        m.items.forEach(i => {
+          if (!dayMap.has(i.dateText)) dayMap.set(i.dateText, []);
+          dayMap.get(i.dateText).push(i.sku);
+        });
+        const dailySummary = Array.from(dayMap.entries()).map(([date, skus]) => `${date}:${skus.join('/')}`).join('；');
+        return [
+          m.label,
+          m.items.length,
+          m.items.map(i => `${i.sku}(${i.dateText})`).join('、'),
+          dailySummary
+        ];
+      });
       const now = new Date();
       const dateStamp = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
       const wb = XLSX.utils.book_new();
@@ -2782,6 +2877,9 @@ const allProducts = [
     }
     if (salesGanttFactoryEl) {
       salesGanttFactoryEl.addEventListener('change', renderSalesGantt);
+    }
+    if (salesGanttViewTypeEl) {
+      salesGanttViewTypeEl.addEventListener('change', renderSalesGantt);
     }
 </script>
 </body>
