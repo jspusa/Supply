@@ -777,7 +777,10 @@ TTR01AM-4 14125
           <h2>銷售甘特圖 / 月曆（未來 12 個月）</h2>
           <div class="hint">獨立區塊顯示銷售甘特圖，支援表格與月曆檢視並可匯出 Excel。</div>
         </div>
-        <span class="pill">可收合</span>
+        <div class="summary-actions">
+          <button class="secondary" id="btnExportSalesGantt">下載Excel</button>
+          <span class="pill">可收合</span>
+        </div>
       </summary>
       <div class="cardContent">
         <div class="ganttCard" style="margin-top:0;">
@@ -798,8 +801,6 @@ TTR01AM-4 14125
               <option value="table">表格檢視</option>
               <option value="calendar" selected>月曆檢視</option>
             </select>
-            <button id="btnBuildSalesGantt">產生表格</button>
-            <button id="btnExportSalesGantt" class="secondary">匯出 Excel</button>
           </div>
           <div class="tableWrap" id="salesGanttWrap"></div>
           <div class="salesCalendarWrap" id="salesCalendarWrap" style="display:none;"></div>
@@ -2572,7 +2573,6 @@ const allProducts = [
     const ganttDaysTypeEl = document.getElementById('ganttDaysType');
     const salesGanttFactoryEl = document.getElementById('salesGanttFactory');
     const salesGanttViewTypeEl = document.getElementById('salesGanttViewType');
-    const btnBuildSalesGantt = document.getElementById('btnBuildSalesGantt');
     const btnExportSalesGantt = document.getElementById('btnExportSalesGantt');
     const salesGanttWrapEl = document.getElementById('salesGanttWrap');
     const salesCalendarWrapEl = document.getElementById('salesCalendarWrap');
@@ -2886,12 +2886,6 @@ const allProducts = [
     if (btnBuildSalesCharts) {
       btnBuildSalesCharts.addEventListener('click', buildSalesCharts);
     }
-    if (btnBuildSalesGantt) {
-      btnBuildSalesGantt.addEventListener('click', () => {
-        if (salesGanttViewTypeEl) salesGanttViewTypeEl.value = 'table';
-        renderSalesGantt();
-      });
-    }
     if (btnExportSalesGantt) {
       btnExportSalesGantt.addEventListener('click', exportSalesGanttExcel);
     }
@@ -2904,6 +2898,10 @@ const allProducts = [
     if (salesGanttViewTypeEl) {
       salesGanttViewTypeEl.addEventListener('change', renderSalesGantt);
     }
+    if (salesInputEl) {
+      salesInputEl.addEventListener('input', renderSalesGantt);
+    }
+    renderSalesGantt();
 </script>
 </body>
 </html>
