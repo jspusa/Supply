@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>訂單分析器</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Ctext x=%278%27 y=%2746%27 font-size=%2742%27%3E📦%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <style>
     :root { font-family: "Noto Sans TC", system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #0f1d2b; }
@@ -2643,7 +2644,8 @@ const allProducts = [
     }
 
     function parseAmount(value) {
-      if (!value) return null;
+      if (value === null || value === undefined) return null;
+      if (typeof value === 'string' && value.trim() === '') return null;
       const cleaned = String(value).replace(/US\$/i, '').replace(/,/g, '').replace(/[^\d.-]/g, '');
       const num = Number(cleaned);
       return Number.isFinite(num) ? num : null;
