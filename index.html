@@ -205,13 +205,17 @@
     }
     .order-generator tr:last-child td { border-bottom: none; }
     .order-generator tr:hover td { background: #f0f5fe; }
-    .order-generator .action-button, .order-generator .remove-button, .order-generator .lock-button {
+    .order-generator .action-button, .order-generator .remove-button, .order-generator .lock-button, .order-generator .drag-handle {
       background: #e0e7f3; color: #5c6f8f;
       padding: 5px 9px; margin: 2px 1px;
       border: none; border-radius: 6px; cursor: pointer;
       font-size: 15px; font-weight: bold;
       transition: background 0.2s;
     }
+    .order-generator .drag-handle { cursor: grab; }
+    .order-generator .drag-handle:active { cursor: grabbing; }
+    .order-generator .drag-handle.active { background: #b0c9e7; }
+    .order-generator .dragging-row td { background: #e9f2ff !important; }
     .order-generator .action-button:hover { background: #b0c9e7;}
     .order-generator .remove-button { background: #fa7878; color: #fff;}
     .order-generator .remove-button:hover { background: #e84242;}
@@ -1633,26 +1637,26 @@ const allProducts = [
   { productCode: "GTC01", productName: "Gootoe - Sliced Turkey Tendon (85g x 120)", boxSize: "58.5*34.5*35", perCarton: 120, perPack: null, perBox: null, perPallet: 36, country: "VN" },
   { productCode: "GTR03", productName: "Gootoe - Turkey Tendon Ring_M(90g x 100)", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
   { productCode: "GTB03", productName: "Gootoe - Turkey Tendon Bone_M(90g x 100)", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GTP03", productName: "Gootoe - Turkey Tendon Rope_M(90g x 100)", boxSize: "58.5*34.5*35", perCarton: 100, perPack: null, perBox: null, perPallet: 36, country: "VN" },
+  { productCode: "GTP03", productName: "Gootoe - Turkey Tendon Rope_M(90g x 100)", boxSize: "50*40*30", perCarton: 90, perPack: null, perBox: null, perPallet: 36, country: "VN" },
   { productCode: "GTS03", productName: "Gootoe - Turkey Tendon Stick_M(90g x 100)", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
   { productCode: "GTZ03", productName: "Gootoe - Turkey Tendon Pretzel_M(90g x 120)", boxSize: "58.5*34.5*35", perCarton: 120, perPack: null, perBox: null, perPallet: 36, country: "VN" },
-  { productCode: "GTB05", productName: "Gootoe - Turkey Tendon Bone_L(100g x 100)", boxSize: "58.5*34.5*35", perCarton: 100, perPack: null, perBox: null, perPallet: 36, country: "VN" },
+  { productCode: "GTB05", productName: "Gootoe - Turkey Tendon Bone_L(100g x 100)", boxSize: "50*40*30", perCarton: 90, perPack: null, perBox: null, perPallet: 36, country: "VN" },
   { productCode: "GTP05", productName: "Gootoe - Turkey Tendon Rope_L(100g x 100)", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
   { productCode: "GTB07", productName: "Gootoe - Turkey tendon lolipop 15g x 5pcs (75g x 100)", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
   { productCode: "GSF01", productName: "Soft Turkey Tendon Strip with Pumpkin (85g x 150)", boxSize: "50*40*30", perCarton: 150, perPack: null, perBox: null, perPallet: 42, country: "VN" },
   { productCode: "GSF02", productName: "Soft Turkey Tendon Strip (85g x 150)", boxSize: "50*40*30", perCarton: 150, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GTSL01", productName: "Gootoe - Turkey Tendon Strip (454g x 30)", boxSize: "50*40*40", perCarton: 30, perPack: null, perBox: null, perPallet: 30, country: "VN" },
-  { productCode: "GTRL01", productName: "Gootoe - Turkey Tendon Ring_S (454g x 30)", boxSize: "50*40*40", perCarton: 30, perPack: null, perBox: null, perPallet: 30, country: "VN" },
-  { productCode: "GTPL01", productName: "Gootoe - Turkey Tendon Rope_S (454g x 30)", boxSize: "50*40*40", perCarton: 30, perPack: null, perBox: null, perPallet: 30, country: "VN" },
-  { productCode: "GTBL01", productName: "Gootoe - Turkey Tendon Bone_S (454g x 30)", boxSize: "50*40*40", perCarton: 30, perPack: null, perBox: null, perPallet: 30, country: "VN" },
-  { productCode: "GTAL01", productName: "Gootoe - Turkey Tendon Braid_S (454g x 38)", boxSize: "50*40*40", perCarton: 38, perPack: null, perBox: null, perPallet: 30, country: "VN" },
-  { productCode: "GTCL01", productName: "Gootoe - Turkey Tendon Sliced (454g x 30)", boxSize: "50*40*40", perCarton: 30, perPack: null, perBox: null, perPallet: 30, country: "VN" },
-  { productCode: "GTRL03", productName: "Gootoe - Turkey Tendon Ring_M (454g x 30)", boxSize: "50*40*40", perCarton: 30, perPack: null, perBox: null, perPallet: 30, country: "VN" },
-  { productCode: "GTPL03", productName: "Gootoe - Turkey Tendon Rope_M (454g x 30)", boxSize: "50*40*40", perCarton: 30, perPack: null, perBox: null, perPallet: 30, country: "VN" },
-  { productCode: "GTBL03", productName: "Gootoe - Turkey Tendon Bone_M (454g x 30)", boxSize: "50*40*40", perCarton: 30, perPack: null, perBox: null, perPallet: 30, country: "VN" },
-  { productCode: "GTZL03", productName: "Gootoe - Turkey Tendon Pretzel_M (454g x 30)", boxSize: "50*40*40", perCarton: 30, perPack: null, perBox: null, perPallet: 30, country: "VN" },
-  { productCode: "GTPL05", productName: "Gootoe - Turkey Tendon Rope_L (454g x 30)", boxSize: "50*40*40", perCarton: 30, perPack: null, perBox: null, perPallet: 30, country: "VN" },
-  { productCode: "GTBL05", productName: "Gootoe - Turkey Tendon Bone_L(454g x 30)", boxSize: "50*40*40", perCarton: 30, perPack: null, perBox: null, perPallet: 30, country: "VN" },
+  { productCode: "GTSL01", productName: "Gootoe - Turkey Tendon Strip (454g x 30)", boxSize: "50*40*30", perCarton: 24, perPack: null, perBox: null, perPallet: 30, country: "VN" },
+  { productCode: "GTRL01", productName: "Gootoe - Turkey Tendon Ring_S (454g x 30)", boxSize: "50*40*30", perCarton: 22, perPack: null, perBox: null, perPallet: 30, country: "VN" },
+  { productCode: "GTPL01", productName: "Gootoe - Turkey Tendon Rope_S (454g x 30)", boxSize: "50*40*30", perCarton: 24, perPack: null, perBox: null, perPallet: 30, country: "VN" },
+  { productCode: "GTBL01", productName: "Gootoe - Turkey Tendon Bone_S (454g x 30)", boxSize: "50*40*30", perCarton: 26, perPack: null, perBox: null, perPallet: 30, country: "VN" },
+  { productCode: "GTAL01", productName: "Gootoe - Turkey Tendon Braid_S (454g x 38)", boxSize: "50*40*30", perCarton: 30, perPack: null, perBox: null, perPallet: 30, country: "VN" },
+  { productCode: "GTCL01", productName: "Gootoe - Turkey Tendon Sliced (454g x 30)", boxSize: "50*40*30", perCarton: 28, perPack: null, perBox: null, perPallet: 30, country: "VN" },
+  { productCode: "GTRL03", productName: "Gootoe - Turkey Tendon Ring_M (454g x 30)", boxSize: "50*40*30", perCarton: 28, perPack: null, perBox: null, perPallet: 30, country: "VN" },
+  { productCode: "GTPL03", productName: "Gootoe - Turkey Tendon Rope_M (454g x 30)", boxSize: "50*40*30", perCarton: 24, perPack: null, perBox: null, perPallet: 30, country: "VN" },
+  { productCode: "GTBL03", productName: "Gootoe - Turkey Tendon Bone_M (454g x 30)", boxSize: "50*40*30", perCarton: 28, perPack: null, perBox: null, perPallet: 30, country: "VN" },
+  { productCode: "GTZL03", productName: "Gootoe - Turkey Tendon Pretzel_M (454g x 30)", boxSize: "50*40*30", perCarton: 30, perPack: null, perBox: null, perPallet: 30, country: "VN" },
+  { productCode: "GTPL05", productName: "Gootoe - Turkey Tendon Rope_L (454g x 30)", boxSize: "50*40*30", perCarton: 24, perPack: null, perBox: null, perPallet: 30, country: "VN" },
+  { productCode: "GTBL05", productName: "Gootoe - Turkey Tendon Bone_L(454g x 30)", boxSize: "50*40*30", perCarton: 24, perPack: null, perBox: null, perPallet: 30, country: "VN" },
   { productCode: "GSFL01", productName: "Soft Turkey Tendon Strip with Pumpkin (454g x 38)", boxSize: "50*40*30", perCarton: 38, perPack: null, perBox: null, perPallet: 42, country: "VN" },
   { productCode: "GSFL02", productName: "Soft Turkey Tendon Strip (454g x 38)", boxSize: "50*40*30", perCarton: 38, perPack: null, perBox: null, perPallet: 42, country: "VN" },
   { productCode: "ATS01", productName: "Natural Turkey Tendon Strip (100g)", boxSize: "50*40*30", perCarton: 90, perPack: null, perBox: null, perPallet: 42, country: "VN" },
@@ -1855,6 +1859,7 @@ const allProducts = [
       "48*38*28": 36
     };
     let currentCountry = 'VN';
+    initRowDragAndDrop();
 
     function showTip(msg, type="info") {
       let tip = document.createElement('div');
@@ -2076,8 +2081,7 @@ const allProducts = [
         <td class="pallet-days">${formatPalletDays(prod)}</td>
         <td class="estimated-days">${formatEstimatedDays(prod, 0, 0)}</td>
         <td class="action-button-group">
-          <button type="button" class="action-button" onclick="moveUp(this)" title="上移"><i class="fa-solid fa-arrow-up"></i></button>
-          <button type="button" class="action-button" onclick="moveDown(this)" title="下移"><i class="fa-solid fa-arrow-down"></i></button>
+          <button type="button" class="drag-handle" onmousedown="enableRowDrag(this)" onmouseup="disableRowDrag(this)" onmouseleave="disableRowDrag(this)" ontouchstart="enableRowDrag(this)" ontouchend="disableRowDrag(this)" title="按住拖曳排序"><i class="fa-solid fa-grip-vertical"></i></button>
           <button type="button" class="lock-button" onclick="toggleLock(this)" title="鎖定/解鎖"><i class="fa-solid fa-lock"></i></button>
           <button type="button" class="remove-button" onclick="removeRow(this)" title="刪除"><i class="fa-solid fa-trash"></i></button>
         </td>
@@ -2213,17 +2217,70 @@ const allProducts = [
       updateTotals();
       showTip('已刪除產品', 'success');
     }
-    function moveUp(btn){
-      const tr = btn.closest('tr');
-      const prev = tr.previousElementSibling;
-      if(prev) tr.parentNode.insertBefore(tr, prev);
+    let draggedRow = null;
+    function initRowDragAndDrop(){
+      const tbody = document.querySelector('#productTable tbody');
+      if (!tbody || tbody.dataset.dragInit === '1') return;
+      tbody.dataset.dragInit = '1';
+      tbody.addEventListener('dragover', handleRowDragOver);
+      tbody.addEventListener('drop', handleRowDrop);
+    }
+    function enableRowDrag(btn){
+      const row = btn.closest('tr');
+      if (!row) return;
+      row.draggable = true;
+      btn.classList.add('active');
+    }
+    function disableRowDrag(btn){
+      const row = btn.closest('tr');
+      if (!row || row.classList.contains('dragging-row')) return;
+      row.draggable = false;
+      btn.classList.remove('active');
+    }
+    document.addEventListener('dragstart', (event) => {
+      const row = event.target.closest('#productTable tbody tr');
+      if (!row || !row.draggable) {
+        event.preventDefault();
+        return;
+      }
+      draggedRow = row;
+      row.classList.add('dragging-row');
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', row.dataset.product || '');
+    });
+    document.addEventListener('dragend', (event) => {
+      const row = event.target.closest('#productTable tbody tr');
+      if (!row) return;
+      row.classList.remove('dragging-row');
+      row.draggable = false;
+      row.querySelector('.drag-handle')?.classList.remove('active');
+      draggedRow = null;
+    });
+    function handleRowDragOver(event){
+      event.preventDefault();
+      const tbody = event.currentTarget;
+      const afterElement = getDragAfterElement(tbody, event.clientY);
+      if (!draggedRow) return;
+      if (!afterElement) {
+        tbody.appendChild(draggedRow);
+      } else if (afterElement !== draggedRow) {
+        tbody.insertBefore(draggedRow, afterElement);
+      }
+    }
+    function handleRowDrop(event){
+      event.preventDefault();
       updateRowNumbers();
     }
-    function moveDown(btn){
-      const tr = btn.closest('tr');
-      const next = tr.nextElementSibling;
-      if(next) tr.parentNode.insertBefore(next, tr);
-      updateRowNumbers();
+    function getDragAfterElement(container, y){
+      const rows = [...container.querySelectorAll('tr:not(.dragging-row)')];
+      return rows.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+          return { offset, element: child };
+        }
+        return closest;
+      }, { offset: Number.NEGATIVE_INFINITY, element: null }).element;
     }
     function updateRowNumbers(){
       const rows = document.querySelectorAll('#productTable tbody tr');
