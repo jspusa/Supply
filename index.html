@@ -2887,7 +2887,10 @@ const allProducts = [
       btnBuildSalesCharts.addEventListener('click', buildSalesCharts);
     }
     if (btnBuildSalesGantt) {
-      btnBuildSalesGantt.addEventListener('click', renderSalesGantt);
+      btnBuildSalesGantt.addEventListener('click', () => {
+        if (salesGanttViewTypeEl) salesGanttViewTypeEl.value = 'table';
+        renderSalesGantt();
+      });
     }
     if (btnExportSalesGantt) {
       btnExportSalesGantt.addEventListener('click', exportSalesGanttExcel);
