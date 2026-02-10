@@ -1243,12 +1243,12 @@ function isHeroHotSku(sku) {
   }
 
   function addReorderRowsToGenerator() {
-    const rows = applyFilters(reorderRowsAll);
+    const threshold = Math.max(1, Number(daysThresholdEl.value || 180));
+    const rows = applyFilters(mainRowsAll).filter(row => row.days !== null && row.days <= threshold && row.speed !== null && row.speed > 0);
     if (rows.length === 0) {
       showTip('目前沒有可加入的下單品項', 'error');
       return;
     }
-    const threshold = Math.max(1, Number(daysThresholdEl.value || 180));
     const missing = [];
     const skipped = [];
     rows.forEach(row => {
@@ -1440,7 +1440,7 @@ function isHeroHotSku(sku) {
     return { headers, body };
   }
   function exportReorderRowsFiltered() {
-    const rows = applyFilters(reorderRowsAll);
+    const rows = applyFilters(mainRowsAll).filter(row => row.days !== null && row.days <= threshold && row.speed !== null && row.speed > 0);
     const headers = ["SKU","ASIN","速度","訂單","美國總數","可售總量(美國+訂單)","美國可售天數","含訂單可售天數"];
     const body = rows.map(r => [
       r.sku, r.asin, String(r.speed), String(r.order), String(r.us), String(r.avail), fmtDays(r.usDays), fmtDays(r.days)
@@ -1535,6 +1535,7 @@ function isHeroHotSku(sku) {
   });
 
   updateSortButtons();
+  window.buildSupplyTables = buildTables;
   document.querySelectorAll('.summary-actions button').forEach(btn => {
     btn.addEventListener('click', (event) => event.stopPropagation());
   });
@@ -2682,9 +2683,13 @@ const allProducts = [
 
 
     function buildSalesGanttData() {
+      if ((!Array.isArray(window.mainRowsAll) || window.mainRowsAll.length === 0) && typeof window.buildSupplyTables === 'function') {
+        window.buildSupplyTables();
+      }
       const baseRows = Array.isArray(window.mainRowsAll) ? window.mainRowsAll : [];
       const records = parseSalesInput(salesInputEl.value).records;
       const activeSku = new Set(records.map(r => r.sku));
+      const useSalesSkuFilter = activeSku.size > 0;
       const mode = ganttDaysTypeEl?.value || 'usDays';
       const factoryMode = salesGanttFactoryEl?.value || 'all';
       const today = new Date();
@@ -2698,7 +2703,7 @@ const allProducts = [
       });
 
       const rows = baseRows.filter(r => {
-        if (!activeSku.has(String(r.sku || '').toUpperCase())) return false;
+        if (useSalesSkuFilter && !activeSku.has(String(r.sku || '').toUpperCase())) return false;
         if (factoryMode === 'onlyTW') return String(r.sku || '').toUpperCase().startsWith('E');
         if (factoryMode === 'hideTW') return !String(r.sku || '').toUpperCase().startsWith('E');
         return true;
@@ -2738,7 +2743,10 @@ const allProducts = [
         </table>
       `;
       if (salesGanttHintEl) {
-        salesGanttHintEl.textContent = `目前模式：${modeLabel}。僅統計銷售額資料中有出現且主表可對應速度的 SKU。`;
+        const scopeLabel = (parseSalesInput(salesInputEl.value).records.length > 0)
+          ? '已套用銷售額輸入中的 SKU 範圍'
+          : '未提供銷售額 SKU，已改用主表全部 SKU';
+        salesGanttHintEl.textContent = `目前模式：${modeLabel}。${scopeLabel}。`;
       }
     }
 
