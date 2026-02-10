@@ -2922,6 +2922,12 @@ const allProducts = [
     if (salesGanttViewTypeEl) {
       salesGanttViewTypeEl.addEventListener('change', renderSalesGantt);
     }
+    const btnCalculateEl = document.getElementById('btnCalculate');
+    if (btnCalculateEl) {
+      btnCalculateEl.addEventListener('click', () => {
+        setTimeout(renderSalesGantt, 0);
+      });
+    }
     if (salesInputEl) {
       salesInputEl.addEventListener('input', renderSalesGantt);
     }
