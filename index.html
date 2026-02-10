@@ -272,31 +272,27 @@
     }
     .order-generator .close-modal:hover, .order-generator .close-modal:focus { color: #222; }
     .order-generator .modal-content p { margin: 12px 0 6px 0; }
-    /* 新品產生器浮動鈕 */
-    .order-generator #newItemGeneratorBtn {
+    /* 右上角其他功能按鈕 */
+    .order-generator #otherFunctionsBtn {
       position: fixed; top: 22px; right: 30px;
-      background: linear-gradient(120deg,#10b7e8 60%,#7ad0e0 100%);
-      color: #fff; border: none; border-radius: 50%; width: 45px; height: 45px;
-      cursor: pointer; font-weight: bold; font-size: 2rem;
-      box-shadow: 0 2px 14px #13e6f442;
-      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(120deg,#2f80ed 60%,#56ccf2 100%);
+      color: #fff; border: none; border-radius: 999px;
+      min-width: 116px; height: 44px;
+      cursor: pointer; font-weight: 700; font-size: 0.98rem;
+      box-shadow: 0 2px 14px rgba(47, 128, 237, 0.35);
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
       z-index: 2100;
       transition: box-shadow 0.2s, background 0.2s;
     }
-    .order-generator #newItemGeneratorBtn:hover { box-shadow: 0 4px 24px #23baff74; background: #0aa2c3; }
-    .order-generator #discontinuedListBtn {
-      position: fixed; top: 22px; right: 86px;
-      background: linear-gradient(120deg,#ff6b6b 60%,#ff9a9a 100%);
-      color: #fff; border: none; border-radius: 50%; width: 40px; height: 40px;
-      cursor: pointer; font-weight: bold; font-size: 1.1rem;
-      box-shadow: 0 2px 12px rgba(255, 107, 107, 0.35);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 2100;
-      transition: box-shadow 0.2s, background 0.2s;
+    .order-generator #otherFunctionsBtn:hover {
+      box-shadow: 0 4px 24px rgba(47, 128, 237, 0.45);
+      background: linear-gradient(120deg,#226fd6 60%,#49bde2 100%);
     }
-    .order-generator #discontinuedListBtn:hover {
-      box-shadow: 0 4px 20px rgba(255, 107, 107, 0.5);
-      background: #ff5252;
+    .order-generator .other-function-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 12px;
     }
     .discontinued-text { color: #c62828; font-weight: 700; }
     .discontinued-tag {
@@ -458,14 +454,25 @@
               </div>
             </div>
 
-            <!-- 新品產生器浮動按鈕 -->
-            <button id="newItemGeneratorBtn" title="新品產生器">
-              <i class="fa-solid fa-plus"></i>
+            <!-- 其他功能浮動按鈕 -->
+            <button id="otherFunctionsBtn" title="其他功能">
+              <i class="fa-solid fa-ellipsis"></i>
+              <span>其他功能</span>
             </button>
-            <!-- 停產清單浮動按鈕 -->
-            <button id="discontinuedListBtn" title="停產清單">
-              <i class="fa-solid fa-ban"></i>
-            </button>
+            <!-- 其他功能 Modal -->
+            <div id="otherFunctionsModal" class="modal">
+              <div class="modal-content">
+                <span class="close-modal" onclick="closeOtherFunctionsModal()">&times;</span>
+                <h2 style="color:#2f80ed;font-size:1.25rem;margin-bottom:16px;">
+                  <i class="fa-solid fa-sliders"></i> 其他功能
+                </h2>
+                <div class="other-function-actions">
+                  <button class="product-button" onclick="openNewItemModal()"><i class="fa-solid fa-cube"></i> 開啟新品產生器</button>
+                  <button class="product-button" style="background:#e55b5b;" onclick="openDiscontinuedModal()"><i class="fa-solid fa-ban"></i> 開啟停產清單</button>
+                  <button class="product-button" style="background:#6b7a90;" onclick="openAdvancedSettingsModal()"><i class="fa-solid fa-gear"></i> 開啟進階設定</button>
+                </div>
+              </div>
+            </div>
             <!-- 停產清單 Modal -->
             <div id="discontinuedModal" class="modal">
               <div class="modal-content">
@@ -602,7 +609,7 @@ TTR01AM-4 14125
       </details>
 
       <!-- 主表 -->
-      <details class="card priority" open>
+      <details class="card priority">
         <summary>
           <div>
             <h2>主表（H10 產品）</h2>
@@ -629,7 +636,7 @@ TTR01AM-4 14125
       </details>
 
       <!-- 熱銷品專區 -->
-      <details class="card priority" open>
+      <details class="card priority">
         <summary>
           <div>
             <h2>熱銷品專區</h2>
@@ -656,7 +663,7 @@ TTR01AM-4 14125
       </details>
 
       <!-- 新品（訂單有但H10沒有） -->
-      <details class="card priority" open>
+      <details class="card priority">
         <summary>
           <div>
             <h2>新品（訂單有，但 H10 沒有）</h2>
@@ -671,40 +678,13 @@ TTR01AM-4 14125
           <div class="tableWrap" id="newOrderWrap"></div>
         </div>
       </details>
-
-      <!-- 新品（美國總數有但H10沒有且訂單也沒有） 預設收折 -->
-      <details class="card" id="newUSDetails">
-        <summary>
-          <div>
-            <p class="eyebrow">其他</p>
-            <h2 style="margin:0;">美國總數有，但 H10 沒有，且訂單也沒有</h2>
-          </div>
-          <span class="hint">（預設收折，點此展開）</span>
-          <div class="summary-actions">
-            <button class="secondary" id="btnDownloadNewUSCSV">下載Excel</button>
-          </div>
-        </summary>
-
-        <div class="cardContent">
-          <div class="row" style="justify-content: space-between;">
-            <div class="hint">SKU / 美國總數</div>
-          </div>
-
-          <div class="tableWrap" id="newUSWrap"></div>
-        </div>
-      </details>
     </div>
 
-    <details class="card" id="advancedSettings">
-      <summary>
-        <div>
-          <p class="eyebrow">設定</p>
-          <h2>進階設定（可展開）</h2>
-        </div>
-        <span class="pill">可收合</span>
-      </summary>
-      <div class="cardContent">
-        <div class="row">
+    <div id="advancedSettingsModal" class="modal">
+      <div class="modal-content">
+        <span class="close-modal" onclick="closeAdvancedSettingsModal()">&times;</span>
+        <h2 style="color:#2f80ed;font-size:1.25rem;margin-bottom:16px;"><i class="fa-solid fa-gear"></i> 進階設定</h2>
+        <div class="row" style="display:flex; flex-direction:column; align-items:flex-start; gap:10px;">
           <label style="display:flex; gap:6px; align-items:center;">
             <input type="checkbox" id="chkDedupe" checked />
             H10 去重（以 ASIN+SKU）
@@ -723,7 +703,7 @@ TTR01AM-4 14125
           </label>
         </div>
       </div>
-    </details>
+    </div>
 
     <details class="card" id="salesPieDetails">
       <summary>
@@ -890,14 +870,11 @@ function isHeroHotSku(sku) {
   const reorderWrap = document.getElementById('reorderTableWrap');
   const hotWrap = document.getElementById('hotTableWrap');
   const newOrderWrap = document.getElementById('newOrderWrap');
-  const newUSWrap = document.getElementById('newUSWrap');
 
   const countReorderEl = document.getElementById('countReorder');
   const countHotEl = document.getElementById('countHot');
   const countNewOrderEl = document.getElementById('countNewOrder');
-  const countNewUSEl = document.getElementById('countNewUS');
 
-  const newUSDetails = document.getElementById('newUSDetails');
 
   // 工廠篩選狀態：all | hideTW | onlyTW
   let factoryMode = "all";
@@ -945,8 +922,6 @@ function isHeroHotSku(sku) {
   let hotRowsAll = [];
   /** @type {{sku:string, order:number, us:(number|null)}[]} */
   let newOrderRowsAll = [];
-  /** @type {{sku:string, us:number}[]} */
-  let newUSRowsAll = [];
 
   function escapeHtml(s) {
     return (s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1144,13 +1119,6 @@ function isHeroHotSku(sku) {
       }
     }
 
-    const newUS = [];
-    for (const [sku, u] of usMap.entries()) {
-      if (!h10SkuSet.has(sku) && !orderMap.has(sku)) {
-        newUS.push({ sku, us: u });
-      }
-    }
-
     const hotRows = hotSkuList.map(rawSku => {
       const sku = normalizeSkuValue(rawSku);
       const h10Row = h10RowMap.get(sku);
@@ -1184,13 +1152,11 @@ function isHeroHotSku(sku) {
 
     reorder.sort((a,b) => a.days - b.days);
     newOrder.sort((a,b) => b.order - a.order);
-    newUS.sort((a,b) => b.us - a.us);
 
     mainRowsAll = h10Rows;
     reorderRowsAll = reorder;
     hotRowsAll = hotRows;
     newOrderRowsAll = newOrder;
-    newUSRowsAll = newUS;
     window.availMap = new Map(h10Rows.map(r => [r.sku, (r.avail ?? 0)]));
 
     renderAll();
@@ -1204,7 +1170,6 @@ function isHeroHotSku(sku) {
     renderMain();
     renderHot();
     renderNewOrder();
-    renderNewUS();
   }
 
   function renderReorder() {
@@ -1398,29 +1363,6 @@ function isHeroHotSku(sku) {
     `;
   }
 
-  function renderNewUS() {
-    const rows = applyFilters(newUSRowsAll);
-    // countNewUS 只有在展開時才顯示也可以，但這裡保留更新
-    if (countNewUSEl) countNewUSEl.textContent = String(rows.length);
-    if (rows.length === 0) { newUSWrap.innerHTML = ""; return; }
-
-    const body = rows.map((r, idx) => `
-      <tr>
-        <td>${idx + 1}</td>
-        ${renderSkuCell(r.sku)}
-        <td class="ok">${escapeHtml(String(r.us))}</td>
-      </tr>
-    `).join("");
-
-    newUSWrap.innerHTML = `
-      <table>
-        <thead>
-          <tr><th>#</th><th>SKU</th><th>美國總數</th></tr>
-        </thead>
-        <tbody>${body}</tbody>
-      </table>
-    `;
-  }
 
   // ---- Export ----
   function download(filename, content, mime) {
@@ -1471,12 +1413,6 @@ function isHeroHotSku(sku) {
     const rows = applyFilters(newOrderRowsAll);
     const headers = ["SKU","訂單","美國總數"];
     const body = rows.map(r => [r.sku, String(r.order), (r.us ?? "").toString()]);
-    return { headers, body };
-  }
-  function exportNewUSRowsFiltered() {
-    const rows = applyFilters(newUSRowsAll);
-    const headers = ["SKU","美國總數"];
-    const body = rows.map(r => [r.sku, String(r.us)]);
     return { headers, body };
   }
 
@@ -1560,14 +1496,6 @@ function isHeroHotSku(sku) {
     downloadRowsAsExcel(ex.headers, ex.body, `${dateStamp}_新品_訂單.xlsx`, "新品_訂單");
   });
 
-  document.getElementById("btnDownloadNewUSCSV").addEventListener("click", () => {
-    const ex = exportNewUSRowsFiltered();
-    const dateStamp = getDateStamp();
-    downloadRowsAsExcel(ex.headers, ex.body, `${dateStamp}_新品_美國總數.xlsx`, "新品_美國總數");
-  });
-
-  // ⑦ 預設收折
-  newUSDetails.open = false;
   updateSortButtons();
   document.querySelectorAll('.summary-actions button').forEach(btn => {
     btn.addEventListener('click', (event) => event.stopPropagation());
@@ -2417,21 +2345,37 @@ const allProducts = [
       document.getElementById('boxSizeModal').style.display = 'none';
     }
     function openDiscontinuedModal(){
+      closeOtherFunctionsModal();
       renderDiscontinuedList();
       document.getElementById('discontinuedModal').style.display = 'block';
     }
     function closeDiscontinuedModal(){
       document.getElementById('discontinuedModal').style.display = 'none';
     }
+    function openOtherFunctionsModal(){
+      document.getElementById('otherFunctionsModal').style.display = 'block';
+    }
+    function closeOtherFunctionsModal(){
+      document.getElementById('otherFunctionsModal').style.display = 'none';
+    }
+    function openAdvancedSettingsModal(){
+      closeOtherFunctionsModal();
+      document.getElementById('advancedSettingsModal').style.display = 'block';
+    }
+    function closeAdvancedSettingsModal(){
+      document.getElementById('advancedSettingsModal').style.display = 'none';
+    }
     window.onclick = (e) => {
       if(e.target === document.getElementById('boxSizeModal')) closeModal();
       if(e.target === document.getElementById('newItemModal')) closeNewItemModal();
       if(e.target === document.getElementById('discontinuedModal')) closeDiscontinuedModal();
+      if(e.target === document.getElementById('otherFunctionsModal')) closeOtherFunctionsModal();
+      if(e.target === document.getElementById('advancedSettingsModal')) closeAdvancedSettingsModal();
     }
     // 新品產生器
-    document.getElementById('newItemGeneratorBtn').addEventListener('click', openNewItemModal);
-    document.getElementById('discontinuedListBtn').addEventListener('click', openDiscontinuedModal);
+    document.getElementById('otherFunctionsBtn').addEventListener('click', openOtherFunctionsModal);
     function openNewItemModal(){
+      closeOtherFunctionsModal();
       document.getElementById('newItemModal').style.display = 'block';
     }
     function closeNewItemModal(){
