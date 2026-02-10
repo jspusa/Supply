@@ -792,14 +792,14 @@ TTR01AM-4 14125
             </select>
             <label for="salesGanttFactory">工廠篩選：</label>
             <select id="salesGanttFactory">
-              <option value="all">全部</option>
-              <option value="hideTW" selected>越南廠（排除台灣廠）</option>
+              <option value="all" selected>全部</option>
+              <option value="hideTW">越南廠（排除台灣廠）</option>
               <option value="onlyTW">台灣廠</option>
             </select>
             <label for="salesGanttViewType">檢視模式：</label>
             <select id="salesGanttViewType">
-              <option value="table">表格檢視</option>
-              <option value="calendar" selected>月曆檢視</option>
+              <option value="table" selected>表格檢視</option>
+              <option value="calendar">月曆檢視</option>
             </select>
           </div>
           <div class="tableWrap" id="salesGanttWrap"></div>
@@ -2621,6 +2621,10 @@ const allProducts = [
       return `US$${currencyFormatter.format(value)}`;
     }
 
+    function escapeSalesText(value) {
+      return String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
     function normalizeSalesSku(sku) {
       return String(sku ?? "").trim().toUpperCase();
     }
@@ -2771,8 +2775,12 @@ const allProducts = [
       });
 
       const rows = baseRows.filter(r => {
-        if (factoryMode === 'onlyTW') return String(r.sku || '').toUpperCase().startsWith('E');
-        if (factoryMode === 'hideTW') return !String(r.sku || '').toUpperCase().startsWith('E');
+        const sku = normalizeSalesSku(r?.sku || r?.productCode || '');
+        const country = productMap.get(sku)?.country || '';
+        const isTwBySkuRule = sku.startsWith('E');
+        const isTw = country === 'TW' || isTwBySkuRule;
+        if (factoryMode === 'onlyTW') return isTw;
+        if (factoryMode === 'hideTW') return !isTw;
         return true;
       });
 
@@ -2809,7 +2817,7 @@ const allProducts = [
 
     function formatGanttSkuLabel(sku) {
       const cls = getGanttSkuClassName(sku);
-      return cls ? `<span class="${cls}">${escapeHtml(String(sku))}</span>` : escapeHtml(String(sku));
+      return cls ? `<span class="${cls}">${escapeSalesText(String(sku))}</span>` : escapeSalesText(String(sku));
     }
 
     function renderSalesCalendar(monthBuckets) {
@@ -2843,7 +2851,7 @@ const allProducts = [
             <div class="salesDayCell ${skus.length ? 'hasEvent' : ''}">
               <div class="salesDayNum">${day}</div>
               ${skus.length ? `<div class="salesDayCount">${skus.length} 項</div>` : ''}
-              ${skus.length ? `<div class="salesDaySkus" title="${escapeHtml(titleText)}">${preview}${extra}</div>` : ''}
+              ${skus.length ? `<div class="salesDaySkus" title="${escapeSalesText(titleText)}">${preview}${extra}</div>` : ''}
             </div>
           `);
         }
@@ -2889,7 +2897,12 @@ const allProducts = [
       }
       if (salesGanttHintEl) {
         const viewLabel = viewType === 'calendar' ? '月曆檢視' : '甘特表格';
-        salesGanttHintEl.textContent = `目前模式：${modeLabel} / ${viewLabel}。`;
+        const totalItems = monthBuckets.reduce((sum, m) => sum + m.items.length, 0);
+        const emptyHint = totalItems === 0 ? '（目前無符合條件品項，請檢查工廠篩選或先按「計算」更新資料）' : '';
+        salesGanttHintEl.textContent = `目前模式：${modeLabel} / ${viewLabel}。${emptyHint}`;
+      }
+      } finally {
+        window.__isRenderingSalesGantt = false;
       }
       } finally {
         window.__isRenderingSalesGantt = false;
