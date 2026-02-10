@@ -1232,6 +1232,9 @@ function isHeroHotSku(sku) {
     if (window.refreshGeneratorSpeedMetrics) {
       window.refreshGeneratorSpeedMetrics();
     }
+    if (typeof renderSalesGantt === 'function') {
+      renderSalesGantt();
+    }
   }
 
   function renderAll() {
