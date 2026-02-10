@@ -331,6 +331,12 @@
       border-radius: 999px; font-size: 11px; font-weight: 700;
       background: #fbe6ff; color: #a21caf; border: 1px solid #f0b3ff;
     }
+
+    .sales-link { font-size: 12px; color: #0b6bcb; text-decoration: none; font-weight: 600; }
+    .sales-link:hover { text-decoration: underline; }
+    .gantt-item-discontinued { color: #c62828; font-weight: 700; }
+    .gantt-item-hero { color: #a21caf; font-weight: 700; }
+    .gantt-item-hot { color: #b45309; font-weight: 700; }
     .summary-actions {
       margin-left: auto;
       display: flex;
@@ -604,7 +610,7 @@ TTR01AM-4 14125
         <summary>
           <div>
             <h2>門檻內可售品項：建議下單清單</h2>
-            <div class="hint">只抓「美國可售天數 &lt;= 門檻」且速度 &gt; 0 的 SKU</div>
+            <div class="hint">只抓「含訂單可售天數 &lt;= 門檻」且速度 &gt; 0 的 SKU</div>
           </div>
           <div class="summary-actions">
             <button class="secondary" id="btnAddReorderToGenerator">一鍵加入訂單產生器</button>
@@ -731,7 +737,7 @@ TTR01AM-4 14125
           <h2>銷售額圓餅圖</h2>
           <div class="hint">貼上「SKU + 訂購產品銷售額」資料，系統會依工廠與品項分類產生圓餅圖。</div>
         </div>
-        <span class="pill">可收合</span>
+        <div class="summary-actions"><a class="sales-link" href="https://sellercentral.amazon.com/business-reports/ref=xx_sitemetric_dnav_xx#/report?id=102%3ADetailSalesTrafficBySKU&chartCols=&columns=0%2F1%2F2%2F3%2F8%2F9%2F14%2F15%2F20%2F21%2F26%2F27%2F28%2F29%2F30%2F31%2F32%2F33%2F34%2F35%2F36%2F37" target="_blank" rel="noopener noreferrer">後台資料</a><span class="pill">可收合</span></div>
       </summary>
       <div class="cardContent">
         <div class="row">
@@ -771,7 +777,10 @@ TTR01AM-4 14125
           <h2>銷售甘特圖 / 月曆（未來 12 個月）</h2>
           <div class="hint">獨立區塊顯示銷售甘特圖，支援表格與月曆檢視並可匯出 Excel。</div>
         </div>
-        <span class="pill">可收合</span>
+        <div class="summary-actions">
+          <button class="secondary" id="btnExportSalesGantt">下載Excel</button>
+          <span class="pill">可收合</span>
+        </div>
       </summary>
       <div class="cardContent">
         <div class="ganttCard" style="margin-top:0;">
@@ -779,21 +788,19 @@ TTR01AM-4 14125
             <label for="ganttDaysType">天數模式：</label>
             <select id="ganttDaysType">
               <option value="usDays">美國可售天數甘特圖</option>
-              <option value="days">含訂單可售天數甘特圖</option>
+              <option value="days" selected>含訂單可售天數甘特圖</option>
             </select>
             <label for="salesGanttFactory">工廠篩選：</label>
             <select id="salesGanttFactory">
               <option value="all">全部</option>
-              <option value="hideTW">越南廠（排除台灣廠）</option>
+              <option value="hideTW" selected>越南廠（排除台灣廠）</option>
               <option value="onlyTW">台灣廠</option>
             </select>
             <label for="salesGanttViewType">檢視模式：</label>
             <select id="salesGanttViewType">
-              <option value="table">甘特表格</option>
-              <option value="calendar">月曆檢視</option>
+              <option value="table">表格檢視</option>
+              <option value="calendar" selected>月曆檢視</option>
             </select>
-            <button id="btnBuildSalesGantt" class="secondary">產生甘特圖</button>
-            <button id="btnExportSalesGantt" class="secondary">匯出 Excel</button>
           </div>
           <div class="tableWrap" id="salesGanttWrap"></div>
           <div class="salesCalendarWrap" id="salesCalendarWrap" style="display:none;"></div>
@@ -1199,7 +1206,7 @@ function isHeroHotSku(sku) {
 
     const threshold = Math.max(1, Number(daysThresholdEl.value || 180));
     const reorder = h10Rows
-      .filter(r => r.usDays !== null && r.usDays <= threshold && r.speed !== null && r.speed > 0)
+       .filter(r => r.days !== null && r.days <= threshold && r.speed !== null && r.speed > 0)
       .map(r => ({
         sku: r.sku,
         asin: r.asin,
@@ -1211,7 +1218,7 @@ function isHeroHotSku(sku) {
         days: (r.days ?? 0)
       }));
 
-    reorder.sort((a,b) => a.usDays - b.usDays);
+    reorder.sort((a,b) => a.days - b.days);
     newOrder.sort((a,b) => b.order - a.order);
 
     mainRowsAll = h10Rows;
@@ -1224,6 +1231,9 @@ function isHeroHotSku(sku) {
     renderAll();
     if (window.refreshGeneratorSpeedMetrics) {
       window.refreshGeneratorSpeedMetrics();
+    }
+    if (typeof renderSalesGantt === 'function') {
+      renderSalesGantt();
     }
   }
 
@@ -1266,10 +1276,37 @@ function isHeroHotSku(sku) {
 
   function calculateReorderQuantity(row, thresholdDays) {
     const speed = Number(row.speed || 0);
-    const currentDays = Number(row.usDays || 0);
+    const currentDays = Number(row.days || 0);
     if (!speed || !Number.isFinite(speed)) return 0;
     const gapDays = Math.max(0, thresholdDays - currentDays);
     return Math.ceil(gapDays * speed);
+  }
+
+  function calculateReorderPallets(row, prod, thresholdDays) {
+    const qty = calculateReorderQuantity(row, thresholdDays);
+    const unitsPerPallet = getUnitsPerPallet(prod);
+    if (!qty || !unitsPerPallet) return null;
+    return Math.ceil((qty / unitsPerPallet) * 100) / 100;
+  }
+
+  function applyPlannedQuantityToGenerator(prod, quantity, pallets = null) {
+    const rowEl = addProduct(prod, null);
+    if (!rowEl) return;
+    if (Number.isFinite(pallets) && pallets > 0) {
+      const palletsInput = rowEl.querySelector('.edit-pallets-input');
+      if (palletsInput) {
+        palletsInput.value = pallets.toFixed(2);
+        updateFields(palletsInput, prod.productCode);
+        return;
+      }
+    }
+    if (Number.isFinite(quantity) && quantity > 0) {
+      const qtyInput = rowEl.querySelector('.edit-quantity-input');
+      if (qtyInput) {
+        qtyInput.value = quantity.toFixed(0);
+        updateFields(qtyInput, prod.productCode);
+      }
+    }
   }
 
   function addReorderRowsToGenerator() {
@@ -1292,7 +1329,8 @@ function isHeroHotSku(sku) {
         return;
       }
       const qty = calculateReorderQuantity(row, threshold);
-      addProduct(prod, qty);
+      const pallets = calculateReorderPallets(row, prod, threshold);
+      applyPlannedQuantityToGenerator(prod, qty, pallets);
     });
     if (missing.length) {
       showTip(`以下 SKU 找不到品項資料：${missing.join(', ')}`, 'error');
@@ -2566,7 +2604,6 @@ const allProducts = [
     const ganttDaysTypeEl = document.getElementById('ganttDaysType');
     const salesGanttFactoryEl = document.getElementById('salesGanttFactory');
     const salesGanttViewTypeEl = document.getElementById('salesGanttViewType');
-    const btnBuildSalesGantt = document.getElementById('btnBuildSalesGantt');
     const btnExportSalesGantt = document.getElementById('btnExportSalesGantt');
     const salesGanttWrapEl = document.getElementById('salesGanttWrap');
     const salesCalendarWrapEl = document.getElementById('salesCalendarWrap');
@@ -2719,9 +2756,6 @@ const allProducts = [
         window.buildSupplyTables();
       }
       const baseRows = Array.isArray(window.mainRowsAll) ? window.mainRowsAll : [];
-      const records = parseSalesInput(salesInputEl.value).records;
-      const activeSku = new Set(records.map(r => r.sku));
-      const useSalesSkuFilter = activeSku.size > 0;
       const mode = ganttDaysTypeEl?.value || 'usDays';
       const factoryMode = salesGanttFactoryEl?.value || 'all';
       const today = new Date();
@@ -2735,7 +2769,6 @@ const allProducts = [
       });
 
       const rows = baseRows.filter(r => {
-        if (useSalesSkuFilter && !activeSku.has(String(r.sku || '').toUpperCase())) return false;
         if (factoryMode === 'onlyTW') return String(r.sku || '').toUpperCase().startsWith('E');
         if (factoryMode === 'hideTW') return !String(r.sku || '').toUpperCase().startsWith('E');
         return true;
@@ -2757,6 +2790,19 @@ const allProducts = [
       return { monthBuckets, mode, factoryMode };
     }
 
+
+    function getGanttSkuClassName(sku) {
+      if (isDiscontinuedSku(sku)) return 'gantt-item-discontinued';
+      if (isHeroHotSku(sku)) return 'gantt-item-hero';
+      if (isHotSku(sku)) return 'gantt-item-hot';
+      return '';
+    }
+
+    function formatGanttSkuLabel(sku) {
+      const cls = getGanttSkuClassName(sku);
+      return cls ? `<span class="${cls}">${escapeHtml(String(sku))}</span>` : escapeHtml(String(sku));
+    }
+
     function renderSalesCalendar(monthBuckets) {
       if (!salesCalendarWrapEl) return;
       const weekLabels = ['日', '一', '二', '三', '四', '五', '六'];
@@ -2770,7 +2816,7 @@ const allProducts = [
         m.items.forEach(item => {
           const day = item.outDate instanceof Date ? item.outDate.getDate() : Number(String(item.dateText).split('/')[1]);
           if (!events.has(day)) events.set(day, []);
-          events.get(day).push(item.sku);
+          events.get(day).push({ sku: item.sku, formatted: formatGanttSkuLabel(item.sku) });
         });
 
         const cells = [];
@@ -2779,13 +2825,14 @@ const allProducts = [
         }
         for (let day = 1; day <= daysInMonth; day += 1) {
           const skus = events.get(day) || [];
-          const preview = skus.slice(0, 2).join('、');
+          const preview = skus.slice(0, 2).map(entry => entry.formatted).join('、');
+          const titleText = skus.map(entry => entry.sku).join('、');
           const extra = skus.length > 2 ? ` +${skus.length - 2}` : '';
           cells.push(`
             <div class="salesDayCell ${skus.length ? 'hasEvent' : ''}">
               <div class="salesDayNum">${day}</div>
               ${skus.length ? `<div class="salesDayCount">${skus.length} 項</div>` : ''}
-              ${skus.length ? `<div class="salesDaySkus" title="${skus.join('、')}">${preview}${extra}</div>` : ''}
+              ${skus.length ? `<div class="salesDaySkus" title="${escapeHtml(titleText)}">${preview}${extra}</div>` : ''}
             </div>
           `);
         }
@@ -2809,7 +2856,7 @@ const allProducts = [
       const viewType = salesGanttViewTypeEl?.value || 'table';
       const body = monthBuckets.map(m => {
         const skuList = m.items.length
-          ? `<ul class="ganttSkuList">${m.items.map(i => `<li>${i.sku}（${i.dateText} 缺貨）</li>`).join('')}</ul>`
+          ? `<ul class="ganttSkuList">${m.items.map(i => `<li>${formatGanttSkuLabel(i.sku)}（${i.dateText} 缺貨）</li>`).join('')}</ul>`
           : '—';
         return `<tr><td>${m.label}</td><td class="count">${m.items.length}</td><td>${skuList}</td></tr>`;
       }).join('');
@@ -2828,11 +2875,8 @@ const allProducts = [
         if (salesCalendarWrapEl) salesCalendarWrapEl.style.display = 'none';
       }
       if (salesGanttHintEl) {
-        const scopeLabel = (parseSalesInput(salesInputEl.value).records.length > 0)
-          ? '已套用銷售額輸入中的 SKU 範圍'
-          : '未提供銷售額 SKU，已改用主表全部 SKU';
         const viewLabel = viewType === 'calendar' ? '月曆檢視' : '甘特表格';
-        salesGanttHintEl.textContent = `目前模式：${modeLabel} / ${viewLabel}。${scopeLabel}。`;
+        salesGanttHintEl.textContent = `目前模式：${modeLabel} / ${viewLabel}。`;
       }
     }
 
@@ -2866,9 +2910,6 @@ const allProducts = [
     if (btnBuildSalesCharts) {
       btnBuildSalesCharts.addEventListener('click', buildSalesCharts);
     }
-    if (btnBuildSalesGantt) {
-      btnBuildSalesGantt.addEventListener('click', renderSalesGantt);
-    }
     if (btnExportSalesGantt) {
       btnExportSalesGantt.addEventListener('click', exportSalesGanttExcel);
     }
@@ -2881,6 +2922,10 @@ const allProducts = [
     if (salesGanttViewTypeEl) {
       salesGanttViewTypeEl.addEventListener('change', renderSalesGantt);
     }
+    if (salesInputEl) {
+      salesInputEl.addEventListener('input', renderSalesGantt);
+    }
+    renderSalesGantt();
 </script>
 </body>
 </html>
