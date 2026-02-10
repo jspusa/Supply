@@ -1236,7 +1236,7 @@ function isHeroHotSku(sku) {
 
   function calculateReorderQuantity(row, thresholdDays) {
     const speed = Number(row.speed || 0);
-    const currentDays = Number(row.days || 0);
+    const currentDays = Number(row.usDays || 0);
     if (!speed || !Number.isFinite(speed)) return 0;
     const gapDays = Math.max(0, thresholdDays - currentDays);
     return Math.ceil(gapDays * speed);
