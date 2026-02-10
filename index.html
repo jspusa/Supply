@@ -56,6 +56,11 @@
     .legendSwatch { width: 12px; height: 12px; border-radius: 4px; }
     .salesSummary { margin-top: 12px; font-size: 12px; color: #516178; line-height: 1.6; }
     .salesMissing { margin-top: 8px; font-size: 12px; color: #a04646; }
+    .ganttCard { margin-top: 16px; border: 1px solid #e6edf7; border-radius: 12px; padding: 16px; background: #fbfdff; }
+    .ganttControls { display:flex; gap:10px; align-items:center; flex-wrap: wrap; margin-bottom: 10px; }
+    .ganttTable td { vertical-align: top; font-size: 12px; }
+    .ganttSkuList { margin: 0; padding-left: 16px; }
+    .ganttSkuList li { margin-bottom: 4px; }
 
     .order-generator { margin-top: 36px; font-family: "Noto Sans TC", Arial, sans-serif; color: #273042; }
     .order-generator .container {
@@ -585,7 +590,7 @@ TTR01AM-4 14125
         <summary>
           <div>
             <h2>門檻內可售品項：建議下單清單</h2>
-            <div class="hint">只抓「可銷售天數 &lt;= 門檻」且速度 &gt; 0 的 SKU</div>
+            <div class="hint">只抓「美國可售天數 &lt;= 門檻」且速度 &gt; 0 的 SKU</div>
           </div>
           <div class="summary-actions">
             <button class="secondary" id="btnAddReorderToGenerator">一鍵加入訂單產生器</button>
@@ -613,7 +618,7 @@ TTR01AM-4 14125
         <summary>
           <div>
             <h2>主表（H10 產品）</h2>
-            <div class="hint">SKU / 速度 / 訂單 / 美國總數 / 可銷售天數</div>
+            <div class="hint">SKU / 速度 / 訂單 / 美國總數 / 美國可售天數 / 含訂單可售天數</div>
           </div>
           <div class="summary-actions">
             <button class="secondary" id="btnDownloadMainCSV">下載Excel</button>
@@ -640,7 +645,7 @@ TTR01AM-4 14125
         <summary>
           <div>
             <h2>熱銷品專區</h2>
-            <div class="hint">SKU / 速度 / 訂單 / 美國總數 / 可銷售天數</div>
+            <div class="hint">SKU / 速度 / 訂單 / 美國總數 / 美國可售天數 / 含訂單可售天數</div>
           </div>
           <div class="summary-actions">
             <button class="secondary" id="btnAddHotToGenerator">一鍵加入訂單產生器</button>
@@ -742,11 +747,33 @@ TTR01AM-4 14125
         </div>
         <div class="salesSummary" id="salesSummary"></div>
         <div class="salesMissing" id="salesMissing"></div>
+        <div class="ganttCard">
+          <p class="eyebrow">缺貨預測</p>
+          <h2>銷售甘特圖（未來 12 個月）</h2>
+          <div class="ganttControls">
+            <label for="ganttDaysType">天數模式：</label>
+            <select id="ganttDaysType">
+              <option value="usDays">美國可售天數甘特圖</option>
+              <option value="days">含訂單可售天數甘特圖</option>
+            </select>
+            <label for="salesGanttFactory">工廠篩選：</label>
+            <select id="salesGanttFactory">
+              <option value="all">全部</option>
+              <option value="hideTW">越南廠（排除台灣廠）</option>
+              <option value="onlyTW">台灣廠</option>
+            </select>
+            <button id="btnBuildSalesGantt" class="secondary">產生甘特圖</button>
+            <button id="btnExportSalesGantt" class="secondary">匯出 Excel</button>
+          </div>
+          <div class="tableWrap" id="salesGanttWrap"></div>
+          <div class="hint" id="salesGanttHint"></div>
+        </div>
+
       </div>
     </details>
 
     <div class="footer">
-      註：速度為 0 或抓不到速度 → 不計算可銷售天數，且不會進入「下單清單」。
+      註：速度為 0 或抓不到速度 → 不計算可售天數（美國/含訂單），且不會進入「下單清單」。
     </div>
 
   </div>
@@ -914,11 +941,11 @@ function isHeroHotSku(sku) {
   `.trim().split(/\s+/).filter(Boolean).map(s => s.trim().toUpperCase()));
   window.turkeySkuSet = nonTurkeySkuSet;
 
-  /** @type {{sku:string, asin:string, speed:(number|null), order:(number|null), us:(number|null), avail:(number|null), days:(number|null)}[]} */
+  /** @type {{sku:string, asin:string, speed:(number|null), order:(number|null), us:(number|null), avail:(number|null), usDays:(number|null), days:(number|null)}[]} */
   let mainRowsAll = [];
-  /** @type {{sku:string, asin:string, speed:number, order:number, us:number, avail:number, days:number}[]} */
+  /** @type {{sku:string, asin:string, speed:number, order:number, us:number, avail:number, usDays:number, days:number}[]} */
   let reorderRowsAll = [];
-  /** @type {{sku:string, asin:(string|null), speed:(number|null), order:(number|null), us:(number|null), avail:(number|null), days:(number|null)}[]} */
+  /** @type {{sku:string, asin:(string|null), speed:(number|null), order:(number|null), us:(number|null), avail:(number|null), usDays:(number|null), days:(number|null)}[]} */
   let hotRowsAll = [];
   /** @type {{sku:string, order:number, us:(number|null)}[]} */
   let newOrderRowsAll = [];
@@ -997,7 +1024,7 @@ function isHeroHotSku(sku) {
       const numMatch = lookahead.match(/(\d+(?:,\d{3})*(?:\.\d+)?)/);
       const speed = numMatch ? normalizeNumber(numMatch[1]) : null;
 
-      found.push({ sku, asin, speed, order: null, us: null, avail: null, days: null });
+      found.push({ sku, asin, speed, order: null, us: null, avail: null, usDays: null, days: null });
     }
     return found;
   }
@@ -1052,9 +1079,11 @@ function isHeroHotSku(sku) {
     r.avail = order + us;
 
     if (r.speed === null || r.speed <= 0) {
+      r.usDays = null;
       r.days = null;
       return;
     }
+    r.usDays = us / r.speed;
     r.days = r.avail / r.speed;
   }
 
@@ -1131,6 +1160,7 @@ function isHeroHotSku(sku) {
         order: (orderVal === undefined) ? null : orderVal,
         us: (usVal === undefined) ? null : usVal,
         avail: null,
+        usDays: null,
         days: null
       };
       computeDerived(row);
@@ -1139,7 +1169,7 @@ function isHeroHotSku(sku) {
 
     const threshold = Math.max(1, Number(daysThresholdEl.value || 180));
     const reorder = h10Rows
-      .filter(r => r.days !== null && r.days <= threshold && r.speed !== null && r.speed > 0)
+      .filter(r => r.usDays !== null && r.usDays <= threshold && r.speed !== null && r.speed > 0)
       .map(r => ({
         sku: r.sku,
         asin: r.asin,
@@ -1147,13 +1177,15 @@ function isHeroHotSku(sku) {
         order: (r.order ?? 0),
         us: (r.us ?? 0),
         avail: (r.avail ?? 0),
+        usDays: (r.usDays ?? 0),
         days: (r.days ?? 0)
       }));
 
-    reorder.sort((a,b) => a.days - b.days);
+    reorder.sort((a,b) => a.usDays - b.usDays);
     newOrder.sort((a,b) => b.order - a.order);
 
     mainRowsAll = h10Rows;
+    window.mainRowsAll = mainRowsAll;
     reorderRowsAll = reorder;
     hotRowsAll = hotRows;
     newOrderRowsAll = newOrder;
@@ -1185,6 +1217,7 @@ function isHeroHotSku(sku) {
         <td class="ok">${escapeHtml(String(r.speed))}</td>
         <td class="ok">${escapeHtml(String(r.order))}</td>
         <td class="ok">${escapeHtml(String(r.us))}</td>
+        <td class="warn">${escapeHtml(fmtDays(r.usDays))}</td>
         <td class="warn">${escapeHtml(fmtDays(r.days))}</td>
       </tr>
     `).join("");
@@ -1193,7 +1226,7 @@ function isHeroHotSku(sku) {
       <table>
         <thead>
           <tr>
-            <th>#</th><th>SKU</th><th>速度</th><th>訂單</th><th>美國總數</th><th>可銷售天數</th>
+            <th>#</th><th>SKU</th><th>速度</th><th>訂單</th><th>美國總數</th><th>美國可售天數</th><th>含訂單可售天數</th>
           </tr>
         </thead>
         <tbody>${body}</tbody>
@@ -1203,7 +1236,7 @@ function isHeroHotSku(sku) {
 
   function calculateReorderQuantity(row, thresholdDays) {
     const speed = Number(row.speed || 0);
-    const currentDays = Number(row.days || 0);
+    const currentDays = Number(row.usDays || 0);
     if (!speed || !Number.isFinite(speed)) return 0;
     const gapDays = Math.max(0, thresholdDays - currentDays);
     return Math.ceil(gapDays * speed);
@@ -1276,6 +1309,7 @@ function isHeroHotSku(sku) {
       const speedCell = (r.speed === null) ? `<td class="bad">(未抓到)</td>` : `<td class="ok">${escapeHtml(String(r.speed))}</td>`;
       const orderCell = (r.order === null) ? `<td class="bad">(未對應)</td>` : `<td class="ok">${escapeHtml(String(r.order))}</td>`;
       const usCell = (r.us === null) ? `<td class="bad">(未對應)</td>` : `<td class="ok">${escapeHtml(String(r.us))}</td>`;
+      const usDaysCell = (r.usDays === null) ? `<td class="bad">(不可算)</td>` : `<td class="ok">${escapeHtml(fmtDays(r.usDays))}</td>`;
       const daysCell = (r.days === null) ? `<td class="bad">(不可算)</td>` : `<td class="ok">${escapeHtml(fmtDays(r.days))}</td>`;
 
       return `
@@ -1285,6 +1319,7 @@ function isHeroHotSku(sku) {
           ${speedCell}
           ${orderCell}
           ${usCell}
+          ${usDaysCell}
           ${daysCell}
         </tr>
       `;
@@ -1294,7 +1329,7 @@ function isHeroHotSku(sku) {
       <table>
         <thead>
           <tr>
-            <th>#</th><th>SKU</th><th>速度</th><th>訂單</th><th>美國總數</th><th>可銷售天數</th>
+            <th>#</th><th>SKU</th><th>速度</th><th>訂單</th><th>美國總數</th><th>美國可售天數</th><th>含訂單可售天數</th>
           </tr>
         </thead>
         <tbody>${body}</tbody>
@@ -1311,6 +1346,7 @@ function isHeroHotSku(sku) {
       const speedCell = (r.speed === null) ? `<td class="bad">(未抓到)</td>` : `<td class="ok">${escapeHtml(String(r.speed))}</td>`;
       const orderCell = (r.order === null) ? `<td class="bad">(未對應)</td>` : `<td class="ok">${escapeHtml(String(r.order))}</td>`;
       const usCell = (r.us === null) ? `<td class="bad">(未對應)</td>` : `<td class="ok">${escapeHtml(String(r.us))}</td>`;
+      const usDaysCell = (r.usDays === null) ? `<td class="bad">(不可算)</td>` : `<td class="ok">${escapeHtml(fmtDays(r.usDays))}</td>`;
       const daysCell = (r.days === null) ? `<td class="bad">(不可算)</td>` : `<td class="ok">${escapeHtml(fmtDays(r.days))}</td>`;
       return `
         <tr>
@@ -1319,6 +1355,7 @@ function isHeroHotSku(sku) {
           ${speedCell}
           ${orderCell}
           ${usCell}
+          ${usDaysCell}
           ${daysCell}
         </tr>
       `;
@@ -1328,7 +1365,7 @@ function isHeroHotSku(sku) {
       <table>
         <thead>
           <tr>
-            <th>#</th><th>SKU</th><th>速度</th><th>訂單</th><th>美國總數</th><th>可銷售天數</th>
+            <th>#</th><th>SKU</th><th>速度</th><th>訂單</th><th>美國總數</th><th>美國可售天數</th><th>含訂單可售天數</th>
           </tr>
         </thead>
         <tbody>${body}</tbody>
@@ -1390,22 +1427,23 @@ function isHeroHotSku(sku) {
 
   function exportMainRowsFiltered() {
     const rows = applyFilters(mainRowsAll);
-    const headers = ["SKU","ASIN","速度","訂單","美國總數","可售總量(美國+訂單)","可銷售天數"];
+    const headers = ["SKU","ASIN","速度","訂單","美國總數","可售總量(美國+訂單)","美國可售天數","含訂單可售天數"];
     const body = rows.map(r => [
       r.sku, r.asin,
       (r.speed ?? ""),
       (r.order ?? ""),
       (r.us ?? ""),
       (r.avail ?? ""),
+      (r.usDays === null ? "" : fmtDays(r.usDays)),
       (r.days === null ? "" : fmtDays(r.days))
     ]);
     return { headers, body };
   }
   function exportReorderRowsFiltered() {
     const rows = applyFilters(reorderRowsAll);
-    const headers = ["SKU","ASIN","速度","訂單","美國總數","可售總量(美國+訂單)","可銷售天數"];
+    const headers = ["SKU","ASIN","速度","訂單","美國總數","可售總量(美國+訂單)","美國可售天數","含訂單可售天數"];
     const body = rows.map(r => [
-      r.sku, r.asin, String(r.speed), String(r.order), String(r.us), String(r.avail), fmtDays(r.days)
+      r.sku, r.asin, String(r.speed), String(r.order), String(r.us), String(r.avail), fmtDays(r.usDays), fmtDays(r.days)
     ]);
     return { headers, body };
   }
@@ -2494,6 +2532,14 @@ const allProducts = [
     const itemLegendEl = document.getElementById('itemLegend');
     const salesSummaryEl = document.getElementById('salesSummary');
     const salesMissingEl = document.getElementById('salesMissing');
+    const ganttDaysTypeEl = document.getElementById('ganttDaysType');
+    const salesGanttFactoryEl = document.getElementById('salesGanttFactory');
+    const btnBuildSalesGantt = document.getElementById('btnBuildSalesGantt');
+    const btnExportSalesGantt = document.getElementById('btnExportSalesGantt');
+    const salesGanttWrapEl = document.getElementById('salesGanttWrap');
+    const salesGanttHintEl = document.getElementById('salesGanttHint');
+
+    let latestSalesGanttRows = [];
 
     const currencyFormatter = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const productMap = new Map(allProducts.map(p => [String(p.productCode).trim().toUpperCase(), p]));
@@ -2634,8 +2680,100 @@ const allProducts = [
       }
     }
 
+
+    function buildSalesGanttData() {
+      const baseRows = Array.isArray(window.mainRowsAll) ? window.mainRowsAll : [];
+      const records = parseSalesInput(salesInputEl.value).records;
+      const activeSku = new Set(records.map(r => r.sku));
+      const mode = ganttDaysTypeEl?.value || 'usDays';
+      const factoryMode = salesGanttFactoryEl?.value || 'all';
+      const today = new Date();
+      const monthBuckets = Array.from({ length: 12 }, (_, idx) => {
+        const d = new Date(today.getFullYear(), today.getMonth() + idx, 1);
+        return {
+          key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`,
+          label: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`,
+          items: []
+        };
+      });
+
+      const rows = baseRows.filter(r => {
+        if (!activeSku.has(String(r.sku || '').toUpperCase())) return false;
+        if (factoryMode === 'onlyTW') return String(r.sku || '').toUpperCase().startsWith('E');
+        if (factoryMode === 'hideTW') return !String(r.sku || '').toUpperCase().startsWith('E');
+        return true;
+      });
+
+      rows.forEach(r => {
+        const days = Number(r[mode]);
+        if (!Number.isFinite(days) || days < 0) return;
+        const outDate = new Date(today);
+        outDate.setDate(today.getDate() + Math.floor(days));
+        const monthKey = `${outDate.getFullYear()}-${String(outDate.getMonth() + 1).padStart(2, '0')}`;
+        const bucket = monthBuckets.find(m => m.key === monthKey);
+        if (!bucket) return;
+        const dateText = `${outDate.getMonth() + 1}/${outDate.getDate()}`;
+        bucket.items.push({ sku: r.sku, dateText });
+      });
+
+      monthBuckets.forEach(m => m.items.sort((a,b) => a.sku.localeCompare(b.sku)));
+      return { monthBuckets, mode, factoryMode };
+    }
+
+    function renderSalesGantt() {
+      if (!salesGanttWrapEl) return;
+      const { monthBuckets, mode } = buildSalesGanttData();
+      latestSalesGanttRows = monthBuckets;
+      const modeLabel = mode === 'usDays' ? '美國可售天數甘特圖' : '含訂單可售天數甘特圖';
+      const body = monthBuckets.map(m => {
+        const skuList = m.items.length
+          ? `<ul class="ganttSkuList">${m.items.map(i => `<li>${i.sku}（${i.dateText} 缺貨）</li>`).join('')}</ul>`
+          : '—';
+        return `<tr><td>${m.label}</td><td class="count">${m.items.length}</td><td>${skuList}</td></tr>`;
+      }).join('');
+      salesGanttWrapEl.innerHTML = `
+        <table class="ganttTable">
+          <thead><tr><th>月份</th><th>預估缺貨品項數</th><th>缺貨品項（含日期）</th></tr></thead>
+          <tbody>${body}</tbody>
+        </table>
+      `;
+      if (salesGanttHintEl) {
+        salesGanttHintEl.textContent = `目前模式：${modeLabel}。僅統計銷售額資料中有出現且主表可對應速度的 SKU。`;
+      }
+    }
+
+    function exportSalesGanttExcel() {
+      if (!latestSalesGanttRows.length) renderSalesGantt();
+      const mode = ganttDaysTypeEl?.value || 'usDays';
+      const modeLabel = mode === 'usDays' ? '美國可售天數甘特圖' : '含訂單可售天數甘特圖';
+      const headers = ['月份', '預估缺貨品項數', '缺貨品項（含日期）'];
+      const body = latestSalesGanttRows.map(m => [
+        m.label,
+        m.items.length,
+        m.items.map(i => `${i.sku}(${i.dateText})`).join('、')
+      ]);
+      const now = new Date();
+      const dateStamp = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet([headers, ...body]);
+      XLSX.utils.book_append_sheet(wb, ws, '銷售甘特圖');
+      XLSX.writeFile(wb, `${dateStamp}_${modeLabel}.xlsx`);
+      showTip('已匯出銷售甘特圖 Excel', 'success');
+    }
     if (btnBuildSalesCharts) {
       btnBuildSalesCharts.addEventListener('click', buildSalesCharts);
+    }
+    if (btnBuildSalesGantt) {
+      btnBuildSalesGantt.addEventListener('click', renderSalesGantt);
+    }
+    if (btnExportSalesGantt) {
+      btnExportSalesGantt.addEventListener('click', exportSalesGanttExcel);
+    }
+    if (ganttDaysTypeEl) {
+      ganttDaysTypeEl.addEventListener('change', renderSalesGantt);
+    }
+    if (salesGanttFactoryEl) {
+      salesGanttFactoryEl.addEventListener('change', renderSalesGantt);
     }
 </script>
 </body>
