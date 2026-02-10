@@ -12,6 +12,17 @@
     h1 { font-size: 22px; margin: 0 0 16px; color: #0b1624; letter-spacing: 0.4px; }
     h2 { font-size: 15px; margin: 0 0 6px; }
     .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+    .controlsCard { padding: 14px 16px; }
+    .controlsTitle { margin: 0 0 10px; font-size: 14px; color: #44546c; }
+    .controlsGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; align-items: end; }
+    .controlField { display: flex; flex-direction: column; gap: 6px; }
+    .controlField label { font-size: 12px; color: #506079; font-weight: 600; }
+    .controlField select,
+    .controlField input[type="number"] { width: 100%; }
+    .miniTools { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .miniBtn { padding: 7px 12px; font-size: 12px; border-radius: 999px; }
+    .compactCard summary { padding: 10px 14px; }
+    .compactCard h2 { font-size: 13px; }
     textarea { width: 100%; min-height: 120px; padding: 12px; font-size: 13px; line-height: 1.4; border-radius: 10px; border: 1px solid #d7deea; background: #fff; box-shadow: inset 0 1px 2px rgba(15, 29, 43, 0.03); }
     button { padding: 10px 14px; cursor: pointer; border-radius: 10px; border: 1px solid #d1d9e5; background: #0b6bcb; color: #fff; font-weight: 600; box-shadow: 0 3px 10px rgba(11, 107, 203, 0.15); transition: transform 0.05s ease, box-shadow 0.15s ease; }
     button:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(11, 107, 203, 0.25); }
@@ -272,18 +283,23 @@
     }
     .order-generator .close-modal:hover, .order-generator .close-modal:focus { color: #222; }
     .order-generator .modal-content p { margin: 12px 0 6px 0; }
-    /* 新品產生器浮動鈕 */
     .order-generator #newItemGeneratorBtn {
-      position: fixed; top: 22px; right: 30px;
-      background: linear-gradient(120deg,#10b7e8 60%,#7ad0e0 100%);
-      color: #fff; border: none; border-radius: 50%; width: 45px; height: 45px;
-      cursor: pointer; font-weight: bold; font-size: 2rem;
-      box-shadow: 0 2px 14px #13e6f442;
-      display: flex; align-items: center; justify-content: center;
-      z-index: 2100;
-      transition: box-shadow 0.2s, background 0.2s;
+      position: static;
+      border-radius: 999px;
+      height: auto;
+      width: auto;
+      padding: 7px 12px;
+      font-size: 12px;
+      box-shadow: none;
+      background: #fff;
+      color: #0f1d2b;
+      border: 1px solid #d1d9e5;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
-    .order-generator #newItemGeneratorBtn:hover { box-shadow: 0 4px 24px #23baff74; background: #0aa2c3; }
+    .order-generator #newItemGeneratorBtn:hover { background: #0b6bcb; color: #fff; }
     .order-generator #discontinuedListBtn {
       position: fixed; top: 22px; right: 86px;
       background: linear-gradient(120deg,#ff6b6b 60%,#ff9a9a 100%);
@@ -348,28 +364,33 @@
   <div class="page">
     <h1>訂單分析器</h1>
 
-    <div class="row">
-      <button id="btnBuild">整理表格</button>
-    </div>
-
-    <div class="row">
-      <label>工廠篩選：</label>
-      <select id="factoryFilter">
-        <option value="all">顯示全部</option>
-        <option value="hideTW">越南廠</option>
-        <option value="onlyTW">台灣廠</option>
-      </select>
-      <label>品項篩選：</label>
-      <select id="itemFilter">
-        <option value="all">顯示全部</option>
-        <option value="onlyNonTurkey">非火雞筋</option>
-        <option value="onlyTurkey">火雞筋</option>
-      </select>
-    </div>
-
-    <div class="row">
-      <label>下單門檻（天）：</label>
-      <input id="daysThreshold" type="number" min="1" step="1" value="180" />
+    <div class="card controlsCard">
+      <h2 class="controlsTitle">整理條件</h2>
+      <div class="controlsGrid">
+        <div class="controlField">
+          <label for="factoryFilter">工廠篩選</label>
+          <select id="factoryFilter">
+            <option value="all">顯示全部</option>
+            <option value="hideTW">越南廠</option>
+            <option value="onlyTW">台灣廠</option>
+          </select>
+        </div>
+        <div class="controlField">
+          <label for="itemFilter">品項篩選</label>
+          <select id="itemFilter">
+            <option value="all">顯示全部</option>
+            <option value="onlyNonTurkey">非火雞筋</option>
+            <option value="onlyTurkey">火雞筋</option>
+          </select>
+        </div>
+        <div class="controlField">
+          <label for="daysThreshold">下單門檻（天）</label>
+          <input id="daysThreshold" type="number" min="1" step="1" value="180" />
+        </div>
+        <div class="controlField">
+          <button id="btnBuild">整理表格</button>
+        </div>
+      </div>
     </div>
 
     <div class="grid">
@@ -458,10 +479,6 @@
               </div>
             </div>
 
-            <!-- 新品產生器浮動按鈕 -->
-            <button id="newItemGeneratorBtn" title="新品產生器">
-              <i class="fa-solid fa-plus"></i>
-            </button>
             <!-- 停產清單浮動按鈕 -->
             <button id="discontinuedListBtn" title="停產清單">
               <i class="fa-solid fa-ban"></i>
@@ -602,7 +619,7 @@ TTR01AM-4 14125
       </details>
 
       <!-- 主表 -->
-      <details class="card priority" open>
+      <details class="card priority" id="mainDetails">
         <summary>
           <div>
             <h2>主表（H10 產品）</h2>
@@ -629,7 +646,7 @@ TTR01AM-4 14125
       </details>
 
       <!-- 熱銷品專區 -->
-      <details class="card priority" open>
+      <details class="card priority" id="hotDetails">
         <summary>
           <div>
             <h2>熱銷品專區</h2>
@@ -656,7 +673,7 @@ TTR01AM-4 14125
       </details>
 
       <!-- 新品（訂單有但H10沒有） -->
-      <details class="card priority" open>
+      <details class="card priority" id="newOrderDetails">
         <summary>
           <div>
             <h2>新品（訂單有，但 H10 沒有）</h2>
@@ -673,13 +690,12 @@ TTR01AM-4 14125
       </details>
 
       <!-- 新品（美國總數有但H10沒有且訂單也沒有） 預設收折 -->
-      <details class="card" id="newUSDetails">
+      <details class="card compactCard" id="newUSDetails">
         <summary>
           <div>
-            <p class="eyebrow">其他</p>
-            <h2 style="margin:0;">美國總數有，但 H10 沒有，且訂單也沒有</h2>
+            <h2 style="margin:0;">其他</h2>
           </div>
-          <span class="hint">（預設收折，點此展開）</span>
+          <span class="pill">小按鈕</span>
           <div class="summary-actions">
             <button class="secondary" id="btnDownloadNewUSCSV">下載Excel</button>
           </div>
@@ -695,15 +711,21 @@ TTR01AM-4 14125
       </details>
     </div>
 
-    <details class="card" id="advancedSettings">
+    <details class="card compactCard" id="advancedSettings">
       <summary>
         <div>
           <p class="eyebrow">設定</p>
-          <h2>進階設定（可展開）</h2>
+          <h2>進階設定</h2>
         </div>
         <span class="pill">可收合</span>
       </summary>
       <div class="cardContent">
+        <div class="miniTools">
+          <button class="secondary miniBtn" id="btnGoSalesPie">前往銷售額圓餅圖</button>
+          <button class="secondary miniBtn" id="newItemGeneratorBtn" title="新品產生器">
+            <i class="fa-solid fa-plus"></i> 新品產生器
+          </button>
+        </div>
         <div class="row">
           <label style="display:flex; gap:6px; align-items:center;">
             <input type="checkbox" id="chkDedupe" checked />
@@ -725,11 +747,11 @@ TTR01AM-4 14125
       </div>
     </details>
 
-    <details class="card" id="salesPieDetails">
+    <details class="card compactCard" id="salesPieDetails">
       <summary>
         <div>
           <p class="eyebrow">銷售額分析</p>
-          <h2>銷售額圓餅圖</h2>
+          <h2>銷售額圓餅圖（功能頁）</h2>
           <div class="hint">貼上「SKU + 訂購產品銷售額」資料，系統會依工廠與品項分類產生圓餅圖。</div>
         </div>
         <span class="pill">可收合</span>
@@ -898,6 +920,12 @@ function isHeroHotSku(sku) {
   const countNewUSEl = document.getElementById('countNewUS');
 
   const newUSDetails = document.getElementById('newUSDetails');
+  const mainDetails = document.getElementById('mainDetails');
+  const hotDetails = document.getElementById('hotDetails');
+  const newOrderDetails = document.getElementById('newOrderDetails');
+  const advancedSettings = document.getElementById('advancedSettings');
+  const salesPieDetails = document.getElementById('salesPieDetails');
+  const btnGoSalesPie = document.getElementById('btnGoSalesPie');
 
   // 工廠篩選狀態：all | hideTW | onlyTW
   let factoryMode = "all";
@@ -1567,7 +1595,22 @@ function isHeroHotSku(sku) {
   });
 
   // ⑦ 預設收折
-  newUSDetails.open = false;
+  if (mainDetails) mainDetails.open = false;
+  if (hotDetails) hotDetails.open = false;
+  if (newOrderDetails) newOrderDetails.open = false;
+  if (newUSDetails) newUSDetails.open = false;
+  if (advancedSettings) advancedSettings.open = false;
+  if (salesPieDetails) salesPieDetails.open = false;
+
+  if (btnGoSalesPie && salesPieDetails) {
+    btnGoSalesPie.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      salesPieDetails.open = true;
+      salesPieDetails.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+
   updateSortButtons();
   document.querySelectorAll('.summary-actions button').forEach(btn => {
     btn.addEventListener('click', (event) => event.stopPropagation());
