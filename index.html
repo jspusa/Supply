@@ -2629,6 +2629,19 @@ const allProducts = [
       return String(sku ?? "").trim().toUpperCase();
     }
 
+    function parseDaysValue(value) {
+      if (value === null || value === undefined) return null;
+      if (typeof value === 'number') return Number.isFinite(value) ? value : null;
+      const cleaned = String(value).replace(/,/g, '').trim();
+      if (!cleaned) return null;
+      const direct = Number(cleaned);
+      if (Number.isFinite(direct)) return direct;
+      const match = cleaned.match(/-?\d+(?:\.\d+)?/);
+      if (!match) return null;
+      const extracted = Number(match[0]);
+      return Number.isFinite(extracted) ? extracted : null;
+    }
+
     function parseAmount(value) {
       if (!value) return null;
       const cleaned = String(value).replace(/US\$/i, '').replace(/,/g, '').replace(/[^\d.-]/g, '');
@@ -2788,8 +2801,7 @@ const allProducts = [
         const sku = normalizeSalesSku(r?.sku || r?.productCode || '');
         if (!sku) return;
 
-        const dayText = String(r?.[mode] ?? '').replace(/,/g, '').trim();
-        const days = Number(dayText);
+        const days = parseDaysValue(r?.[mode]);
         if (!Number.isFinite(days) || days < 0) return;
 
         const outDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
@@ -2898,11 +2910,13 @@ const allProducts = [
       if (salesGanttHintEl) {
         const viewLabel = viewType === 'calendar' ? '月曆檢視' : '甘特表格';
         const totalItems = monthBuckets.reduce((sum, m) => sum + m.items.length, 0);
-        const emptyHint = totalItems === 0 ? '（目前無符合條件品項，請檢查工廠篩選或先按「計算」更新資料）' : '';
+        const hasBaseRows = Array.isArray(window.mainRowsAll) && window.mainRowsAll.length > 0;
+        const emptyHint = totalItems === 0
+          ? (hasBaseRows
+            ? '（目前無符合條件品項，可能都超過 12 個月或被篩選排除）'
+            : '（尚無可計算資料，請先貼上資料後按「整理表格」）')
+          : '';
         salesGanttHintEl.textContent = `目前模式：${modeLabel} / ${viewLabel}。${emptyHint}`;
-      }
-      } finally {
-        window.__isRenderingSalesGantt = false;
       }
       } finally {
         window.__isRenderingSalesGantt = false;
