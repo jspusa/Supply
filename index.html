@@ -1147,6 +1147,8 @@ function isHeroHotSku(sku) {
     });
   }
 
+  window.__isRenderingSalesGantt = false;
+
   function buildTables() {
     const rawH10 = h10El.value || "";
     const rawOrders = ordersEl.value || "";
@@ -1232,7 +1234,7 @@ function isHeroHotSku(sku) {
     if (window.refreshGeneratorSpeedMetrics) {
       window.refreshGeneratorSpeedMetrics();
     }
-    if (typeof renderSalesGantt === 'function') {
+    if (typeof renderSalesGantt === 'function' && !window.__isRenderingSalesGantt) {
       renderSalesGantt();
     }
   }
@@ -2775,18 +2777,25 @@ const allProducts = [
       });
 
       rows.forEach(r => {
-        const days = Number(r[mode]);
+        const sku = normalizeSalesSku(r?.sku || r?.productCode || '');
+        if (!sku) return;
+
+        const dayText = String(r?.[mode] ?? '').replace(/,/g, '').trim();
+        const days = Number(dayText);
         if (!Number.isFinite(days) || days < 0) return;
-        const outDate = new Date(today);
-        outDate.setDate(today.getDate() + Math.floor(days));
+
+        const outDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        outDate.setDate(outDate.getDate() + Math.floor(days));
         const monthKey = `${outDate.getFullYear()}-${String(outDate.getMonth() + 1).padStart(2, '0')}`;
         const bucket = monthBuckets.find(m => m.key === monthKey);
         if (!bucket) return;
-        const dateText = `${outDate.getMonth() + 1}/${outDate.getDate()}`;
-        bucket.items.push({ sku: r.sku, dateText, outDate: new Date(outDate) });
+        const dateText = `${String(outDate.getMonth() + 1).padStart(2, '0')}/${String(outDate.getDate()).padStart(2, '0')}`;
+        bucket.items.push({ sku, dateText, outDate: new Date(outDate) });
       });
 
-      monthBuckets.forEach(m => m.items.sort((a,b) => a.sku.localeCompare(b.sku)));
+      monthBuckets.forEach(m => {
+        m.items.sort((a, b) => String(a?.sku || '').localeCompare(String(b?.sku || '')));
+      });
       return { monthBuckets, mode, factoryMode };
     }
 
@@ -2815,8 +2824,10 @@ const allProducts = [
         const events = new Map();
         m.items.forEach(item => {
           const day = item.outDate instanceof Date ? item.outDate.getDate() : Number(String(item.dateText).split('/')[1]);
+          if (!Number.isFinite(day) || day < 1 || day > daysInMonth) return;
           if (!events.has(day)) events.set(day, []);
-          events.get(day).push({ sku: item.sku, formatted: formatGanttSkuLabel(item.sku) });
+          const sku = normalizeSalesSku(item?.sku || '');
+          events.get(day).push({ sku, formatted: formatGanttSkuLabel(sku || 'N/A') });
         });
 
         const cells = [];
@@ -2850,6 +2861,8 @@ const allProducts = [
 
     function renderSalesGantt() {
       if (!salesGanttWrapEl) return;
+      window.__isRenderingSalesGantt = true;
+      try {
       const { monthBuckets, mode } = buildSalesGanttData();
       latestSalesGanttRows = monthBuckets;
       const modeLabel = mode === 'usDays' ? '美國可售天數甘特圖' : '含訂單可售天數甘特圖';
@@ -2877,6 +2890,9 @@ const allProducts = [
       if (salesGanttHintEl) {
         const viewLabel = viewType === 'calendar' ? '月曆檢視' : '甘特表格';
         salesGanttHintEl.textContent = `目前模式：${modeLabel} / ${viewLabel}。`;
+      }
+      } finally {
+        window.__isRenderingSalesGantt = false;
       }
     }
 
