@@ -825,7 +825,8 @@ const discontinuedSkuDefaults = [
   "ATB03","TPZL01","GTT03","TPZ01AM-4","TRP05AM","TTRL05","TRP01AM-4","TTRL03","GBB01",
   "ATN01","1ABRD001A0","GBS01","GBS03","1ABRD003A0","ASA01","ABM01","ATJ01","ACTL05","ASCL03",
   "ACTL08","ACA01","ACA02","ACA03","VBW01","VBS03","VBB01","VBS01","TTR05AM","HDR01AM","GTC01",
-  "GCTL05","GCTL02","ATJL01"
+  "GCTL05","GCTL02","ATJL01","EZD010AM-3","EZD020AM-3","EZD040AM-3","EZD050AM-3","EZD060AM-3",
+  "GTCL01","TPZ03AM-2","1GSDD011A0","VTR01-4","VTS01-1","TTRL01"
 ];
 const discontinuedSkuReasons = new Map(
   discontinuedSkuDefaults.map(sku => [sku, "銷量不佳"])
@@ -835,6 +836,18 @@ const discontinuedSkuReasons = new Map(
 });
 ["ATJ01","ATJL01"].forEach(sku => {
   discontinuedSkuReasons.set(sku, "原料因素");
+});
+["EZD010AM-3","EZD020AM-3","EZD040AM-3","EZD050AM-3","EZD060AM-3","1GSDD011A0"].forEach(sku => {
+  discontinuedSkuReasons.set(sku, "取消小包");
+});
+["GTCL01","TPZ03AM-2"].forEach(sku => {
+  discontinuedSkuReasons.set(sku, "成本考量");
+});
+["VTR01-4","VTS01-1"].forEach(sku => {
+  discontinuedSkuReasons.set(sku, "委外生產");
+});
+["TTRL01"].forEach(sku => {
+  discontinuedSkuReasons.set(sku, "銷量不佳");
 });
 const discontinuedSkuSet = new Set(discontinuedSkuReasons.keys());
 function normalizeSkuKey(sku) {
@@ -2538,7 +2551,18 @@ const allProducts = [
         showTip("請填完整品號/品名/棧板數", "error");
         return;
       }
-      let itemStr = `{productCode:"${code}", productName:"${name}", boxSize:"${boxSize}", perPallet:${pal}, country:"${countryVal}"`;
+      const normalizedCode = normalizeSkuKey(code);
+      const escapeNewItemText = (value) => String(value ?? '').replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+      const item = {
+        productCode: normalizedCode,
+        productName: name,
+        boxSize,
+        perCarton: null,
+        perPack: null,
+        perBox: null,
+        perPallet: Number(pal),
+        country: countryVal
+      };
       if(pkgType === 'bag'){
         const cBag = document.getElementById('newItemPerCartonBag').value.trim();
         const pack = document.getElementById('newItemPerPack').value.trim();
@@ -2546,7 +2570,8 @@ const allProducts = [
           showTip("袋裝需填每箱袋數、每袋幾入", "error");
           return;
         }
-        itemStr += `, perCarton:${cBag}, perPack:${pack}, perBox:null`;
+        item.perCarton = Number(cBag);
+        item.perPack = Number(pack);
       } else if(pkgType === 'box'){
         const cBox = document.getElementById('newItemPerCartonBox').value.trim();
         const bBox = document.getElementById('newItemPerBoxBox').value.trim();
@@ -2554,19 +2579,37 @@ const allProducts = [
           showTip("盒裝需填每箱盒數、每盒幾入", "error");
           return;
         }
-        itemStr += `, perCarton:${cBox}, perBox:${bBox}, perPack:null`;
+        item.perCarton = Number(cBox);
+        item.perBox = Number(bBox);
       } else {
         const single = document.getElementById('newItemPerCartonSingle').value.trim();
         if(!single){
           showTip("單包需填每箱包數", "error");
           return;
         }
-        itemStr += `, perCarton:${single}, perPack:null, perBox:null`;
+        item.perCarton = Number(single);
       }
-      itemStr += '},';
+
+      const formatNewItemLine = (entry) => {
+        const perPack = Number.isFinite(entry.perPack) ? entry.perPack : 'null';
+        const perBox = Number.isFinite(entry.perBox) ? entry.perBox : 'null';
+        return `{ productCode: "${escapeNewItemText(entry.productCode)}", productName: "${escapeNewItemText(entry.productName)}", boxSize: "${escapeNewItemText(entry.boxSize)}", perCarton: ${entry.perCarton}, perPack: ${perPack}, perBox: ${perBox}, perPallet: ${entry.perPallet}, country: "${escapeNewItemText(entry.country)}" },`;
+      };
+
+      const parseNewItemLine = (line) => {
+        const matchedCode = String(line || '').match(/productCode:\s*"([^"]+)"/i);
+        return { code: normalizeSkuKey(matchedCode?.[1] || ''), raw: line };
+      };
+
       const area = document.getElementById('newItemResult');
-      const currVal = area.value.trim();
-      area.value = currVal ? (currVal + ' ' + itemStr) : itemStr;
+      const existingLines = area.value
+        .split(/\r?\n/)
+        .map(line => line.trim())
+        .filter(Boolean)
+        .map(parseNewItemLine);
+      const nextLines = [...existingLines, { code: item.productCode, raw: formatNewItemLine(item) }]
+        .sort((a, b) => a.code.localeCompare(b.code));
+      area.value = nextLines.map(line => line.raw).join('\n');
       resetNewItemForm();
       showTip('已產生新商品資訊', 'success');
     }
@@ -2816,7 +2859,11 @@ const allProducts = [
       });
 
       monthBuckets.forEach(m => {
-        m.items.sort((a, b) => String(a?.sku || '').localeCompare(String(b?.sku || '')));
+        m.items.sort((a, b) => {
+          const dateDelta = a.outDate - b.outDate;
+          if (dateDelta !== 0) return dateDelta;
+          return String(a?.sku || '').localeCompare(String(b?.sku || ''));
+        });
       });
       return { monthBuckets, mode, factoryMode };
     }
