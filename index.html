@@ -818,36 +818,19 @@ TTR01AM-4 14125
 
   <!-- xlsx -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+<script src="./sku-rules-data.js"></script>
 
 <script>
-const discontinuedSkuDefaults = [
-  "HDP01AM","ATR03","HDS03AM","VTB05-1","TTR05AM-1","VTB06-4","TPZL05","ATP05","ATZ03","ADT03",
-  "ATB03","TPZL01","GTT03","TPZ01AM-4","TRP05AM","TTRL05","TRP01AM-4","TTRL03","GBB01",
-  "ATN01","1ABRD001A0","GBS01","GBS03","1ABRD003A0","ASA01","ABM01","ATJ01","ACTL05","ASCL03",
-  "ACTL08","ACA01","ACA02","ACA03","VBW01","VBS03","VBB01","VBS01","TTR05AM","HDR01AM","GTC01",
-  "GCTL05","GCTL02","ATJL01","EZD010AM-3","EZD020AM-3","EZD040AM-3","EZD050AM-3","EZD060AM-3",
-  "GTCL01","TPZ03AM-2","1GSDD011A0","VTR01-4","VTS01-1","TTRL01"
-];
-const discontinuedSkuReasons = new Map(
-  discontinuedSkuDefaults.map(sku => [sku, "銷量不佳"])
-);
-["1ABRD001A0","1ABRD003A0","GTC01","ASA01","ATN01","ABM01"].forEach(sku => {
-  discontinuedSkuReasons.set(sku, "取消小包");
-});
-["ATJ01","ATJL01"].forEach(sku => {
-  discontinuedSkuReasons.set(sku, "原料因素");
-});
-["EZD010AM-3","EZD020AM-3","EZD040AM-3","EZD050AM-3","EZD060AM-3","1GSDD011A0"].forEach(sku => {
-  discontinuedSkuReasons.set(sku, "取消小包");
-});
-["GTCL01","TPZ03AM-2"].forEach(sku => {
-  discontinuedSkuReasons.set(sku, "成本考量");
-});
-["VTR01-4","VTS01-1"].forEach(sku => {
-  discontinuedSkuReasons.set(sku, "委外生產");
-});
-["TTRL01"].forEach(sku => {
-  discontinuedSkuReasons.set(sku, "銷量不佳");
+const skuRulesData = window.skuRulesData || {};
+const discontinuedSkuDefaults = skuRulesData.discontinuedSkuDefaults || [];
+const discontinuedSkuReasonRules = skuRulesData.discontinuedSkuReasonRules || [];
+const hotSkuList = skuRulesData.hotSkuList || [];
+const heroHotSkuList = skuRulesData.heroHotSkuList || [];
+const turkeySkuSeedList = skuRulesData.turkeySkuSeedList || [];
+
+const discontinuedSkuReasons = new Map(discontinuedSkuDefaults.map(sku => [sku, "銷量不佳"]));
+discontinuedSkuReasonRules.forEach(rule => {
+  (rule.skus || []).forEach(sku => discontinuedSkuReasons.set(sku, rule.reason || "銷量不佳"));
 });
 const discontinuedSkuSet = new Set(discontinuedSkuReasons.keys());
 function normalizeSkuKey(sku) {
@@ -860,56 +843,7 @@ function getDiscontinuedReason(sku) {
   return discontinuedSkuReasons.get(normalizeSkuKey(sku)) || "";
 }
 
-const hotSkuList = [
-  "TTS05AM-1",
-  "TTSL05",
-  "TTS05AM",
-  "AFA12AM",
-  "GTSL01",
-  "GTB01",
-  "GTS01",
-  "GTB05",
-  "TTR01AM",
-  "AFA11AM",
-  "GTBL05",
-  "KTB01AM-4",
-  "KTBL05",
-  "KTB05AM-1",
-  "VTS01-1",
-  "GCBL02",
-  "KTB01AM",
-  "ATA01",
-  "KTB05AM",
-  "AFA22AM",
-  "GBSL03",
-  "GSFL02",
-  "GTRL01",
-  "ASF01",
-  "GTPL03",
-  "GSCL01",
-  "ACBL03",
-  "1ABRD004A0",
-  "ASCL01"
-];
 const hotSkuSet = new Set(hotSkuList.map(sku => normalizeSkuKey(sku)));
-const heroHotSkuList = [
-  "TTS05AM-1",
-  "AFA12AM",
-  "GTSL01",
-  "GTB05",
-  "KTBL05",
-  "VTS01-1",
-  "GCBL02",
-  "ATA01",
-  "GBSL03",
-  "GSFL02",
-  "ASF01",
-  "GTPL03",
-  "GSCL01",
-  "ACBL03",
-  "1ABRD004A0",
-  "ASCL01"
-];
 const heroHotSkuSet = new Set(heroHotSkuList.map(sku => normalizeSkuKey(sku)));
 function isHotSku(sku) {
   return hotSkuSet.has(normalizeSkuKey(sku));
@@ -959,38 +893,8 @@ function isHeroHotSku(sku) {
   let itemFilterMode = "all";
   let sortConfig = { field: "speed", direction: "desc" };
 
-  const nonTurkeySkuSet = new Set(`
-    AFA13AM AFA14AM
-    AFA21AM AFA22AM AFA25AM AFA135AM
-    GTS01 GTR01 GTB01 GTP01 GTZ01 GTA01 GTC01
-    GTB03 GTR03 GTP03 GTS03 GTZ03
-    GTB05 GTP05 GTB07
-    GSF01 GSF02
-    GTSL01 GTRL01 GTPL01 GTBL01 GTAL01 GTCL01
-    GTRL03 GTPL03 GTBL03 GTZL03
-    GTPL05 GTBL05
-    GSFL01 GSFL02
-    ATS01 ATB01 ATR01AM ATP01 ATZ01
-    ATR01
-    ATB03 ATR03 ATP03 ATZ03
-    ATB05 ATP05 ATA01 ATAL01
-    KTB01AM TRP01AM TTR01AM TPZ01AM
-    KTB03AM TRP03AM TTR03AM TPZ03AM
-    TRP05AM KTB05AM TTR05AM TPZ05AM TTS05AM
-    KTB06AM
-    KTB01AM-4 TTR01AM-4 TRP01AM-4 TPZ01AM-4
-    KTB03AM-2 TRP03AM-2 TTR03AM-2 TPZ03AM-2
-    KTB05AM-1 TRP05AM-1 TTR05AM-1 TPZ05AM-1 TTS05AM-1
-    KTB06AM-4
-    KTBL01 TTRL01 TPZL01 TRPL01
-    KTBL03 TTRL03 TPZL03 TRPL03
-    TTRL05 TRPL05 TPZL05 KTBL05 TTSL05
-    AFML01 AFML03 AFML05
-    GTT01 GTT03
-    VTS01-1 VTB01-4 VTR01-4 VTB05-1 VTB06-4
-    HDR01AM HDP01AM HDS03AM
-  `.trim().split(/\s+/).filter(Boolean).map(s => s.trim().toUpperCase()));
-  window.turkeySkuSet = nonTurkeySkuSet;
+  const turkeySkuSet = new Set(turkeySkuSeedList.map(s => String(s).trim().toUpperCase()));
+  window.turkeySkuSet = turkeySkuSet;
 
   /** @type {{sku:string, asin:string, speed:(number|null), order:(number|null), us:(number|null), avail:(number|null), usDays:(number|null), days:(number|null)}[]} */
   let mainRowsAll = [];
@@ -1055,10 +959,10 @@ function isHeroHotSku(sku) {
   function applyFilters(list) {
     let rows = applyFactoryFilter(list);
     if (itemFilterMode === "onlyNonTurkey") {
-      return rows.filter(r => !nonTurkeySkuSet.has(normalizeSkuValue(r.sku)));
+      return rows.filter(r => !turkeySkuSet.has(normalizeSkuValue(r.sku)));
     }
     if (itemFilterMode === "onlyTurkey") {
-      return rows.filter(r => nonTurkeySkuSet.has(normalizeSkuValue(r.sku)));
+      return rows.filter(r => turkeySkuSet.has(normalizeSkuValue(r.sku)));
     }
     return rows;
   }
