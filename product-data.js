@@ -1,5 +1,5 @@
 // 產品資料已獨立於 index.html，方便維護
-const allProducts = [
+window.allProductsData = [
   { productCode: "1GBRD019A0", productName: "Gootoe - Buffalo Bites Bone Shaped - 1.5lb (Pack of 3)", boxSize: "50*40*30", perCarton: 9, perPack: 3, perBox: null, perPallet: 42, country: "VN" },
   { productCode: "1GBRD029A0", productName: "Gootoe - Buffalo Bites Stick (Large) - 1.5lb (Pack of 3)", boxSize: "50*40*30", perCarton: 8, perPack: 3, perBox: null, perPallet: 42, country: "VN" },
   { productCode: "1AWDD010A0", productName: "A freschi Air-Dried Dog Food-Turkey Recipe , 0.9oz", boxSize: "50*40*30", perCarton: 250, perPack: null, perBox: null, perPallet: 42, country: "VN" },
@@ -273,4 +273,3 @@ const allProducts = [
   { productCode: "ART01AM", productName: "Afreschi - Turkey Tendon Wrapped Veal Rib Bone, 85g", boxSize: "48*38*28", perCarton: 130, perPack: null, perBox: null, perPallet: 36, country: "TW" },
   { productCode: "ART01J", productName: "Afreschi - Turkey Tendon Wrapped Veal Rib Bone, 85g", boxSize: "48*38*28", perCarton: 130, perPack: null, perBox: null, perPallet: 21, country: "TW" }
 ];
-window.allProductsData = allProducts;
