@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>訂單分析器</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Ctext x=%278%27 y=%2746%27 font-size=%2742%27%3E📦%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <style>
     :root { font-family: "Noto Sans TC", system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #0f1d2b; }
@@ -56,6 +57,25 @@
     .legendSwatch { width: 12px; height: 12px; border-radius: 4px; }
     .salesSummary { margin-top: 12px; font-size: 12px; color: #516178; line-height: 1.6; }
     .salesMissing { margin-top: 8px; font-size: 12px; color: #a04646; }
+    .ganttCard { margin-top: 16px; border: 1px solid #e6edf7; border-radius: 12px; padding: 16px; background: #fbfdff; }
+    .ganttControls { display:flex; gap:10px; align-items:center; flex-wrap: wrap; margin-bottom: 10px; }
+    .ganttTable td { vertical-align: top; font-size: 12px; }
+    .ganttSkuList { margin: 0; padding-left: 16px; }
+    .ganttSkuList li { margin-bottom: 4px; }
+    .salesCalendarWrap { margin-top: 14px; }
+    .salesCalendarGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+    .salesCalendarMonth { border: 1px solid #dfe8f6; border-radius: 10px; background: #fff; overflow: hidden; }
+    .salesCalendarTitle { padding: 10px 12px; font-weight: 700; font-size: 13px; color: #1f2f45; background: #f4f7fd; border-bottom: 1px solid #e6ecf7; }
+    .salesCalendarWeek { display:grid; grid-template-columns: repeat(7, minmax(0, 1fr)); background: #f8fbff; border-bottom: 1px solid #eef3fa; }
+    .salesCalendarWeek span { text-align:center; font-size:11px; padding: 6px 0; color:#6c7f99; }
+    .salesCalendarDays { display:grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+    .salesDayCell { min-height: 58px; border-right: 1px solid #eef3fa; border-bottom: 1px solid #eef3fa; padding: 4px; font-size: 11px; }
+    .salesDayCell:nth-child(7n) { border-right: 0; }
+    .salesDayCell.empty { background: #fbfdff; }
+    .salesDayNum { display:inline-flex; width: 18px; height:18px; border-radius: 50%; align-items:center; justify-content:center; color:#60718a; }
+    .salesDayCell.hasEvent .salesDayNum { background:#0b6bcb; color:#fff; }
+    .salesDayCount { margin-top:2px; color:#0b6bcb; font-weight:600; }
+    .salesDaySkus { margin-top:2px; color:#3f4e64; line-height:1.35; word-break: break-word; }
 
     .order-generator { margin-top: 36px; font-family: "Noto Sans TC", Arial, sans-serif; color: #273042; }
     .order-generator .container {
@@ -205,13 +225,17 @@
     }
     .order-generator tr:last-child td { border-bottom: none; }
     .order-generator tr:hover td { background: #f0f5fe; }
-    .order-generator .action-button, .order-generator .remove-button, .order-generator .lock-button {
+    .order-generator .action-button, .order-generator .remove-button, .order-generator .lock-button, .order-generator .drag-handle {
       background: #e0e7f3; color: #5c6f8f;
       padding: 5px 9px; margin: 2px 1px;
       border: none; border-radius: 6px; cursor: pointer;
       font-size: 15px; font-weight: bold;
       transition: background 0.2s;
     }
+    .order-generator .drag-handle { cursor: grab; }
+    .order-generator .drag-handle:active { cursor: grabbing; }
+    .order-generator .drag-handle.active { background: #b0c9e7; }
+    .order-generator .dragging-row td { background: #e9f2ff !important; }
     .order-generator .action-button:hover { background: #b0c9e7;}
     .order-generator .remove-button { background: #fa7878; color: #fff;}
     .order-generator .remove-button:hover { background: #e84242;}
@@ -242,7 +266,7 @@
       margin: 14px 0 0;
     }
     /* 彈窗 */
-    .order-generator .modal {
+    .modal {
       display: none; position: fixed; z-index: 2000; left: 0; top: 0;
       width: 100%; height: 100%; overflow: auto;
       background: rgba(0,0,0,0.16);
@@ -251,7 +275,7 @@
     @keyframes fadeIn {
       from {opacity: 0;} to {opacity: 1;}
     }
-    .order-generator .modal-content {
+    .modal-content {
       background: #fff; margin: 6% auto; padding: 30px 26px; border-radius: 16px;
       width: 92%; max-width: 470px; position: relative;
       box-shadow: 0 12px 48px #5664ff40;
@@ -261,38 +285,34 @@
       from {transform: scale(0.9);}
       to {transform: scale(1);}
     }
-    .order-generator .close-modal {
+    .close-modal {
       color: #aab2c6; font-size: 32px; font-weight: bold; cursor: pointer;
       position: absolute; right: 20px; top: 10px;
       transition: color 0.18s;
     }
-    .order-generator .close-modal:hover, .order-generator .close-modal:focus { color: #222; }
-    .order-generator .modal-content p { margin: 12px 0 6px 0; }
-    /* 新品產生器浮動鈕 */
-    .order-generator #newItemGeneratorBtn {
+    .close-modal:hover, .close-modal:focus { color: #222; }
+    .modal-content p { margin: 12px 0 6px 0; }
+    /* 右上角其他功能按鈕 */
+    .order-generator #otherFunctionsBtn {
       position: fixed; top: 22px; right: 30px;
-      background: linear-gradient(120deg,#10b7e8 60%,#7ad0e0 100%);
-      color: #fff; border: none; border-radius: 50%; width: 45px; height: 45px;
-      cursor: pointer; font-weight: bold; font-size: 2rem;
-      box-shadow: 0 2px 14px #13e6f442;
-      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(120deg,#2f80ed 60%,#56ccf2 100%);
+      color: #fff; border: none; border-radius: 999px;
+      min-width: 116px; height: 44px;
+      cursor: pointer; font-weight: 700; font-size: 0.98rem;
+      box-shadow: 0 2px 14px rgba(47, 128, 237, 0.35);
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
       z-index: 2100;
       transition: box-shadow 0.2s, background 0.2s;
     }
-    .order-generator #newItemGeneratorBtn:hover { box-shadow: 0 4px 24px #23baff74; background: #0aa2c3; }
-    .order-generator #discontinuedListBtn {
-      position: fixed; top: 22px; right: 86px;
-      background: linear-gradient(120deg,#ff6b6b 60%,#ff9a9a 100%);
-      color: #fff; border: none; border-radius: 50%; width: 40px; height: 40px;
-      cursor: pointer; font-weight: bold; font-size: 1.1rem;
-      box-shadow: 0 2px 12px rgba(255, 107, 107, 0.35);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 2100;
-      transition: box-shadow 0.2s, background 0.2s;
+    .order-generator #otherFunctionsBtn:hover {
+      box-shadow: 0 4px 24px rgba(47, 128, 237, 0.45);
+      background: linear-gradient(120deg,#226fd6 60%,#49bde2 100%);
     }
-    .order-generator #discontinuedListBtn:hover {
-      box-shadow: 0 4px 20px rgba(255, 107, 107, 0.5);
-      background: #ff5252;
+    .order-generator .other-function-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 12px;
     }
     .discontinued-text { color: #c62828; font-weight: 700; }
     .discontinued-tag {
@@ -335,7 +355,7 @@
     @media (max-width: 600px) {
       .order-generator .container {padding: 9px;}
       .order-generator .header-bar h2 { font-size: 1.1rem;}
-      .order-generator .modal-content {padding: 14px 6px;}
+      .modal-content {padding: 14px 6px;}
       .order-generator .product-button{font-size: .9rem;}
     }
   </style>
@@ -454,14 +474,25 @@
               </div>
             </div>
 
-            <!-- 新品產生器浮動按鈕 -->
-            <button id="newItemGeneratorBtn" title="新品產生器">
-              <i class="fa-solid fa-plus"></i>
+            <!-- 其他功能浮動按鈕 -->
+            <button id="otherFunctionsBtn" title="其他功能">
+              <i class="fa-solid fa-ellipsis"></i>
+              <span>其他功能</span>
             </button>
-            <!-- 停產清單浮動按鈕 -->
-            <button id="discontinuedListBtn" title="停產清單">
-              <i class="fa-solid fa-ban"></i>
-            </button>
+            <!-- 其他功能 Modal -->
+            <div id="otherFunctionsModal" class="modal">
+              <div class="modal-content">
+                <span class="close-modal" onclick="closeOtherFunctionsModal()">&times;</span>
+                <h2 style="color:#2f80ed;font-size:1.25rem;margin-bottom:16px;">
+                  <i class="fa-solid fa-sliders"></i> 其他功能
+                </h2>
+                <div class="other-function-actions">
+                  <button class="product-button" onclick="openNewItemModal()"><i class="fa-solid fa-cube"></i> 開啟新品產生器</button>
+                  <button class="product-button" style="background:#e55b5b;" onclick="openDiscontinuedModal()"><i class="fa-solid fa-ban"></i> 開啟停產清單</button>
+                  <button class="product-button" style="background:#6b7a90;" onclick="openAdvancedSettingsModal()"><i class="fa-solid fa-gear"></i> 開啟進階設定</button>
+                </div>
+              </div>
+            </div>
             <!-- 停產清單 Modal -->
             <div id="discontinuedModal" class="modal">
               <div class="modal-content">
@@ -574,7 +605,7 @@ TTR01AM-4 14125
         <summary>
           <div>
             <h2>門檻內可售品項：建議下單清單</h2>
-            <div class="hint">只抓「可銷售天數 &lt;= 門檻」且速度 &gt; 0 的 SKU</div>
+            <div class="hint">只抓「含訂單可售天數 &lt;= 門檻」且速度 &gt; 0 的 SKU</div>
           </div>
           <div class="summary-actions">
             <button class="secondary" id="btnAddReorderToGenerator">一鍵加入訂單產生器</button>
@@ -598,11 +629,14 @@ TTR01AM-4 14125
       </details>
 
       <!-- 主表 -->
-      <details class="card priority" open>
+      <details class="card priority">
         <summary>
           <div>
             <h2>主表（H10 產品）</h2>
-            <div class="hint">SKU / 速度 / 訂單 / 美國總數 / 可銷售天數</div>
+            <div class="hint">SKU / 速度 / 訂單 / 美國總數 / 美國可售天數 / 含訂單可售天數</div>
+          </div>
+          <div class="summary-actions">
+            <button class="secondary" id="btnDownloadMainCSV">下載Excel</button>
           </div>
           <div class="summary-actions">
             <button class="secondary" id="btnDownloadMainCSV">下載Excel</button>
@@ -668,12 +702,15 @@ TTR01AM-4 14125
         </div>
       </details>
 
-      <!-- 新品（美國總數有但H10沒有且訂單也沒有） 預設收折 -->
-      <details class="card" id="newUSDetails">
+      <!-- 新品（訂單有但H10沒有） -->
+      <details class="card priority">
         <summary>
           <div>
-            <p class="eyebrow">其他</p>
-            <h2 style="margin:0;">美國總數有，但 H10 沒有，且訂單也沒有</h2>
+            <h2>新品（訂單有，但 H10 沒有）</h2>
+            <div class="hint">SKU / 訂單 / 美國總數(若有)</div>
+          </div>
+          <div class="summary-actions">
+            <button class="secondary" id="btnDownloadNewOrderCSV">下載Excel</button>
           </div>
           <span class="hint">（預設收折，點此展開）</span>
           <div class="summary-actions">
@@ -691,16 +728,11 @@ TTR01AM-4 14125
       </details>
     </div>
 
-    <details class="card" id="advancedSettings">
-      <summary>
-        <div>
-          <p class="eyebrow">設定</p>
-          <h2>進階設定（可展開）</h2>
-        </div>
-        <span class="pill">可收合</span>
-      </summary>
-      <div class="cardContent">
-        <div class="row">
+    <div id="advancedSettingsModal" class="modal">
+      <div class="modal-content">
+        <span class="close-modal" onclick="closeAdvancedSettingsModal()">&times;</span>
+        <h2 style="color:#2f80ed;font-size:1.25rem;margin-bottom:16px;"><i class="fa-solid fa-gear"></i> 進階設定</h2>
+        <div class="row" style="display:flex; flex-direction:column; align-items:flex-start; gap:10px;">
           <label style="display:flex; gap:6px; align-items:center;">
             <input type="checkbox" id="chkDedupe" checked />
             H10 去重（以 ASIN+SKU）
@@ -719,7 +751,7 @@ TTR01AM-4 14125
           </label>
         </div>
       </div>
-    </details>
+    </div>
 
     <details class="card" id="salesPieDetails">
       <summary>
@@ -728,7 +760,7 @@ TTR01AM-4 14125
           <h2>銷售額圓餅圖</h2>
           <div class="hint">貼上「SKU + 訂購產品銷售額」資料，系統會依工廠與品項分類產生圓餅圖。</div>
         </div>
-        <span class="pill">可收合</span>
+        <div class="summary-actions"><a class="sales-link" href="https://sellercentral.amazon.com/business-reports/ref=xx_sitemetric_dnav_xx#/report?id=102%3ADetailSalesTrafficBySKU&chartCols=&columns=0%2F1%2F2%2F3%2F8%2F9%2F14%2F15%2F20%2F21%2F26%2F27%2F28%2F29%2F30%2F31%2F32%2F33%2F34%2F35%2F36%2F37" target="_blank" rel="noopener noreferrer">後台資料</a><span class="pill">可收合</span></div>
       </summary>
       <div class="cardContent">
         <div class="row">
@@ -761,8 +793,47 @@ TTR01AM-4 14125
       </div>
     </details>
 
+    <details class="card" id="salesGanttDetails">
+      <summary>
+        <div>
+          <p class="eyebrow">缺貨預測</p>
+          <h2>銷售甘特圖 / 月曆（未來 12 個月）</h2>
+          <div class="hint">獨立區塊顯示銷售甘特圖，支援表格與月曆檢視並可匯出 Excel。</div>
+        </div>
+        <div class="summary-actions">
+          <button class="secondary" id="btnExportSalesGantt">下載Excel</button>
+          <span class="pill">可收合</span>
+        </div>
+      </summary>
+      <div class="cardContent">
+        <div class="ganttCard" style="margin-top:0;">
+          <div class="ganttControls">
+            <label for="ganttDaysType">天數模式：</label>
+            <select id="ganttDaysType">
+              <option value="usDays">美國可售天數甘特圖</option>
+              <option value="days" selected>含訂單可售天數甘特圖</option>
+            </select>
+            <label for="salesGanttFactory">工廠篩選：</label>
+            <select id="salesGanttFactory">
+              <option value="all" selected>全部</option>
+              <option value="hideTW">越南廠（排除台灣廠）</option>
+              <option value="onlyTW">台灣廠</option>
+            </select>
+            <label for="salesGanttViewType">檢視模式：</label>
+            <select id="salesGanttViewType">
+              <option value="table" selected>表格檢視</option>
+              <option value="calendar">月曆檢視</option>
+            </select>
+          </div>
+          <div class="tableWrap" id="salesGanttWrap"></div>
+          <div class="salesCalendarWrap" id="salesCalendarWrap" style="display:none;"></div>
+          <div class="hint" id="salesGanttHint"></div>
+        </div>
+      </div>
+    </details>
+
     <div class="footer">
-      註：速度為 0 或抓不到速度 → 不計算可銷售天數，且不會進入「下單清單」。
+      註：速度為 0 或抓不到速度 → 不計算可售天數（美國/含訂單），且不會進入「下單清單」。
     </div>
 
   </div>
@@ -776,7 +847,8 @@ const discontinuedSkuDefaults = [
   "ATB03","TPZL01","GTT03","TPZ01AM-4","TRP05AM","TTRL05","TRP01AM-4","TTRL03","GBB01",
   "ATN01","1ABRD001A0","GBS01","GBS03","1ABRD003A0","ASA01","ABM01","ATJ01","ACTL05","ASCL03",
   "ACTL08","ACA01","ACA02","ACA03","VBW01","VBS03","VBB01","VBS01","TTR05AM","HDR01AM","GTC01",
-  "GCTL05","GCTL02","ATJL01"
+  "GCTL05","GCTL02","ATJL01","EZD010AM-3","EZD020AM-3","EZD040AM-3","EZD050AM-3","EZD060AM-3",
+  "GTCL01","TPZ03AM-2","1GSDD011A0","VTR01-4","VTS01-1","TTRL01"
 ];
 const discontinuedSkuReasons = new Map(
   discontinuedSkuDefaults.map(sku => [sku, "銷量不佳"])
@@ -786,6 +858,18 @@ const discontinuedSkuReasons = new Map(
 });
 ["ATJ01","ATJL01"].forEach(sku => {
   discontinuedSkuReasons.set(sku, "原料因素");
+});
+["EZD010AM-3","EZD020AM-3","EZD040AM-3","EZD050AM-3","EZD060AM-3","1GSDD011A0"].forEach(sku => {
+  discontinuedSkuReasons.set(sku, "取消小包");
+});
+["GTCL01","TPZ03AM-2"].forEach(sku => {
+  discontinuedSkuReasons.set(sku, "成本考量");
+});
+["VTR01-4","VTS01-1"].forEach(sku => {
+  discontinuedSkuReasons.set(sku, "委外生產");
+});
+["TTRL01"].forEach(sku => {
+  discontinuedSkuReasons.set(sku, "銷量不佳");
 });
 const discontinuedSkuSet = new Set(discontinuedSkuReasons.keys());
 function normalizeSkuKey(sku) {
@@ -886,14 +970,11 @@ function isHeroHotSku(sku) {
   const reorderWrap = document.getElementById('reorderTableWrap');
   const hotWrap = document.getElementById('hotTableWrap');
   const newOrderWrap = document.getElementById('newOrderWrap');
-  const newUSWrap = document.getElementById('newUSWrap');
 
   const countReorderEl = document.getElementById('countReorder');
   const countHotEl = document.getElementById('countHot');
   const countNewOrderEl = document.getElementById('countNewOrder');
-  const countNewUSEl = document.getElementById('countNewUS');
 
-  const newUSDetails = document.getElementById('newUSDetails');
 
   // 工廠篩選狀態：all | hideTW | onlyTW
   let factoryMode = "all";
@@ -933,16 +1014,14 @@ function isHeroHotSku(sku) {
   `.trim().split(/\s+/).filter(Boolean).map(s => s.trim().toUpperCase()));
   window.turkeySkuSet = nonTurkeySkuSet;
 
-  /** @type {{sku:string, asin:string, speed:(number|null), order:(number|null), us:(number|null), avail:(number|null), days:(number|null)}[]} */
+  /** @type {{sku:string, asin:string, speed:(number|null), order:(number|null), us:(number|null), avail:(number|null), usDays:(number|null), days:(number|null)}[]} */
   let mainRowsAll = [];
-  /** @type {{sku:string, asin:string, speed:number, order:number, us:number, avail:number, days:number}[]} */
+  /** @type {{sku:string, asin:string, speed:number, order:number, us:number, avail:number, usDays:number, days:number}[]} */
   let reorderRowsAll = [];
   /** @type {{sku:string, asin:(string|null), speed:(number|null), order:(number|null), us:(number|null), avail:(number|null), days:(number|null)}[]} */
   let hotRowsAll = [];
   /** @type {{sku:string, order:number, us:(number|null)}[]} */
   let newOrderRowsAll = [];
-  /** @type {{sku:string, us:number}[]} */
-  let newUSRowsAll = [];
 
   function escapeHtml(s) {
     return (s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1018,7 +1097,7 @@ function isHeroHotSku(sku) {
       const numMatch = lookahead.match(/(\d+(?:,\d{3})*(?:\.\d+)?)/);
       const speed = numMatch ? normalizeNumber(numMatch[1]) : null;
 
-      found.push({ sku, asin, speed, order: null, us: null, avail: null, days: null });
+      found.push({ sku, asin, speed, order: null, us: null, avail: null, usDays: null, days: null });
     }
     return found;
   }
@@ -1075,9 +1154,11 @@ function isHeroHotSku(sku) {
     r.avail = order + us;
 
     if (r.speed === null || r.speed <= 0) {
+      r.usDays = null;
       r.days = null;
       return;
     }
+    r.usDays = us / r.speed;
     r.days = r.avail / r.speed;
   }
 
@@ -1103,6 +1184,8 @@ function isHeroHotSku(sku) {
       return direction === "asc" ? as - bs : bs - as;
     });
   }
+
+  window.__isRenderingSalesGantt = false;
 
   function buildTables() {
     const rawH10 = h10El.value || "";
@@ -1166,7 +1249,7 @@ function isHeroHotSku(sku) {
 
     const threshold = Math.max(1, Number(daysThresholdEl.value || 180));
     const reorder = h10Rows
-      .filter(r => r.days !== null && r.days <= threshold && r.speed !== null && r.speed > 0)
+       .filter(r => r.days !== null && r.days <= threshold && r.speed !== null && r.speed > 0)
       .map(r => ({
         sku: r.sku,
         asin: r.asin,
@@ -1174,23 +1257,26 @@ function isHeroHotSku(sku) {
         order: (r.order ?? 0),
         us: (r.us ?? 0),
         avail: (r.avail ?? 0),
+        usDays: (r.usDays ?? 0),
         days: (r.days ?? 0)
       }));
 
     reorder.sort((a,b) => a.days - b.days);
     newOrder.sort((a,b) => b.order - a.order);
-    newUS.sort((a,b) => b.us - a.us);
 
     mainRowsAll = h10Rows;
+    window.mainRowsAll = mainRowsAll;
     reorderRowsAll = reorder;
     hotRowsAll = hotRows;
     newOrderRowsAll = newOrder;
-    newUSRowsAll = newUS;
     window.availMap = new Map(h10Rows.map(r => [r.sku, (r.avail ?? 0)]));
 
     renderAll();
     if (window.refreshGeneratorSpeedMetrics) {
       window.refreshGeneratorSpeedMetrics();
+    }
+    if (typeof renderSalesGantt === 'function' && !window.__isRenderingSalesGantt) {
+      renderSalesGantt();
     }
   }
 
@@ -1199,7 +1285,6 @@ function isHeroHotSku(sku) {
     renderMain();
     renderHot();
     renderNewOrder();
-    renderNewUS();
   }
 
   function renderReorder() {
@@ -1215,6 +1300,7 @@ function isHeroHotSku(sku) {
         <td class="ok">${escapeHtml(String(r.speed))}</td>
         <td class="ok">${escapeHtml(String(r.order))}</td>
         <td class="ok">${escapeHtml(String(r.us))}</td>
+        <td class="warn">${escapeHtml(fmtDays(r.usDays))}</td>
         <td class="warn">${escapeHtml(fmtDays(r.days))}</td>
       </tr>
     `).join("");
@@ -1223,7 +1309,7 @@ function isHeroHotSku(sku) {
       <table>
         <thead>
           <tr>
-            <th>#</th><th>SKU</th><th>速度</th><th>訂單</th><th>美國總數</th><th>可銷售天數</th>
+            <th>#</th><th>SKU</th><th>速度</th><th>訂單</th><th>美國總數</th><th>美國可售天數</th><th>含訂單可售天數</th>
           </tr>
         </thead>
         <tbody>${body}</tbody>
@@ -1239,13 +1325,40 @@ function isHeroHotSku(sku) {
     return Math.ceil(gapDays * speed);
   }
 
+  function calculateReorderPallets(row, prod, thresholdDays) {
+    const qty = calculateReorderQuantity(row, thresholdDays);
+    const unitsPerPallet = getUnitsPerPallet(prod);
+    if (!qty || !unitsPerPallet) return null;
+    return Math.ceil((qty / unitsPerPallet) * 100) / 100;
+  }
+
+  function applyPlannedQuantityToGenerator(prod, quantity, pallets = null) {
+    const rowEl = addProduct(prod, null);
+    if (!rowEl) return;
+    if (Number.isFinite(pallets) && pallets > 0) {
+      const palletsInput = rowEl.querySelector('.edit-pallets-input');
+      if (palletsInput) {
+        palletsInput.value = pallets.toFixed(2);
+        updateFields(palletsInput, prod.productCode);
+        return;
+      }
+    }
+    if (Number.isFinite(quantity) && quantity > 0) {
+      const qtyInput = rowEl.querySelector('.edit-quantity-input');
+      if (qtyInput) {
+        qtyInput.value = quantity.toFixed(0);
+        updateFields(qtyInput, prod.productCode);
+      }
+    }
+  }
+
   function addReorderRowsToGenerator() {
-    const rows = applyFilters(reorderRowsAll);
+    const threshold = Math.max(1, Number(daysThresholdEl.value || 180));
+    const rows = applyFilters(mainRowsAll).filter(row => row.days !== null && row.days <= threshold && row.speed !== null && row.speed > 0);
     if (rows.length === 0) {
       showTip('目前沒有可加入的下單品項', 'error');
       return;
     }
-    const threshold = Math.max(1, Number(daysThresholdEl.value || 180));
     const missing = [];
     const skipped = [];
     rows.forEach(row => {
@@ -1259,6 +1372,36 @@ function isHeroHotSku(sku) {
         return;
       }
       const qty = calculateReorderQuantity(row, threshold);
+      const pallets = calculateReorderPallets(row, prod, threshold);
+      applyPlannedQuantityToGenerator(prod, qty, pallets);
+    });
+    if (missing.length) {
+      showTip(`以下 SKU 找不到品項資料：${missing.join(', ')}`, 'error');
+    }
+    if (skipped.length) {
+      showTip(`停產品項未加入訂單產生器：${skipped.join(', ')}`, 'error');
+    }
+  }
+
+  function addHotRowsToGenerator() {
+    const rows = applyFilters(hotRowsAll);
+    if (rows.length === 0) {
+      showTip('目前沒有可加入的熱銷品', 'error');
+      return;
+    }
+    const missing = [];
+    const skipped = [];
+    rows.forEach(row => {
+      if (isDiscontinuedSku(row.sku)) {
+        skipped.push(row.sku);
+        return;
+      }
+      const prod = getProductSpecByCode(row.sku);
+      if (!prod) {
+        missing.push(row.sku);
+        return;
+      }
+      const qty = (row.order !== null && Number.isFinite(row.order)) ? row.order : null;
       addProduct(prod, qty);
     });
     if (missing.length) {
@@ -1306,6 +1449,7 @@ function isHeroHotSku(sku) {
       const speedCell = (r.speed === null) ? `<td class="bad">(未抓到)</td>` : `<td class="ok">${escapeHtml(String(r.speed))}</td>`;
       const orderCell = (r.order === null) ? `<td class="bad">(未對應)</td>` : `<td class="ok">${escapeHtml(String(r.order))}</td>`;
       const usCell = (r.us === null) ? `<td class="bad">(未對應)</td>` : `<td class="ok">${escapeHtml(String(r.us))}</td>`;
+      const usDaysCell = (r.usDays === null) ? `<td class="bad">(不可算)</td>` : `<td class="ok">${escapeHtml(fmtDays(r.usDays))}</td>`;
       const daysCell = (r.days === null) ? `<td class="bad">(不可算)</td>` : `<td class="ok">${escapeHtml(fmtDays(r.days))}</td>`;
 
       return `
@@ -1315,6 +1459,7 @@ function isHeroHotSku(sku) {
           ${speedCell}
           ${orderCell}
           ${usCell}
+          ${usDaysCell}
           ${daysCell}
         </tr>
       `;
@@ -1324,7 +1469,7 @@ function isHeroHotSku(sku) {
       <table>
         <thead>
           <tr>
-            <th>#</th><th>SKU</th><th>速度</th><th>訂單</th><th>美國總數</th><th>可銷售天數</th>
+            <th>#</th><th>SKU</th><th>速度</th><th>訂單</th><th>美國總數</th><th>美國可售天數</th><th>含訂單可售天數</th>
           </tr>
         </thead>
         <tbody>${body}</tbody>
@@ -1372,6 +1517,43 @@ function isHeroHotSku(sku) {
     if (rows.length === 0) { newOrderWrap.innerHTML = ""; return; }
 
     const body = rows.map((r, idx) => {
+      const speedCell = (r.speed === null) ? `<td class="bad">(未抓到)</td>` : `<td class="ok">${escapeHtml(String(r.speed))}</td>`;
+      const orderCell = (r.order === null) ? `<td class="bad">(未對應)</td>` : `<td class="ok">${escapeHtml(String(r.order))}</td>`;
+      const usCell = (r.us === null) ? `<td class="bad">(未對應)</td>` : `<td class="ok">${escapeHtml(String(r.us))}</td>`;
+      const usDaysCell = (r.usDays === null) ? `<td class="bad">(不可算)</td>` : `<td class="ok">${escapeHtml(fmtDays(r.usDays))}</td>`;
+      const daysCell = (r.days === null) ? `<td class="bad">(不可算)</td>` : `<td class="ok">${escapeHtml(fmtDays(r.days))}</td>`;
+      return `
+        <tr>
+          <td>${idx + 1}</td>
+          ${renderSkuCell(r.sku)}
+          ${speedCell}
+          ${orderCell}
+          ${usCell}
+          ${usDaysCell}
+          ${daysCell}
+        </tr>
+      `;
+    }).join("");
+
+    hotWrap.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>SKU</th><th>速度</th><th>訂單</th><th>美國總數</th><th>美國可售天數</th><th>含訂單可售天數</th>
+          </tr>
+        </thead>
+        <tbody>${body}</tbody>
+      </table>
+    `;
+  }
+
+  function renderNewUS() {
+    const rows = applyFilters(newUSRowsAll);
+    // countNewUS 只有在展開時才顯示也可以，但這裡保留更新
+    if (countNewUSEl) countNewUSEl.textContent = String(rows.length);
+    if (rows.length === 0) { newUSWrap.innerHTML = ""; return; }
+
+    const body = rows.map((r, idx) => {
       const usCell = (r.us === null) ? `<td class="bad">(未提供)</td>` : `<td class="ok">${escapeHtml(String(r.us))}</td>`;
       return `
         <tr>
@@ -1393,29 +1575,6 @@ function isHeroHotSku(sku) {
     `;
   }
 
-  function renderNewUS() {
-    const rows = applyFilters(newUSRowsAll);
-    // countNewUS 只有在展開時才顯示也可以，但這裡保留更新
-    if (countNewUSEl) countNewUSEl.textContent = String(rows.length);
-    if (rows.length === 0) { newUSWrap.innerHTML = ""; return; }
-
-    const body = rows.map((r, idx) => `
-      <tr>
-        <td>${idx + 1}</td>
-        ${renderSkuCell(r.sku)}
-        <td class="ok">${escapeHtml(String(r.us))}</td>
-      </tr>
-    `).join("");
-
-    newUSWrap.innerHTML = `
-      <table>
-        <thead>
-          <tr><th>#</th><th>SKU</th><th>美國總數</th></tr>
-        </thead>
-        <tbody>${body}</tbody>
-      </table>
-    `;
-  }
 
   // ---- Export ----
   function download(filename, content, mime) {
@@ -1443,22 +1602,23 @@ function isHeroHotSku(sku) {
 
   function exportMainRowsFiltered() {
     const rows = applyFilters(mainRowsAll);
-    const headers = ["SKU","ASIN","速度","訂單","美國總數","可售總量(美國+訂單)","可銷售天數"];
+    const headers = ["SKU","ASIN","速度","訂單","美國總數","可售總量(美國+訂單)","美國可售天數","含訂單可售天數"];
     const body = rows.map(r => [
       r.sku, r.asin,
       (r.speed ?? ""),
       (r.order ?? ""),
       (r.us ?? ""),
       (r.avail ?? ""),
+      (r.usDays === null ? "" : fmtDays(r.usDays)),
       (r.days === null ? "" : fmtDays(r.days))
     ]);
     return { headers, body };
   }
   function exportReorderRowsFiltered() {
-    const rows = applyFilters(reorderRowsAll);
-    const headers = ["SKU","ASIN","速度","訂單","美國總數","可售總量(美國+訂單)","可銷售天數"];
+    const rows = applyFilters(mainRowsAll).filter(row => row.days !== null && row.days <= threshold && row.speed !== null && row.speed > 0);
+    const headers = ["SKU","ASIN","速度","訂單","美國總數","可售總量(美國+訂單)","美國可售天數","含訂單可售天數"];
     const body = rows.map(r => [
-      r.sku, r.asin, String(r.speed), String(r.order), String(r.us), String(r.avail), fmtDays(r.days)
+      r.sku, r.asin, String(r.speed), String(r.order), String(r.us), String(r.avail), fmtDays(r.usDays), fmtDays(r.days)
     ]);
     return { headers, body };
   }
@@ -1466,12 +1626,6 @@ function isHeroHotSku(sku) {
     const rows = applyFilters(newOrderRowsAll);
     const headers = ["SKU","訂單","美國總數"];
     const body = rows.map(r => [r.sku, String(r.order), (r.us ?? "").toString()]);
-    return { headers, body };
-  }
-  function exportNewUSRowsFiltered() {
-    const rows = applyFilters(newUSRowsAll);
-    const headers = ["SKU","美國總數"];
-    const body = rows.map(r => [r.sku, String(r.us)]);
     return { headers, body };
   }
 
@@ -1561,290 +1715,15 @@ function isHeroHotSku(sku) {
     downloadRowsAsExcel(ex.headers, ex.body, `${dateStamp}_新品_美國總數.xlsx`, "新品_美國總數");
   });
 
-  // ⑦ 預設收折
-  newUSDetails.open = false;
   updateSortButtons();
   document.querySelectorAll('.summary-actions button').forEach(btn => {
     btn.addEventListener('click', (event) => event.stopPropagation());
   });
 })();
 </script>
+<script src="./product-data.js"></script>
 <script>
-  // 商品資料範例
-const allProducts = [
-  { productCode: "1GBRD019A0", productName: "Gootoe - Buffalo Bites Bone Shaped - 1.5lb (Pack of 3)", boxSize: "50*40*30", perCarton: 9, perPack: 3, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1GBRD029A0", productName: "Gootoe - Buffalo Bites Stick (Large) - 1.5lb (Pack of 3)", boxSize: "50*40*30", perCarton: 8, perPack: 3, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1AWDD010A0", productName: "A freschi Air-Dried Dog Food-Turkey Recipe , 0.9oz", boxSize: "50*40*30", perCarton: 250, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1AWDD170A0", productName: "A freschi Air-Dried Dog Food-Turkey & Salmon Recipe , 0.9oz", boxSize: "50*40*30", perCarton: 250, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1AWDD073A0", productName: "A Freschi  Air-dried Dog Food-Chicken & Salmon Recipe , 1lb", boxSize: "50*40*30", perCarton: 38, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1AWDD075A0", productName: "A Freschi Air-dried Dog Food-Chicken & Salmon Recipe , 2.2lb", boxSize: "50*40*30", perCarton: 20, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1AWDD070A0", productName: "A Freschi  Air-dried Dog Food-Chicken & Salmon Recipe , 0.9oz", boxSize: "50*40*30", perCarton: 250, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1AWDD063A0", productName: "A Freschi  Air-dried Dog Food-Chicken Recipe , 1lb", boxSize: "50*40*30", perCarton: 38, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1AWDD065A0", productName: "A Freschi  Air-dried Dog Food-Chicken Recipe , 2.2lb", boxSize: "50*40*30", perCarton: 20, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1AWDD060A0", productName: "A Freschi  Air-dried Dog Food-Chicken Recipe , 0.9oz", boxSize: "50*40*30", perCarton: 250, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1AWDD473A0", productName: "A Freschi srl Air-dried Dog Food - Buffalo & Salmon Recipe , 1lb", boxSize: "50*40*30", perCarton: 38, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1AWDD475A0", productName: "A Freschi srl Air-dried Dog Food - Buffalo & Salmon Recipe , 2.2lb", boxSize: "50*40*30", perCarton: 20, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1AWDD470A0", productName: "A Freschi srl Air-dried Dog Food - Buffalo & Salmon Recipe , 0.9oz", boxSize: "50*40*30", perCarton: 250, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1AWDD463A0", productName: "A Freschi srl  Air-dried Dog Food - Buffalo & Chicken Recipe , 1lb", boxSize: "50*40*30", perCarton: 38, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1AWDD465A0", productName: "A Freschi srl  Air-dried Dog Food - Buffalo & Chicken Recipe , 2.2lb", boxSize: "50*40*30", perCarton: 20, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1AWDD460A0", productName: "A Freschi srl  Air-dried Dog Food - Buffalo & Chicken Recipe , 0.9oz", boxSize: "50*40*30", perCarton: 250, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1VADD063A0", productName: "VITADAY - Air-Dried Dog Food - Chicken Recipe - Stomach Support Formula - 454g", boxSize: "50*40*30", perCarton: 38, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1VADD073A0", productName: "VITADAY - Air-Dried Dog Food - Chicken & Mackerels Recipe - Joint Support Formula - 454g", boxSize: "50*40*30", perCarton: 38, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1GCRD017A0", productName: "Gootoe - Chicken Fillet Jerky - 1lb (Pack of 3)", boxSize: "50*40*30", perCarton: 9, perPack: 3, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1GCRD027A0", productName: "Gootoe - Chicken Breast Jerky - 1lb (Pack of 3)", boxSize: "50*40*30", perCarton: 11, perPack: 3, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1GCRD037A0", productName: "Gootoe - Chicken Chips - 1lb (Pack of 3)", boxSize: "50*40*30", perCarton: 9, perPack: 3, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1GQRD017A0", productName: "Gootoe - Soft Chicken Breast Strips - 1lb (Pack of 3)", boxSize: "50*40*30", perCarton: 10, perPack: 3, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1GQRD027A0", productName: "Gootoe - Soft Chicken Sticks - 1lb (Pack of 3)", boxSize: "50*40*30", perCarton: 11, perPack: 3, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1GSDD011A0", productName: "GooToE Chicken Breast Wrapped Salmon Sticks , 6oz", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1GSDD015A0", productName: "GooToE Chicken Breast Wrapped Salmon Sticks , 1.5lb", boxSize: "50*40*30", perCarton: 28, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1GCRD005A0", productName: "GooToE Chicken Breast Wrapped Sticks , 6oz", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1GCRD004A0", productName: "GooToE Chicken Breast Wrapped Sticks , 1.5lb", boxSize: "50*40*30", perCarton: 28, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1ABRD001A0", productName: "A Freschi  Buffalo Jerky Dog Treats , 4oz", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1ABRD002A0", productName: "A Freschi  Buffalo Jerky Dog Treats , 12oz", boxSize: "50*40*30", perCarton: 42, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1ABRD003A0", productName: "A Freschi  Buffalo Strips , 4oz", boxSize: "50*40*30", perCarton: 120, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1ABRD004A0", productName: "A Freschi  Buffalo Strips , 12oz", boxSize: "50*40*30", perCarton: 48, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "1MHTD011A0", productName: "Healthy Moment - Functional Dog Treat - Skin & Coat Care - 150g", boxSize: "50*40*30", perCarton: 8, perPack: null, perBox: 6, perPallet: 42, country: "VN" },
-  { productCode: "1MHTD021A0", productName: "Healthy Moment - Functional Dog Treat- Gastrointestinal Care - 150g", boxSize: "50*40*30", perCarton: 8, perPack: null, perBox: 6, perPallet: 42, country: "VN" },
-  { productCode: "1MHTD031A0", productName: "Healthy Moment - Functional Dog Treat-Joint Care - 150g", boxSize: "50*40*30", perCarton: 8, perPack: null, perBox: 6, perPallet: 42, country: "VN" },
-  { productCode: "1MHTD041A0", productName: "Healthy Moment - Functional Dog Treat - Eyes Care - 150g", boxSize: "50*40*30", perCarton: 8, perPack: null, perBox: 6, perPallet: 42, country: "VN" },
-  { productCode: "1MHTD051A0", productName: "Healthy Moment - Functional Dog Treat-Heart Health Care - 150g", boxSize: "50*40*30", perCarton: 8, perPack: null, perBox: 6, perPallet: 42, country: "VN" },
-  { productCode: "1MHTD017A0", productName: "Healthy Moment - Functional Dog Treat - Skin & Coat Care - Box", boxSize: "50*40*30", perCarton: 8, perPack: null, perBox: 6, perPallet: 42, country: "VN" },
-  { productCode: "1MHTD027A0", productName: "Healthy Moment - Functional Dog Treat- Gastrointestinal Care - Box", boxSize: "50*40*30", perCarton: 8, perPack: null, perBox: 6, perPallet: 42, country: "VN" },
-  { productCode: "1MHTD037A0", productName: "Healthy Moment - Functional Dog Treat - Joint Care - Box", boxSize: "50*40*30", perCarton: 8, perPack: null, perBox: 6, perPallet: 42, country: "VN" },
-  { productCode: "1MHTD047A0", productName: "Healthy Moment - Functional Dog Treat - Eyes Care - Box", boxSize: "50*40*30", perCarton: 8, perPack: null, perBox: 6, perPallet: 42, country: "VN" },
-  { productCode: "1MHTD057A0", productName: "Healthy Moment - Functional Dog Treat - Heart Health Care - Box", boxSize: "50*40*30", perCarton: 8, perPack: null, perBox: 6, perPallet: 42, country: "VN" },
-  { productCode: "AFA11AM", productName: "AFreschi-Classic Turkey Tendon Thin Stick (100g /pk)；AFK package (120 units /CTN)", boxSize: "50*40*30", perCarton: 120, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "AFA12AM", productName: "AFreschi-Classic Turkey Tendon Braided Stick(100g /pk)；AFK package (120 units /CTN)", boxSize: "50*40*30", perCarton: 120, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "AFA13AM", productName: "AFreschi-Classic Turkey Tendon Slice (100g /pk)；AFK package (100 units /CTN)", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "AFA14AM", productName: "AFreschi-Classic Turkey Tendon Flake(100g /pk)；AFK package (80 units /CTN)", boxSize: "50*40*30", perCarton: 80, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "AFA21AM", productName: "AFreschi-Soft Turkey Tendon & Pumpkin strip (100g /pk)；AFK package (120 units /CTN)", boxSize: "50*40*30", perCarton: 120, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "AFA22AM", productName: "AFreschi-Soft Turkey Tendon Strip (100g /pk)；AFK package (120 units /CTN)", boxSize: "50*40*30", perCarton: 120, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "AFA31AM", productName: "AFreschi-Wrapped Turkey Tendon with Chicken Stick (100g /pk)；AFK package (100 units /CTN)", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "AFA32AM", productName: "AFreschi-Wrapped Turkey Tendon with Brown Rice Stick(100g /pk)；AFK package (100 units /CTN)", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "AFA25AM", productName: "AFreschi-Classic Turkey Tendon Coil-L(85g /pk)；AFK package (70 units /CTN)", boxSize: "50*40*30", perCarton: 70, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "AFA135AM", productName: "AFreschi-Classic Turkey Tendon Coil-S(85g /pk)；AFK package (70 units /CTN)", boxSize: "50*40*30", perCarton: 70, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GTS01", productName: "Gootoe - Turkey Tendon Strip (85g x 100)", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GTR01", productName: "Gootoe - Turkey Tendon Ring_S(72g x 100)", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GTB01", productName: "Gootoe - Turkey Tendon Bone_S(72g x 100)", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GTP01", productName: "Gootoe - Turkey Tendon Rope_S(72g x 100)", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GTZ01", productName: "Gootoe - Turkey Tendon Pretzel_S(72g x 100)", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GTA01", productName: "Gootoe - Turkey Tendon Braid_S(90g x 120)", boxSize: "58.5*34.5*35", perCarton: 120, perPack: null, perBox: null, perPallet: 36, country: "VN" },
-  { productCode: "GTC01", productName: "Gootoe - Sliced Turkey Tendon (85g x 120)", boxSize: "58.5*34.5*35", perCarton: 120, perPack: null, perBox: null, perPallet: 36, country: "VN" },
-  { productCode: "GTR03", productName: "Gootoe - Turkey Tendon Ring_M(90g x 100)", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GTB03", productName: "Gootoe - Turkey Tendon Bone_M(90g x 100)", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GTP03", productName: "Gootoe - Turkey Tendon Rope_M(90g x 100)", boxSize: "58.5*34.5*35", perCarton: 100, perPack: null, perBox: null, perPallet: 36, country: "VN" },
-  { productCode: "GTS03", productName: "Gootoe - Turkey Tendon Stick_M(90g x 100)", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GTZ03", productName: "Gootoe - Turkey Tendon Pretzel_M(90g x 120)", boxSize: "58.5*34.5*35", perCarton: 120, perPack: null, perBox: null, perPallet: 36, country: "VN" },
-  { productCode: "GTB05", productName: "Gootoe - Turkey Tendon Bone_L(100g x 100)", boxSize: "58.5*34.5*35", perCarton: 100, perPack: null, perBox: null, perPallet: 36, country: "VN" },
-  { productCode: "GTP05", productName: "Gootoe - Turkey Tendon Rope_L(100g x 100)", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GTB07", productName: "Gootoe - Turkey tendon lolipop 15g x 5pcs (75g x 100)", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GSF01", productName: "Soft Turkey Tendon Strip with Pumpkin (85g x 150)", boxSize: "50*40*30", perCarton: 150, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GSF02", productName: "Soft Turkey Tendon Strip (85g x 150)", boxSize: "50*40*30", perCarton: 150, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GTSL01", productName: "Gootoe - Turkey Tendon Strip (454g x 30)", boxSize: "50*40*40", perCarton: 30, perPack: null, perBox: null, perPallet: 30, country: "VN" },
-  { productCode: "GTRL01", productName: "Gootoe - Turkey Tendon Ring_S (454g x 30)", boxSize: "50*40*40", perCarton: 30, perPack: null, perBox: null, perPallet: 30, country: "VN" },
-  { productCode: "GTPL01", productName: "Gootoe - Turkey Tendon Rope_S (454g x 30)", boxSize: "50*40*40", perCarton: 30, perPack: null, perBox: null, perPallet: 30, country: "VN" },
-  { productCode: "GTBL01", productName: "Gootoe - Turkey Tendon Bone_S (454g x 30)", boxSize: "50*40*40", perCarton: 30, perPack: null, perBox: null, perPallet: 30, country: "VN" },
-  { productCode: "GTAL01", productName: "Gootoe - Turkey Tendon Braid_S (454g x 38)", boxSize: "50*40*40", perCarton: 38, perPack: null, perBox: null, perPallet: 30, country: "VN" },
-  { productCode: "GTCL01", productName: "Gootoe - Turkey Tendon Sliced (454g x 30)", boxSize: "50*40*40", perCarton: 30, perPack: null, perBox: null, perPallet: 30, country: "VN" },
-  { productCode: "GTRL03", productName: "Gootoe - Turkey Tendon Ring_M (454g x 30)", boxSize: "50*40*40", perCarton: 30, perPack: null, perBox: null, perPallet: 30, country: "VN" },
-  { productCode: "GTPL03", productName: "Gootoe - Turkey Tendon Rope_M (454g x 30)", boxSize: "50*40*40", perCarton: 30, perPack: null, perBox: null, perPallet: 30, country: "VN" },
-  { productCode: "GTBL03", productName: "Gootoe - Turkey Tendon Bone_M (454g x 30)", boxSize: "50*40*40", perCarton: 30, perPack: null, perBox: null, perPallet: 30, country: "VN" },
-  { productCode: "GTZL03", productName: "Gootoe - Turkey Tendon Pretzel_M (454g x 30)", boxSize: "50*40*40", perCarton: 30, perPack: null, perBox: null, perPallet: 30, country: "VN" },
-  { productCode: "GTPL05", productName: "Gootoe - Turkey Tendon Rope_L (454g x 30)", boxSize: "50*40*40", perCarton: 30, perPack: null, perBox: null, perPallet: 30, country: "VN" },
-  { productCode: "GTBL05", productName: "Gootoe - Turkey Tendon Bone_L(454g x 30)", boxSize: "50*40*40", perCarton: 30, perPack: null, perBox: null, perPallet: 30, country: "VN" },
-  { productCode: "GSFL01", productName: "Soft Turkey Tendon Strip with Pumpkin (454g x 38)", boxSize: "50*40*30", perCarton: 38, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GSFL02", productName: "Soft Turkey Tendon Strip (454g x 38)", boxSize: "50*40*30", perCarton: 38, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ATS01", productName: "Natural Turkey Tendon Strip (100g)", boxSize: "50*40*30", perCarton: 90, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ATB01", productName: "Afreschi srl - Natural Turkey Tendon Bone_S(72g)", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ATR01AM", productName: "Afreschi srl - Natural Turkey Tendon Ring_S(72g)", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ATP01", productName: "Afreschi srl - Natural Turkey Tendon Rope_S(72g)", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ATZ01", productName: "Afreschi srl - Natural Turkey Tendon Pretzel_S(72g)", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ATA01", productName: "Afreschi srl - Natural Turkey Tendon Braid(90g)", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ATB03", productName: "Afreschi srl - Natural Turkey Tendon Bone_M(90g)", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ATR03", productName: "Afreschi srl - Natural Turkey Tendon Ring_M(90g)", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ATP03", productName: "Afreschi srl - Natural Turkey Tendon Rope_M(90g)", boxSize: "50*40*30", perCarton: 90, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ATZ03", productName: "Afreschi srl - Natural Turkey Tendon Pretzel_M(90g)", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ATB05", productName: "Afreschi srl - Natural Turkey Tendon Bone_L(100g)", boxSize: "50*40*30", perCarton: 90, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ATP05", productName: "Afreschi srl- Natural Turkey Tendon Rope_L(100g)", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ATAL01", productName: "Afreschi Natural Turkey Tendon Braid 8oz (GTA01:227g x 42)", boxSize: "50*40*30", perCarton: 42, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "KTB01AM", productName: "Natural Turkey Tendon Bone_S (40 units；8 boxes /CTN)", boxSize: "58.5*34.5*35", perCarton: 8, perPack: null, perBox: 40, perPallet: 36, country: "VN" },
-  { productCode: "TRP01AM", productName: "Natural Turkey Tendon Rope_S (40 units；8 boxes /CTN)", boxSize: "58.5*34.5*35", perCarton: 8, perPack: null, perBox: 40, perPallet: 36, country: "VN" },
-  { productCode: "TTR01AM", productName: "Natural Turkey Tendon Ring_S (40 units /box ; 8 boxes /CTN)", boxSize: "58.5*34.5*35", perCarton: 8, perPack: null, perBox: 40, perPallet: 36, country: "VN" },
-  { productCode: "TPZ01AM", productName: "Natural Turkey Tendon Pretzel_S (40 units /box ; 8 boxes /CTN)", boxSize: "58.5*34.5*35", perCarton: 8, perPack: null, perBox: 40, perPallet: 36, country: "VN" },
-  { productCode: "KTB03AM", productName: "Natural Turkey Tendon Bone_M (20 units /box ; 8 boxes /CTN)", boxSize: "58.5*34.5*35", perCarton: 8, perPack: null, perBox: 20, perPallet: 36, country: "VN" },
-  { productCode: "TRP03AM", productName: "Natural Turkey Tendon Rope_M (20 units /box ; 8 boxes /CTN)", boxSize: "58.5*34.5*35", perCarton: 8, perPack: null, perBox: 20, perPallet: 36, country: "VN" },
-  { productCode: "TTR03AM", productName: "Natural Turkey Tendon Ring_M (20 units；8 boxes /CTN)", boxSize: "58.5*34.5*35", perCarton: 8, perPack: null, perBox: 20, perPallet: 36, country: "VN" },
-  { productCode: "TPZ03AM", productName: "Natural Turkey Tendon Pretzel-M (20 units /box ; 8 boxes /CTN)", boxSize: "58.5*34.5*35", perCarton: 8, perPack: null, perBox: 20, perPallet: 36, country: "VN" },
-  { productCode: "TRP05AM", productName: "Natural Turkey Tendon Rope_L (10 units /box ; 8 boxes /CTN)", boxSize: "58.5*34.5*35", perCarton: 8, perPack: null, perBox: 10, perPallet: 36, country: "VN" },
-  { productCode: "KTB05AM", productName: "Natural Turkey Tendon Bone_L (10 units；8 boxes /CTN)", boxSize: "58.5*34.5*35", perCarton: 8, perPack: null, perBox: 10, perPallet: 36, country: "VN" },
-  { productCode: "TTR05AM", productName: "Natural Turkey Tendon Ring_L (10 units；8 boxes /CTN)", boxSize: "58.5*34.5*35", perCarton: 8, perPack: null, perBox: 10, perPallet: 36, country: "VN" },
-  { productCode: "TPZ05AM", productName: "Natural Turkey Tendon Pretzel_L (10 units；8 boxes /CTN)", boxSize: "58.5*34.5*35", perCarton: 8, perPack: null, perBox: 10, perPallet: 36, country: "VN" },
-  { productCode: "TTS05AM", productName: "Natural Turkey Tendon Strip (10 units /box ; 8 boxes /CTN)", boxSize: "58.5*34.5*35", perCarton: 8, perPack: null, perBox: 10, perPallet: 36, country: "VN" },
-  { productCode: "KTB06AM", productName: "Natural Turkey Tendon Lollipop (40 units；8 boxes /CTN)", boxSize: "58.5*34.5*35", perCarton: 8, perPack: null, perBox: 40, perPallet: 36, country: "VN" },
-  { productCode: "KTB01AM-4", productName: "Natural Turkey Tendon Bone_S (90 units /CTN)", boxSize: "50*40*30", perCarton: 90, perPack: 4, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "TTR01AM-4", productName: "Natural Turkey Tendon Ring_S (90 units /CTN)", boxSize: "50*40*30", perCarton: 90, perPack: 4, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "TRP01AM-4", productName: "Natural Turkey Tendon Rope_S (90 units /CTN)", boxSize: "50*40*30", perCarton: 90, perPack: 4, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "TPZ01AM-4", productName: "Natural Turkey Tendon Pretzel_S (90 units /CTN)", boxSize: "50*40*30", perCarton: 90, perPack: 4, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "KTB03AM-2", productName: "Natural Turkey Tendon Bone_M (80 units /CTN)", boxSize: "50*40*30", perCarton: 80, perPack: 2, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "TRP03AM-2", productName: "Natural Turkey Tendon Rope_M (90 units /CTN)", boxSize: "50*40*30", perCarton: 90, perPack: 2, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "TTR03AM-2", productName: "Natural Turkey Tendon Ring_M (80 units /CTN)", boxSize: "50*40*30", perCarton: 80, perPack: 2, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "TPZ03AM-2", productName: "Natural Turkey Tendon Pretzel_M (90 units /CTN)", boxSize: "50*40*30", perCarton: 90, perPack: 2, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "KTB05AM-1", productName: "Natural Turkey Tendon Bone_L (90 units /CTN)", boxSize: "50*40*30", perCarton: 90, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "TRP05AM-1", productName: "Natural Turkey Tendon Rope_L (90 units /CTN)", boxSize: "50*40*30", perCarton: 90, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "TTR05AM-1", productName: "Natural Turkey Tendon Ring_L (120 units /CTN)", boxSize: "50*40*30", perCarton: 120, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "TPZ05AM-1", productName: "Natural Turkey Tendon Pretzel_L (120 units /CTN)", boxSize: "50*40*30", perCarton: 120, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "TTS05AM-1", productName: "Natural Turkey Tendon Strip (100 units /CTN)", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "KTB06AM-4", productName: "Natural Turkey Tendon Lollipop (90 units /CTN)", boxSize: "50*40*30", perCarton: 90, perPack: 4, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "KTBL01", productName: "Afreschi Natural Turkey Tendon Bone 8oz_S-15g (227g x 36)", boxSize: "50*40*30", perCarton: 36, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "TTRL01", productName: "Afreschi Natural Turkey Tendon Ring 8oz_S-12g (227g x 36)", boxSize: "50*40*30", perCarton: 36, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "TPZL01", productName: "Afreschi Natural Turkey Tendon Pretzel 8oz_S-12g (227g x 36)", boxSize: "50*40*30", perCarton: 36, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "TRPL01", productName: "Afreschi Natural Turkey Tendon Rope 8oz_S-12g (227g x 36)", boxSize: "50*40*30", perCarton: 36, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "KTBL03", productName: "Afreschi Natural Turkey Tendon Bone 10oz_M-36g (285g x 36)", boxSize: "50*40*30", perCarton: 36, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "TTRL03", productName: "Afreschi Natural Turkey Tendon Ring 10oz_M-36g (285g x 36)", boxSize: "50*40*30", perCarton: 36, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "TPZL03", productName: "Afreschi Natural Turkey Tendon Pretzel 10oz_M-36g (285g x 36)", boxSize: "50*40*30", perCarton: 36, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "TRPL03", productName: "Afreschi Natural Turkey Tendon Rope 10oz_M-36g (285g x 36)", boxSize: "50*40*30", perCarton: 36, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "TTRL05", productName: "Afreschi Natural Turkey Tendon Ring 10oz_L-72g (285g x 36)", boxSize: "50*40*30", perCarton: 36, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "TRPL05", productName: "Afreschi Natural Turkey Tendon Rope 10oz_L-72g (285g x 36)", boxSize: "50*40*30", perCarton: 36, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "TPZL05", productName: "Afreschi Natural Turkey Tendon Pretzel 10oz_L-72g (285g x 36)", boxSize: "50*40*30", perCarton: 36, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "KTBL05", productName: "Afreschi Natural Turkey Tendon Bone 10oz_L-72g (285g x 30)", boxSize: "50*40*30", perCarton: 30, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "TTSL05", productName: "Afreschi Natural Turkey Tendon Strip 10oz (285g x 30)", boxSize: "50*40*30", perCarton: 30, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "AFML01", productName: "AFreschi Turkey Tendon Variety Pack 8oz_Small (227gx36)", boxSize: "50*40*30", perCarton: 36, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "AFML03", productName: "AFreschi Turkey Tendon Variety Pack 10oz_Medium (285gx36)", boxSize: "50*40*30", perCarton: 36, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "AFML05", productName: "AFreschi Turkey Tendon Variety Pack 10oz_Large (285gx36)", boxSize: "50*40*30", perCarton: 36, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ASF01", productName: "A Freschi Srl – Natural Turkey Treats Soft Sticks (170g x 100)", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ABM01", productName: "A Freschi Srl – Natural Turkey Treats Sticks_β-Carotene added (170g x 110)", boxSize: "50*40*30", perCarton: 110, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ATN01", productName: "A Freschi Srl – Natural Turkey Treats Star Bites (170g x 80)", boxSize: "50*40*30", perCarton: 80, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ASA01", productName: "A Freschi Srl – Natural Turkey Treats Mini Bars (170g x 80)", boxSize: "50*40*30", perCarton: 80, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ADT03", productName: "Natural Dental Treats-Real Turkey Meat (1kg x20 units /CTN)", boxSize: "50*40*30", perCarton: 20, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ATJ01", productName: "Afreschi - Natural Turkey Jerky 4oz (113gx110)", boxSize: "50*40*30", perCarton: 110, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GTT01", productName: "Gootoe Turkey Tendon Twists 5oz_Small (142g*120)", boxSize: "58.5*34.5*35", perCarton: 120, perPack: null, perBox: null, perPallet: 36, country: "VN" },
-  { productCode: "GTT03", productName: "Gootoe Turkey Tendon Twists 5oz_Medium (142g*120)", boxSize: "58.5*34.5*35", perCarton: 120, perPack: null, perBox: null, perPallet: 36, country: "VN" },
-  { productCode: "ASFL01", productName: "A Freschi Srl – Natural Turkey Treats Soft Sticks (454g)", boxSize: "50*40*30", perCarton: 36, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ABML01", productName: "A Freschi Srl – Natural Turkey Treats Sticks_β-Carotene added (454g)", boxSize: "50*40*30", perCarton: 42, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ATNL01", productName: "A Freschi Srl – Natural Turkey Treats Star Bites (454g)", boxSize: "50*40*30", perCarton: 42, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ASAL01", productName: "A Freschi Srl – Natural Turkey Treats Mini Bars (454g)", boxSize: "50*40*30", perCarton: 36, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ATJL01", productName: "A Freschi Srl – Natural Turkey Jerky (12oz-340g)", boxSize: "50*40*30", perCarton: 42, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GCBL01", productName: "Gootoe - Chicken Fillet Jerky 454gx30", boxSize: "50*40*30", perCarton: 30, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GCBL02", productName: "Gootoe - Chicken Jerky Breast 454gx36", boxSize: "50*40*30", perCarton: 36, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GCBL03", productName: "Gootoe - Chicken Chips 454gx28", boxSize: "50*40*30", perCarton: 28, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GSCL01", productName: "Gootoe - Soft Chicken Breast Strips 454gx36", boxSize: "50*40*30", perCarton: 36, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GSCL02", productName: "Gootoe - Soft Chicken Sticks 454gx36", boxSize: "50*40*30", perCarton: 36, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GSCL03", productName: "Gootoe - Soft Chicken Dental Chews with Chlorophyll, 1.5lb (681gx28)", boxSize: "50*40*30", perCarton: 28, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GSCL04", productName: "Gootoe - Soft Chicken Knots 454gx30", boxSize: "50*40*30", perCarton: 30, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GSCL05", productName: "Gootoe - Soft Chicken Jerky Cuts 454gx36", boxSize: "50*40*30", perCarton: 36, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GCTL01", productName: "Gootoe - Chicken Sticks 1.5lb-681gx28", boxSize: "50*40*30", perCarton: 28, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GCTL02", productName: "Gootoe - Chicken Sticks With Chicken Liver 1.5lb-681gx28", boxSize: "50*40*30", perCarton: 28, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GCTL03", productName: "Gootoe - Chicken Sticks With Sweet Potato 1.5lb-681gx28", boxSize: "50*40*30", perCarton: 28, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GCTL04", productName: "Gootoe - Chicken Mini Sticks 1.5lb-681gx22", boxSize: "50*40*30", perCarton: 22, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GCTL05", productName: "Gootoe - Chicken Roll 12oz-340gx24", boxSize: "50*40*30", perCarton: 24, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GCTL06", productName: "Gootoe - Chicken Dipped Sticks 1.5lb-681gx28", boxSize: "50*40*30", perCarton: 28, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GBS01", productName: "Gootoe - Buffalo Bites Stick _S (70units /CTN)", boxSize: "50*40*30", perCarton: 70, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GBS03", productName: "Gootoe - Buffalo Bites Stick _L (70 units /CTN)", boxSize: "50*40*30", perCarton: 70, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GBB01", productName: "Gootoe - Buffalo Bites Bone Shaped (60 units /CTN)", boxSize: "50*40*30", perCarton: 60, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GBSL01", productName: "Gootoe - Buffalo Bites Stick (small) (S) 1.5lb-681g", boxSize: "50*40*30", perCarton: 28, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GBSL03", productName: "Gootoe - Buffalo Bites Stick (Large) (L) 1.5lb-681g", boxSize: "50*40*30", perCarton: 28, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "GBBL01", productName: "Gootoe - Buffalo Bites Bone Shaped 1.5lb-681g", boxSize: "50*40*30", perCarton: 28, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "AWD010", productName: "AFreschi Air-Dried Dog Food - USA Turkey Recipe(W-shaped)-454g", boxSize: "50*40*30", perCarton: 38, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "AWD011", productName: "AFreschi Air-Dried Dog Food - USA Turkey Recipe(W-shaped)-1kg", boxSize: "50*40*30", perCarton: 20, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "AWD070", productName: "AFreschi Air - Dried Dog Food - Turkey & Salmon Recipe(W-shaped)-454g", boxSize: "50*40*30", perCarton: 38, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "AWD071", productName: "AFreschi Air - Dried Dog Food - Turkey & Salmon Recipe(W-shaped)-1kg", boxSize: "50*40*30", perCarton: 20, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "VTS01-1", productName: "Turkey Tendon Strip (100 units /CTN)", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "VTB01-4", productName: "Turkey Tendon Bone_S (90 units /CTN)", boxSize: "50*40*30", perCarton: 90, perPack: 4, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "VTR01-4", productName: "Turkey Tendon Ring_S (90 units /CTN)", boxSize: "50*40*30", perCarton: 90, perPack: 4, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "VTB05-1", productName: "Turkey Tendon Bone_L (120 units /CTN)", boxSize: "50*40*30", perCarton: 120, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "VTB06-4", productName: "Turkey Tendon Lollipop (90 units /CTN)", boxSize: "50*40*30", perCarton: 90, perPack: 4, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "HDR01AM", productName: "Herz_ Turkey Tendon_Duo-Protein_Ring (S) (85g)", boxSize: "50*40*30", perCarton: 120, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "HDP01AM", productName: "Herz_ Turkey Tendon_Duo-Protein_Rope(S)(85g)", boxSize: "50*40*30", perCarton: 120, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "HDS03AM", productName: "Herz_ Turkey Tendon_Duo-Protein_Strip(85g)", boxSize: "50*40*30", perCarton: 120, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ACBL01", productName: "AFreschi - Natural Chicken Fillet Jerky 454g*30", boxSize: "50*40*30", perCarton: 30, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ACBL02", productName: "AFreschi - Natural Chicken Breast Jerky 454g*36", boxSize: "50*40*30", perCarton: 36, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ACBL03", productName: "AFreschi - Natural Chicken Chips 454g*28", boxSize: "50*40*30", perCarton: 28, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ASCL01", productName: "AFreschi - Natural Soft Chicken Breast Strips 454g*36", boxSize: "50*40*30", perCarton: 36, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ASCL02", productName: "AFreschi - Natural Soft Chicken Sticks 454g*36", boxSize: "50*40*30", perCarton: 36, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ASCL03", productName: "AFreschi - Natural Soft Chicken Dental Chews with Chlorophyll 681g*28", boxSize: "50*40*30", perCarton: 28, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ASCL04", productName: "AFreschi - Natural Soft Chicken Knots 454g*30", boxSize: "50*40*30", perCarton: 30, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ASCL05", productName: "AFreschi - Natural Soft Chicken Jerky Cuts 454g*36", boxSize: "50*40*30", perCarton: 36, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ACTL01", productName: "AFreschi - Natural Chicken Sticks 681g*28", boxSize: "50*40*30", perCarton: 28, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ACTL02", productName: "AFreschi - Natural Chicken Sticks with Chicken Liver 681g*28", boxSize: "50*40*30", perCarton: 28, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ACTL03", productName: "AFreschi - Natural Chicken Sticks with Sweet Potato 681g*28", boxSize: "50*40*30", perCarton: 28, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ACTL04", productName: "AFreschi - Natural Chicken Sticks (Mini) 681g*22", boxSize: "50*40*30", perCarton: 22, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ACTL05", productName: "AFreschi - Natural Chicken Roll 340g*24", boxSize: "50*40*30", perCarton: 24, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ACTL06", productName: "AFreschi - Natural Chicken Dipped Sticks 681g*28", boxSize: "50*40*30", perCarton: 28, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ACTL07", productName: "AFreschi - Natural Chicken Dipped Rice Sticks 681g*28", boxSize: "50*40*30", perCarton: 28, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ACTL08", productName: "AFreschi - Natural Chicken Sliced 681g*24", boxSize: "50*40*30", perCarton: 24, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ACTL09", productName: "AFreschi - Natural Chicken Dipped Rice Bone 454g*28", boxSize: "50*40*30", perCarton: 28, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ACTL10", productName: "AFreschi - Natural Chicken Sticks with Pumpkin 681g*28", boxSize: "50*40*30", perCarton: 28, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ACA01", productName: "Afreschi - Natural Cat Treats (Chicken & Mackerel) -6oz-170gx100", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ACA02", productName: "Afreschi - Natural Cat Treats (Buffalo& Chicken & Fish) -6oz-170gx100", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "ACA03", productName: "Afreschi - Natural Cat Treats (Turkey & Chicken & Mackerel) -6oz-170gx100", boxSize: "50*40*30", perCarton: 100, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "VBS01", productName: "Vitaday - Buffalo Treats Stick (Small) 227g*70", boxSize: "50*40*30", perCarton: 70, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "VBS03", productName: "Vitaday - Buffalo Treats Stick (Medium) 227g*70", boxSize: "50*40*30", perCarton: 70, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "VBB01", productName: "Vitaday - Buffalo Treats Bone Shaped 227g*60", boxSize: "50*40*30", perCarton: 60, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "VBW01", productName: "Vitaday - Buffalo Treats W Shaped 227g*80", boxSize: "50*40*30", perCarton: 80, perPack: null, perBox: null, perPallet: 42, country: "VN" },
-  { productCode: "EZD011AM", productName: "Herz Grain-Free U.S.A. Turkey Breast Recipe (908g/Pk)", boxSize: "48*38*28", perCarton: 18, perPack: null, perBox: null, perPallet: 36, country: "TW" },
-  { productCode: "EZD021AM", productName: "Herz Grain-Free Australian Lamb Recipe (908g/Pk)", boxSize: "48*38*28", perCarton: 18, perPack: null, perBox: null, perPallet: 36, country: "TW" },
-  { productCode: "EZD041AM", productName: "Herz Grain-Free New Zealand Grass-Fed Beef Recipe (908g/Pk)", boxSize: "48*38*28", perCarton: 18, perPack: null, perBox: null, perPallet: 36, country: "TW" },
-  { productCode: "EZD051AM", productName: "Herz Grain-Free New Zealand Venison Recipe (908g/Pk)", boxSize: "48*38*28", perCarton: 18, perPack: null, perBox: null, perPallet: 36, country: "TW" },
-  { productCode: "EZD061AM", productName: "Herz Grain-Free U.S.A. Chicken Recipe (908g/Pk)", boxSize: "48*38*28", perCarton: 18, perPack: null, perBox: null, perPallet: 36, country: "TW" },
-  { productCode: "EZD010AM", productName: "Herz Grain-Free U.S.A. Turkey Breast Recipe (100g/Pk)", boxSize: "48*38*28", perCarton: 100, perPack: null, perBox: null, perPallet: 36, country: "TW" },
-  { productCode: "EZD020AM", productName: "Herz Grain-Free Australian Lamb Recipe (100g/Pk)", boxSize: "48*38*28", perCarton: 100, perPack: null, perBox: null, perPallet: 36, country: "TW" },
-  { productCode: "EZD040AM", productName: "Herz Grain-Free New Zealand Grass-Fed Beef Recipe (100g/Pk)", boxSize: "48*38*28", perCarton: 100, perPack: null, perBox: null, perPallet: 36, country: "TW" },
-  { productCode: "EZD050AM", productName: "Herz Grain-Free New Zealand Venison Recipe (100g/Pk)", boxSize: "48*38*28", perCarton: 100, perPack: null, perBox: null, perPallet: 36, country: "TW" },
-  { productCode: "EZD060AM", productName: "Herz Grain-Free U.S.A. Chicken Recipe (100g/Pk)", boxSize: "48*38*28", perCarton: 100, perPack: null, perBox: null, perPallet: 36, country: "TW" },
-  { productCode: "EZD010AM-3", productName: "Herz Grain-Free U.S.A. Turkey Breast Recipe (100g/Pk)", boxSize: "48*38*28", perCarton: 90, perPack: 3, perBox: null, perPallet: 36, country: "TW" },
-  { productCode: "EZD020AM-3", productName: "Herz Grain-Free Australian Lamb Recipe (100g/Pk)", boxSize: "48*38*28", perCarton: 90, perPack: 3, perBox: null, perPallet: 36, country: "TW" },
-  { productCode: "EZD040AM-3", productName: "Herz Grain-Free New Zealand Grass-Fed Beef Recipe (100g/Pk)", boxSize: "48*38*28", perCarton: 90, perPack: 3, perBox: null, perPallet: 36, country: "TW" },
-  { productCode: "EZD050AM-3", productName: "Herz Grain-Free New Zealand Venison Recipe (100g/Pk)", boxSize: "48*38*28", perCarton: 90, perPack: 3, perBox: null, perPallet: 36, country: "TW" },
-  { productCode: "EZD060AM-3", productName: "Herz Grain-Free U.S.A. Chicken Recipe (100g/Pk)", boxSize: "48*38*28", perCarton: 90, perPack: 3, perBox: null, perPallet: 36, country: "TW" },
-  { productCode: "EPD011J", productName: "Herz Premium Canine Cuisine – Turkey with Duck Liver Recipe, 1kg", boxSize: "48*38*28", perCarton: 18, perPack: null, perBox: null, perPallet: 21, country: "TW" },
-  { productCode: "EPD021J", productName: "Premium Canine Cuisine-Lamb with Duck Liver Ricipe-1kg", boxSize: "48*38*28", perCarton: 18, perPack: null, perBox: null, perPallet: 21, country: "TW" },
-  { productCode: "EPD041J", productName: "Premium Canine Cuisine-Beef with Duck Liver Ricipe-1kg", boxSize: "48*38*28", perCarton: 18, perPack: null, perBox: null, perPallet: 21, country: "TW" },
-  { productCode: "EPD061J", productName: "Premium Canine Cuisine-Chicken with Duck Liver Ricipe-1kg", boxSize: "48*38*28", perCarton: 18, perPack: null, perBox: null, perPallet: 21, country: "TW" },
-  { productCode: "EPD010J", productName: "Premium Canine Cuisine – Turkey with Duck Liver Recipe-454g", boxSize: "48*38*28", perCarton: 30, perPack: null, perBox: null, perPallet: 21, country: "TW" },
-  { productCode: "EPD020J", productName: "Premium Canine Cuisine-Lamb with Duck Liver Ricipe-454g", boxSize: "48*38*28", perCarton: 30, perPack: null, perBox: null, perPallet: 21, country: "TW" },
-  { productCode: "EPD040J", productName: "Premium Canine Cuisine-Beef with Duck Liver Ricipe-454g", boxSize: "48*38*28", perCarton: 30, perPack: null, perBox: null, perPallet: 21, country: "TW" },
-  { productCode: "EPD060J", productName: "Premium Canine Cuisine-Chicken with Duck Liver Ricipe-454g", boxSize: "48*38*28", perCarton: 30, perPack: null, perBox: null, perPallet: 21, country: "TW" },
-  { productCode: "GTSL01J", productName: "Gootoe - Turkey Tendon Strip", boxSize: "58.5*34.5*35", perCarton: 24, perPack: null, perBox: null, perPallet: 12, country: "TW" },
-  { productCode: "GTRL05J", productName: "Gootoe - Turkey Tendon Ring_L", boxSize: "58.5*34.5*35", perCarton: 24, perPack: null, perBox: null, perPallet: 12, country: "TW" },
-  { productCode: "GTPL05J", productName: "Gootoe - Turkey Tendon Rope_L", boxSize: "58.5*34.5*35", perCarton: 24, perPack: null, perBox: null, perPallet: 12, country: "TW" },
-  { productCode: "GTBL05J", productName: "Gootoe - Turkey Tendon Bone_L", boxSize: "58.5*34.5*35", perCarton: 24, perPack: null, perBox: null, perPallet: 12, country: "TW" },
-  { productCode: "GTRL01J", productName: "Gootoe - Turkey Tendon Ring_S", boxSize: "58.5*34.5*35", perCarton: 24, perPack: null, perBox: null, perPallet: 12, country: "TW" },
-  { productCode: "GTPL01J", productName: "Gootoe - Turkey Tendon Rope_S", boxSize: "58.5*34.5*35", perCarton: 24, perPack: null, perBox: null, perPallet: 12, country: "TW" },
-  { productCode: "GTBL01J", productName: "Gootoe - Turkey Tendon Bone_S", boxSize: "58.5*34.5*35", perCarton: 24, perPack: null, perBox: null, perPallet: 12, country: "TW" },
-  { productCode: "GSF01J", productName: "Gootoe -Turkey Tendon Pumpkin Strip", boxSize: "58.5*34.5*35", perCarton: 150, perPack: null, perBox: null, perPallet: 12, country: "TW" },
-  { productCode: "GTR01J", productName: "Gootoe - Turkey Tendon Ring_S", boxSize: "58.5*34.5*35", perCarton: 100, perPack: null, perBox: null, perPallet: 12, country: "TW" },
-  { productCode: "GTR03J", productName: "Gootoe - Turkey Tendon Ring_M", boxSize: "58.5*34.5*35", perCarton: 100, perPack: null, perBox: null, perPallet: 12, country: "TW" },
-  { productCode: "GTB01J", productName: "Gootoe - Turkey Tendon Bone_S", boxSize: "58.5*34.5*35", perCarton: 100, perPack: null, perBox: null, perPallet: 12, country: "TW" },
-  { productCode: "GTB03J", productName: "Gootoe - Turkey Tendon Bone_M", boxSize: "58.5*34.5*35", perCarton: 100, perPack: null, perBox: null, perPallet: 12, country: "TW" },
-  { productCode: "GTB05J", productName: "Gootoe - Turkey Tendon Bone_L", boxSize: "58.5*34.5*35", perCarton: 100, perPack: null, perBox: null, perPallet: 12, country: "TW" },
-  { productCode: "GTP01J", productName: "Gootoe - Turkey Tendon Rope_S", boxSize: "58.5*34.5*35", perCarton: 100, perPack: null, perBox: null, perPallet: 12, country: "TW" },
-  { productCode: "GTP03J", productName: "Gootoe - Turkey Tendon Rope _M", boxSize: "58.5*34.5*35", perCarton: 100, perPack: null, perBox: null, perPallet: 12, country: "TW" },
-  { productCode: "GTP05J", productName: "Gootoe - Turkey Tendon Rope _L", boxSize: "58.5*34.5*35", perCarton: 100, perPack: null, perBox: null, perPallet: 12, country: "TW" },
-  { productCode: "GTS01J", productName: "Gootoe - Turkey Tendon Strip", boxSize: "58.5*34.5*35", perCarton: 100, perPack: null, perBox: null, perPallet: 12, country: "TW" },
-  { productCode: "GTS03J", productName: "Gootoe - Turkey Tendon Stick_M", boxSize: "58.5*34.5*35", perCarton: 100, perPack: null, perBox: null, perPallet: 12, country: "TW" },
-  { productCode: "GTZ01J", productName: "Gootoe - Turkey Tendon Pretzel_S", boxSize: "58.5*34.5*35", perCarton: 100, perPack: null, perBox: null, perPallet: 12, country: "TW" },
-  { productCode: "GTZ03J", productName: "Gootoe - Turkey Tendon Pretzel_M", boxSize: "58.5*34.5*35", perCarton: 100, perPack: null, perBox: null, perPallet: 12, country: "TW" },
-  { productCode: "GTA01J", productName: "Gootoe - Turkey Tendon Braid", boxSize: "58.5*34.5*35", perCarton: 100, perPack: null, perBox: null, perPallet: 12, country: "TW" },
-  { productCode: "KTB01J", productName: "Natural Turkey Tendon Bone_S", boxSize: "58.5*34.5*35", perCarton: 320, perPack: null, perBox: 40, perPallet: 12, country: "TW" },
-  { productCode: "KTB03J", productName: "Natural Turkey Tendon Bone_ M", boxSize: "58.5*34.5*35", perCarton: 160, perPack: null, perBox: 20, perPallet: 12, country: "TW" },
-  { productCode: "KTB05J", productName: "Natural Turkey Tendon Bone_L", boxSize: "58.5*34.5*35", perCarton: 80, perPack: null, perBox: 10, perPallet: 12, country: "TW" },
-  { productCode: "KTB06J", productName: "Natural Turkey Tendon Lollipop", boxSize: "58.5*34.5*35", perCarton: 320, perPack: null, perBox: 40, perPallet: 12, country: "TW" },
-  { productCode: "TTR01J", productName: "Natural Turkey Tendon Ring_ S", boxSize: "58.5*34.5*35", perCarton: 320, perPack: null, perBox: 40, perPallet: 12, country: "TW" },
-  { productCode: "TTR03J", productName: "Natural Turkey Tendon Ring_ M", boxSize: "58.5*34.5*35", perCarton: 160, perPack: null, perBox: 20, perPallet: 12, country: "TW" },
-  { productCode: "TTR05J", productName: "Natural Turkey Tendon Ring_ L", boxSize: "58.5*34.5*35", perCarton: 80, perPack: null, perBox: 10, perPallet: 12, country: "TW" },
-  { productCode: "TRP01J", productName: "Natural Turkey Tendon Rope_ S", boxSize: "58.5*34.5*35", perCarton: 320, perPack: null, perBox: 40, perPallet: 12, country: "TW" },
-  { productCode: "TRP03J", productName: "Natural Turkey Tendon Rope_ M", boxSize: "58.5*34.5*35", perCarton: 160, perPack: null, perBox: 20, perPallet: 12, country: "TW" },
-  { productCode: "TRP05J", productName: "Natural Turkey Tendon Rope_ L", boxSize: "58.5*34.5*35", perCarton: 80, perPack: null, perBox: 10, perPallet: 12, country: "TW" },
-  { productCode: "TTS05J", productName: "Natural Turkey Tendon Strip", boxSize: "58.5*34.5*35", perCarton: 80, perPack: null, perBox: 10, perPallet: 12, country: "TW" },
-  { productCode: "TTA01J", productName: "Turkey Tendon Rice Stick", boxSize: "58.5*34.5*35", perCarton: 160, perPack: null, perBox: 20, perPallet: 12, country: "TW" },
-  { productCode: "TTA02J", productName: "Turkey Tendon Chicken Stick", boxSize: "58.5*34.5*35", perCarton: 160, perPack: null, perBox: 20, perPallet: 12, country: "TW" },
-  { productCode: "TTA03J", productName: "Turkey Tendon Thin Stick", boxSize: "58.5*34.5*35", perCarton: 160, perPack: null, perBox: 20, perPallet: 12, country: "TW" },
-  { productCode: "TTA04J", productName: "Turkey Tendon Pumpkin Strip", boxSize: "58.5*34.5*35", perCarton: 160, perPack: null, perBox: 20, perPallet: 12, country: "TW" },
-  { productCode: "GRB01AM", productName: "Gootoe - Veal Rib Bone, 85g", boxSize: "48*38*28", perCarton: 130, perPack: null, perBox: null, perPallet: 36, country: "TW" },
-  { productCode: "GRB01J", productName: "Gootoe - Veal Rib Bone, 85g", boxSize: "48*38*28", perCarton: 130, perPack: null, perBox: null, perPallet: 21, country: "TW" },
-  { productCode: "ART01AM", productName: "Afreschi - Turkey Tendon Wrapped Veal Rib Bone, 85g", boxSize: "48*38*28", perCarton: 130, perPack: null, perBox: null, perPallet: 36, country: "TW" },
-  { productCode: "ART01J", productName: "Afreschi - Turkey Tendon Wrapped Veal Rib Bone, 85g", boxSize: "48*38*28", perCarton: 130, perPack: null, perBox: null, perPallet: 21, country: "TW" }
-];
+const allProducts = window.allProductsData || [];
 
     // 常用紙箱尺寸 => 棧板數對照
     const boxSizePalletMap = {
@@ -1854,6 +1733,7 @@ const allProducts = [
       "48*38*28": 36
     };
     let currentCountry = 'VN';
+    initRowDragAndDrop();
 
     function showTip(msg, type="info") {
       let tip = document.createElement('div');
@@ -2075,8 +1955,7 @@ const allProducts = [
         <td class="pallet-days">${formatPalletDays(prod)}</td>
         <td class="estimated-days">${formatEstimatedDays(prod, 0, 0)}</td>
         <td class="action-button-group">
-          <button type="button" class="action-button" onclick="moveUp(this)" title="上移"><i class="fa-solid fa-arrow-up"></i></button>
-          <button type="button" class="action-button" onclick="moveDown(this)" title="下移"><i class="fa-solid fa-arrow-down"></i></button>
+          <button type="button" class="drag-handle" onmousedown="enableRowDrag(this)" onmouseup="disableRowDrag(this)" onmouseleave="disableRowDrag(this)" ontouchstart="enableRowDrag(this)" ontouchend="disableRowDrag(this)" title="按住拖曳排序"><i class="fa-solid fa-grip-vertical"></i></button>
           <button type="button" class="lock-button" onclick="toggleLock(this)" title="鎖定/解鎖"><i class="fa-solid fa-lock"></i></button>
           <button type="button" class="remove-button" onclick="removeRow(this)" title="刪除"><i class="fa-solid fa-trash"></i></button>
         </td>
@@ -2212,17 +2091,70 @@ const allProducts = [
       updateTotals();
       showTip('已刪除產品', 'success');
     }
-    function moveUp(btn){
-      const tr = btn.closest('tr');
-      const prev = tr.previousElementSibling;
-      if(prev) tr.parentNode.insertBefore(tr, prev);
+    let draggedRow = null;
+    function initRowDragAndDrop(){
+      const tbody = document.querySelector('#productTable tbody');
+      if (!tbody || tbody.dataset.dragInit === '1') return;
+      tbody.dataset.dragInit = '1';
+      tbody.addEventListener('dragover', handleRowDragOver);
+      tbody.addEventListener('drop', handleRowDrop);
+    }
+    function enableRowDrag(btn){
+      const row = btn.closest('tr');
+      if (!row) return;
+      row.draggable = true;
+      btn.classList.add('active');
+    }
+    function disableRowDrag(btn){
+      const row = btn.closest('tr');
+      if (!row || row.classList.contains('dragging-row')) return;
+      row.draggable = false;
+      btn.classList.remove('active');
+    }
+    document.addEventListener('dragstart', (event) => {
+      const row = event.target.closest('#productTable tbody tr');
+      if (!row || !row.draggable) {
+        event.preventDefault();
+        return;
+      }
+      draggedRow = row;
+      row.classList.add('dragging-row');
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', row.dataset.product || '');
+    });
+    document.addEventListener('dragend', (event) => {
+      const row = event.target.closest('#productTable tbody tr');
+      if (!row) return;
+      row.classList.remove('dragging-row');
+      row.draggable = false;
+      row.querySelector('.drag-handle')?.classList.remove('active');
+      draggedRow = null;
+    });
+    function handleRowDragOver(event){
+      event.preventDefault();
+      const tbody = event.currentTarget;
+      const afterElement = getDragAfterElement(tbody, event.clientY);
+      if (!draggedRow) return;
+      if (!afterElement) {
+        tbody.appendChild(draggedRow);
+      } else if (afterElement !== draggedRow) {
+        tbody.insertBefore(draggedRow, afterElement);
+      }
+    }
+    function handleRowDrop(event){
+      event.preventDefault();
       updateRowNumbers();
     }
-    function moveDown(btn){
-      const tr = btn.closest('tr');
-      const next = tr.nextElementSibling;
-      if(next) tr.parentNode.insertBefore(next, tr);
-      updateRowNumbers();
+    function getDragAfterElement(container, y){
+      const rows = [...container.querySelectorAll('tr:not(.dragging-row)')];
+      return rows.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+          return { offset, element: child };
+        }
+        return closest;
+      }, { offset: Number.NEGATIVE_INFINITY, element: null }).element;
     }
     function updateRowNumbers(){
       const rows = document.querySelectorAll('#productTable tbody tr');
@@ -2290,23 +2222,28 @@ const allProducts = [
     }
     function exportToExcel() {
       const wb = XLSX.utils.book_new();
+      const getRowProductCode = (row) => {
+        const fromDataset = row?.dataset?.product?.trim();
+        if (fromDataset) return fromDataset;
+        const rawCellText = row?.cells?.[1]?.childNodes?.[0]?.textContent || row?.cells?.[1]?.textContent || '';
+        return rawCellText.trim();
+      };
       const orderSheetData = [];
       const orderHeader = ["序號","品號","名稱","每箱","包裝類型","箱數","單位","棧板數","單位","紙箱尺寸(cm)"];
       orderSheetData.push(orderHeader);
       const rows = document.querySelectorAll('#productTable tbody tr');
       rows.forEach(row => {
         const idx = row.cells[0].textContent;
-        const code = row.cells[1].textContent;
-        const prod = allProducts.find(p => p.productCode === code);
-        if(!prod) return;
-        const name = prod.productName || '';
-        const eachCarton = prod.perCarton || 1;
+        const code = getRowProductCode(row);
+        const prod = getProductSpecByCode(code);
+        const name = prod?.productName || '';
+        const eachCarton = prod?.perCarton || 1;
         let pkgType = '單包';
-        if(prod.perPack && prod.perPack > 0) pkgType = '袋裝';
-        else if(prod.perBox && prod.perBox > 0) pkgType = '盒裝';
+        if(prod?.perPack && prod.perPack > 0) pkgType = '袋裝';
+        else if(prod?.perBox && prod.perBox > 0) pkgType = '盒裝';
         const cVal = parseFloat(row.querySelector('.edit-cartons-input')?.value) || 0;
         const pVal = parseFloat(row.querySelector('.edit-pallets-input')?.value) || 0;
-        const boxSize = prod.boxSize;
+        const boxSize = prod?.boxSize || row.cells[7]?.textContent?.replace(' cm', '').trim() || '';
         orderSheetData.push([
           idx, code, name, eachCarton, pkgType, cVal, "箱", pVal, "棧板", boxSize
         ]);
@@ -2318,10 +2255,9 @@ const allProducts = [
       detailSheetData.push(detailHeader);
       rows.forEach(row => {
         const idx = row.cells[0].textContent;
-        const code = row.cells[1].textContent;
-        const prod = allProducts.find(p => p.productCode === code);
-        if(!prod) return;
-        const name = prod.productName || '';
+        const code = getRowProductCode(row);
+        const prod = getProductSpecByCode(code);
+        const name = prod?.productName || '';
         const quantity = parseFloat(row.querySelector('.edit-quantity-input')?.value) || 0;
         let packOrBoxVal = '—';
         const packOrBoxInput = row.querySelector('.edit-pack-input') || row.querySelector('.edit-box-input');
@@ -2331,7 +2267,7 @@ const allProducts = [
         }
         const cartons = parseFloat(row.querySelector('.edit-cartons-input')?.value) || 0;
         const pallets = parseFloat(row.querySelector('.edit-pallets-input')?.value) || 0;
-        const boxSize = prod.boxSize;
+        const boxSize = prod?.boxSize || row.cells[7]?.textContent?.replace(' cm', '').trim() || '';
         detailSheetData.push([
           idx, code, name, quantity, packOrBoxVal, cartons, pallets, boxSize
         ]);
@@ -2355,21 +2291,37 @@ const allProducts = [
       document.getElementById('boxSizeModal').style.display = 'none';
     }
     function openDiscontinuedModal(){
+      closeOtherFunctionsModal();
       renderDiscontinuedList();
       document.getElementById('discontinuedModal').style.display = 'block';
     }
     function closeDiscontinuedModal(){
       document.getElementById('discontinuedModal').style.display = 'none';
     }
+    function openOtherFunctionsModal(){
+      document.getElementById('otherFunctionsModal').style.display = 'block';
+    }
+    function closeOtherFunctionsModal(){
+      document.getElementById('otherFunctionsModal').style.display = 'none';
+    }
+    function openAdvancedSettingsModal(){
+      closeOtherFunctionsModal();
+      document.getElementById('advancedSettingsModal').style.display = 'block';
+    }
+    function closeAdvancedSettingsModal(){
+      document.getElementById('advancedSettingsModal').style.display = 'none';
+    }
     window.onclick = (e) => {
       if(e.target === document.getElementById('boxSizeModal')) closeModal();
       if(e.target === document.getElementById('newItemModal')) closeNewItemModal();
       if(e.target === document.getElementById('discontinuedModal')) closeDiscontinuedModal();
+      if(e.target === document.getElementById('otherFunctionsModal')) closeOtherFunctionsModal();
+      if(e.target === document.getElementById('advancedSettingsModal')) closeAdvancedSettingsModal();
     }
     // 新品產生器
-    document.getElementById('newItemGeneratorBtn').addEventListener('click', openNewItemModal);
-    document.getElementById('discontinuedListBtn').addEventListener('click', openDiscontinuedModal);
+    document.getElementById('otherFunctionsBtn').addEventListener('click', openOtherFunctionsModal);
     function openNewItemModal(){
+      closeOtherFunctionsModal();
       document.getElementById('newItemModal').style.display = 'block';
     }
     function closeNewItemModal(){
@@ -2422,7 +2374,18 @@ const allProducts = [
         showTip("請填完整品號/品名/棧板數", "error");
         return;
       }
-      let itemStr = `{productCode:"${code}", productName:"${name}", boxSize:"${boxSize}", perPallet:${pal}, country:"${countryVal}"`;
+      const normalizedCode = normalizeSkuKey(code);
+      const escapeNewItemText = (value) => String(value ?? '').replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+      const item = {
+        productCode: normalizedCode,
+        productName: name,
+        boxSize,
+        perCarton: null,
+        perPack: null,
+        perBox: null,
+        perPallet: Number(pal),
+        country: countryVal
+      };
       if(pkgType === 'bag'){
         const cBag = document.getElementById('newItemPerCartonBag').value.trim();
         const pack = document.getElementById('newItemPerPack').value.trim();
@@ -2430,7 +2393,8 @@ const allProducts = [
           showTip("袋裝需填每箱袋數、每袋幾入", "error");
           return;
         }
-        itemStr += `, perCarton:${cBag}, perPack:${pack}, perBox:null`;
+        item.perCarton = Number(cBag);
+        item.perPack = Number(pack);
       } else if(pkgType === 'box'){
         const cBox = document.getElementById('newItemPerCartonBox').value.trim();
         const bBox = document.getElementById('newItemPerBoxBox').value.trim();
@@ -2438,19 +2402,37 @@ const allProducts = [
           showTip("盒裝需填每箱盒數、每盒幾入", "error");
           return;
         }
-        itemStr += `, perCarton:${cBox}, perBox:${bBox}, perPack:null`;
+        item.perCarton = Number(cBox);
+        item.perBox = Number(bBox);
       } else {
         const single = document.getElementById('newItemPerCartonSingle').value.trim();
         if(!single){
           showTip("單包需填每箱包數", "error");
           return;
         }
-        itemStr += `, perCarton:${single}, perPack:null, perBox:null`;
+        item.perCarton = Number(single);
       }
-      itemStr += '},';
+
+      const formatNewItemLine = (entry) => {
+        const perPack = Number.isFinite(entry.perPack) ? entry.perPack : 'null';
+        const perBox = Number.isFinite(entry.perBox) ? entry.perBox : 'null';
+        return `{ productCode: "${escapeNewItemText(entry.productCode)}", productName: "${escapeNewItemText(entry.productName)}", boxSize: "${escapeNewItemText(entry.boxSize)}", perCarton: ${entry.perCarton}, perPack: ${perPack}, perBox: ${perBox}, perPallet: ${entry.perPallet}, country: "${escapeNewItemText(entry.country)}" },`;
+      };
+
+      const parseNewItemLine = (line) => {
+        const matchedCode = String(line || '').match(/productCode:\s*"([^"]+)"/i);
+        return { code: normalizeSkuKey(matchedCode?.[1] || ''), raw: line };
+      };
+
       const area = document.getElementById('newItemResult');
-      const currVal = area.value.trim();
-      area.value = currVal ? (currVal + ' ' + itemStr) : itemStr;
+      const existingLines = area.value
+        .split(/\r?\n/)
+        .map(line => line.trim())
+        .filter(Boolean)
+        .map(parseNewItemLine);
+      const nextLines = [...existingLines, { code: item.productCode, raw: formatNewItemLine(item) }]
+        .sort((a, b) => a.code.localeCompare(b.code));
+      area.value = nextLines.map(line => line.raw).join('\n');
       resetNewItemForm();
       showTip('已產生新商品資訊', 'success');
     }
@@ -2488,6 +2470,15 @@ const allProducts = [
     const itemLegendEl = document.getElementById('itemLegend');
     const salesSummaryEl = document.getElementById('salesSummary');
     const salesMissingEl = document.getElementById('salesMissing');
+    const ganttDaysTypeEl = document.getElementById('ganttDaysType');
+    const salesGanttFactoryEl = document.getElementById('salesGanttFactory');
+    const salesGanttViewTypeEl = document.getElementById('salesGanttViewType');
+    const btnExportSalesGantt = document.getElementById('btnExportSalesGantt');
+    const salesGanttWrapEl = document.getElementById('salesGanttWrap');
+    const salesCalendarWrapEl = document.getElementById('salesCalendarWrap');
+    const salesGanttHintEl = document.getElementById('salesGanttHint');
+
+    let latestSalesGanttRows = [];
 
     const currencyFormatter = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const productMap = new Map(allProducts.map(p => [String(p.productCode).trim().toUpperCase(), p]));
@@ -2497,12 +2488,30 @@ const allProducts = [
       return `US$${currencyFormatter.format(value)}`;
     }
 
+    function escapeSalesText(value) {
+      return String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
     function normalizeSalesSku(sku) {
       return String(sku ?? "").trim().toUpperCase();
     }
 
+    function parseDaysValue(value) {
+      if (value === null || value === undefined) return null;
+      if (typeof value === 'number') return Number.isFinite(value) ? value : null;
+      const cleaned = String(value).replace(/,/g, '').trim();
+      if (!cleaned) return null;
+      const direct = Number(cleaned);
+      if (Number.isFinite(direct)) return direct;
+      const match = cleaned.match(/-?\d+(?:\.\d+)?/);
+      if (!match) return null;
+      const extracted = Number(match[0]);
+      return Number.isFinite(extracted) ? extracted : null;
+    }
+
     function parseAmount(value) {
-      if (!value) return null;
+      if (value === null || value === undefined) return null;
+      if (typeof value === 'string' && value.trim() === '') return null;
       const cleaned = String(value).replace(/US\$/i, '').replace(/,/g, '').replace(/[^\d.-]/g, '');
       const num = Number(cleaned);
       return Number.isFinite(num) ? num : null;
@@ -2628,9 +2637,216 @@ const allProducts = [
       }
     }
 
+
+    function buildSalesGanttData() {
+      if ((!Array.isArray(window.mainRowsAll) || window.mainRowsAll.length === 0) && typeof window.buildSupplyTables === 'function') {
+        window.buildSupplyTables();
+      }
+      const baseRows = Array.isArray(window.mainRowsAll) ? window.mainRowsAll : [];
+      const mode = ganttDaysTypeEl?.value || 'usDays';
+      const factoryMode = salesGanttFactoryEl?.value || 'all';
+      const today = new Date();
+      const monthBuckets = Array.from({ length: 12 }, (_, idx) => {
+        const d = new Date(today.getFullYear(), today.getMonth() + idx, 1);
+        return {
+          key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`,
+          label: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`,
+          items: []
+        };
+      });
+
+      const rows = baseRows.filter(r => {
+        const sku = normalizeSalesSku(r?.sku || r?.productCode || '');
+        const country = productMap.get(sku)?.country || '';
+        const isTwBySkuRule = sku.startsWith('E');
+        const isTw = country === 'TW' || isTwBySkuRule;
+        if (factoryMode === 'onlyTW') return isTw;
+        if (factoryMode === 'hideTW') return !isTw;
+        return true;
+      });
+
+      rows.forEach(r => {
+        const sku = normalizeSalesSku(r?.sku || r?.productCode || '');
+        if (!sku) return;
+
+        const days = parseDaysValue(r?.[mode]);
+        if (!Number.isFinite(days) || days < 0) return;
+
+        const outDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        outDate.setDate(outDate.getDate() + Math.floor(days));
+        const monthKey = `${outDate.getFullYear()}-${String(outDate.getMonth() + 1).padStart(2, '0')}`;
+        const bucket = monthBuckets.find(m => m.key === monthKey);
+        if (!bucket) return;
+        const dateText = `${String(outDate.getMonth() + 1).padStart(2, '0')}/${String(outDate.getDate()).padStart(2, '0')}`;
+        bucket.items.push({ sku, dateText, outDate: new Date(outDate) });
+      });
+
+      monthBuckets.forEach(m => {
+        m.items.sort((a, b) => {
+          const dateDelta = a.outDate - b.outDate;
+          if (dateDelta !== 0) return dateDelta;
+          return String(a?.sku || '').localeCompare(String(b?.sku || ''));
+        });
+      });
+      return { monthBuckets, mode, factoryMode };
+    }
+
+
+    function getGanttSkuClassName(sku) {
+      if (isDiscontinuedSku(sku)) return 'gantt-item-discontinued';
+      if (isHeroHotSku(sku)) return 'gantt-item-hero';
+      if (isHotSku(sku)) return 'gantt-item-hot';
+      return '';
+    }
+
+    function formatGanttSkuLabel(sku) {
+      const cls = getGanttSkuClassName(sku);
+      return cls ? `<span class="${cls}">${escapeSalesText(String(sku))}</span>` : escapeSalesText(String(sku));
+    }
+
+    function renderSalesCalendar(monthBuckets) {
+      if (!salesCalendarWrapEl) return;
+      const weekLabels = ['日', '一', '二', '三', '四', '五', '六'];
+      const monthHtml = monthBuckets.map(m => {
+        const [yearText, monthText] = m.key.split('-');
+        const year = Number(yearText);
+        const monthIndex = Number(monthText) - 1;
+        const firstDay = new Date(year, monthIndex, 1);
+        const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+        const events = new Map();
+        m.items.forEach(item => {
+          const day = item.outDate instanceof Date ? item.outDate.getDate() : Number(String(item.dateText).split('/')[1]);
+          if (!Number.isFinite(day) || day < 1 || day > daysInMonth) return;
+          if (!events.has(day)) events.set(day, []);
+          const sku = normalizeSalesSku(item?.sku || '');
+          events.get(day).push({ sku, formatted: formatGanttSkuLabel(sku || 'N/A') });
+        });
+
+        const cells = [];
+        for (let i = 0; i < firstDay.getDay(); i += 1) {
+          cells.push('<div class="salesDayCell empty"></div>');
+        }
+        for (let day = 1; day <= daysInMonth; day += 1) {
+          const skus = events.get(day) || [];
+          const preview = skus.slice(0, 2).map(entry => entry.formatted).join('、');
+          const titleText = skus.map(entry => entry.sku).join('、');
+          const extra = skus.length > 2 ? ` +${skus.length - 2}` : '';
+          cells.push(`
+            <div class="salesDayCell ${skus.length ? 'hasEvent' : ''}">
+              <div class="salesDayNum">${day}</div>
+              ${skus.length ? `<div class="salesDayCount">${skus.length} 項</div>` : ''}
+              ${skus.length ? `<div class="salesDaySkus" title="${escapeSalesText(titleText)}">${preview}${extra}</div>` : ''}
+            </div>
+          `);
+        }
+
+        return `
+          <div class="salesCalendarMonth">
+            <div class="salesCalendarTitle">${m.label}</div>
+            <div class="salesCalendarWeek">${weekLabels.map(w => `<span>${w}</span>`).join('')}</div>
+            <div class="salesCalendarDays">${cells.join('')}</div>
+          </div>
+        `;
+      }).join('');
+      salesCalendarWrapEl.innerHTML = `<div class="salesCalendarGrid">${monthHtml}</div>`;
+    }
+
+    function renderSalesGantt() {
+      if (!salesGanttWrapEl) return;
+      window.__isRenderingSalesGantt = true;
+      try {
+      const { monthBuckets, mode } = buildSalesGanttData();
+      latestSalesGanttRows = monthBuckets;
+      const modeLabel = mode === 'usDays' ? '美國可售天數甘特圖' : '含訂單可售天數甘特圖';
+      const viewType = salesGanttViewTypeEl?.value || 'table';
+      const body = monthBuckets.map(m => {
+        const skuList = m.items.length
+          ? `<ul class="ganttSkuList">${m.items.map(i => `<li>${formatGanttSkuLabel(i.sku)}（${i.dateText} 缺貨）</li>`).join('')}</ul>`
+          : '—';
+        return `<tr><td>${m.label}</td><td class="count">${m.items.length}</td><td>${skuList}</td></tr>`;
+      }).join('');
+      salesGanttWrapEl.innerHTML = `
+        <table class="ganttTable">
+          <thead><tr><th>月份</th><th>預估缺貨品項數</th><th>缺貨品項（含日期）</th></tr></thead>
+          <tbody>${body}</tbody>
+        </table>
+      `;
+      renderSalesCalendar(monthBuckets);
+      if (viewType === 'calendar') {
+        salesGanttWrapEl.style.display = 'none';
+        if (salesCalendarWrapEl) salesCalendarWrapEl.style.display = 'block';
+      } else {
+        salesGanttWrapEl.style.display = 'block';
+        if (salesCalendarWrapEl) salesCalendarWrapEl.style.display = 'none';
+      }
+      if (salesGanttHintEl) {
+        const viewLabel = viewType === 'calendar' ? '月曆檢視' : '甘特表格';
+        const totalItems = monthBuckets.reduce((sum, m) => sum + m.items.length, 0);
+        const hasBaseRows = Array.isArray(window.mainRowsAll) && window.mainRowsAll.length > 0;
+        const emptyHint = totalItems === 0
+          ? (hasBaseRows
+            ? '（目前無符合條件品項，可能都超過 12 個月或被篩選排除）'
+            : '（尚無可計算資料，請先貼上資料後按「整理表格」）')
+          : '';
+        salesGanttHintEl.textContent = `目前模式：${modeLabel} / ${viewLabel}。${emptyHint}`;
+      }
+      } finally {
+        window.__isRenderingSalesGantt = false;
+      }
+    }
+
+    function exportSalesGanttExcel() {
+      if (!latestSalesGanttRows.length) renderSalesGantt();
+      const mode = ganttDaysTypeEl?.value || 'usDays';
+      const modeLabel = mode === 'usDays' ? '美國可售天數甘特圖' : '含訂單可售天數甘特圖';
+      const headers = ['月份', '預估缺貨品項數', '缺貨品項（含日期）', '月曆每日彙總'];
+      const body = latestSalesGanttRows.map(m => {
+        const dayMap = new Map();
+        m.items.forEach(i => {
+          if (!dayMap.has(i.dateText)) dayMap.set(i.dateText, []);
+          dayMap.get(i.dateText).push(i.sku);
+        });
+        const dailySummary = Array.from(dayMap.entries()).map(([date, skus]) => `${date}:${skus.join('/')}`).join('；');
+        return [
+          m.label,
+          m.items.length,
+          m.items.map(i => `${i.sku}(${i.dateText})`).join('、'),
+          dailySummary
+        ];
+      });
+      const now = new Date();
+      const dateStamp = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet([headers, ...body]);
+      XLSX.utils.book_append_sheet(wb, ws, '銷售甘特圖');
+      XLSX.writeFile(wb, `${dateStamp}_${modeLabel}.xlsx`);
+      showTip('已匯出銷售甘特圖 Excel', 'success');
+    }
     if (btnBuildSalesCharts) {
       btnBuildSalesCharts.addEventListener('click', buildSalesCharts);
     }
+    if (btnExportSalesGantt) {
+      btnExportSalesGantt.addEventListener('click', exportSalesGanttExcel);
+    }
+    if (ganttDaysTypeEl) {
+      ganttDaysTypeEl.addEventListener('change', renderSalesGantt);
+    }
+    if (salesGanttFactoryEl) {
+      salesGanttFactoryEl.addEventListener('change', renderSalesGantt);
+    }
+    if (salesGanttViewTypeEl) {
+      salesGanttViewTypeEl.addEventListener('change', renderSalesGantt);
+    }
+    const btnCalculateEl = document.getElementById('btnCalculate');
+    if (btnCalculateEl) {
+      btnCalculateEl.addEventListener('click', () => {
+        setTimeout(renderSalesGantt, 0);
+      });
+    }
+    if (salesInputEl) {
+      salesInputEl.addEventListener('input', renderSalesGantt);
+    }
+    renderSalesGantt();
 </script>
 </body>
 </html>
