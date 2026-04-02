@@ -78,6 +78,8 @@
     .salesDayCell.hasEvent .salesDayNum { background:#0b6bcb; color:#fff; }
     .salesDayCount { margin-top:2px; color:#0b6bcb; font-weight:600; }
     .salesDaySkus { margin-top:2px; color:#3f4e64; line-height:1.35; word-break: break-word; }
+    .salesDaySkuLink { color: #0b6bcb; font-weight: 700; text-decoration: none; cursor: pointer; }
+    .salesDaySkuLink:hover { text-decoration: underline; }
 
     .order-generator { margin-top: 36px; font-family: "Noto Sans TC", Arial, sans-serif; color: #273042; }
     .order-generator .container {
@@ -2672,7 +2674,7 @@ const allProducts = window.allProductsData || [];
         for (let day = 1; day <= daysInMonth; day += 1) {
           const skus = events.get(day) || [];
           const preview = skus.slice(0, 2).map(entry => `
-            <div>${entry.formatted}<button type="button" class="ganttSkuAction js-add-gantt-sku" data-sku="${escapeSalesText(entry.sku)}">加入訂單產生器</button></div>
+            <div><a href="#" class="salesDaySkuLink js-add-gantt-sku" data-sku="${escapeSalesText(entry.sku)}">${entry.formatted}</a></div>
           `).join('');
           const titleText = skus.map(entry => entry.sku).join('、');
           const extra = skus.length > 2 ? ` +${skus.length - 2}` : '';
@@ -2796,11 +2798,11 @@ const allProducts = window.allProductsData || [];
     }
     if (salesCalendarWrapEl) {
       salesCalendarWrapEl.addEventListener('click', (event) => {
-        const btn = event.target.closest('.js-add-gantt-sku');
-        if (!btn) return;
+        const skuLink = event.target.closest('.js-add-gantt-sku');
+        if (!skuLink) return;
         event.preventDefault();
         event.stopPropagation();
-        addSingleGanttSkuToGenerator(btn.dataset.sku || '');
+        addSingleGanttSkuToGenerator(skuLink.dataset.sku || '');
       });
     }
     const btnCalculateEl = document.getElementById('btnCalculate');
