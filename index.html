@@ -62,6 +62,8 @@
     .ganttTable td { vertical-align: top; font-size: 12px; }
     .ganttSkuList { margin: 0; padding-left: 16px; }
     .ganttSkuList li { margin-bottom: 4px; }
+    .ganttSkuAction { margin-left: 8px; padding: 2px 8px; font-size: 11px; border-radius: 999px; border: 1px solid #c9d7ee; background: #f2f7ff; color: #2458a8; box-shadow: none; }
+    .ganttSkuAction:hover { background: #e2ecff; box-shadow: none; transform: none; }
     .salesCalendarWrap { margin-top: 14px; }
     .salesCalendarGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
     .salesCalendarMonth { border: 1px solid #dfe8f6; border-radius: 10px; background: #fff; overflow: hidden; }
@@ -796,6 +798,12 @@ TTR01AM-4 14125
               <option value="all" selected>全部</option>
               <option value="hideTW">越南廠（排除台灣廠）</option>
               <option value="onlyTW">台灣廠</option>
+            </select>
+            <label for="salesGanttItemFilter">品項篩選：</label>
+            <select id="salesGanttItemFilter">
+              <option value="all" selected>全部</option>
+              <option value="onlyTurkey">火雞筋</option>
+              <option value="onlyNonTurkey">非火雞筋</option>
             </select>
             <label for="salesGanttViewType">檢視模式：</label>
             <select id="salesGanttViewType">
@@ -2376,6 +2384,7 @@ const allProducts = window.allProductsData || [];
     const salesMissingEl = document.getElementById('salesMissing');
     const ganttDaysTypeEl = document.getElementById('ganttDaysType');
     const salesGanttFactoryEl = document.getElementById('salesGanttFactory');
+    const salesGanttItemFilterEl = document.getElementById('salesGanttItemFilter');
     const salesGanttViewTypeEl = document.getElementById('salesGanttViewType');
     const btnExportSalesGantt = document.getElementById('btnExportSalesGantt');
     const salesGanttWrapEl = document.getElementById('salesGanttWrap');
@@ -2549,6 +2558,7 @@ const allProducts = window.allProductsData || [];
       const baseRows = Array.isArray(window.mainRowsAll) ? window.mainRowsAll : [];
       const mode = ganttDaysTypeEl?.value || 'usDays';
       const factoryMode = salesGanttFactoryEl?.value || 'all';
+      const itemFilterMode = salesGanttItemFilterEl?.value || 'all';
       const today = new Date();
       const monthBuckets = Array.from({ length: 12 }, (_, idx) => {
         const d = new Date(today.getFullYear(), today.getMonth() + idx, 1);
@@ -2564,9 +2574,14 @@ const allProducts = window.allProductsData || [];
         const country = productMap.get(sku)?.country || '';
         const isTwBySkuRule = sku.startsWith('E');
         const isTw = country === 'TW' || isTwBySkuRule;
-        if (factoryMode === 'onlyTW') return isTw;
-        if (factoryMode === 'hideTW') return !isTw;
-        return true;
+        const isTurkey = isTurkeySku(sku);
+        const factoryMatched = factoryMode === 'onlyTW'
+          ? isTw
+          : (factoryMode === 'hideTW' ? !isTw : true);
+        const itemMatched = itemFilterMode === 'onlyTurkey'
+          ? isTurkey
+          : (itemFilterMode === 'onlyNonTurkey' ? !isTurkey : true);
+        return factoryMatched && itemMatched;
       });
 
       rows.forEach(r => {
@@ -2608,6 +2623,30 @@ const allProducts = window.allProductsData || [];
       return cls ? `<span class="${cls}">${escapeSalesText(String(sku))}</span>` : escapeSalesText(String(sku));
     }
 
+    function addSingleGanttSkuToGenerator(rawSku) {
+      const sku = normalizeSalesSku(rawSku);
+      if (!sku) {
+        showTip('SKU 格式不正確，無法加入訂單產生器', 'error');
+        return;
+      }
+      if (isDiscontinuedSku(sku)) {
+        showTip(`SKU ${sku} 為停產品項，未加入訂單產生器`, 'error');
+        return;
+      }
+      const prod = getProductSpecByCode(sku);
+      if (!prod) {
+        showTip(`SKU ${sku} 找不到品項資料，請先補到產品清單`, 'error');
+        return;
+      }
+      addProduct(prod, null);
+    }
+
+    function renderGanttSkuWithAction(sku, dateText = '') {
+      const safeSku = normalizeSalesSku(sku);
+      const dateLabel = dateText ? `（${escapeSalesText(dateText)} 缺貨）` : '';
+      return `${formatGanttSkuLabel(safeSku)}${dateLabel}<button type="button" class="ganttSkuAction js-add-gantt-sku" data-sku="${escapeSalesText(safeSku)}">加入訂單產生器</button>`;
+    }
+
     function renderSalesCalendar(monthBuckets) {
       if (!salesCalendarWrapEl) return;
       const weekLabels = ['日', '一', '二', '三', '四', '五', '六'];
@@ -2632,7 +2671,9 @@ const allProducts = window.allProductsData || [];
         }
         for (let day = 1; day <= daysInMonth; day += 1) {
           const skus = events.get(day) || [];
-          const preview = skus.slice(0, 2).map(entry => entry.formatted).join('、');
+          const preview = skus.slice(0, 2).map(entry => `
+            <div>${entry.formatted}<button type="button" class="ganttSkuAction js-add-gantt-sku" data-sku="${escapeSalesText(entry.sku)}">加入訂單產生器</button></div>
+          `).join('');
           const titleText = skus.map(entry => entry.sku).join('、');
           const extra = skus.length > 2 ? ` +${skus.length - 2}` : '';
           cells.push(`
@@ -2665,7 +2706,7 @@ const allProducts = window.allProductsData || [];
       const viewType = salesGanttViewTypeEl?.value || 'table';
       const body = monthBuckets.map(m => {
         const skuList = m.items.length
-          ? `<ul class="ganttSkuList">${m.items.map(i => `<li>${formatGanttSkuLabel(i.sku)}（${i.dateText} 缺貨）</li>`).join('')}</ul>`
+          ? `<ul class="ganttSkuList">${m.items.map(i => `<li>${renderGanttSkuWithAction(i.sku, i.dateText)}</li>`).join('')}</ul>`
           : '—';
         return `<tr><td>${m.label}</td><td class="count">${m.items.length}</td><td>${skuList}</td></tr>`;
       }).join('');
@@ -2738,8 +2779,29 @@ const allProducts = window.allProductsData || [];
     if (salesGanttFactoryEl) {
       salesGanttFactoryEl.addEventListener('change', renderSalesGantt);
     }
+    if (salesGanttItemFilterEl) {
+      salesGanttItemFilterEl.addEventListener('change', renderSalesGantt);
+    }
     if (salesGanttViewTypeEl) {
       salesGanttViewTypeEl.addEventListener('change', renderSalesGantt);
+    }
+    if (salesGanttWrapEl) {
+      salesGanttWrapEl.addEventListener('click', (event) => {
+        const btn = event.target.closest('.js-add-gantt-sku');
+        if (!btn) return;
+        event.preventDefault();
+        event.stopPropagation();
+        addSingleGanttSkuToGenerator(btn.dataset.sku || '');
+      });
+    }
+    if (salesCalendarWrapEl) {
+      salesCalendarWrapEl.addEventListener('click', (event) => {
+        const btn = event.target.closest('.js-add-gantt-sku');
+        if (!btn) return;
+        event.preventDefault();
+        event.stopPropagation();
+        addSingleGanttSkuToGenerator(btn.dataset.sku || '');
+      });
     }
     const btnCalculateEl = document.getElementById('btnCalculate');
     if (btnCalculateEl) {
