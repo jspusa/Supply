@@ -339,6 +339,8 @@
 
     .sales-link { font-size: 12px; color: #0b6bcb; text-decoration: none; font-weight: 600; }
     .sales-link:hover { text-decoration: underline; }
+    .summaryLink { color: #0b6bcb; text-decoration: none; font-weight: 700; }
+    .summaryLink:hover { text-decoration: underline; }
     .gantt-item-discontinued { color: #c62828; font-weight: 700; }
     .gantt-item-hero { color: #a21caf; font-weight: 700; }
     .gantt-item-hot { color: #1d4ed8; font-weight: 700; }
@@ -579,14 +581,14 @@
           </section>
           <div class="subGrid">
             <details class="subCard" open>
-              <summary>Helium 10 原始文字</summary>
+              <summary><a class="summaryLink" href="https://members.helium10.com/inventory-management/restock-suggestions-new/index?accountId=1547156136" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">Helium 10 原始文字</a></summary>
               <div class="subCardContent">
                 <div class="hint">抓取 <code>ASIN(10碼)</code> + 後面的 <code>SKU</code>，再取第一個數字作為速度。</div>
                 <textarea id="inputH10" placeholder="貼 Helium 10 內容..."></textarea>
               </div>
             </details>
             <details class="subCard" open>
-              <summary>訂單清單</summary>
+              <summary><a class="summaryLink" href="https://24466647-my.sharepoint.com/:x:/g/personal/hongren_petlifeco_com/ER_jNs_oIg9JlOmxXlpGb6sBG3yRl9Zd7gzqAfH_q3WL1A?CID=bbf41374-a2d3-7260-37b3-d7bdd684d58e&e=ocBSqj" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">訂單清單</a></summary>
               <div class="subCardContent">
                 <div class="hint">Tab/空白皆可。每行第 1 欄是 SKU；數量只從「SKU 後面欄位」抓數字。重複 SKU 會加總。</div>
                 <textarea id="inputOrders" placeholder="例如：
@@ -597,12 +599,22 @@ TTS05AM-1	170100
               </div>
             </details>
             <details class="subCard" open>
-              <summary>美國總數</summary>
+              <summary><a class="summaryLink" href="https://members.helium10.com/inventory-management/restock-suggestions-new/index?accountId=1547156136" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">美國AMZ倉總數</a></summary>
               <div class="subCardContent">
-                <div class="hint">Tab/空白皆可。每行第 1 欄是 SKU；數量只從「SKU 後面欄位」抓數字。重複 SKU 會加總。</div>
-                <textarea id="inputUS" placeholder="例如：
-TTS05AM-1 57223
+                <div class="hint">貼 Amazon/Helium 10 美國倉庫存。Tab/空白皆可。每行第 1 欄是 SKU；數量只從「SKU 後面欄位」抓數字。重複 SKU 會加總。</div>
+                <textarea id="inputUSAmz" placeholder="例如：
+TTS05AM-1 7223
 TTR01AM-4 14125
+..."></textarea>
+              </div>
+            </details>
+            <details class="subCard" open>
+              <summary><a class="summaryLink" href="https://24466647.sharepoint.com/:x:/r/sites/Cloud/Shared%20Documents/珍食堡%20-%20共用/JSP%20Amrica/Inventory%20update%20with%20expiration%20date%20-%20temporary%20file.xlsx?d=wdb6b7635090543b0b4433ce8572b2c4a&e=4%3ab1c52cfb6a554376882e5c1e30fa2339&sharingv2=true&fromShare=true&at=9" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">美國JSP倉總數</a></summary>
+              <div class="subCardContent">
+                <div class="hint">貼 JSP 美國倉庫存。Tab/空白皆可。每行第 1 欄是 SKU；數量只從「SKU 後面欄位」抓數字。重複 SKU 會加總。</div>
+                <textarea id="inputUSJsp" placeholder="例如：
+TTS05AM-1 50000
+TTR01AM-4 0
 ..."></textarea>
               </div>
             </details>
@@ -643,7 +655,7 @@ TTR01AM-4 14125
         <summary>
           <div>
             <h2>主表（H10 產品）</h2>
-            <div class="hint">SKU / 速度 / 訂單 / 美國總數 / 美國可售天數 / 含訂單可售天數</div>
+            <div class="hint">SKU / 速度 / 訂單 / 美國AMZ倉總數 / 美國JSP倉總數 / 美國總數 / 美國可售天數 / 含訂單可售天數</div>
           </div>
           <div class="summary-actions">
             <button class="secondary" id="btnDownloadMainCSV">下載Excel</button>
@@ -670,7 +682,7 @@ TTR01AM-4 14125
         <summary>
           <div>
             <h2>熱銷品專區</h2>
-            <div class="hint">SKU / 速度 / 訂單 / 美國總數 / 美國可售天數 / 含訂單可售天數</div>
+            <div class="hint">SKU / 速度 / 訂單 / 美國AMZ倉總數 / 美國JSP倉總數 / 美國總數 / 美國可售天數 / 含訂單可售天數</div>
           </div>
           <div class="summary-actions">
             <button class="secondary" id="btnAddHotToGenerator">一鍵加入訂單產生器</button>
@@ -697,7 +709,7 @@ TTR01AM-4 14125
         <summary>
           <div>
             <h2>新品（訂單有，但 H10 沒有）</h2>
-            <div class="hint">SKU / 訂單 / 美國總數(若有)</div>
+            <div class="hint">SKU / 訂單 / 美國AMZ倉總數(若有) / 美國JSP倉總數(若有) / 美國總數(若有)</div>
           </div>
           <div class="summary-actions">
             <button class="secondary" id="btnDownloadNewOrderCSV">下載Excel</button>
@@ -725,7 +737,7 @@ TTR01AM-4 14125
           </label>
           <label style="display:flex; gap:6px; align-items:center;">
             <input type="checkbox" id="chkMissingUsAsBlank" />
-            H10 找不到美國總數時留空（不勾選則填 0）
+            H10 找不到美國AMZ/JSP倉總數時留空（不勾選則填 0）
           </label>
           <label style="display:flex; gap:6px; align-items:center;">
             <input type="checkbox" id="chkNormalizeSku" checked />
@@ -931,7 +943,8 @@ function isHeroHotSku(sku) {
 (() => {
   const h10El = document.getElementById('inputH10');
   const ordersEl = document.getElementById('inputOrders');
-  const usEl = document.getElementById('inputUS');
+  const usAmzEl = document.getElementById('inputUSAmz');
+  const usJspEl = document.getElementById('inputUSJsp');
 
   const chkDedupe = document.getElementById('chkDedupe');
   const chkMissingOrderAsZero = document.getElementById('chkMissingOrderAsZero');
@@ -1002,13 +1015,13 @@ function isHeroHotSku(sku) {
   `.trim().split(/\s+/).filter(Boolean).map(s => s.trim().toUpperCase()));
   window.turkeySkuSet = nonTurkeySkuSet;
 
-  /** @type {{sku:string, asin:string, speed:(number|null), order:(number|null), us:(number|null), avail:(number|null), usDays:(number|null), days:(number|null)}[]} */
+  /** @type {{sku:string, asin:string, speed:(number|null), order:(number|null), usAmz:(number|null), usJsp:(number|null), us:(number|null), avail:(number|null), usDays:(number|null), days:(number|null)}[]} */
   let mainRowsAll = [];
-  /** @type {{sku:string, asin:string, speed:number, order:number, us:number, avail:number, usDays:number, days:number}[]} */
+  /** @type {{sku:string, asin:string, speed:number, order:number, usAmz:number, usJsp:number, us:number, avail:number, usDays:number, days:number}[]} */
   let reorderRowsAll = [];
-  /** @type {{sku:string, asin:(string|null), speed:(number|null), order:(number|null), us:(number|null), avail:(number|null), usDays:(number|null), days:(number|null)}[]} */
+  /** @type {{sku:string, asin:(string|null), speed:(number|null), order:(number|null), usAmz:(number|null), usJsp:(number|null), us:(number|null), avail:(number|null), usDays:(number|null), days:(number|null)}[]} */
   let hotRowsAll = [];
-  /** @type {{sku:string, order:number, us:(number|null)}[]} */
+  /** @type {{sku:string, order:number, usAmz:(number|null), usJsp:(number|null), us:(number|null)}[]} */
   let newOrderRowsAll = [];
 
   function escapeHtml(s) {
@@ -1085,7 +1098,7 @@ function isHeroHotSku(sku) {
       const numMatch = lookahead.match(/(\d+(?:,\d{3})*(?:\.\d+)?)/);
       const speed = numMatch ? normalizeNumber(numMatch[1]) : null;
 
-      found.push({ sku, asin, speed, order: null, us: null, avail: null, usDays: null, days: null });
+      found.push({ sku, asin, speed, order: null, usAmz: null, usJsp: null, us: null, avail: null, usDays: null, days: null });
     }
     return found;
   }
@@ -1107,13 +1120,14 @@ function isHeroHotSku(sku) {
     const lines = (raw || "").split(/\r?\n/);
 
     for (let line of lines) {
-      line = line.trim();
+      line = line.replace(/美國(?:AMZ|JSP)倉總數|美國總數/gi, " ").trim();
       if (!line) continue;
 
       const lower = line.toLowerCase();
       if (lower.includes("productcode") || lower.includes("品號") ||
           lower.includes("裝櫃日") || lower.includes("預計到港日") ||
-          lower.includes("美國總數") || (lower.includes("sku") && lower.includes("總數"))) continue;
+          lower.includes("美國總數") || lower.includes("美國amz倉總數") || lower.includes("美國jsp倉總數") ||
+          (lower.includes("sku") && lower.includes("總數"))) continue;
 
       let cols = line.split(/\t+/).map(s => s.trim()).filter(Boolean);
       if (cols.length < 2) cols = line.split(/\s+/).map(s => s.trim()).filter(Boolean);
@@ -1132,6 +1146,16 @@ function isHeroHotSku(sku) {
       map.set(sku, (map.get(sku) ?? 0) + val);
     }
     return map;
+  }
+
+  function mergeSkuNumberMaps(...maps) {
+    const merged = new Map();
+    for (const map of maps) {
+      for (const [sku, qty] of map.entries()) {
+        merged.set(sku, (merged.get(sku) ?? 0) + qty);
+      }
+    }
+    return merged;
   }
 
   function computeDerived(r) {
@@ -1176,13 +1200,16 @@ function isHeroHotSku(sku) {
   function buildTables() {
     const rawH10 = h10El.value || "";
     const rawOrders = ordersEl.value || "";
-    const rawUS = usEl.value || "";
+    const rawUSAmz = usAmzEl.value || "";
+    const rawUSJsp = usJspEl.value || "";
 
     let h10Rows = parseH10ToRows(rawH10);
     if (chkDedupe.checked) h10Rows = dedupeH10(h10Rows);
 
     const orderMap = parseSkuNumberMap(rawOrders);
-    const usMap = parseSkuNumberMap(rawUS);
+    const usAmzMap = parseSkuNumberMap(rawUSAmz);
+    const usJspMap = parseSkuNumberMap(rawUSJsp);
+    const usMap = mergeSkuNumberMaps(usAmzMap, usJspMap);
     window.orderSpeedMap = new Map(
       h10Rows
         .filter(r => r.speed !== null && Number.isFinite(r.speed))
@@ -1194,9 +1221,13 @@ function isHeroHotSku(sku) {
 
     for (const r of h10Rows) {
       const o = orderMap.get(r.sku);
+      const amz = usAmzMap.get(r.sku);
+      const jsp = usJspMap.get(r.sku);
       const u = usMap.get(r.sku);
 
       r.order = (o === undefined) ? (chkMissingOrderAsZero.checked ? 0 : null) : o;
+      r.usAmz = (amz === undefined) ? null : amz;
+      r.usJsp = (jsp === undefined) ? null : jsp;
       if (u === undefined) r.us = chkMissingUsAsBlank.checked ? null : 0;
       else r.us = u;
 
@@ -1206,8 +1237,16 @@ function isHeroHotSku(sku) {
     const newOrder = [];
     for (const [sku, qty] of orderMap.entries()) {
       if (!h10SkuSet.has(sku)) {
+        const amz = usAmzMap.get(sku);
+        const jsp = usJspMap.get(sku);
         const u = usMap.get(sku);
-        newOrder.push({ sku, order: qty, us: (u === undefined ? null : u) });
+        newOrder.push({
+          sku,
+          order: qty,
+          usAmz: (amz === undefined ? null : amz),
+          usJsp: (jsp === undefined ? null : jsp),
+          us: (u === undefined ? null : u)
+        });
       }
     }
 
@@ -1215,12 +1254,16 @@ function isHeroHotSku(sku) {
       const sku = normalizeSkuValue(rawSku);
       const h10Row = h10RowMap.get(sku);
       const orderVal = orderMap.get(sku);
+      const usAmzVal = usAmzMap.get(sku);
+      const usJspVal = usJspMap.get(sku);
       const usVal = usMap.get(sku);
       const row = {
         sku,
         asin: h10Row?.asin ?? null,
         speed: h10Row?.speed ?? null,
         order: (orderVal === undefined) ? null : orderVal,
+        usAmz: (usAmzVal === undefined) ? null : usAmzVal,
+        usJsp: (usJspVal === undefined) ? null : usJspVal,
         us: (usVal === undefined) ? null : usVal,
         avail: null,
         usDays: null,
@@ -1238,6 +1281,8 @@ function isHeroHotSku(sku) {
         asin: r.asin,
         speed: r.speed,
         order: (r.order ?? 0),
+        usAmz: (r.usAmz ?? 0),
+        usJsp: (r.usJsp ?? 0),
         us: (r.us ?? 0),
         avail: (r.avail ?? 0),
         usDays: (r.usDays ?? 0),
@@ -1263,6 +1308,12 @@ function isHeroHotSku(sku) {
     }
   }
 
+  function renderInventoryCell(value, missingText = "(未對應)") {
+    return (value === null || value === undefined)
+      ? `<td class="bad">${escapeHtml(missingText)}</td>`
+      : `<td class="ok">${escapeHtml(String(value))}</td>`;
+  }
+
   function renderAll() {
     renderReorder();
     renderMain();
@@ -1282,6 +1333,8 @@ function isHeroHotSku(sku) {
         ${renderSkuCell(r.sku)}
         <td class="ok">${escapeHtml(String(r.speed))}</td>
         <td class="ok">${escapeHtml(String(r.order))}</td>
+        <td class="ok">${escapeHtml(String(r.usAmz))}</td>
+        <td class="ok">${escapeHtml(String(r.usJsp))}</td>
         <td class="ok">${escapeHtml(String(r.us))}</td>
         <td class="warn">${escapeHtml(fmtDays(r.usDays))}</td>
         <td class="warn">${escapeHtml(fmtDays(r.days))}</td>
@@ -1292,7 +1345,7 @@ function isHeroHotSku(sku) {
       <table>
         <thead>
           <tr>
-            <th>#</th><th>SKU</th><th>速度</th><th>訂單</th><th>美國總數</th><th>美國可售天數</th><th>含訂單可售天數</th>
+            <th>#</th><th>SKU</th><th>速度</th><th>訂單</th><th>美國AMZ倉總數</th><th>美國JSP倉總數</th><th>美國總數</th><th>美國可售天數</th><th>含訂單可售天數</th>
           </tr>
         </thead>
         <tbody>${body}</tbody>
@@ -1402,6 +1455,8 @@ function isHeroHotSku(sku) {
     const body = rows.map((r, idx) => {
       const speedCell = (r.speed === null) ? `<td class="bad">(未抓到)</td>` : `<td class="ok">${escapeHtml(String(r.speed))}</td>`;
       const orderCell = (r.order === null) ? `<td class="bad">(未對應)</td>` : `<td class="ok">${escapeHtml(String(r.order))}</td>`;
+      const usAmzCell = renderInventoryCell(r.usAmz);
+      const usJspCell = renderInventoryCell(r.usJsp);
       const usCell = (r.us === null) ? `<td class="bad">(未對應)</td>` : `<td class="ok">${escapeHtml(String(r.us))}</td>`;
       const usDaysCell = (r.usDays === null) ? `<td class="bad">(不可算)</td>` : `<td class="ok">${escapeHtml(fmtDays(r.usDays))}</td>`;
       const daysCell = (r.days === null) ? `<td class="bad">(不可算)</td>` : `<td class="ok">${escapeHtml(fmtDays(r.days))}</td>`;
@@ -1412,6 +1467,8 @@ function isHeroHotSku(sku) {
           ${renderSkuCell(r.sku)}
           ${speedCell}
           ${orderCell}
+          ${usAmzCell}
+          ${usJspCell}
           ${usCell}
           ${usDaysCell}
           ${daysCell}
@@ -1423,7 +1480,7 @@ function isHeroHotSku(sku) {
       <table>
         <thead>
           <tr>
-            <th>#</th><th>SKU</th><th>速度</th><th>訂單</th><th>美國總數</th><th>美國可售天數</th><th>含訂單可售天數</th>
+            <th>#</th><th>SKU</th><th>速度</th><th>訂單</th><th>美國AMZ倉總數</th><th>美國JSP倉總數</th><th>美國總數</th><th>美國可售天數</th><th>含訂單可售天數</th>
           </tr>
         </thead>
         <tbody>${body}</tbody>
@@ -1439,6 +1496,8 @@ function isHeroHotSku(sku) {
     const body = rows.map((r, idx) => {
       const speedCell = (r.speed === null) ? `<td class="bad">(未抓到)</td>` : `<td class="ok">${escapeHtml(String(r.speed))}</td>`;
       const orderCell = (r.order === null) ? `<td class="bad">(未對應)</td>` : `<td class="ok">${escapeHtml(String(r.order))}</td>`;
+      const usAmzCell = renderInventoryCell(r.usAmz);
+      const usJspCell = renderInventoryCell(r.usJsp);
       const usCell = (r.us === null) ? `<td class="bad">(未對應)</td>` : `<td class="ok">${escapeHtml(String(r.us))}</td>`;
       const usDaysCell = (r.usDays === null) ? `<td class="bad">(不可算)</td>` : `<td class="ok">${escapeHtml(fmtDays(r.usDays))}</td>`;
       const daysCell = (r.days === null) ? `<td class="bad">(不可算)</td>` : `<td class="ok">${escapeHtml(fmtDays(r.days))}</td>`;
@@ -1448,6 +1507,8 @@ function isHeroHotSku(sku) {
           ${renderSkuCell(r.sku)}
           ${speedCell}
           ${orderCell}
+          ${usAmzCell}
+          ${usJspCell}
           ${usCell}
           ${usDaysCell}
           ${daysCell}
@@ -1459,7 +1520,7 @@ function isHeroHotSku(sku) {
       <table>
         <thead>
           <tr>
-            <th>#</th><th>SKU</th><th>速度</th><th>訂單</th><th>美國總數</th><th>美國可售天數</th><th>含訂單可售天數</th>
+            <th>#</th><th>SKU</th><th>速度</th><th>訂單</th><th>美國AMZ倉總數</th><th>美國JSP倉總數</th><th>美國總數</th><th>美國可售天數</th><th>含訂單可售天數</th>
           </tr>
         </thead>
         <tbody>${body}</tbody>
@@ -1473,12 +1534,16 @@ function isHeroHotSku(sku) {
     if (rows.length === 0) { newOrderWrap.innerHTML = ""; return; }
 
     const body = rows.map((r, idx) => {
+      const usAmzCell = renderInventoryCell(r.usAmz, "(未提供)");
+      const usJspCell = renderInventoryCell(r.usJsp, "(未提供)");
       const usCell = (r.us === null) ? `<td class="bad">(未提供)</td>` : `<td class="ok">${escapeHtml(String(r.us))}</td>`;
       return `
         <tr>
           <td>${idx + 1}</td>
           ${renderSkuCell(r.sku)}
           <td class="ok">${escapeHtml(String(r.order))}</td>
+          ${usAmzCell}
+          ${usJspCell}
           ${usCell}
         </tr>
       `;
@@ -1487,7 +1552,7 @@ function isHeroHotSku(sku) {
     newOrderWrap.innerHTML = `
       <table>
         <thead>
-          <tr><th>#</th><th>SKU</th><th>訂單</th><th>美國總數</th></tr>
+          <tr><th>#</th><th>SKU</th><th>訂單</th><th>美國AMZ倉總數</th><th>美國JSP倉總數</th><th>美國總數</th></tr>
         </thead>
         <tbody>${body}</tbody>
       </table>
@@ -1521,11 +1586,13 @@ function isHeroHotSku(sku) {
 
   function exportMainRowsFiltered() {
     const rows = applyFilters(mainRowsAll);
-    const headers = ["SKU","ASIN","速度","訂單","美國總數","可售總量(美國+訂單)","美國可售天數","含訂單可售天數"];
+    const headers = ["SKU","ASIN","速度","訂單","美國AMZ倉總數","美國JSP倉總數","美國總數","可售總量(美國+訂單)","美國可售天數","含訂單可售天數"];
     const body = rows.map(r => [
       r.sku, r.asin,
       (r.speed ?? ""),
       (r.order ?? ""),
+      (r.usAmz ?? ""),
+      (r.usJsp ?? ""),
       (r.us ?? ""),
       (r.avail ?? ""),
       (r.usDays === null ? "" : fmtDays(r.usDays)),
@@ -1534,17 +1601,18 @@ function isHeroHotSku(sku) {
     return { headers, body };
   }
   function exportReorderRowsFiltered() {
+    const threshold = Math.max(1, Number(daysThresholdEl.value || 180));
     const rows = applyFilters(mainRowsAll).filter(row => row.days !== null && row.days <= threshold && row.speed !== null && row.speed > 0);
-    const headers = ["SKU","ASIN","速度","訂單","美國總數","可售總量(美國+訂單)","美國可售天數","含訂單可售天數"];
+    const headers = ["SKU","ASIN","速度","訂單","美國AMZ倉總數","美國JSP倉總數","美國總數","可售總量(美國+訂單)","美國可售天數","含訂單可售天數"];
     const body = rows.map(r => [
-      r.sku, r.asin, String(r.speed), String(r.order), String(r.us), String(r.avail), fmtDays(r.usDays), fmtDays(r.days)
+      r.sku, r.asin, String(r.speed), String(r.order), String(r.usAmz ?? ""), String(r.usJsp ?? ""), String(r.us), String(r.avail), fmtDays(r.usDays), fmtDays(r.days)
     ]);
     return { headers, body };
   }
   function exportNewOrderRowsFiltered() {
     const rows = applyFilters(newOrderRowsAll);
-    const headers = ["SKU","訂單","美國總數"];
-    const body = rows.map(r => [r.sku, String(r.order), (r.us ?? "").toString()]);
+    const headers = ["SKU","訂單","美國AMZ倉總數","美國JSP倉總數","美國總數"];
+    const body = rows.map(r => [r.sku, String(r.order), (r.usAmz ?? "").toString(), (r.usJsp ?? "").toString(), (r.us ?? "").toString()]);
     return { headers, body };
   }
 
