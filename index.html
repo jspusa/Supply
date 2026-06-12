@@ -982,7 +982,7 @@ function isHeroHotSku(sku) {
   let itemFilterMode = "all";
   let sortConfig = { field: "speed", direction: "desc" };
 
-  const nonTurkeySkuSet = new Set(`
+  const turkeySkuSet = new Set(`
     AFA13AM AFA14AM
     AFA21AM AFA22AM AFA25AM AFA135AM
     GTS01 GTR01 GTB01 GTP01 GTZ01 GTA01 GTC01
@@ -1012,8 +1012,17 @@ function isHeroHotSku(sku) {
     GTT01 GTT03
     VTS01-1 VTB01-4 VTR01-4 VTB05-1 VTB06-4
     HDR01AM HDP01AM HDS03AM
+    7VTSD013AB 1GXXD002A0 1GXXD001A0
   `.trim().split(/\s+/).filter(Boolean).map(s => s.trim().toUpperCase()));
-  window.turkeySkuSet = nonTurkeySkuSet;
+  const nonTurkeySkuSet = new Set(`
+    1VFRD015A0 EPD061 1VFSD013A0 1VDFD011A0 EPD020
+    1VFCD017A0 EPD011 EPD060 EPD050 EPD041 EPD021 EPD051
+    1VFBD053A0 EZD061 EZD051 1GFTD043A0 1GFTD045A0 EZD041
+    1VFAD053A0 1GSDD023A0 1VFBD015A0 1GSDD033A0 ADT03AM
+    EZD021 1GFTD033A0 1VFRD055A0 EPD040 1GFTD035A0
+  `.trim().split(/\s+/).filter(Boolean).map(s => s.trim().toUpperCase()));
+  window.turkeySkuSet = turkeySkuSet;
+  window.nonTurkeySkuSet = nonTurkeySkuSet;
 
   /** @type {{sku:string, asin:string, speed:(number|null), order:(number|null), usAmz:(number|null), usJsp:(number|null), us:(number|null), avail:(number|null), usDays:(number|null), days:(number|null)}[]} */
   let mainRowsAll = [];
@@ -2466,6 +2475,7 @@ const allProducts = window.allProductsData || [];
     const currencyFormatter = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const productMap = new Map(allProducts.map(p => [String(p.productCode).trim().toUpperCase(), p]));
     const turkeySkuSet = window.turkeySkuSet || new Set();
+    const nonTurkeySkuSet = window.nonTurkeySkuSet || new Set();
 
     function formatCurrency(value) {
       return `US$${currencyFormatter.format(value)}`;
@@ -2531,9 +2541,15 @@ const allProducts = window.allProductsData || [];
       return { records, missingSkus: Array.from(missingSkus) };
     }
 
+    function isExplicitNonTurkeySku(sku) {
+      return nonTurkeySkuSet.has(normalizeSalesSku(sku));
+    }
+
     function isTurkeySku(sku) {
-      if (turkeySkuSet.has(sku)) return true;
-      const prod = productMap.get(sku);
+      const normalizedSku = normalizeSalesSku(sku);
+      if (isExplicitNonTurkeySku(normalizedSku)) return false;
+      if (turkeySkuSet.has(normalizedSku)) return true;
+      const prod = productMap.get(normalizedSku);
       return Boolean(prod && /turkey tendon/i.test(prod.productName));
     }
 
@@ -2584,7 +2600,7 @@ const allProducts = window.allProductsData || [];
 
         if (isTurkeySku(record.sku)) {
           totals.item.turkey += record.amount;
-        } else if (prod) {
+        } else if (prod || isExplicitNonTurkeySku(record.sku)) {
           totals.item.nonTurkey += record.amount;
         } else {
           totals.item.unknown += record.amount;
