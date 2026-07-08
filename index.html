@@ -509,6 +509,10 @@
     .toolPanel { display:none; }
     .toolPanel.active { display:block; }
     .treeBox { border:1px solid rgba(226,232,240,.9); border-radius:24px; background:rgba(255,255,255,.84); padding:16px; margin-top:10px; overflow:auto; }
+    .skuTreeResultCard { margin-top: 14px; border: 2px solid #dbeafe; border-radius: 22px; background: linear-gradient(180deg,#ffffff,#f8fbff); box-shadow: 0 12px 34px rgba(37,99,235,.08); overflow: hidden; }
+    .skuTreeResultHeader { display:flex; align-items:center; justify-content:space-between; gap:10px; padding: 10px 14px; background: #eaf3ff; border-bottom: 1px solid #cfe2ff; color:#12315f; font-weight:850; }
+    .skuTreeResultIndex { font-size: 12px; color:#4f6b92; font-weight:750; }
+    .skuTreeResultCard .decisionTree { padding: 14px; }
     .decisionTree { display:flex; flex-direction:column; gap:10px; min-width:320px; }
     .treeNode { position:relative; border:1px solid #e2e8f0; border-radius:18px; background:#fff; padding:12px 14px; box-shadow:0 8px 24px rgba(15,23,42,.05); }
     .treeNode:not(:last-child)::after { content:""; position:absolute; left:28px; bottom:-11px; width:2px; height:10px; background:#cbd5e1; }
@@ -2284,9 +2288,13 @@
           return true;
         });
     }
-    function renderSingleSkuDecisionTree(sku, treeDaysThreshold) {
+    function wrapSkuTreeResult(sku, innerHtml, index, total) {
+      const positionText = total > 1 ? `<span class="skuTreeResultIndex">${index + 1} / ${total}</span>` : ``;
+      return `<section class="skuTreeResultCard"><div class="skuTreeResultHeader"><span>SKU：${escapeHtml(sku)}</span>${positionText}</div>${innerHtml}</section>`;
+    }
+    function renderSingleSkuDecisionTree(sku, treeDaysThreshold, index = 0, total = 1) {
       const row = findDecisionRowBySku(sku);
-      if (!row) return `<div class="decisionTree"><div class="hint">找不到 ${escapeHtml(sku)}。請先貼入 H10 或確認 SKU 是否存在於目前資料。</div></div>`;
+      if (!row) return wrapSkuTreeResult(sku, `<div class="decisionTree"><div class="hint">找不到 ${escapeHtml(sku)}。請先貼入 H10 或確認 SKU 是否存在於目前資料。</div></div>`, index, total);
       const speed = safeNumber(row.speed);
       const amzDays = speed > 0 ? row.amz / speed : null;
       const amzNoStock = row.amz < 10 || (speed > 0 && amzDays < treeDaysThreshold);
@@ -2316,7 +2324,7 @@
           }
         }
       }
-      return `<div class="decisionTree">${parts.join('')}</div>`;
+      return wrapSkuTreeResult(sku, `<div class="decisionTree">${parts.join('')}</div>`, index, total);
     }
     function renderSkuDecisionTree() {
       const input = document.getElementById('skuTreeInput');
@@ -2328,7 +2336,7 @@
       const treeDaysThreshold = Math.max(0, Math.min(180, Number(thresholdInput?.value ?? 14)));
       if (thresholdInput) thresholdInput.value = String(treeDaysThreshold);
       const summary = skus.length > 1 ? `<div class="hint">已查詢 ${skus.length.toLocaleString('en-US')} 個 SKU。</div>` : '';
-      box.innerHTML = summary + skus.map(sku => renderSingleSkuDecisionTree(sku, treeDaysThreshold)).join('');
+      box.innerHTML = summary + skus.map((sku, index) => renderSingleSkuDecisionTree(sku, treeDaysThreshold, index, skus.length)).join('');
     }
 
 
