@@ -273,3 +273,64 @@ window.allProductsData = [
   { productCode: "ART01AM", productName: "Afreschi - Turkey Tendon Wrapped Veal Rib Bone, 85g", boxSize: "48*38*28", perCarton: 130, perPack: null, perBox: null, perPallet: 36, country: "TW" },
   { productCode: "ART01J", productName: "Afreschi - Turkey Tendon Wrapped Veal Rib Bone, 85g", boxSize: "48*38*28", perCarton: 130, perPack: null, perBox: null, perPallet: 21, country: "TW" }
 ];
+
+// ============================================================
+// Turkey / Non-Turkey binary classification rules
+// ------------------------------------------------------------
+// Maintenance rule:
+// - Do NOT add turkeyGroup to each product manually.
+// - The system classifies products automatically from productName.
+// - If productName contains "Turkey" => 火雞
+// - Otherwise => 非火雞
+// ============================================================
+(function () {
+  function normalizeProductCode(value) {
+    return String(value || "").trim().toUpperCase();
+  }
+
+  function getProductByCode(productCode) {
+    const key = normalizeProductCode(productCode);
+    if (!key) return null;
+
+    const list = Array.isArray(window.allProductsData) ? window.allProductsData : [];
+    return list.find(function (item) {
+      return normalizeProductCode(item && item.productCode) === key;
+    }) || null;
+  }
+
+  function isTurkeyName(productName) {
+    return /turkey/i.test(String(productName || ""));
+  }
+
+  function getTurkeyGroupByCode(productCode) {
+    const product = getProductByCode(productCode);
+    if (!product) {
+      return {
+        group: "unknown",
+        groupName: "未對應",
+        product: null
+      };
+    }
+
+    const isTurkey = isTurkeyName(product.productName);
+    return {
+      group: isTurkey ? "turkey" : "non_turkey",
+      groupName: isTurkey ? "火雞" : "非火雞",
+      product: product
+    };
+  }
+
+  function isTurkeyProduct(productCode) {
+    return getTurkeyGroupByCode(productCode).group === "turkey";
+  }
+
+  function isNonTurkeyProduct(productCode) {
+    return getTurkeyGroupByCode(productCode).group === "non_turkey";
+  }
+
+  window.normalizeProductCode = window.normalizeProductCode || normalizeProductCode;
+  window.getProductByCode = window.getProductByCode || getProductByCode;
+  window.getTurkeyGroupByCode = getTurkeyGroupByCode;
+  window.isTurkeyProduct = isTurkeyProduct;
+  window.isNonTurkeyProduct = isNonTurkeyProduct;
+})();
