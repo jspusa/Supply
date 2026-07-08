@@ -503,6 +503,7 @@
     .skuTreeSearch input[type="text"] { min-width:220px; flex:1; }
     .skuTreeSearch input[type="number"] { width:110px; min-width:110px; flex:0 0 auto; }
     .treeThresholdLabel { color:var(--muted); font-size:.9rem; font-weight:700; white-space:nowrap; }
+    .skuTreeAlertToggle { display:inline-flex; align-items:center; gap:6px; padding:8px 10px; border:1px solid #dbe5f2; border-radius:999px; background:#fff; color:#334155; font-size:12px; font-weight:800; white-space:nowrap; }
     .toolTabs { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 14px; }
     .toolTab { border:1px solid #dbe5f2; background:#fff; color:#334155; border-radius:999px; padding:9px 13px; font-weight:700; cursor:pointer; box-shadow:0 4px 12px rgba(15,23,42,.04); }
     .toolTab.active { background:#111827; color:#fff; border-color:#111827; }
@@ -742,13 +743,27 @@
           <div id="jamImpactPanel" class="decisionPanel"><div class="tableWrap" id="jamImpactDecisionWrap"></div></div>
           <div id="dataIssuePanel" class="decisionPanel"><div class="tableWrap" id="dataIssueDecisionWrap"></div></div>
           <div class="decisionNote">判斷基礎：H10速度、AMZ/JSP庫存、JAM未到貨、預計到港日、銷售額與停產品清單。預計斷貨天數以「下一次到港日 + 21 天」估算。</div>
-          <div class="softDivider"></div>
-          <h3>SKU 決策樹</h3>
-          <div class="hint">輸入一個或多個 SKU 後，依 AMZ → JSP → JAM → 停產狀態自動判斷下一步。</div>
+        </div>
+      </details>
+
+      <details class="card priority" id="skuDecisionTreeCard" open>
+        <summary>
+          <div>
+            <p class="eyebrow">SKU Decision Tree</p>
+            <h2>SKU 決策樹</h2>
+            <div class="hint">輸入一個或多個 SKU 後，依 AMZ → JSP → JAM → 停產狀態自動判斷下一步。</div>
+          </div>
+          <div class="summary-actions">
+            <button class="secondary" id="btnExportSkuTreeExcel">下載Excel</button>
+            <span class="pill">Tree</span>
+          </div>
+        </summary>
+        <div class="cardContent">
           <div class="skuTreeSearch">
             <textarea id="skuTreeInput" class="skuTreeTextarea" placeholder="可一次貼一整排 SKU，例如：GBSL03 TTS05AM-1 AFA12AM" autocomplete="off"></textarea>
             <span class="treeThresholdLabel">AMZ沒貨天數</span>
             <input type="number" id="skuTreeDaysThreshold" min="0" max="180" value="14" title="AMZ 可售天數低於此數字就視為沒貨，範圍 0–180 天">
+            <label class="skuTreeAlertToggle"><input type="checkbox" id="skuTreeAlertsOnly"> 僅顯示警報</label>
             <button class="primary" id="btnRenderSkuTree">查詢</button>
           </div>
           <div class="treeBox" id="skuDecisionTreeBox"><div class="hint">尚未查詢 SKU。</div></div>
@@ -2292,39 +2307,47 @@
       const positionText = total > 1 ? `<span class="skuTreeResultIndex">${index + 1} / ${total}</span>` : ``;
       return `<section class="skuTreeResultCard"><div class="skuTreeResultHeader"><span>SKU：${escapeHtml(sku)}</span>${positionText}</div>${innerHtml}</section>`;
     }
-    function renderSingleSkuDecisionTree(sku, treeDaysThreshold, index = 0, total = 1) {
+    function getSkuDecisionTreeAnalysis(sku, treeDaysThreshold) {
       const row = findDecisionRowBySku(sku);
-      if (!row) return wrapSkuTreeResult(sku, `<div class="decisionTree"><div class="hint">找不到 ${escapeHtml(sku)}。請先貼入 H10 或確認 SKU 是否存在於目前資料。</div></div>`, index, total);
+      if (!row) {
+        return { sku, row:null, hasAlert:true, exportRows:[{ sku, step:'找不到 SKU', tag:'警報', detail:`找不到 ${sku}。請先貼入 H10 或確認 SKU 是否存在於目前資料。` }], html:`<div class="decisionTree"><div class="hint">找不到 ${escapeHtml(sku)}。請先貼入 H10 或確認 SKU 是否存在於目前資料。</div></div>` };
+      }
       const speed = safeNumber(row.speed);
       const amzDays = speed > 0 ? row.amz / speed : null;
       const amzNoStock = row.amz < 10 || (speed > 0 && amzDays < treeDaysThreshold);
       const jspHasStock = row.jsp >= 10;
-      const hasOrder = row.order > 0 || getJamBreakdownForSku(sku).length > 0;
+      const jamList = getJamBreakdownForSku(sku);
+      const hasOrder = row.order > 0 || jamList.length > 0;
       const discontinued = isDiscontinuedSku(sku);
-      const parts = [];
-      parts.push(renderTreeNode('neutralNode', `${sku} 單品診斷`, `速度：${escapeHtml(String(row.speed || 'N/A'))}｜AMZ：${fmtQty(row.amz)}｜JSP：${fmtQty(row.jsp)}｜未到貨：${fmtQty(row.order)}｜停產：${discontinued ? '是' : '否'}`, 'SKU'));
+      const nodes = [];
+      const addNode = (kind, title, descText, tagText, descHtml = null) => nodes.push({ kind, title, tagText, descText, descHtml: descHtml ?? escapeHtml(descText) });
+      addNode('neutralNode', `${sku} 單品診斷`, `速度：${row.speed || 'N/A'}｜AMZ：${fmtQty(row.amz)}｜JSP：${fmtQty(row.jsp)}｜未到貨：${fmtQty(row.order)}｜停產：${discontinued ? '是' : '否'}`, 'SKU');
       if (!amzNoStock) {
-        parts.push(renderTreeNode('okNode', 'AMZ 倉庫存正常', `AMZ 可售天數約 ${fmtDays(amzDays)}，不符合「沒貨」定義（庫存 < 10 或可售天數 < ${treeDaysThreshold}）。`, '結案'));
+        addNode('okNode', 'AMZ 倉庫存正常', `AMZ 可售天數約 ${fmtDays(amzDays)}，不符合「沒貨」定義（庫存 < 10 或可售天數 < ${treeDaysThreshold}）。`, '結案');
       } else {
-        parts.push(renderTreeNode('warnNode', 'AMZ 倉不足', `AMZ 庫存 ${fmtQty(row.amz)}，可售天數 ${fmtDays(amzDays)}；符合沒貨定義，往 JSP 檢查。`, 'AMZ'));
+        addNode('warnNode', 'AMZ 倉不足', `AMZ 庫存 ${fmtQty(row.amz)}，可售天數 ${fmtDays(amzDays)}；符合沒貨定義，往 JSP 檢查。`, 'AMZ');
         if (jspHasStock) {
-          parts.push(renderTreeNode('okNode', 'JSP 倉有貨', `JSP 庫存 ${fmtQty(row.jsp)}，可以安排補貨 / 調撥，先以補回 AMZ 為處理方向。`, '可補貨'));
+          addNode('okNode', 'JSP 倉有貨', `JSP 庫存 ${fmtQty(row.jsp)}，可以安排補貨 / 調撥，先以補回 AMZ 為處理方向。`, '可補貨');
         } else {
-          parts.push(renderTreeNode('warnNode', 'JSP 倉也不足', `JSP 庫存 ${fmtQty(row.jsp)}，無法靠自倉補 AMZ，往 JAM 訂單檢查。`, 'JSP'));
-          const jamList = getJamBreakdownForSku(sku);
+          addNode('warnNode', 'JSP 倉也不足', `JSP 庫存 ${fmtQty(row.jsp)}，無法靠自倉補 AMZ，往 JAM 訂單檢查。`, 'JSP');
           if (hasOrder && jamList.length) {
+            const plainItems = jamList.map(item => `${item.orderName || 'N/A'}｜數量 ${fmtQty(item.qty)}｜裝櫃 ${item.loadingDate || 'N/A'}｜到港 ${item.arrivalDate || 'N/A'}`).join('；');
             const itemsHtml = jamList.map(item => `<div class="jamMiniItem"><b>${escapeHtml(item.orderName || 'N/A')}</b>｜數量 ${fmtQty(item.qty)}｜裝櫃 ${escapeHtml(item.loadingDate || 'N/A')}｜到港 ${escapeHtml(item.arrivalDate || 'N/A')}</div>`).join('');
-            parts.push(renderTreeNode('neutralNode', '有未到貨訂單', `<div>尚未到美國數量 ${fmtQty(row.order)}。需追蹤以下 JAM/FY 是否準時到港與入倉：</div><div class="jamMiniList">${itemsHtml}</div>`, 'JAM'));
+            addNode('neutralNode', '有未到貨訂單', `尚未到美國數量 ${fmtQty(row.order)}。需追蹤以下 JAM/FY 是否準時到港與入倉：${plainItems}`, 'JAM', `<div>尚未到美國數量 ${fmtQty(row.order)}。需追蹤以下 JAM/FY 是否準時到港與入倉：</div><div class="jamMiniList">${itemsHtml}</div>`);
           } else if (hasOrder) {
-            parts.push(renderTreeNode('neutralNode', '有訂單但缺少明細', `尚未到美國數量 ${fmtQty(row.order)}，但目前沒有拆出 JAM/FY 明細，請確認 JAM Excel 是否已讀取。`, 'JAM'));
+            addNode('neutralNode', '有訂單但缺少明細', `尚未到美國數量 ${fmtQty(row.order)}，但目前沒有拆出 JAM/FY 明細，請確認 JAM Excel 是否已讀取。`, 'JAM');
           } else if (discontinued) {
-            parts.push(renderTreeNode('okNode', '沒有訂單，但此 SKU 已停產', 'AMZ/JSP 都不足且沒有未到貨訂單，但因為已標示停產，可以結案或移到停產品觀察。', '結案'));
+            addNode('okNode', '沒有訂單，但此 SKU 已停產', 'AMZ/JSP 都不足且沒有未到貨訂單，但因為已標示停產，可以結案或移到停產品觀察。', '結案');
           } else {
-            parts.push(renderTreeNode('badNode', '警報：非停產但沒有任何補貨來源', 'AMZ 不足、JSP 不足、沒有 JAM/FY 未到貨訂單，且不是停產品。建議立即確認是否漏下單、漏建 SKU、或需要緊急補貨。', '警報'));
+            addNode('badNode', '警報：非停產但沒有任何補貨來源', 'AMZ 不足、JSP 不足、沒有 JAM/FY 未到貨訂單，且不是停產品。建議立即確認是否漏下單、漏建 SKU、或需要緊急補貨。', '警報');
           }
         }
       }
-      return wrapSkuTreeResult(sku, `<div class="decisionTree">${parts.join('')}</div>`, index, total);
+      return { sku, row, hasAlert:nodes.some(n => n.kind === 'badNode'), exportRows:nodes.map((n, i) => ({ sku, step:i + 1, tag:n.tagText, title:n.title, detail:n.descText })), html:`<div class="decisionTree">${nodes.map(n => renderTreeNode(n.kind, n.title, n.descHtml, n.tagText)).join('')}</div>` };
+    }
+    function renderSingleSkuDecisionTree(sku, treeDaysThreshold, index = 0, total = 1) {
+      const analysis = getSkuDecisionTreeAnalysis(sku, treeDaysThreshold);
+      return wrapSkuTreeResult(sku, analysis.html, index, total);
     }
     function renderSkuDecisionTree() {
       const input = document.getElementById('skuTreeInput');
@@ -2335,8 +2358,31 @@
       const thresholdInput = document.getElementById('skuTreeDaysThreshold');
       const treeDaysThreshold = Math.max(0, Math.min(180, Number(thresholdInput?.value ?? 14)));
       if (thresholdInput) thresholdInput.value = String(treeDaysThreshold);
-      const summary = skus.length > 1 ? `<div class="hint">已查詢 ${skus.length.toLocaleString('en-US')} 個 SKU。</div>` : '';
-      box.innerHTML = summary + skus.map((sku, index) => renderSingleSkuDecisionTree(sku, treeDaysThreshold, index, skus.length)).join('');
+      const alertsOnly = document.getElementById('skuTreeAlertsOnly')?.checked;
+      const analyses = skus.map(sku => getSkuDecisionTreeAnalysis(sku, treeDaysThreshold));
+      const visibleAnalyses = alertsOnly ? analyses.filter(item => item.hasAlert) : analyses;
+      const summaryParts = [`已查詢 ${skus.length.toLocaleString('en-US')} 個 SKU`];
+      if (alertsOnly) summaryParts.push(`僅顯示警報 ${visibleAnalyses.length.toLocaleString('en-US')} 個`);
+      const summary = `<div class="hint">${summaryParts.join('，')}。</div>`;
+      if (!visibleAnalyses.length) { box.innerHTML = `${summary}<div class="hint">目前沒有符合「僅顯示警報」的 SKU。</div>`; return; }
+      box.innerHTML = summary + visibleAnalyses.map((analysis, index) => wrapSkuTreeResult(analysis.sku, analysis.html, index, visibleAnalyses.length)).join('');
+    }
+    function exportSkuDecisionTreeExcel() {
+      const input = document.getElementById('skuTreeInput');
+      const skus = parseSkuTreeInput(input?.value);
+      if (!skus.length) { showTip('請先輸入 SKU 再匯出決策樹', 'error'); return; }
+      const thresholdInput = document.getElementById('skuTreeDaysThreshold');
+      const treeDaysThreshold = Math.max(0, Math.min(180, Number(thresholdInput?.value ?? 14)));
+      const alertsOnly = document.getElementById('skuTreeAlertsOnly')?.checked;
+      const analyses = skus.map(sku => getSkuDecisionTreeAnalysis(sku, treeDaysThreshold));
+      const visibleAnalyses = alertsOnly ? analyses.filter(item => item.hasAlert) : analyses;
+      if (!visibleAnalyses.length) { showTip('目前沒有可匯出的警報 SKU', 'error'); return; }
+      const headers = ['SKU','步驟','標籤','標題','說明','速度','AMZ','JSP','未到貨','AMZ沒貨天數門檻','僅顯示警報'];
+      const body = visibleAnalyses.flatMap(item => item.exportRows.map(row => [item.sku,row.step,row.tag,row.title,row.detail,item.row?.speed ?? '',item.row?.amz ?? '',item.row?.jsp ?? '',item.row?.order ?? '',treeDaysThreshold,alertsOnly ? '是' : '否']));
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([headers, ...body]), 'SKU決策樹');
+      XLSX.writeFile(wb, `${getDateStamp()}_SKU決策樹.xlsx`);
+      showTip('已匯出 SKU 決策樹 Excel', 'success');
     }
 
 
@@ -2352,8 +2398,10 @@
       });
       document.getElementById('btnExportDecisionDashboard')?.addEventListener('click', exportDecisionDashboardExcel);
       document.getElementById('btnRenderSkuTree')?.addEventListener('click', renderSkuDecisionTree);
+      document.getElementById('btnExportSkuTreeExcel')?.addEventListener('click', exportSkuDecisionTreeExcel);
       document.getElementById('skuTreeInput')?.addEventListener('keydown', e => { if (e.key === 'Enter') renderSkuDecisionTree(); });
       document.getElementById('skuTreeDaysThreshold')?.addEventListener('input', () => { const v = document.getElementById('skuTreeInput')?.value?.trim(); if (v) renderSkuDecisionTree(); });
+      document.getElementById('skuTreeAlertsOnly')?.addEventListener('change', () => { const v = document.getElementById('skuTreeInput')?.value?.trim(); if (v) renderSkuDecisionTree(); });
     }
     function exportDecisionDashboardExcel() {
       if (!latestDecisionExport.priority.length && !latestDecisionExport.issues.length) renderDecisionDashboard();
