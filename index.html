@@ -76,6 +76,7 @@
     .manualInputDetails summary { padding: 8px 10px; font-size: 12px; color: #4a5b73; font-weight: 700; display: flex; align-items: center; justify-content: space-between; }
     .manualInputDetails .manualInputBody { padding: 0 10px 10px; }
     .manualInputDetails textarea { min-height: 92px; margin-top: 6px; }
+    .skuTreeTextarea { flex: 1 1 360px; min-height: 42px; height: 42px; resize: vertical; }
     .autoReadNote { font-size: 12px; color: #0b6bcb; font-weight: 700; }
 
     .fileDropZone {
@@ -508,6 +509,10 @@
     .toolPanel { display:none; }
     .toolPanel.active { display:block; }
     .treeBox { border:1px solid rgba(226,232,240,.9); border-radius:24px; background:rgba(255,255,255,.84); padding:16px; margin-top:10px; overflow:auto; }
+    .skuTreeResultCard { margin-top: 14px; border: 2px solid #dbeafe; border-radius: 22px; background: linear-gradient(180deg,#ffffff,#f8fbff); box-shadow: 0 12px 34px rgba(37,99,235,.08); overflow: hidden; }
+    .skuTreeResultHeader { display:flex; align-items:center; justify-content:space-between; gap:10px; padding: 10px 14px; background: #eaf3ff; border-bottom: 1px solid #cfe2ff; color:#12315f; font-weight:850; }
+    .skuTreeResultIndex { font-size: 12px; color:#4f6b92; font-weight:750; }
+    .skuTreeResultCard .decisionTree { padding: 14px; }
     .decisionTree { display:flex; flex-direction:column; gap:10px; min-width:320px; }
     .treeNode { position:relative; border:1px solid #e2e8f0; border-radius:18px; background:#fff; padding:12px 14px; box-shadow:0 8px 24px rgba(15,23,42,.05); }
     .treeNode:not(:last-child)::after { content:""; position:absolute; left:28px; bottom:-11px; width:2px; height:10px; background:#cbd5e1; }
@@ -739,9 +744,9 @@
           <div class="decisionNote">判斷基礎：H10速度、AMZ/JSP庫存、JAM未到貨、預計到港日、銷售額與停產品清單。預計斷貨天數以「下一次到港日 + 21 天」估算。</div>
           <div class="softDivider"></div>
           <h3>SKU 決策樹</h3>
-          <div class="hint">輸入 SKU 後，依 AMZ → JSP → JAM → 停產狀態自動判斷下一步。</div>
+          <div class="hint">輸入一個或多個 SKU 後，依 AMZ → JSP → JAM → 停產狀態自動判斷下一步。</div>
           <div class="skuTreeSearch">
-            <input type="text" id="skuTreeInput" placeholder="輸入 SKU，例如 GBSL03" autocomplete="off">
+            <textarea id="skuTreeInput" class="skuTreeTextarea" placeholder="可一次貼一整排 SKU，例如：GBSL03 TTS05AM-1 AFA12AM" autocomplete="off"></textarea>
             <span class="treeThresholdLabel">AMZ沒貨天數</span>
             <input type="number" id="skuTreeDaysThreshold" min="0" max="180" value="14" title="AMZ 可售天數低於此數字就視為沒貨，範圍 0–180 天">
             <button class="primary" id="btnRenderSkuTree">查詢</button>
@@ -2127,10 +2132,9 @@
       return map;
     }
     function getNextArrivalInfo(sku) {
-      const list = getJamBreakdownForSku(sku);
-      const dated = list.map(x => ({ ...x, arrivalDateObj: parseYmdDate(x.arrivalDate) })).filter(x => x.arrivalDateObj);
-      dated.sort((a,b) => a.arrivalDateObj - b.arrivalDateObj);
-      return dated[0] || null;
+      const list = getJamBreakdownForSku(sku).map(x => ({ ...x, arrivalDateObj: parseYmdDate(x.arrivalDate) }));
+      const dated = list.filter(x => x.arrivalDateObj).sort((a,b) => a.arrivalDateObj - b.arrivalDateObj);
+      return dated[0] || list[0] || null;
     }
     function getRiskBadgeHtml(level, label) {
       const cls = level === 'red' ? 'risk-red' : level === 'yellow' ? 'risk-yellow' : level === 'green' ? 'risk-green' : 'risk-gray';
@@ -2155,7 +2159,7 @@
         const gapDays = nextArrivalDate && stockoutDate ? daysBetween(stockoutDate, nextArrivalDate) : null;
         let level = 'green', riskLabel = '安全', connectLabel = '接得上';
         if (!speed) { level = 'gray'; riskLabel = '無速度'; connectLabel = '不可判斷'; }
-        else if (order <= 0 && usDays <= 60) { level = 'red'; riskLabel = '無訂單風險'; connectLabel = '無未到貨'; }
+        else if (order <= 0 && usDays <= 60) { level = 'red'; riskLabel = '無訂單'; connectLabel = '無未到貨'; }
         else if (gapDays !== null && gapDays > 0) { level = 'red'; riskLabel = '會斷貨'; connectLabel = `晚 ${gapDays} 天`; }
         else if (usDays !== null && usDays < 30) { level = 'red'; riskLabel = '立即危險'; connectLabel = nextArrivalDate ? '需確認入倉' : '無到港日'; }
         else if ((usDays !== null && usDays < 60) || (daysWithOrder !== null && daysWithOrder < 90)) { level = 'yellow'; riskLabel = '需要關注'; connectLabel = nextArrivalDate ? '大致接得上' : '到港日不明'; }
@@ -2201,21 +2205,21 @@
       const wrap = document.getElementById('priorityDecisionWrap');
       if (!wrap) return;
       if (!rows.length) { wrap.innerHTML = '<div class="hint">目前沒有需要優先處理的品項。</div>'; return; }
-      const body = rows.map((r,i) => `<tr><td>${i+1}</td>${renderSkuCell(r.sku)}<td>${getRiskBadgeHtml(r.level, r.riskLabel)}</td><td class="ok">${escapeHtml(String(r.speed || ''))}</td><td>${fmtQty(r.amz)}</td><td>${fmtQty(r.jsp)}</td><td>${fmtDays(r.usDays)}</td><td>${formatDateYMD(r.stockoutDate)}</td><td>${r.nextArrivalOrder}<br><span class="miniMetric">${formatDateYMD(r.nextArrivalDate)}</span></td><td>${escapeHtml(r.connectLabel)}</td><td>${escapeHtml(r.shortageDaysText)}</td></tr>`).join('');
+      const body = rows.map((r,i) => `<tr><td>${i+1}</td>${renderSkuCell(r.sku)}<td>${getRiskBadgeHtml(r.level, r.riskLabel)}</td><td class="ok">${escapeHtml(String(r.speed || ''))}</td><td>${fmtQty(r.amz)}</td><td>${fmtQty(r.jsp)}</td><td>${fmtDays(r.usDays)}</td><td>${formatDateYMD(r.stockoutDate)}</td><td>${escapeHtml(r.nextArrivalOrder)}<br><span class="miniMetric">${formatDateYMD(r.nextArrivalDate)}</span></td><td>${escapeHtml(r.connectLabel)}</td><td>${escapeHtml(r.shortageDaysText)}</td></tr>`).join('');
       wrap.innerHTML = `<table><thead><tr><th>#</th><th>SKU</th><th>風險</th><th>速度</th><th>AMZ</th><th>JSP</th><th>現有天數</th><th>預估斷貨日</th><th>下一批</th><th>接貨</th><th>預計斷貨天數</th></tr></thead><tbody>${body}</tbody></table>`;
     }
     function renderTransferDecision(rows) {
       const wrap = document.getElementById('transferDecisionWrap');
       if (!wrap) return;
       if (!rows.length) { wrap.innerHTML = '<div class="hint">目前沒有明顯的斷貨缺口。</div>'; return; }
-      const body = rows.map((r,i) => `<tr><td>${i+1}</td>${renderSkuCell(r.sku)}<td>${escapeHtml(String(r.speed))}</td><td>${fmtQty(r.amz)}</td><td>${fmtQty(r.jsp)}</td><td>${fmtDays(r.usDays)}</td><td>${formatDateYMD(r.stockoutDate)}</td><td>${r.nextArrivalOrder}<br><span class="miniMetric">${formatDateYMD(r.nextArrivalDate)}</span></td><td class="warn">${escapeHtml(r.shortageDaysText)}</td><td>${escapeHtml(r.shortageLogic)}</td></tr>`).join('');
+      const body = rows.map((r,i) => `<tr><td>${i+1}</td>${renderSkuCell(r.sku)}<td>${escapeHtml(String(r.speed))}</td><td>${fmtQty(r.amz)}</td><td>${fmtQty(r.jsp)}</td><td>${fmtDays(r.usDays)}</td><td>${formatDateYMD(r.stockoutDate)}</td><td>${escapeHtml(r.nextArrivalOrder)}<br><span class="miniMetric">${formatDateYMD(r.nextArrivalDate)}</span></td><td class="warn">${escapeHtml(r.shortageDaysText)}</td><td>${escapeHtml(r.shortageLogic)}</td></tr>`).join('');
       wrap.innerHTML = `<table><thead><tr><th>#</th><th>SKU</th><th>速度</th><th>AMZ</th><th>JSP</th><th>現有天數</th><th>斷貨日</th><th>下一批</th><th>預計斷貨天數</th><th>邏輯</th></tr></thead><tbody>${body}</tbody></table>`;
     }
     function renderRevenueRiskDecision(rows) {
       const wrap = document.getElementById('revenueRiskDecisionWrap');
       if (!wrap) return;
       if (!rows.length) { wrap.innerHTML = '<div class="hint">尚未偵測到高銷售額缺貨風險；可上傳含 SKU + 銷售額的 AMZ 檔案。</div>'; return; }
-      const body = rows.map((r,i) => `<tr><td>${i+1}</td>${renderSkuCell(r.sku)}<td>${getRiskBadgeHtml(r.level, r.riskLabel)}</td><td>${formatCurrency(r.sales)}</td><td>${formatCurrency(r.revenueAtRisk)}</td><td>${fmtDays(r.usDays)}</td><td>${formatDateYMD(r.stockoutDate)}</td><td>${r.nextArrivalOrder} / ${formatDateYMD(r.nextArrivalDate)}</td></tr>`).join('');
+      const body = rows.map((r,i) => `<tr><td>${i+1}</td>${renderSkuCell(r.sku)}<td>${getRiskBadgeHtml(r.level, r.riskLabel)}</td><td>${formatCurrency(r.sales)}</td><td>${formatCurrency(r.revenueAtRisk)}</td><td>${fmtDays(r.usDays)}</td><td>${formatDateYMD(r.stockoutDate)}</td><td>${escapeHtml(r.nextArrivalOrder)} / ${formatDateYMD(r.nextArrivalDate)}</td></tr>`).join('');
       wrap.innerHTML = `<table><thead><tr><th>#</th><th>SKU</th><th>風險</th><th>近月銷售額</th><th>估計風險營收</th><th>現有天數</th><th>斷貨日</th><th>下一批</th></tr></thead><tbody>${body}</tbody></table>`;
     }
     function buildDataIssues(rows) {
@@ -2273,18 +2277,25 @@
       const tagCls = kind === 'okNode' ? 'ok' : kind === 'badNode' ? 'bad' : kind === 'warnNode' ? 'warn' : '';
       return `<div class="treeNode ${kind}"><div class="treeNodeTitle"><span class="treeTag ${tagCls}">${escapeHtml(tagText || '')}</span>${escapeHtml(title)}</div><div class="treeNodeDesc">${desc}</div></div>`;
     }
-    function renderSkuDecisionTree() {
-      const input = document.getElementById('skuTreeInput');
-      const box = document.getElementById('skuDecisionTreeBox');
-      if (!input || !box) return;
-      const sku = normalizeSkuKey(input.value);
-      if (!sku) { box.innerHTML = '<div class="hint">請輸入 SKU。</div>'; return; }
+    function parseSkuTreeInput(value) {
+      const seen = new Set();
+      return String(value || '')
+        .split(/[\s,;，；、]+/)
+        .map(normalizeSkuKey)
+        .filter(sku => {
+          if (!sku || seen.has(sku)) return false;
+          seen.add(sku);
+          return true;
+        });
+    }
+    function wrapSkuTreeResult(sku, innerHtml, index, total) {
+      const positionText = total > 1 ? `<span class="skuTreeResultIndex">${index + 1} / ${total}</span>` : ``;
+      return `<section class="skuTreeResultCard"><div class="skuTreeResultHeader"><span>SKU：${escapeHtml(sku)}</span>${positionText}</div>${innerHtml}</section>`;
+    }
+    function renderSingleSkuDecisionTree(sku, treeDaysThreshold, index = 0, total = 1) {
       const row = findDecisionRowBySku(sku);
-      if (!row) { box.innerHTML = `<div class="hint">找不到 ${escapeHtml(sku)}。請先貼入 H10 或確認 SKU 是否存在於目前資料。</div>`; return; }
+      if (!row) return wrapSkuTreeResult(sku, `<div class="decisionTree"><div class="hint">找不到 ${escapeHtml(sku)}。請先貼入 H10 或確認 SKU 是否存在於目前資料。</div></div>`, index, total);
       const speed = safeNumber(row.speed);
-      const thresholdInput = document.getElementById('skuTreeDaysThreshold');
-      const treeDaysThreshold = Math.max(0, Math.min(180, Number(thresholdInput?.value ?? 14)));
-      if (thresholdInput) thresholdInput.value = String(treeDaysThreshold);
       const amzDays = speed > 0 ? row.amz / speed : null;
       const amzNoStock = row.amz < 10 || (speed > 0 && amzDays < treeDaysThreshold);
       const jspHasStock = row.jsp >= 10;
@@ -2313,8 +2324,21 @@
           }
         }
       }
-      box.innerHTML = `<div class="decisionTree">${parts.join('')}</div>`;
+      return wrapSkuTreeResult(sku, `<div class="decisionTree">${parts.join('')}</div>`, index, total);
     }
+    function renderSkuDecisionTree() {
+      const input = document.getElementById('skuTreeInput');
+      const box = document.getElementById('skuDecisionTreeBox');
+      if (!input || !box) return;
+      const skus = parseSkuTreeInput(input.value);
+      if (!skus.length) { box.innerHTML = '<div class="hint">請輸入 SKU。</div>'; return; }
+      const thresholdInput = document.getElementById('skuTreeDaysThreshold');
+      const treeDaysThreshold = Math.max(0, Math.min(180, Number(thresholdInput?.value ?? 14)));
+      if (thresholdInput) thresholdInput.value = String(treeDaysThreshold);
+      const summary = skus.length > 1 ? `<div class="hint">已查詢 ${skus.length.toLocaleString('en-US')} 個 SKU。</div>` : '';
+      box.innerHTML = summary + skus.map((sku, index) => renderSingleSkuDecisionTree(sku, treeDaysThreshold, index, skus.length)).join('');
+    }
+
 
     function wireDecisionDashboard() {
       document.querySelectorAll('.decisionTab').forEach(btn => {
