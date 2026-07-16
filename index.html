@@ -726,7 +726,7 @@
             <h2>今日優先處理</h2>
             <div class="hint">自動判斷斷貨、接貨缺口、營收風險與資料異常。</div>
           </div>
-          <div class="summary-actions"><button class="secondary" id="btnExportDecisionDashboard">下載Excel</button><span class="pill">Decision</span></div>
+          <div class="summary-actions"><button class="secondary" id="btnAddPriorityToGenerator">一鍵加入訂單產生器</button><button class="secondary" id="btnExportDecisionDashboard">下載Excel</button><span class="pill">Decision</span></div>
         </summary>
         <div class="cardContent">
           <div class="decisionGrid" id="decisionKpiGrid"></div>
@@ -2115,8 +2115,12 @@
     function applyPlannedQuantityToGenerator(prod, quantity, pallets = null) { const row = addProduct(prod, null); if (!row) return; if (Number.isFinite(pallets) && pallets > 0) { const input = row.querySelector('.edit-pallets-input'); input.value = pallets.toFixed(2); updateFields(input, prod.productCode); return; } if (Number.isFinite(quantity) && quantity > 0) { const input = row.querySelector('.edit-quantity-input'); input.value = quantity.toFixed(0); updateFields(input, prod.productCode); } }
     function addReorderRowsToGenerator() { const threshold = Math.max(1, Number(daysThresholdEl.value || 180)); const rows = applyFilters(mainRowsAll).filter(row => row.days !== null && row.days <= threshold && row.speed !== null && row.speed > 0); let missing = [], skipped = []; rows.forEach(row => { if (isDiscontinuedSku(row.sku)) { skipped.push(row.sku); return; } const prod = getProductSpecByCode(row.sku); if (!prod) { missing.push(row.sku); return; } applyPlannedQuantityToGenerator(prod, calculateReorderQuantity(row, threshold), calculateReorderPallets(row, prod, threshold)); }); if (missing.length) showTip(`找不到品項資料：${missing.join(', ')}`, 'error'); if (skipped.length) showTip(`停產品未加入：${skipped.join(', ')}`, 'error'); }
     function addHotRowsToGenerator() { let missing = [], skipped = []; applyFilters(hotRowsAll).forEach(row => { if (isDiscontinuedSku(row.sku)) { skipped.push(row.sku); return; } const prod = getProductSpecByCode(row.sku); if (!prod) { missing.push(row.sku); return; } addProduct(prod, row.order !== null && Number.isFinite(row.order) ? row.order : null); }); if (missing.length) showTip(`找不到品項資料：${missing.join(', ')}`, 'error'); if (skipped.length) showTip(`停產品未加入：${skipped.join(', ')}`, 'error'); }
+    function calculatePriorityQuantity(row, thresholdDays) { const speed = Number(row.speed || 0); if (!speed || !Number.isFinite(speed)) return 0; const currentDays = Number.isFinite(Number(row.usDays)) ? Number(row.usDays) : 0; return Math.ceil(Math.max(0, thresholdDays - currentDays) * speed); }
+    function calculatePriorityPallets(row, prod, thresholdDays) { const qty = calculatePriorityQuantity(row, thresholdDays), unitsPerPallet = getUnitsPerPallet(prod); return qty && unitsPerPallet ? Math.ceil((qty / unitsPerPallet) * 100) / 100 : null; }
+    function addPriorityRowsToGenerator() { if (!latestDecisionExport.priority.length) renderDecisionDashboard(); const threshold = Math.max(1, Number(daysThresholdEl.value || 180)); let missing = [], skipped = [], added = 0; latestDecisionExport.priority.forEach(row => { if (isDiscontinuedSku(row.sku)) { skipped.push(row.sku); return; } const prod = getProductSpecByCode(row.sku); if (!prod) { missing.push(row.sku); return; } applyPlannedQuantityToGenerator(prod, calculatePriorityQuantity(row, threshold), calculatePriorityPallets(row, prod, threshold)); added++; }); if (added) showTip(`已加入今日優先處理 ${added} 個品項`, 'success'); if (missing.length) showTip(`找不到品項資料：${missing.join(', ')}`, 'error'); if (skipped.length) showTip(`停產品未加入：${skipped.join(', ')}`, 'error'); }
     document.getElementById('btnAddReorderToGenerator').addEventListener('click', addReorderRowsToGenerator);
     document.getElementById('btnAddHotToGenerator').addEventListener('click', addHotRowsToGenerator);
+    document.getElementById('btnAddPriorityToGenerator').addEventListener('click', addPriorityRowsToGenerator);
 
     function exportGeneratorToExcel() {
       const wb = XLSX.utils.book_new();
