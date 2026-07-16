@@ -1821,9 +1821,12 @@
         lines.push(`${sku}\t${total}`);
         skuCount += 1;
         totalQty += total;
-        breakdownMap.set(sku, breakdown);
-        summaryMap.set(sku, summarizeJamBreakdown(breakdown));
+        const existingBreakdown = breakdownMap.get(sku) || [];
+        breakdownMap.set(sku, existingBreakdown.concat(breakdown));
       }
+      breakdownMap.forEach((breakdown, sku) => {
+        summaryMap.set(sku, summarizeJamBreakdown(breakdown));
+      });
       return {
         orderText: lines.join("\n"),
         breakdownMap,
