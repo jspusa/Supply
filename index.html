@@ -529,6 +529,9 @@
     .treeTag.bad { background:#fee2e2; color:#991b1b; }
     .jamMiniList { display:grid; gap:6px; margin-top:8px; }
     .jamMiniItem { border:1px solid rgba(203,213,225,.85); border-radius:12px; padding:8px 10px; background:rgba(255,255,255,.75); }
+    .treeNextAction { display:flex; justify-content:flex-start; padding:0 14px 14px; }
+    .treeNextButton { border:1px solid #bfdbfe; background:#eff6ff; color:#1d4ed8; box-shadow:none; padding:8px 13px; font-size:12px; font-weight:800; }
+    .treeNextButton:hover { background:#dbeafe; box-shadow:none; transform:none; }
 
   </style>
 </head>
@@ -751,7 +754,7 @@
           <div>
             <p class="eyebrow">SKU Decision Tree</p>
             <h2>SKU 決策樹</h2>
-            <div class="hint">輸入一個或多個 SKU 後，依 AMZ → JSP → JAM → 停產狀態自動判斷下一步。</div>
+            <div class="hint">輸入一個或多個 SKU 後，依 AMZ → JSP → JAM → 停產狀態逐關判斷；遇到結論時可針對單一 SKU 按「查看下一關」。</div>
           </div>
           <div class="summary-actions">
             <button class="secondary" id="btnExportSkuTreeExcel">下載Excel</button>
@@ -1509,14 +1512,45 @@
     }
 
 
+    function normalizeHeaderText(value) {
+      return String(value ?? "")
+        .trim()
+        .toLowerCase()
+        .replace(/[\s_\-()（）]+/g, "");
+    }
+
+    function findJspInventoryHeader(rows) {
+      if (!rows || !rows.length) return null;
+      const totalHeaderCandidates = new Set([
+        "總包數", "總數", "庫存總數", "總庫存數",
+        "totalqty", "totalquantity", "totalpackages", "totalpackage", "total"
+      ].map(normalizeHeaderText));
+
+      for (let r = 0; r < Math.min(rows.length, 50); r++) {
+        const header = rows[r] || [];
+        const normalized = header.map(normalizeHeaderText);
+        const skuCol = normalized.findIndex(cell => cell === "sku" || cell.endsWith("sku"));
+        if (skuCol < 0) continue;
+
+        // 優先使用「總包數」，避免誤抓同一張表裡的「總箱數」。
+        let totalCol = normalized.findIndex(cell => cell === normalizeHeaderText("總包數"));
+        if (totalCol < 0) totalCol = normalized.findIndex(cell => totalHeaderCandidates.has(cell));
+        if (totalCol < 0 || totalCol === skuCol) continue;
+
+        return { headerIndex: r, header, skuCol, totalCol };
+      }
+      return null;
+    }
+
+    function isJspInventoryRows(rows) {
+      return Boolean(findJspInventoryHeader(rows));
+    }
+
     function parseJspInventoryRows(rows) {
       if (!rows || !rows.length) return { orderText: "", skuCount: 0, totalQty: 0, sheetDate: "N/A" };
-      const headerIndex = findHeaderIndex(rows, ["sku", "總數"]);
-      if (headerIndex < 0) throw new Error("找不到 SKU / 總數 欄位");
-      const header = rows[headerIndex] || [];
-      const skuCol = findColumnIndex(header, ["sku"]);
-      const totalCol = findColumnIndex(header, ["總數", "total"]);
-      if (skuCol < 0 || totalCol < 0) throw new Error("JSP 庫存檔欄位不完整");
+      const headerInfo = findJspInventoryHeader(rows);
+      if (!headerInfo) throw new Error("找不到 SKU / 總包數（或總數）欄位");
+      const { headerIndex, skuCol, totalCol } = headerInfo;
 
       let sheetDate = "N/A";
       for (let r = 0; r < headerIndex; r++) {
@@ -1874,17 +1908,31 @@
       const files = Array.from(fileList || []);
       if (!files.length) return;
       const results = [];
+
       for (const file of files) {
         try {
           const lowerName = String(file.name || '').toLowerCase();
-          const isTextLike = /\.(txt|text)$/i.test(lowerName);
-          if (isTextLike) {
+          const isPlainText = /\.(txt|text)$/i.test(lowerName);
+          const isWorkbookLike = /\.(xlsx|xls|csv)$/i.test(lowerName);
+
+          // H10 只允許純文字檔，而且必須真的解析出 ASIN + SKU + 速度。
+          // 不再只用鬆散的 Bxxxxxxxxx 正則，避免一般文字或二進位亂碼誤判。
+          if (isPlainText) {
             const text = await file.text();
-            if (/B[0-9A-Z]{9}/i.test(text)) {
+            const h10Rows = dedupeH10(parseH10ToRows(text));
+            if (h10Rows.length > 0) {
               h10El.value = `${h10El.value ? h10El.value + '\n\n' : ''}${text}`;
-              results.push(`${file.name} → H10 原始文字`);
-              continue;
+              results.push(`${file.name} → H10 原始文字（${h10Rows.length} 筆）`);
+            } else {
+              results.push(`${file.name} → 無法判斷（文字內容不符合 H10 格式）`);
             }
+            continue;
+          }
+
+          // Excel / CSV 必須依工作表與表頭判斷，絕不再轉成文字猜 H10。
+          if (!isWorkbookLike) {
+            results.push(`${file.name} → 無法判斷（不支援的檔案格式）`);
+            continue;
           }
 
           const { workbook, rows } = await readWorkbookRowsFromFile(file);
@@ -1896,6 +1944,7 @@
             results.push(`${file.name} → JAM 訂單`);
             continue;
           }
+
           if (rowsContainHeader(rows, ['sku', 'sellable', 'inbound'])) {
             await parseAmzInventoryFile(file);
             const br = parseBusinessReportRows(rows);
@@ -1903,29 +1952,27 @@
             results.push(`${file.name} → AMZ 庫存${br.ok ? ' / 銷售額' : ''}`);
             continue;
           }
-          if (rowsContainHeader(rows, ['sku', '總數'])) {
+
+          if (isJspInventoryRows(rows)) {
             await parseJspInventoryFile(file);
-            results.push(`${file.name} → JSP 庫存`);
+            results.push(`${file.name} → JSP 美國倉庫存`);
             continue;
           }
+
           const sales = parseBusinessReportRows(rows);
           if (sales.ok) {
             setSalesFromBusinessReport(sales, file.name);
             results.push(`${file.name} → Business Report / 銷售額`);
             continue;
           }
-          const text = await file.text().catch(() => '');
-          if (/B[0-9A-Z]{9}/i.test(text)) {
-            h10El.value = `${h10El.value ? h10El.value + '\n\n' : ''}${text}`;
-            results.push(`${file.name} → H10 原始文字`);
-            continue;
-          }
-          results.push(`${file.name} → 無法判斷`);
+
+          results.push(`${file.name} → 無法判斷（未找到符合的工作表或表頭）`);
         } catch (err) {
           console.error(err);
           results.push(`${file.name} → 讀取失敗：${err.message || err}`);
         }
       }
+
       const meta = document.getElementById('masterMetaBox');
       if (meta) meta.innerHTML = results.map(x => `• ${escapeHtml(x)}`).join('<br>');
       buildTables();
@@ -2318,9 +2365,28 @@
     }
     function wrapSkuTreeResult(sku, innerHtml, index, total) {
       const positionText = total > 1 ? `<span class="skuTreeResultIndex">${index + 1} / ${total}</span>` : ``;
-      return `<section class="skuTreeResultCard"><div class="skuTreeResultHeader"><span>SKU：${escapeHtml(sku)}</span>${positionText}</div>${innerHtml}</section>`;
+      return `<section class="skuTreeResultCard" data-sku-tree-card="${escapeHtml(normalizeSkuKey(sku))}"><div class="skuTreeResultHeader"><span>SKU：${escapeHtml(sku)}</span>${positionText}</div>${innerHtml}</section>`;
     }
-    function getSkuDecisionTreeAnalysis(sku, treeDaysThreshold) {
+    const skuTreeExpandedStage = new Map();
+    function getSkuTreeExpandedStage(sku) { return skuTreeExpandedStage.get(normalizeSkuKey(sku)) || 0; }
+    function getNextStageLabel(stage) {
+      if (stage === 2) return '查看下一關：JSP 倉';
+      if (stage === 3) return '查看下一關：JAM／FY 在途';
+      if (stage === 4) return '查看下一關：停產狀態';
+      return '查看下一關';
+    }
+    function renderNextStageButton(sku, nextStage) {
+      return `<div class="treeNextAction"><button type="button" class="treeNextButton" onclick="expandSingleSkuTree('${escapeHtml(normalizeSkuKey(sku))}', ${nextStage})"><i class="fa-solid fa-arrow-down"></i> ${escapeHtml(getNextStageLabel(nextStage))}</button></div>`;
+    }
+    function expandSingleSkuTree(sku, stage) {
+      const key = normalizeSkuKey(sku);
+      skuTreeExpandedStage.set(key, Math.max(getSkuTreeExpandedStage(key), Number(stage) || 0));
+      renderSkuDecisionTree();
+      requestAnimationFrame(() => document.querySelector(`[data-sku-tree-card="${CSS.escape(key)}"]`)?.scrollIntoView({ behavior:'smooth', block:'nearest' }));
+    }
+    window.expandSingleSkuTree = expandSingleSkuTree;
+
+    function getSkuDecisionTreeAnalysis(sku, treeDaysThreshold, requestedStage = 0) {
       const row = findDecisionRowBySku(sku);
       if (!row) {
         return { sku, row:null, hasAlert:true, exportRows:[{ sku, step:'找不到 SKU', tag:'警報', detail:`找不到 ${sku}。請先貼入 H10 或確認 SKU 是否存在於目前資料。` }], html:`<div class="decisionTree"><div class="hint">找不到 ${escapeHtml(sku)}。請先貼入 H10 或確認 SKU 是否存在於目前資料。</div></div>` };
@@ -2334,32 +2400,49 @@
       const discontinued = isDiscontinuedSku(sku);
       const nodes = [];
       const addNode = (kind, title, descText, tagText, descHtml = null) => nodes.push({ kind, title, tagText, descText, descHtml: descHtml ?? escapeHtml(descText) });
+      const finish = (nextStage = null) => ({
+        sku, row,
+        hasAlert: nodes.some(n => n.kind === 'badNode'),
+        exportRows:nodes.map((n, i) => ({ sku, step:i + 1, tag:n.tagText, title:n.title, detail:n.descText })),
+        html:`<div class="decisionTree">${nodes.map(n => renderTreeNode(n.kind, n.title, n.descHtml, n.tagText)).join('')}</div>${nextStage ? renderNextStageButton(sku, nextStage) : ''}`
+      });
+
       addNode('neutralNode', `${sku} 單品診斷`, `速度：${row.speed || 'N/A'}｜AMZ：${fmtQty(row.amz)}｜JSP：${fmtQty(row.jsp)}｜未到貨：${fmtQty(row.order)}｜停產：${discontinued ? '是' : '否'}`, 'SKU');
-      if (!amzNoStock) {
-        addNode('okNode', 'AMZ 倉庫存正常', `AMZ 可售天數約 ${fmtDays(amzDays)}，不符合「沒貨」定義（庫存 < 10 或可售天數 < ${treeDaysThreshold}）。`, '結案');
+
+      if (amzNoStock) {
+        addNode('warnNode', 'AMZ 倉不足', `AMZ 庫存 ${fmtQty(row.amz)}，可售天數 ${fmtDays(amzDays)}；符合沒貨定義。`, 'AMZ');
       } else {
-        addNode('warnNode', 'AMZ 倉不足', `AMZ 庫存 ${fmtQty(row.amz)}，可售天數 ${fmtDays(amzDays)}；符合沒貨定義，往 JSP 檢查。`, 'AMZ');
-        if (jspHasStock) {
-          addNode('okNode', 'JSP 倉有貨', `JSP 庫存 ${fmtQty(row.jsp)}，可以安排補貨 / 調撥，先以補回 AMZ 為處理方向。`, '可補貨');
-        } else {
-          addNode('warnNode', 'JSP 倉也不足', `JSP 庫存 ${fmtQty(row.jsp)}，無法靠自倉補 AMZ，往 JAM 訂單檢查。`, 'JSP');
-          if (hasOrder && jamList.length) {
-            const plainItems = jamList.map(item => `${item.orderName || 'N/A'}｜數量 ${fmtQty(item.qty)}｜裝櫃 ${item.loadingDate || 'N/A'}｜到港 ${item.arrivalDate || 'N/A'}`).join('；');
-            const itemsHtml = jamList.map(item => `<div class="jamMiniItem"><b>${escapeHtml(item.orderName || 'N/A')}</b>｜數量 ${fmtQty(item.qty)}｜裝櫃 ${escapeHtml(item.loadingDate || 'N/A')}｜到港 ${escapeHtml(item.arrivalDate || 'N/A')}</div>`).join('');
-            addNode('neutralNode', '有未到貨訂單', `尚未到美國數量 ${fmtQty(row.order)}。需追蹤以下 JAM/FY 是否準時到港與入倉：${plainItems}`, 'JAM', `<div>尚未到美國數量 ${fmtQty(row.order)}。需追蹤以下 JAM/FY 是否準時到港與入倉：</div><div class="jamMiniList">${itemsHtml}</div>`);
-          } else if (hasOrder) {
-            addNode('neutralNode', '有訂單但缺少明細', `尚未到美國數量 ${fmtQty(row.order)}，但目前沒有拆出 JAM/FY 明細，請確認 JAM Excel 是否已讀取。`, 'JAM');
-          } else if (discontinued) {
-            addNode('okNode', '沒有訂單，但此 SKU 已停產', 'AMZ/JSP 都不足且沒有未到貨訂單，但因為已標示停產，可以結案或移到停產品觀察。', '結案');
-          } else {
-            addNode('badNode', '警報：非停產但沒有任何補貨來源', 'AMZ 不足、JSP 不足、沒有 JAM/FY 未到貨訂單，且不是停產品。建議立即確認是否漏下單、漏建 SKU、或需要緊急補貨。', '警報');
-          }
-        }
+        addNode('okNode', 'AMZ 倉庫存正常', `AMZ 可售天數約 ${fmtDays(amzDays)}，不符合「沒貨」定義（庫存 < 10 或可售天數 < ${treeDaysThreshold}）。`, '結案');
+        if (requestedStage < 2) return finish(2);
       }
-      return { sku, row, hasAlert:nodes.some(n => n.kind === 'badNode'), exportRows:nodes.map((n, i) => ({ sku, step:i + 1, tag:n.tagText, title:n.title, detail:n.descText })), html:`<div class="decisionTree">${nodes.map(n => renderTreeNode(n.kind, n.title, n.descHtml, n.tagText)).join('')}</div>` };
+
+      if (jspHasStock) {
+        addNode('okNode', 'JSP 倉有貨', `JSP 庫存 ${fmtQty(row.jsp)}。${amzNoStock ? '可安排補貨 / 調撥回 AMZ。' : '目前可作為後備庫存。'}`, amzNoStock ? '可補貨' : 'JSP正常');
+        if (requestedStage < 3) return finish(3);
+      } else {
+        addNode(amzNoStock ? 'warnNode' : 'neutralNode', 'JSP 倉不足', `JSP 庫存 ${fmtQty(row.jsp)}。${amzNoStock ? '無法靠自倉補回 AMZ。' : 'AMZ 現在仍有貨，但後備庫存不足。'}`, 'JSP');
+      }
+
+      if (hasOrder && jamList.length) {
+        const plainItems = jamList.map(item => `${item.orderName || 'N/A'}｜數量 ${fmtQty(item.qty)}｜裝櫃 ${item.loadingDate || 'N/A'}｜到港 ${item.arrivalDate || 'N/A'}`).join('；');
+        const itemsHtml = jamList.map(item => `<div class="jamMiniItem"><b>${escapeHtml(item.orderName || 'N/A')}</b>｜數量 ${fmtQty(item.qty)}｜裝櫃 ${escapeHtml(item.loadingDate || 'N/A')}｜到港 ${escapeHtml(item.arrivalDate || 'N/A')}</div>`).join('');
+        addNode('neutralNode', '有未到貨訂單', `尚未到美國數量 ${fmtQty(row.order)}。需追蹤以下 JAM/FY：${plainItems}`, 'JAM', `<div>尚未到美國數量 ${fmtQty(row.order)}。需追蹤以下 JAM/FY：</div><div class="jamMiniList">${itemsHtml}</div>`);
+      } else if (hasOrder) {
+        addNode('warnNode', '有訂單但缺少明細', `尚未到美國數量 ${fmtQty(row.order)}，但目前沒有拆出 JAM/FY 明細，請確認 JAM Excel 是否已讀取。`, 'JAM');
+      } else {
+        addNode((amzNoStock && !jspHasStock && !discontinued) ? 'badNode' : 'neutralNode', '沒有未到貨訂單', discontinued ? '此 SKU 已停產，沒有未到貨訂單屬合理狀態。' : (amzNoStock && !jspHasStock ? 'AMZ、JSP 都不足，且沒有任何未到貨訂單，需立即確認是否漏下單。' : '目前沒有 JAM/FY 未到貨訂單。'), discontinued ? '無訂單' : ((amzNoStock && !jspHasStock) ? '警報' : 'JAM空白'));
+      }
+      if (requestedStage < 4) return finish(4);
+
+      if (discontinued) {
+        addNode('warnNode', '此 SKU 已停產', `停產原因：${discontinuedSkuReasons.get(normalizeSkuKey(sku)) || '未註明'}。請避免新增訂單，並檢查 AMZ、JSP 與在途庫存是否需要清理。`, '停產');
+      } else {
+        addNode('okNode', '此 SKU 非停產品', '可依 AMZ、JSP 與 JAM 的庫存結果繼續補貨規劃。', '在售');
+      }
+      return finish();
     }
     function renderSingleSkuDecisionTree(sku, treeDaysThreshold, index = 0, total = 1) {
-      const analysis = getSkuDecisionTreeAnalysis(sku, treeDaysThreshold);
+      const analysis = getSkuDecisionTreeAnalysis(sku, treeDaysThreshold, getSkuTreeExpandedStage(sku));
       return wrapSkuTreeResult(sku, analysis.html, index, total);
     }
     function renderSkuDecisionTree() {
@@ -2372,7 +2455,7 @@
       const treeDaysThreshold = Math.max(0, Math.min(180, Number(thresholdInput?.value ?? 14)));
       if (thresholdInput) thresholdInput.value = String(treeDaysThreshold);
       const alertsOnly = document.getElementById('skuTreeAlertsOnly')?.checked;
-      const analyses = skus.map(sku => getSkuDecisionTreeAnalysis(sku, treeDaysThreshold));
+      const analyses = skus.map(sku => getSkuDecisionTreeAnalysis(sku, treeDaysThreshold, getSkuTreeExpandedStage(sku)));
       const visibleAnalyses = alertsOnly ? analyses.filter(item => item.hasAlert) : analyses;
       const summaryParts = [`已查詢 ${skus.length.toLocaleString('en-US')} 個 SKU`];
       if (alertsOnly) summaryParts.push(`僅顯示警報 ${visibleAnalyses.length.toLocaleString('en-US')} 個`);
@@ -2387,11 +2470,11 @@
       const thresholdInput = document.getElementById('skuTreeDaysThreshold');
       const treeDaysThreshold = Math.max(0, Math.min(180, Number(thresholdInput?.value ?? 14)));
       const alertsOnly = document.getElementById('skuTreeAlertsOnly')?.checked;
-      const analyses = skus.map(sku => getSkuDecisionTreeAnalysis(sku, treeDaysThreshold));
+      const analyses = skus.map(sku => getSkuDecisionTreeAnalysis(sku, treeDaysThreshold, getSkuTreeExpandedStage(sku)));
       const visibleAnalyses = alertsOnly ? analyses.filter(item => item.hasAlert) : analyses;
       if (!visibleAnalyses.length) { showTip('目前沒有可匯出的警報 SKU', 'error'); return; }
-      const headers = ['SKU','步驟','標籤','標題','說明','速度','AMZ','JSP','未到貨','AMZ沒貨天數門檻','僅顯示警報'];
-      const body = visibleAnalyses.flatMap(item => item.exportRows.map(row => [item.sku,row.step,row.tag,row.title,row.detail,item.row?.speed ?? '',item.row?.amz ?? '',item.row?.jsp ?? '',item.row?.order ?? '',treeDaysThreshold,alertsOnly ? '是' : '否']));
+      const headers = ['SKU','步驟','標籤','標題','說明','速度','AMZ','JSP','未到貨','AMZ沒貨天數門檻','已展開至關卡','僅顯示警報'];
+      const body = visibleAnalyses.flatMap(item => item.exportRows.map(row => [item.sku,row.step,row.tag,row.title,row.detail,item.row?.speed ?? '',item.row?.amz ?? '',item.row?.jsp ?? '',item.row?.order ?? '',treeDaysThreshold,getSkuTreeExpandedStage(item.sku),alertsOnly ? '是' : '否']));
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([headers, ...body]), 'SKU決策樹');
       XLSX.writeFile(wb, `${getDateStamp()}_SKU決策樹.xlsx`);
