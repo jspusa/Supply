@@ -541,12 +541,15 @@
       background: rgba(255,255,255,.9); box-shadow: 0 18px 55px rgba(15,23,42,.12);
       backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
     }
-    .sidebarBrand { padding: 20px 18px 14px; border-bottom: 1px solid var(--line); }
+    .sidebarBrand { padding: 16px 14px 14px 18px; border-bottom: 1px solid var(--line); display:flex; align-items:center; gap:8px; }
+    .sidebarBrandCopy { min-width:0; flex:1; }
     .sidebarBrand strong { display:block; font-size:17px; letter-spacing:-.02em; }
     .sidebarBrand span { display:block; color:var(--muted); font-size:11px; margin-top:4px; }
+    .sidebarCollapse { width:34px; height:34px; flex:0 0 34px; display:grid; place-items:center; padding:0; border:1px solid #dbe5f2; border-radius:11px; background:#fff; color:#475569; box-shadow:none; }
+    .sidebarCollapse:hover { transform:none; box-shadow:none; background:#f1f5f9; }
     .sideNav { overflow:auto; padding:12px 10px 18px; }
     .navGroupTitle { padding:13px 10px 6px; color:var(--muted-2); font-size:10px; font-weight:850; letter-spacing:.12em; }
-    .navItem { width:100%; display:flex; align-items:center; gap:10px; padding:10px 11px; margin:2px 0; border:0; border-radius:13px; background:transparent; color:#334155; box-shadow:none; text-align:left; font-size:12px; }
+    .navItem { position:relative; width:100%; display:flex; align-items:center; gap:10px; padding:10px 11px; margin:2px 0; border:0; border-radius:13px; background:transparent; color:#334155; box-shadow:none; text-align:left; font-size:12px; }
     .navItem:hover { transform:none; box-shadow:none; background:#f1f5f9; }
     .navItem.active { background:var(--blue-soft); color:#0659ae; }
     .navItem i { width:17px; text-align:center; }
@@ -555,6 +558,17 @@
     .mobileNavButton { display:none; position:fixed; right:16px; bottom:16px; z-index:160; border-radius:999px; padding:12px 17px; }
     .navScrim { display:none; position:fixed; inset:0; z-index:110; background:rgba(15,23,42,.28); }
     body { padding-left: 274px; }
+    body, .appSidebar { transition:padding-left .22s ease, width .22s ease; }
+    body.sidebarCollapsed { padding-left:110px; }
+    body.sidebarCollapsed .appSidebar { width:72px; }
+    body.sidebarCollapsed .sidebarBrand { padding:16px 10px 14px; justify-content:center; }
+    body.sidebarCollapsed .sidebarBrandCopy { display:none; }
+    body.sidebarCollapsed .sidebarCollapse i { transform:rotate(180deg); }
+    body.sidebarCollapsed .sideNav { padding-inline:8px; }
+    body.sidebarCollapsed .navGroupTitle { height:10px; padding:0; font-size:0; }
+    body.sidebarCollapsed .navItem { justify-content:center; gap:0; min-height:42px; padding:10px 8px; font-size:0; }
+    body.sidebarCollapsed .navItem i { width:auto; font-size:14px; }
+    body.sidebarCollapsed .navBadge { position:absolute; top:3px; right:2px; min-width:17px; padding:1px 4px; font-size:8px; }
     .page { width:100%; }
     .workflowHealth { display:grid; grid-template-columns:repeat(5,minmax(130px,1fr)); gap:10px; margin:0 0 18px; }
     .healthItem { min-height:76px; padding:13px 14px; border:1px solid rgba(255,255,255,.85); border-radius:18px; background:rgba(255,255,255,.78); box-shadow:0 8px 24px rgba(15,23,42,.05); }
@@ -565,6 +579,11 @@
     .healthItem.warn .healthDot { background:#f59e0b; box-shadow:0 0 0 4px rgba(245,158,11,.14); }
     .healthItem.bad .healthDot { background:#ef4444; box-shadow:0 0 0 4px rgba(239,68,68,.14); }
     .draftStatus { margin-top:7px; color:var(--muted); font-size:11px; text-align:right; }
+    .mainTableTools { display:flex; align-items:center; gap:9px; flex-wrap:wrap; padding:12px; margin-bottom:10px; border:1px solid #dbe5f2; border-radius:16px; background:#f8fbff; }
+    .mainSearchBox { position:relative; flex:1 1 320px; }
+    .mainSearchBox i { position:absolute; left:13px; top:50%; transform:translateY(-50%); color:#94a3b8; pointer-events:none; }
+    .mainSearchBox input { width:100%; min-height:42px; padding-left:38px; font-size:13px; }
+    .mainSearchCount { color:var(--muted); font-size:12px; font-weight:750; white-space:nowrap; }
     #uploadCard { order:1; } #decisionDashboard { order:2; } #reorderCard { order:3; }
     #generatorCard { order:4; } #skuDecisionTreeCard { order:5; } #mainCard { order:6; }
     #hotCard { order:7; } #newCard { order:8; }
@@ -576,6 +595,16 @@
       body.navOpen .appSidebar { transform:translateX(0); }
       body.navOpen .navScrim { display:block; }
       .mobileNavButton { display:flex; align-items:center; gap:8px; }
+      body.sidebarCollapsed { padding-left:18px; }
+      body.sidebarCollapsed .appSidebar { width:236px; }
+      body.sidebarCollapsed .sidebarBrand { padding:16px 14px 14px 18px; justify-content:flex-start; }
+      body.sidebarCollapsed .sidebarBrandCopy { display:block; }
+      body.sidebarCollapsed .sideNav { padding:12px 10px 18px; }
+      body.sidebarCollapsed .navGroupTitle { height:auto; padding:13px 10px 6px; font-size:10px; }
+      body.sidebarCollapsed .navItem { justify-content:flex-start; gap:10px; min-height:0; padding:10px 11px; font-size:12px; }
+      body.sidebarCollapsed .navItem i { width:17px; font-size:inherit; }
+      body.sidebarCollapsed .navBadge { position:static; margin-left:auto; min-width:22px; padding:2px 7px; font-size:10px; }
+      .sidebarCollapse { display:none; }
     }
     @media (max-width:760px) {
       body { padding:14px 10px 78px; }
@@ -587,7 +616,7 @@
 </head>
 <body>
   <aside class="appSidebar" id="appSidebar" aria-label="功能目錄">
-    <div class="sidebarBrand"><strong>Supply 工作台</strong><span>補貨、分析與下單</span></div>
+    <div class="sidebarBrand"><div class="sidebarBrandCopy"><strong>Supply 工作台</strong><span>補貨、分析與下單</span></div><button type="button" class="sidebarCollapse" id="sidebarCollapse" aria-label="收起側邊目錄" title="收起側邊目錄"><i class="fa-solid fa-chevron-left"></i></button></div>
     <nav class="sideNav">
       <div class="navGroupTitle">今日工作</div>
       <button class="navItem active" data-target="workflowTop"><i class="fa-solid fa-house"></i>今日總覽</button>
@@ -597,7 +626,7 @@
       <button class="navItem" data-target="generatorCard"><i class="fa-solid fa-boxes-packing"></i>4. 訂單產生器<span class="navBadge" id="navOrderCount">0</span></button>
       <div class="navGroupTitle">分析</div>
       <button class="navItem" data-target="skuDecisionTreeCard"><i class="fa-solid fa-code-branch"></i>SKU 決策樹</button>
-      <button class="navItem" data-target="mainCard"><i class="fa-solid fa-table"></i>H10 主表</button>
+      <button class="navItem" data-target="mainCard"><i class="fa-solid fa-table"></i>H10 主表<span class="navBadge" id="navMainCount">0</span></button>
       <button class="navItem" data-target="hotCard"><i class="fa-solid fa-fire"></i>熱銷品<span class="navBadge" id="navHotCount">0</span></button>
       <button class="navItem" data-target="newCard"><i class="fa-solid fa-sparkles"></i>新品<span class="navBadge" id="navNewCount">0</span></button>
       <button class="navItem" data-target="salesGanttDetails"><i class="fa-solid fa-calendar-days"></i>缺貨甘特圖</button>
@@ -874,12 +903,17 @@
       <details class="card priority" id="mainCard">
         <summary>
           <div>
-            <h2>主表（H10 產品）</h2>
+            <h2>主表（H10 產品）（<span id="countMain">0</span>）</h2>
             <div class="hint">完整庫存與到港節奏。</div>
           </div>
           <div class="summary-actions"><button class="secondary" id="btnDownloadMainCSV">下載Excel</button></div>
         </summary>
         <div class="cardContent">
+          <div class="mainTableTools">
+            <div class="mainSearchBox"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="mainSkuSearch" placeholder="搜尋 SKU、品名或 ASIN；可貼上多個 SKU" autocomplete="off"></div>
+            <span class="mainSearchCount" id="mainSearchCount">顯示 0 筆</span>
+            <button type="button" class="secondary" id="btnClearMainSearch"><i class="fa-solid fa-xmark"></i> 清除搜尋</button>
+          </div>
           <div class="row"><span class="hint">排序：</span><button class="secondary" id="sortMainFieldSpeed">銷售速度</button><button class="secondary" id="sortMainFieldDays">可售天數</button><button class="secondary" id="sortMainDirAsc">由小到大</button><button class="secondary" id="sortMainDirDesc">由大到小</button></div>
           <div class="tableWrap" id="mainTableWrap"></div>
         </div>
@@ -1226,7 +1260,21 @@
     }
     function wireWorkflowNavigation() {
       const navItems = Array.from(document.querySelectorAll('.navItem[data-target]'));
+      navItems.forEach(btn => { btn.title = btn.textContent.replace(/\d+\s*$/, '').trim(); });
       navItems.forEach(btn => btn.addEventListener('click', () => openWorkflowSection(btn.dataset.target)));
+      const collapseButton = document.getElementById('sidebarCollapse');
+      const setCollapsed = collapsed => {
+        document.body.classList.toggle('sidebarCollapsed', collapsed);
+        if (collapseButton) {
+          collapseButton.setAttribute('aria-label', collapsed ? '展開側邊目錄' : '收起側邊目錄');
+          collapseButton.title = collapsed ? '展開側邊目錄' : '收起側邊目錄';
+        }
+        try { localStorage.setItem('supply-sidebar-collapsed', collapsed ? '1' : '0'); } catch (_) {}
+      };
+      let savedCollapsed = false;
+      try { savedCollapsed = localStorage.getItem('supply-sidebar-collapsed') === '1'; } catch (_) {}
+      setCollapsed(savedCollapsed);
+      collapseButton?.addEventListener('click', () => setCollapsed(!document.body.classList.contains('sidebarCollapsed')));
       const toggleNav = () => document.body.classList.toggle('navOpen');
       document.getElementById('mobileNavButton')?.addEventListener('click', toggleNav);
       document.getElementById('navScrim')?.addEventListener('click', () => document.body.classList.remove('navOpen'));
@@ -1834,6 +1882,19 @@
     }
     function renderInventoryCell(value, missingText = "(未對應)") { return (value === null || value === undefined) ? `<td class="bad">${escapeHtml(missingText)}</td>` : `<td class="ok">${escapeHtml(fmtQty(value))}</td>`; }
     function renderNumericCell(value, badText = "(未對應)") { return (value === null || value === undefined) ? `<td class="bad">${escapeHtml(badText)}</td>` : `<td class="ok">${escapeHtml(fmtQty(value))}</td>`; }
+    let mainSearchQuery = '';
+    function getMainRowsForView() {
+      let rows = applyFilters(mainRowsAll);
+      const query = String(mainSearchQuery || '').trim();
+      if (!query) return rows;
+      const terms = query.split(/[\s,，;；]+/).map(x => x.trim().toUpperCase()).filter(Boolean);
+      return rows.filter(row => {
+        const sku = normalizeSkuKey(row.sku);
+        const asin = String(row.asin || '').toUpperCase();
+        const name = getProductNameBySku(row.sku).toUpperCase();
+        return terms.some(term => sku.includes(term) || asin.includes(term) || name.includes(term));
+      });
+    }
     function renderAll() { renderReorder(); renderMain(); renderHot(); renderNewOrder(); updateSortButtons(); }
 
     function renderReorder() {
@@ -1844,8 +1905,18 @@
       reorderWrap.innerHTML = `<table><thead><tr><th>#</th><th>SKU</th><th>速度</th><th>訂單</th><th>美國AMZ倉</th><th>美國JSP倉</th><th>美國可售天數</th><th>含訂單可售天數</th><th>JAM/FY訂單來源</th><th>裝櫃日</th><th>預計到港日</th></tr></thead><tbody>${body}</tbody></table>`;
     }
     function renderMain() {
-      const rows = sortByConfig(applyFilters(mainRowsAll));
-      if (!rows.length) { mainWrap.innerHTML = ""; return; }
+      const filteredRows = getMainRowsForView();
+      const rows = sortByConfig(filteredRows);
+      const totalRows = applyFilters(mainRowsAll).length;
+      const countMain = document.getElementById('countMain');
+      const navMainCount = document.getElementById('navMainCount');
+      const searchCount = document.getElementById('mainSearchCount');
+      const clearButton = document.getElementById('btnClearMainSearch');
+      if (countMain) countMain.textContent = String(rows.length);
+      if (navMainCount) navMainCount.textContent = String(rows.length);
+      if (searchCount) searchCount.textContent = mainSearchQuery.trim() ? `找到 ${rows.length} / ${totalRows} 筆` : `顯示 ${rows.length} 筆`;
+      if (clearButton) clearButton.disabled = !mainSearchQuery.trim();
+      if (!rows.length) { mainWrap.innerHTML = `<div class="hint" style="padding:24px;text-align:center;">${mainSearchQuery.trim() ? `找不到符合「${escapeHtml(mainSearchQuery.trim())}」的 SKU、品名或 ASIN。` : '目前沒有符合篩選條件的 H10 產品。'}</div>`; return; }
       const body = rows.map((r, idx) => `<tr><td>${idx + 1}</td>${renderSkuCell(r.sku)}${r.speed === null ? '<td class="bad">(未抓到)</td>' : `<td class="ok">${escapeHtml(String(r.speed))}</td>`}${renderNumericCell(r.order)}${renderInventoryCell(r.usAmz)}${renderInventoryCell(r.usJsp)}${r.usDays === null ? '<td class="bad">(不可算)</td>' : `<td class="ok">${fmtDays(r.usDays)}</td>`}${r.days === null ? '<td class="bad">(不可算)</td>' : `<td class="ok">${fmtDays(r.days)}</td>`}${jamFrontCells(r)}</tr>`).join("");
       mainWrap.innerHTML = `<table><thead><tr><th>#</th><th>SKU</th><th>速度</th><th>訂單</th><th>美國AMZ倉</th><th>美國JSP倉</th><th>美國可售天數</th><th>含訂單可售天數</th><th>JAM/FY訂單來源</th><th>裝櫃日</th><th>預計到港日</th></tr></thead><tbody>${body}</tbody></table>`;
     }
@@ -2214,7 +2285,7 @@
     function getDateStamp() { const now = new Date(); return `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`; }
     function exportMainRowsFiltered() {
       const headers = ["SKU","ASIN","速度","訂單","美國AMZ倉總數","美國JSP倉總數","美國總數","可售總量(美國+訂單)","美國可售天數","含訂單可售天數","JAM/FY訂單來源","裝櫃日","預計到港日"];
-      const body = applyFilters(mainRowsAll).map(r => [r.sku, r.asin, r.speed ?? "", r.order ?? "", r.usAmz ?? "", r.usJsp ?? "", r.us ?? "", r.avail ?? "", r.usDays === null ? "" : fmtDays(r.usDays), r.days === null ? "" : fmtDays(r.days), r.jamOrders || "", r.jamLoadingDates || fmtDateText(r.loadingDate), r.jamArrivalDates || fmtDateText(r.arrivalDate)]);
+      const body = getMainRowsForView().map(r => [r.sku, r.asin, r.speed ?? "", r.order ?? "", r.usAmz ?? "", r.usJsp ?? "", r.us ?? "", r.avail ?? "", r.usDays === null ? "" : fmtDays(r.usDays), r.days === null ? "" : fmtDays(r.days), r.jamOrders || "", r.jamLoadingDates || fmtDateText(r.loadingDate), r.jamArrivalDates || fmtDateText(r.arrivalDate)]);
       return { headers, body };
     }
     function exportReorderRowsFiltered() { const ex = exportMainRowsFiltered(); const threshold = Math.max(1, Number(daysThresholdEl.value || 180)); const filtered = applyFilters(mainRowsAll).filter(r => r.days !== null && r.days <= threshold && r.speed !== null && r.speed > 0).map(r => [r.sku, r.asin, r.speed ?? "", r.order ?? "", r.usAmz ?? "", r.usJsp ?? "", r.us ?? "", r.avail ?? "", r.usDays === null ? "" : fmtDays(r.usDays), r.days === null ? "" : fmtDays(r.days), r.jamOrders || "", r.jamLoadingDates || fmtDateText(r.loadingDate), r.jamArrivalDates || fmtDateText(r.arrivalDate)]); return { headers: ex.headers, body: filtered }; }
@@ -3046,6 +3117,11 @@
         showTip(`已切換並還原${e.target.closest('label')?.textContent.trim() || currentCountry}草稿`, 'success');
       }));
       ['inputH10','inputOrders','inputUSAmz','inputUSJsp'].forEach(id => document.getElementById(id)?.addEventListener('input', updateWorkflowUi));
+      const mainSearchEl = document.getElementById('mainSkuSearch');
+      const clearMainSearch = () => { mainSearchQuery = ''; if (mainSearchEl) mainSearchEl.value = ''; renderMain(); mainSearchEl?.focus(); };
+      mainSearchEl?.addEventListener('input', e => { mainSearchQuery = e.target.value; renderMain(); });
+      mainSearchEl?.addEventListener('keydown', e => { if (e.key === 'Escape') clearMainSearch(); });
+      document.getElementById('btnClearMainSearch')?.addEventListener('click', clearMainSearch);
       ['jamMetaBox','amzMetaBox','jspMetaBox','countReorder','countHot','countNewOrder'].forEach(id => {
         const el = document.getElementById(id);
         if (el) new MutationObserver(updateWorkflowUi).observe(el, { childList:true, characterData:true, subtree:true });
