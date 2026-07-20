@@ -160,6 +160,19 @@
     .order-generator .action-button, .order-generator .remove-button, .order-generator .lock-button { background: #e0e7f3; color: #5c6f8f; padding: 5px 9px; margin: 2px 1px; border: none; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: bold; transition: background 0.2s; box-shadow: none; }
     .order-generator .remove-button { background: #fa7878; color: #fff; }
     .order-generator .lock-button { background: #ffd76b; color: #925700; }
+    .order-generator tr.locked td, .order-generator tr.locked:hover td { background:#dcfce7 !important; color:#166534; border-bottom-color:#86efac; }
+    .order-generator tr.locked input { background:#f0fdf4; color:#166534; border-color:#86efac; font-weight:800; }
+    .order-generator tr.locked .lock-button { background:#16a34a; color:#fff; }
+    .generatorColumnBar { display:flex; align-items:center; flex-wrap:wrap; gap:7px; margin:0 0 10px; padding:9px 11px; border:1px solid #e2e8f0; border-radius:14px; background:#f8fafc; }
+    .generatorColumnBar > span { color:#64748b; font-size:12px; font-weight:800; margin-right:2px; }
+    .generatorColumnToggle { display:inline-flex; align-items:center; gap:5px; padding:6px 9px; border-radius:999px; background:#e2e8f0; color:#64748b; font-size:11px; font-weight:800; cursor:pointer; user-select:none; }
+    .generatorColumnToggle:has(input:checked) { background:#dbeafe; color:#1d4ed8; }
+    .generatorColumnToggle input { width:auto; margin:0; accent-color:#2563eb; }
+    #productTable.hide-col-target [data-generator-col="target"],
+    #productTable.hide-col-cartons [data-generator-col="cartons"],
+    #productTable.hide-col-box [data-generator-col="box"],
+    #productTable.hide-col-estimated [data-generator-col="estimated"],
+    #productTable.hide-col-arrival [data-generator-col="arrival"] { display:none; }
     .order-generator .totals-container { text-align: right; margin-top: 20px; }
     .order-generator .total { font-weight: 700; font-size: 1.03rem; margin-bottom: 2px; }
     .order-generator .box-counts { margin-top: 3px; font-size: .95rem; color: #6679a8; text-align:right; }
@@ -370,6 +383,23 @@
       border-color: rgba(0,113,227,.42);
       background: linear-gradient(145deg, #f5faff, #ffffff);
     }
+    .uploadWorkspace { display:grid; grid-template-columns:minmax(320px,.9fr) minmax(380px,1.1fr); gap:16px; align-items:stretch; }
+    .uploadPrimaryPanel { border:1px solid var(--line); border-radius:22px; background:rgba(255,255,255,.82); padding:16px; }
+    .uploadPanelTitle { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; }
+    .uploadPanelTitle h3 { margin:0; font-size:16px; color:#111827; }
+    .downloadLinks { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:12px; }
+    .downloadLinkChip { display:inline-flex; align-items:center; gap:5px; padding:7px 10px; border:1px solid #dbeafe; border-radius:999px; background:#eff6ff; color:#1d4ed8; font-size:12px; font-weight:800; text-decoration:none; }
+    .downloadLinkChip:hover { border-color:#60a5fa; background:#dbeafe; }
+    .uploadStatusRow { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-top:11px; }
+    .uploadStatus { display:flex; align-items:center; gap:7px; min-height:38px; padding:8px 10px; border-radius:12px; background:#f1f5f9; color:#64748b; font-size:11px; font-weight:800; }
+    .uploadStatus::before { content:""; width:8px; height:8px; border-radius:50%; background:#f59e0b; flex:0 0 auto; }
+    .uploadStatus.ready { background:#ecfdf5; color:#166534; }
+    .uploadStatus.ready::before { background:#22c55e; box-shadow:0 0 0 3px rgba(34,197,94,.14); }
+    .h10PasteArea { min-height:236px; resize:vertical; }
+    .uploadAdvancedDetails { margin-top:14px; border:1px solid var(--line); border-radius:18px; background:rgba(248,250,252,.72); overflow:hidden; }
+    .uploadAdvancedDetails > summary { padding:12px 14px !important; border:0 !important; color:#475569; font-size:12px; font-weight:800; cursor:pointer; }
+    .uploadAdvancedDetails[open] > summary { border-bottom:1px solid var(--line) !important; }
+    .uploadAdvancedBody { padding:14px; }
     .jamMetaBox {
       border: 0;
       background: rgba(243,244,246,.78);
@@ -484,7 +514,7 @@
     .decisionNote { color:var(--muted); font-size:.9rem; margin:8px 0 0; }
     .miniMetric { color:#64748b; font-size:.86rem; }
 
-    @media (max-width: 1100px) { .subGrid { grid-template-columns: repeat(2, minmax(240px, 1fr)); } }
+    @media (max-width: 1100px) { .subGrid { grid-template-columns: repeat(2, minmax(240px, 1fr)); } .uploadWorkspace { grid-template-columns:1fr; } }
     @media (max-width: 760px) {
       body { padding: 14px 10px 36px; }
       .appHero { padding: 22px; border-radius: 26px; align-items: flex-start; flex-direction: column; }
@@ -573,7 +603,7 @@
     body.sidebarCollapsed .navItem i { width:auto; font-size:14px; }
     body.sidebarCollapsed .navBadge { position:absolute; top:3px; right:2px; min-width:17px; padding:1px 4px; font-size:8px; }
     .page { width:100%; }
-    .workflowHealth { display:grid; grid-template-columns:repeat(5,minmax(130px,1fr)); gap:10px; margin:0 0 18px; }
+    .workflowHealth { display:grid; grid-template-columns:repeat(4,minmax(130px,1fr)); gap:10px; margin:0 0 18px; }
     .healthItem { min-height:76px; padding:13px 14px; border:1px solid rgba(255,255,255,.85); border-radius:18px; background:rgba(255,255,255,.78); box-shadow:0 8px 24px rgba(15,23,42,.05); }
     .healthLabel { color:var(--muted); font-size:11px; font-weight:750; }
     .healthValue { display:flex; align-items:center; gap:7px; margin-top:7px; font-size:13px; font-weight:850; }
@@ -717,9 +747,8 @@
     </section>
 
     <section class="workflowHealth" id="workflowHealth" aria-label="資料與訂單狀態">
-      <div class="healthItem" id="healthH10"><div class="healthLabel">H10 銷售速度</div><div class="healthValue"><span class="healthDot"></span><span>尚未讀取</span></div></div>
+      <div class="healthItem" id="healthH10"><div class="healthLabel">H10 銷售／AMZ</div><div class="healthValue"><span class="healthDot"></span><span>尚未讀取</span></div></div>
       <div class="healthItem" id="healthJam"><div class="healthLabel">JAM 未到貨</div><div class="healthValue"><span class="healthDot"></span><span>尚未讀取</span></div></div>
-      <div class="healthItem" id="healthAmz"><div class="healthLabel">AMZ 庫存</div><div class="healthValue"><span class="healthDot"></span><span>尚未讀取</span></div></div>
       <div class="healthItem" id="healthJsp"><div class="healthLabel">JSP 庫存</div><div class="healthValue"><span class="healthDot"></span><span>尚未讀取</span></div></div>
       <div class="healthItem" id="healthIssues"><div class="healthLabel">資料異常</div><div class="healthValue"><span class="healthDot"></span><span>等待計算</span></div></div>
     </section>
@@ -736,86 +765,67 @@
         <div class="cardContent">
           
 
-          <div class="subGrid" style="margin-top:16px;">
-            <div class="subCard">
-              <div class="subCardHeader"><a class="summaryLink" href="https://members.helium10.com/inventory-management/restock-suggestions-new/index?accountId=1547156136" target="_blank" rel="noopener noreferrer">Helium 10 原始文字 / 總檔案上傳</a></div>
-              <div class="subCardContent">
-                <div class="hint">一次拖入所有檔案，系統會自動分類。</div>
-                <label class="fileDropZone masterUploadZone">
-                  <input type="file" id="masterFileInput" multiple accept=".xlsx,.xls,.csv,.txt" />
-                  <i class="fa-solid fa-cloud-arrow-up dropIcon"></i>
-                  <span>總檔案上傳區：點擊選檔或拖入多個檔案</span>
-                  <span class="dropSub">JAM / H10 / AMZ / JSP</span>
-                </label>
-                <div class="jamMetaBox" id="masterMetaBox">尚未使用總檔案上傳。</div>
-                <div class="hint" style="margin-top:10px;">手動貼上備援。</div>
-                <textarea id="inputH10" placeholder="貼 Helium 10 內容..."></textarea>
+          <div class="uploadWorkspace">
+            <section class="uploadPrimaryPanel">
+              <div class="uploadPanelTitle"><h3><i class="fa-solid fa-cloud-arrow-up"></i> 三個檔案一起丟這裡</h3><span class="pill">自動分類</span></div>
+              <div class="downloadLinks" aria-label="下載來源">
+                <a class="downloadLinkChip" href="https://24466647-my.sharepoint.com/:x:/g/personal/hongren_petlifeco_com/ER_jNs_oIg9JlOmxXlpGb6sBG3yRl9Zd7gzqAfH_q3WL1A?CID=bbf41374-a2d3-7260-37b3-d7bdd684d58e&amp;e=ocBSqj" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-file-excel"></i> 1. JAM 訂單</a>
+                <a class="downloadLinkChip" href="https://members.helium10.com/inventory-management/restock-suggestions-new/index?accountId=1547156136" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-chart-line"></i> 2. H10</a>
+                <a class="downloadLinkChip" href="https://24466647.sharepoint.com/:x:/r/sites/Cloud/Shared%2520Documents/%E7%8F%8D%E9%A3%9F%E5%A0%A1%2520-%2520%E5%85%B1%E7%94%A8/JSP%2520Amrica/Inventory%2520update%2520with%2520expiration%2520date%2520-%2520temporary%2520file.xlsx?d=wdb6b7635090543b0b4433ce8572b2c4a&amp;e=4%3ab1c52cfb6a554376882e5c1e30fa2339&amp;sharingv2=true&amp;fromShare=true&amp;at=9" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-warehouse"></i> 3. JSP 庫存</a>
               </div>
-            </div>
+              <label class="fileDropZone masterUploadZone">
+                <input type="file" id="masterFileInput" multiple accept=".xlsx,.xls,.csv,.txt" />
+                <i class="fa-solid fa-cloud-arrow-up dropIcon"></i>
+                <span>點擊選檔，或一次拖入 JAM／H10／JSP</span>
+                <span class="dropSub">不用照順序，系統會自動辨識</span>
+              </label>
+              <div class="uploadStatusRow">
+                <div class="uploadStatus" id="uploadStatusJam">JAM 等待檔案</div>
+                <div class="uploadStatus" id="uploadStatusH10">H10 等待檔案</div>
+                <div class="uploadStatus" id="uploadStatusJsp">JSP 等待檔案</div>
+              </div>
+              <div class="jamMetaBox" id="masterMetaBox" style="margin-top:10px;">尚未使用總檔案上傳。</div>
+            </section>
 
-            <div class="subCard">
-              <div class="subCardHeader"><a class="summaryLink" href="https://24466647-my.sharepoint.com/:x:/g/personal/hongren_petlifeco_com/ER_jNs_oIg9JlOmxXlpGb6sBG3yRl9Zd7gzqAfH_q3WL1A?CID=bbf41374-a2d3-7260-37b3-d7bdd684d58e&amp;e=ocBSqj" target="_blank" rel="noopener noreferrer">訂單清單 / JAM Excel</a></div>
-              <div class="subCardContent">
-                <div class="hint">點標題開檔案，下載後拖入。</div>
-                <label class="fileDropZone">
-                  <input type="file" id="jamExcelInput" accept=".xlsx,.xls" />
-                  <i class="fa-solid fa-file-excel dropIcon"></i>
-                  <span>上傳或拖入 JAM 訂單 Excel</span>
-                  <span class="dropSub">自動讀取美國總表</span>
-                </label>
-                <div class="row" style="justify-content:flex-end;"><button type="button" class="secondary" id="btnParseJamExcel"><i class="fa-solid fa-rotate"></i> 重新讀取美國總表</button></div>
-                <div class="jamMetaBox" id="jamMetaBox">尚未讀取 JAM Excel。</div>
-                <details class="manualInputDetails">
-                  <summary>手動輸入備援 <span>展開</span></summary>
-                  <div class="manualInputBody">
-                    <textarea id="inputOrders" placeholder="也可手動貼：SKU + 數量，例如：&#10;AFA11AM&#9;5040&#10;AFA12AM&#9;27360"></textarea>
-                  </div>
-                </details>
-              </div>
-            </div>
-
-            <div class="subCard">
-              <div class="subCardHeader"><a class="summaryLink" href="https://members.helium10.com/inventory-management/restock-suggestions-new/index?accountId=1547156136" target="_blank" rel="noopener noreferrer">美國AMZ倉總數 / Helium 10 檔案</a></div>
-              <div class="subCardContent">
-                <div class="hint">拖入 Helium 10 / AMZ 庫存檔。</div>
-                <label class="fileDropZone">
-                  <input type="file" id="amzInventoryInput" accept=".csv,.xlsx,.xls" />
-                  <i class="fa-solid fa-file-csv dropIcon"></i>
-                  <span>上傳或拖入 Helium 10 / AMZ 庫存檔</span>
-                  <span class="dropSub">自動抓庫存與銷售額</span>
-                </label>
-                <div class="row" style="justify-content:flex-end;"><button type="button" class="secondary" id="btnParseAmzInventory"><i class="fa-solid fa-rotate"></i> 重新讀取</button></div>
-                <div class="jamMetaBox" id="amzMetaBox">尚未讀取 AMZ 庫存檔。</div>
-                <details class="manualInputDetails">
-                  <summary>手動輸入備援 <span>展開</span></summary>
-                  <div class="manualInputBody">
-                    <textarea id="inputUSAmz" placeholder="可手動貼：SKU + Sellable Inventory + Inbound，例如：&#10;SKU&#9;Sellable Inventory&#9;Inbound&#10;TTS05AM-1&#9;28426&#9;0&#10;AFA12AM&#9;21115&#9;120&#10;&#10;也支援簡單格式：&#10;TTS05AM-1&#9;28426"></textarea>
-                  </div>
-                </details>
-              </div>
-            </div>
-
-            <div class="subCard">
-              <div class="subCardHeader"><a class="summaryLink" href="https://24466647.sharepoint.com/:x:/r/sites/Cloud/Shared%2520Documents/%E7%8F%8D%E9%A3%9F%E5%A0%A1%2520-%2520%E5%85%B1%E7%94%A8/JSP%2520Amrica/Inventory%2520update%2520with%2520expiration%2520date%2520-%2520temporary%2520file.xlsx?d=wdb6b7635090543b0b4433ce8572b2c4a&amp;e=4%3ab1c52cfb6a554376882e5c1e30fa2339&amp;sharingv2=true&amp;fromShare=true&amp;at=9" target="_blank" rel="noopener noreferrer">美國JSP倉總數 / JSP 庫存檔案</a></div>
-              <div class="subCardContent">
-                <div class="hint">點標題開檔案，下載後拖入。</div>
-                <label class="fileDropZone">
-                  <input type="file" id="jspInventoryInput" accept=".csv,.xlsx,.xls" />
-                  <i class="fa-solid fa-warehouse dropIcon"></i>
-                  <span>上傳或拖入 JSP 美國倉庫存檔</span>
-                  <span class="dropSub">自動抓 SKU + 總數</span>
-                </label>
-                <div class="row" style="justify-content:flex-end;"><button type="button" class="secondary" id="btnParseJspInventory"><i class="fa-solid fa-rotate"></i> 重新讀取</button></div>
-                <div class="jamMetaBox" id="jspMetaBox">尚未讀取 JSP 庫存檔。</div>
-                <details class="manualInputDetails">
-                  <summary>手動輸入備援 <span>展開</span></summary>
-                  <div class="manualInputBody">
-                    <textarea id="inputUSJsp" placeholder="可手動貼：SKU + 總數，例如：&#10;SKU&#9;總數&#10;TTS05AM-1&#9;50000&#10;TTR01AM-4&#9;0"></textarea>
-                  </div>
-                </details>
-              </div>
-            </div>
+            <section class="uploadPrimaryPanel">
+              <div class="uploadPanelTitle"><h3>Helium 10 原始文字</h3><a class="summaryLink" href="https://members.helium10.com/inventory-management/restock-suggestions-new/index?accountId=1547156136" target="_blank" rel="noopener noreferrer">開啟 Helium 10</a></div>
+              <textarea id="inputH10" class="h10PasteArea" placeholder="在這裡貼上 Helium 10 原始文字…"></textarea>
+              <div class="hint">貼上後按頁面上方「更新分析」；讀取成功會顯示綠色「已代入」。</div>
+            </section>
           </div>
+
+          <details class="uploadAdvancedDetails">
+            <summary><i class="fa-solid fa-sliders"></i> 個別重傳／手動輸入備援（預設收折）</summary>
+            <div class="uploadAdvancedBody subGrid">
+              <div class="subCard">
+                <div class="subCardHeader">JAM 訂單</div>
+                <div class="subCardContent">
+                  <label class="fileDropZone"><input type="file" id="jamExcelInput" accept=".xlsx,.xls" /><i class="fa-solid fa-file-excel dropIcon"></i><span>個別上傳 JAM</span></label>
+                  <div class="row" style="justify-content:flex-end;"><button type="button" class="secondary" id="btnParseJamExcel">重新讀取</button></div>
+                  <div class="jamMetaBox" id="jamMetaBox">尚未讀取 JAM Excel。</div>
+                  <details class="manualInputDetails"><summary>手動輸入備援 <span>展開</span></summary><div class="manualInputBody"><textarea id="inputOrders" placeholder="SKU + 數量"></textarea></div></details>
+                </div>
+              </div>
+              <div class="subCard">
+                <div class="subCardHeader">H10 檔案</div>
+                <div class="subCardContent">
+                  <label class="fileDropZone"><input type="file" id="amzInventoryInput" accept=".csv,.xlsx,.xls" /><i class="fa-solid fa-file-csv dropIcon"></i><span>個別上傳 H10 檔案</span></label>
+                  <div class="row" style="justify-content:flex-end;"><button type="button" class="secondary" id="btnParseAmzInventory">重新讀取</button></div>
+                  <div class="jamMetaBox" id="amzMetaBox">尚未讀取 H10 檔案。</div>
+                  <details class="manualInputDetails"><summary>AMZ 數量手動備援 <span>展開</span></summary><div class="manualInputBody"><textarea id="inputUSAmz" placeholder="SKU + Sellable Inventory + Inbound"></textarea></div></details>
+                </div>
+              </div>
+              <div class="subCard">
+                <div class="subCardHeader">JSP 庫存</div>
+                <div class="subCardContent">
+                  <label class="fileDropZone"><input type="file" id="jspInventoryInput" accept=".csv,.xlsx,.xls" /><i class="fa-solid fa-warehouse dropIcon"></i><span>個別上傳 JSP</span></label>
+                  <div class="row" style="justify-content:flex-end;"><button type="button" class="secondary" id="btnParseJspInventory">重新讀取</button></div>
+                  <div class="jamMetaBox" id="jspMetaBox">尚未讀取 JSP 庫存檔。</div>
+                  <details class="manualInputDetails"><summary>手動輸入備援 <span>展開</span></summary><div class="manualInputBody"><textarea id="inputUSJsp" placeholder="SKU + 總數"></textarea></div></details>
+                </div>
+              </div>
+            </div>
+          </details>
         </div>
       </details>
 
@@ -843,17 +853,25 @@
                 <input type="text" id="searchInput" class="search-input" placeholder="🔎 搜尋品號或品名／快速加入" oninput="searchProduct()">
                 <div id="searchResults" class="search-results"></div>
               </div>
+              <div class="generatorColumnBar" id="generatorColumnBar">
+                <span><i class="fa-solid fa-table-columns"></i> 顯示欄位</span>
+                <label class="generatorColumnToggle"><input type="checkbox" data-generator-column-toggle="target">目標數量</label>
+                <label class="generatorColumnToggle"><input type="checkbox" data-generator-column-toggle="cartons">箱數</label>
+                <label class="generatorColumnToggle"><input type="checkbox" data-generator-column-toggle="box">紙箱尺寸</label>
+                <label class="generatorColumnToggle"><input type="checkbox" data-generator-column-toggle="estimated" checked>預計銷售天數</label>
+                <label class="generatorColumnToggle"><input type="checkbox" data-generator-column-toggle="arrival" checked>到港後可賣天數</label>
+              </div>
               <div class="table-responsive">
-                <table id="productTable">
+                <table id="productTable" class="hide-col-target hide-col-cartons hide-col-box">
                   <thead>
                     <tr>
-                      <th>序號</th><th>品號 / 下單品號</th><th>包數</th><th>袋數/盒數</th><th>目標數量</th><th>箱數</th><th>棧板數</th><th>紙箱尺寸 (cm)</th><th>每棧板可售天數</th><th>預計銷售天數</th><th>操作</th>
+                      <th>序號</th><th>品號 / 下單品號</th><th>包數</th><th>袋數/盒數</th><th data-generator-col="target">目標數量</th><th data-generator-col="cartons">箱數</th><th>棧板數</th><th data-generator-col="box">紙箱尺寸 (cm)</th><th>每棧板可售天數</th><th data-generator-col="estimated">預計銷售天數</th><th data-generator-col="arrival">到港後可賣天數</th><th>操作</th>
                     </tr>
                   </thead>
                   <tbody></tbody>
                 </table>
               </div>
-              <div class="hint" style="text-align:right;margin-top:10px;">可售天數以 H10 速度計算：有袋/盒時先用袋/盒速度，無袋/盒才用包數速度。</div>
+              <div class="hint" style="text-align:right;margin-top:10px;">預計銷售天數看今天帳面總量；到港後可賣天數會先扣除前置期銷售，再加上這次新訂單。</div>
               <div class="totals-container">
                 <div class="total"><i class="fa-solid fa-boxes-stacked"></i> 總包數: <span id="totalQuantity">0</span> | 總箱數: <span id="totalCartons">0</span> | 總棧板數: <span id="totalPallets">0</span></div>
                 <div class="box-counts" id="boxCounts"></div>
@@ -1288,14 +1306,16 @@
       return Boolean(text && !/尚未|失敗|請先/.test(text));
     }
     function updateWorkflowUi() {
-      const h10Ready = Boolean(document.getElementById('inputH10')?.value.trim());
+      const h10Ready = Boolean(document.getElementById('inputH10')?.value.trim()) || Boolean(document.getElementById('inputUSAmz')?.value.trim()) || metaIsReady('amzMetaBox');
       const jamReady = Boolean(document.getElementById('inputOrders')?.value.trim()) || metaIsReady('jamMetaBox');
-      const amzReady = Boolean(document.getElementById('inputUSAmz')?.value.trim()) || metaIsReady('amzMetaBox');
       const jspReady = Boolean(document.getElementById('inputUSJsp')?.value.trim()) || metaIsReady('jspMetaBox');
-      setHealthStatus('healthH10', h10Ready ? 'ready' : 'warn', h10Ready ? '已載入' : '尚未讀取');
-      setHealthStatus('healthJam', jamReady ? 'ready' : 'warn', jamReady ? '已載入' : '尚未讀取');
-      setHealthStatus('healthAmz', amzReady ? 'ready' : 'warn', amzReady ? '已載入' : '尚未讀取');
-      setHealthStatus('healthJsp', jspReady ? 'ready' : 'warn', jspReady ? '已載入' : '尚未讀取');
+      setHealthStatus('healthH10', h10Ready ? 'ready' : 'warn', h10Ready ? '已代入' : '尚未讀取');
+      setHealthStatus('healthJam', jamReady ? 'ready' : 'warn', jamReady ? '已代入' : '尚未讀取');
+      setHealthStatus('healthJsp', jspReady ? 'ready' : 'warn', jspReady ? '已代入' : '尚未讀取');
+      const setUploadStatus = (id, ready, readyText, waitingText) => { const el = document.getElementById(id); if (!el) return; el.classList.toggle('ready', ready); el.textContent = ready ? readyText : waitingText; };
+      setUploadStatus('uploadStatusJam', jamReady, 'JAM 已代入', 'JAM 等待檔案');
+      setUploadStatus('uploadStatusH10', h10Ready, 'H10 已代入', 'H10 等待檔案');
+      setUploadStatus('uploadStatusJsp', jspReady, 'JSP 已代入', 'JSP 等待檔案');
       const issueCount = Array.isArray(window.latestDecisionExport?.issues) ? window.latestDecisionExport.issues.length : (typeof latestDecisionExport !== 'undefined' ? latestDecisionExport.issues.length : 0);
       setHealthStatus('healthIssues', issueCount ? 'bad' : (h10Ready ? 'ready' : 'warn'), h10Ready ? `${issueCount} 筆` : '等待計算');
       const setText = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = String(value || 0); };
@@ -1710,7 +1730,7 @@
       const skuCol = findColumnIndex(header, ["sku"]);
       const sellableCol = findColumnIndex(header, ["sellable inventory", "sellable"]);
       const inboundCol = findColumnIndex(header, ["inbound"]);
-      if (skuCol < 0 || sellableCol < 0 || inboundCol < 0) throw new Error("AMZ 庫存檔欄位不完整");
+      if (skuCol < 0 || sellableCol < 0 || inboundCol < 0) throw new Error("H10 檔案的 SKU / Sellable / Inbound 欄位不完整");
 
       const map = new Map();
       let sellableTotal = 0;
@@ -1754,10 +1774,10 @@
       const meta = document.getElementById('amzMetaBox');
       if (meta) {
         const salesNote = result.salesText ? `｜銷售額SKU：<b>${result.salesCount.toLocaleString('en-US')}</b> 個｜銷售額：<b>${formatCurrency(result.salesTotal)}</b>` : '｜未偵測到銷售額欄';
-        meta.innerHTML = `已讀取檔案：<b>${escapeHtml(file.name)}</b><br>SKU：<b>${result.skuCount.toLocaleString('en-US')}</b> 個｜Sellable：<b>${result.sellableTotal.toLocaleString('en-US')}</b>｜Inbound：<b>${result.inboundTotal.toLocaleString('en-US')}</b>｜AMZ總數：<b>${result.totalQty.toLocaleString('en-US')}</b>${salesNote}`;
+        meta.innerHTML = `H10 已代入：<b>${escapeHtml(file.name)}</b><br>SKU：<b>${result.skuCount.toLocaleString('en-US')}</b> 個｜Sellable：<b>${result.sellableTotal.toLocaleString('en-US')}</b>｜Inbound：<b>${result.inboundTotal.toLocaleString('en-US')}</b>｜AMZ總數：<b>${result.totalQty.toLocaleString('en-US')}</b>${salesNote}`;
       }
       buildTables();
-      showTip(`已讀取 AMZ 庫存 ${result.skuCount} 個 SKU${result.salesText ? '，並同步銷售額' : ''}`, "success");
+      showTip(`H10 檔案已代入 ${result.skuCount} 個 SKU${result.salesText ? '，並同步銷售額' : ''}`, "success");
     }
 
 
@@ -2322,7 +2342,7 @@
             await parseAmzInventoryFile(file);
             const br = parseBusinessReportRows(rows);
             if (br.ok) setSalesFromBusinessReport(br, file.name);
-            results.push(`${file.name} → AMZ 庫存${br.ok ? ' / 銷售額' : ''}`);
+            results.push(`${file.name} → H10${br.ok ? ' / 銷售額' : ''}`);
             continue;
           }
 
@@ -2349,6 +2369,7 @@
       const meta = document.getElementById('masterMetaBox');
       if (meta) meta.innerHTML = results.map(x => `• ${escapeHtml(x)}`).join('<br>');
       buildTables();
+      updateWorkflowUi();
       showTip(`總檔案上傳已處理 ${files.length} 個檔案`, 'success');
     }
 
@@ -2417,10 +2438,10 @@
     }
 
     document.getElementById('btnParseJamExcel').addEventListener('click', () => handleFileAutoRead('jamExcelInput', parseJamExcelFile, "請先選擇 JAM Excel 檔案"));
-    document.getElementById('btnParseAmzInventory')?.addEventListener('click', () => handleFileAutoRead('amzInventoryInput', parseAmzInventoryFile, "請先選擇 Helium 10 / AMZ 庫存檔"));
+    document.getElementById('btnParseAmzInventory')?.addEventListener('click', () => handleFileAutoRead('amzInventoryInput', parseAmzInventoryFile, "請先選擇 H10 檔案"));
     document.getElementById('btnParseJspInventory')?.addEventListener('click', () => handleFileAutoRead('jspInventoryInput', parseJspInventoryFile, "請先選擇 JSP 庫存檔"));
     document.getElementById('jamExcelInput')?.addEventListener('change', () => handleFileAutoRead('jamExcelInput', parseJamExcelFile, "請先選擇 JAM Excel 檔案"));
-    document.getElementById('amzInventoryInput')?.addEventListener('change', () => handleFileAutoRead('amzInventoryInput', parseAmzInventoryFile, "請先選擇 Helium 10 / AMZ 庫存檔"));
+    document.getElementById('amzInventoryInput')?.addEventListener('change', () => handleFileAutoRead('amzInventoryInput', parseAmzInventoryFile, "請先選擇 H10 檔案"));
     document.getElementById('jspInventoryInput')?.addEventListener('change', () => handleFileAutoRead('jspInventoryInput', parseJspInventoryFile, "請先選擇 JSP 庫存檔"));
     document.getElementById('masterFileInput')?.addEventListener('change', (event) => autoClassifyAndReadFiles(event.target.files));
     document.getElementById('salesBusinessReportInput')?.addEventListener('change', () => handleFileAutoRead('salesBusinessReportInput', parseSalesBusinessReportFile, '請先選擇 Business Report / 銷售額檔案'));
@@ -2455,7 +2476,7 @@
     function exportNewOrderRowsFiltered() { const headers = ["品號","JAM/FY訂單","訂單數量","首批裝櫃日","首批預計到港日","圖／上架完成期限","提醒"]; const body = applyFilters(newOrderRowsAll).map(r => { const p = getNewProductLaunchPlan(r); return [r.sku, r.jamOrders || "", r.order ?? "", p.loadingText, p.arrivalText, p.deadlineText, p.statusText]; }); return { headers, body }; }
 
     document.getElementById("btnBuild").addEventListener("click", buildTables);
-    document.getElementById("btnClearAll").addEventListener("click", () => { if (!confirm('確定要清空所有上傳資料與三個工廠的訂單草稿嗎？此操作無法復原。')) return; localStorage.removeItem(GENERATOR_DRAFT_KEY); clearTable(); [h10El, ordersEl, usAmzEl, usJspEl].forEach(el => el.value = ""); latestJamBreakdownMap = new Map(); latestJamSummaryMap = new Map(); window.latestJamBreakdownMap = latestJamBreakdownMap; window.latestJamSummaryMap = latestJamSummaryMap; document.getElementById('jamMetaBox').textContent = '尚未讀取 JAM Excel。'; hideDiscontinuedMode = true; if (hideDiscontinuedFilterEl) hideDiscontinuedFilterEl.checked = true; onlyNoOrderMode = false; if (onlyNoOrderFilterEl) onlyNoOrderFilterEl.checked = false; const amzMeta = document.getElementById('amzMetaBox'); if (amzMeta) amzMeta.textContent = '尚未讀取 AMZ 庫存檔。'; const jspMeta = document.getElementById('jspMetaBox'); if (jspMeta) jspMeta.textContent = '尚未讀取 JSP 庫存檔。'; const masterMeta = document.getElementById('masterMetaBox'); if (masterMeta) masterMeta.textContent = '尚未使用總檔案上傳。'; const salesInput = document.getElementById('salesInput'); if (salesInput) salesInput.value = ''; buildTables(); updateTotals(); updateWorkflowUi(); });
+    document.getElementById("btnClearAll").addEventListener("click", () => { if (!confirm('確定要清空所有上傳資料與三個工廠的訂單草稿嗎？此操作無法復原。')) return; localStorage.removeItem(GENERATOR_DRAFT_KEY); clearTable(); [h10El, ordersEl, usAmzEl, usJspEl].forEach(el => el.value = ""); latestJamBreakdownMap = new Map(); latestJamSummaryMap = new Map(); window.latestJamBreakdownMap = latestJamBreakdownMap; window.latestJamSummaryMap = latestJamSummaryMap; document.getElementById('jamMetaBox').textContent = '尚未讀取 JAM Excel。'; hideDiscontinuedMode = true; if (hideDiscontinuedFilterEl) hideDiscontinuedFilterEl.checked = true; onlyNoOrderMode = false; if (onlyNoOrderFilterEl) onlyNoOrderFilterEl.checked = false; const amzMeta = document.getElementById('amzMetaBox'); if (amzMeta) amzMeta.textContent = '尚未讀取 H10 檔案。'; const jspMeta = document.getElementById('jspMetaBox'); if (jspMeta) jspMeta.textContent = '尚未讀取 JSP 庫存檔。'; const masterMeta = document.getElementById('masterMetaBox'); if (masterMeta) masterMeta.textContent = '尚未使用總檔案上傳。'; const salesInput = document.getElementById('salesInput'); if (salesInput) salesInput.value = ''; buildTables(); updateTotals(); updateWorkflowUi(); });
     document.getElementById("factoryFilter").addEventListener("change", e => { factoryMode = e.target.value; renderAll(); });
     document.getElementById("itemFilter").addEventListener("change", e => { itemFilterMode = e.target.value; renderAll(); });
     hideDiscontinuedFilterEl?.addEventListener("change", e => { hideDiscontinuedMode = e.target.checked; renderAll(); if (typeof renderDecisionDashboard === 'function') renderDecisionDashboard(); if (typeof renderOtherTools === 'function') renderOtherTools(); if (typeof renderSalesGantt === 'function') renderSalesGantt(); if (typeof buildSalesCharts === 'function') buildSalesCharts(); });
@@ -2484,7 +2505,29 @@
     const boxSizePalletMap = { "50*40*30": 42, "58.5*34.5*35": 36, "50*40*40": 30, "48*38*28": 36 };
     let currentCountry = 'VN';
     const GENERATOR_DRAFT_KEY = 'supply-generator-drafts-v1';
+    const GENERATOR_COLUMNS_KEY = 'supply-generator-columns-v1';
     let isRestoringDraft = false;
+    function applyGeneratorColumnVisibility(state) {
+      const table = document.getElementById('productTable');
+      if (!table) return;
+      ['target','cartons','box','estimated','arrival'].forEach(key => {
+        const visible = Boolean(state[key]);
+        table.classList.toggle(`hide-col-${key}`, !visible);
+        const input = document.querySelector(`[data-generator-column-toggle="${key}"]`);
+        if (input) input.checked = visible;
+      });
+    }
+    function wireGeneratorColumnVisibility() {
+      const defaults = { target:false, cartons:false, box:false, estimated:true, arrival:true };
+      let state = { ...defaults };
+      try { state = { ...defaults, ...JSON.parse(localStorage.getItem(GENERATOR_COLUMNS_KEY) || '{}') }; } catch (_) {}
+      applyGeneratorColumnVisibility(state);
+      document.querySelectorAll('[data-generator-column-toggle]').forEach(input => input.addEventListener('change', () => {
+        state[input.dataset.generatorColumnToggle] = input.checked;
+        applyGeneratorColumnVisibility(state);
+        try { localStorage.setItem(GENERATOR_COLUMNS_KEY, JSON.stringify(state)); } catch (_) {}
+      }));
+    }
     function readGeneratorDrafts() { try { return JSON.parse(localStorage.getItem(GENERATOR_DRAFT_KEY) || '{}'); } catch (_) { return {}; } }
     function saveGeneratorDraft(country = currentCountry) {
       if (isRestoringDraft) return;
@@ -2535,6 +2578,18 @@
     function getUnitsPerPallet(prod) { const perCarton = Number(prod?.perCarton ?? 0), perPallet = Number(prod?.perPallet ?? 0); return perCarton && perPallet ? perCarton * perPallet : 0; }
     function formatPalletDays(prod) { const speed = getSpeedForProduct(prod.productCode); if (!speed || speed <= 0) return '—'; const days = getUnitsPerPallet(prod) / speed; return Number.isFinite(days) ? `${days.toFixed(1)} 天` : '—'; }
     function formatEstimatedDays(prod, quantity, units) { const speed = getSpeedForProduct(prod.productCode); if (!speed || speed <= 0) return '—'; const total = getAvailForProduct(prod.productCode) + ((Number.isFinite(units) && units > 0) ? units : (Number(quantity) || 0)); const days = total / speed; return Number.isFinite(days) ? `${days.toFixed(1)} 天` : '—'; }
+    function formatPostArrivalDays(prod, quantity, units) {
+      const code = getCanonicalSku(prod.productCode);
+      const speed = getSpeedForProduct(code);
+      if (!speed || speed <= 0) return '—';
+      const newOrderUnits = (Number.isFinite(units) && units > 0) ? units : (Number(quantity) || 0);
+      const sourceRow = mainRowsAll.find(row => getCanonicalSku(row.sku) === code);
+      let stockAtArrival;
+      if (sourceRow) stockAtArrival = Math.max(0, getLeadTimePlan(sourceRow, Math.max(1, Number(daysThresholdEl.value || 180))).projectedStock);
+      else stockAtArrival = Math.max(0, getAvailForProduct(code) - speed * getLeadTimeDays());
+      const days = (stockAtArrival + newOrderUnits) / speed;
+      return Number.isFinite(days) ? `${days.toFixed(1)} 天` : '—';
+    }
     window.refreshGeneratorSpeedMetrics = function() { document.querySelectorAll('#productTable tbody tr').forEach(row => { const prod = getProductSpecByCode(row.dataset.product); if (!prod) return; row.querySelector('.pallet-days').textContent = formatPalletDays(prod); updateEstimatedDays(row, prod); }); };
     function searchProduct() { const raw = document.getElementById('searchInput').value.trim(); const val = normalizeSkuKey(raw); const nameVal = raw.toLocaleLowerCase('zh-Hant'); const res = document.getElementById('searchResults'); res.innerHTML = ''; if (!val) { res.style.display = 'none'; return; } const matched = getFilteredProducts().filter(p => normalizeSkuKey(p.productCode).includes(val) || String(p.productName || '').toLocaleLowerCase('zh-Hant').includes(nameVal)).slice(0, 40); if (matched.length) { res.style.display = 'block'; matched.forEach(prod => { const item = document.createElement('div'); item.className = 'search-result-item'; item.textContent = `${prod.productCode} - ${prod.productName}`; item.onclick = () => { addProduct(prod); document.getElementById('searchInput').value = ''; res.innerHTML = ''; res.style.display = 'none'; }; res.appendChild(item); }); } else res.style.display = 'none'; }
     window.searchProduct = searchProduct;
@@ -2551,7 +2606,7 @@
       const { hasPack, hasBox } = checkPackageType(prod);
       const packOrBoxInput = hasPack ? `<input type="number" class="edit-pack-input" placeholder="袋數" oninput="updateFields(this,'${code}')">` : (hasBox ? `<input type="number" class="edit-box-input" placeholder="盒數" oninput="updateFields(this,'${code}')">` : '-');
       const targetPlaceholder = hasPack ? '目標袋數' : (hasBox ? '目標盒數' : '目標包數');
-      const rowHTML = `<tr data-product="${escapeHtml(code)}" data-order-code="${escapeHtml(code)}"><td></td><td><span class="order-code-label">${escapeHtml(code)}</span>${renderEquivalentOrderToggle(code)}</td><td><input type="number" class="edit-quantity-input" placeholder="包數" oninput="updateFields(this,'${code}')"></td><td>${packOrBoxInput}</td><td><input type="number" class="target-input" placeholder="${targetPlaceholder}" oninput="checkTarget(this)"></td><td><input type="number" class="edit-cartons-input" placeholder="箱數" oninput="updateFields(this,'${code}')"></td><td><input type="number" class="edit-pallets-input" placeholder="棧板數" oninput="updateFields(this,'${code}')"></td><td>${escapeHtml(prod.boxSize || '')} cm</td><td class="pallet-days">${formatPalletDays(prod)}</td><td class="estimated-days">${formatEstimatedDays(prod, 0, 0)}</td><td><button type="button" class="lock-button" onclick="toggleLock(this)"><i class="fa-solid fa-lock"></i></button><button type="button" class="remove-button" onclick="removeRow(this)"><i class="fa-solid fa-trash"></i></button></td></tr>`;
+      const rowHTML = `<tr data-product="${escapeHtml(code)}" data-order-code="${escapeHtml(code)}"><td></td><td><span class="order-code-label">${escapeHtml(code)}</span>${renderEquivalentOrderToggle(code)}</td><td><input type="number" class="edit-quantity-input" placeholder="包數" oninput="updateFields(this,'${code}')"></td><td>${packOrBoxInput}</td><td data-generator-col="target"><input type="number" class="target-input" placeholder="${targetPlaceholder}" oninput="checkTarget(this)"></td><td data-generator-col="cartons"><input type="number" class="edit-cartons-input" placeholder="箱數" oninput="updateFields(this,'${code}')"></td><td><input type="number" class="edit-pallets-input" placeholder="棧板數" oninput="updateFields(this,'${code}')"></td><td data-generator-col="box">${escapeHtml(prod.boxSize || '')} cm</td><td class="pallet-days">${formatPalletDays(prod)}</td><td class="estimated-days" data-generator-col="estimated">${formatEstimatedDays(prod, 0, 0)}</td><td class="arrival-days" data-generator-col="arrival">${formatPostArrivalDays(prod, 0, 0)}</td><td><button type="button" class="lock-button" onclick="toggleLock(this)"><i class="fa-solid fa-lock"></i></button><button type="button" class="remove-button" onclick="removeRow(this)"><i class="fa-solid fa-trash"></i></button></td></tr>`;
       tbody.insertAdjacentHTML('beforeend', rowHTML);
       const row = tbody.lastElementChild;
       updateRowNumbers();
@@ -2566,7 +2621,7 @@
     function recalcValues(changedField, vals) { let { quantity, units, cartons, pallets, perPack, perBox, perCarton, perPallet } = vals; const isBag = perPack > 0, isBox = perBox > 0 && !isBag, isSingle = !isBag && !isBox; if (isBag) { if (changedField === 'quantity') { units = quantity / perPack; cartons = units / perCarton; pallets = cartons / perPallet; } if (changedField === 'units') { quantity = units * perPack; cartons = units / perCarton; pallets = cartons / perPallet; } if (changedField === 'cartons') { units = cartons * perCarton; quantity = units * perPack; pallets = cartons / perPallet; } if (changedField === 'pallets') { cartons = pallets * perPallet; units = cartons * perCarton; quantity = units * perPack; } } else if (isBox) { if (changedField === 'quantity') { units = quantity / perBox; cartons = units / perCarton; pallets = cartons / perPallet; } if (changedField === 'units') { quantity = units * perBox; cartons = units / perCarton; pallets = cartons / perPallet; } if (changedField === 'cartons') { units = cartons * perCarton; quantity = units * perBox; pallets = cartons / perPallet; } if (changedField === 'pallets') { cartons = pallets * perPallet; units = cartons * perCarton; quantity = units * perBox; } } else if (isSingle) { if (changedField === 'quantity') { cartons = quantity / perCarton; pallets = cartons / perPallet; } if (changedField === 'cartons') { quantity = cartons * perCarton; pallets = cartons / perPallet; } if (changedField === 'pallets') { cartons = pallets * perPallet; quantity = cartons * perCarton; } } return { quantity, units, cartons, pallets }; }
     function updateFields(input, productCode) { const row = input.closest('tr'), prod = getProductSpecByCode(productCode); if (!prod) return; let { quantity, units, cartons, pallets } = getCurrentValues(row); const changedField = getChangedField(input); ({ quantity, units, cartons, pallets } = recalcValues(changedField, { quantity, units, cartons, pallets, perPack: Number(prod.perPack || 0), perBox: Number(prod.perBox || 0), perCarton: Number(prod.perCarton || 1), perPallet: Number(prod.perPallet || 1) })); if (changedField !== 'quantity') row.querySelector('.edit-quantity-input').value = quantity.toFixed(0); const unitInput = row.querySelector('.edit-pack-input') || row.querySelector('.edit-box-input'); if (unitInput && changedField !== 'units') unitInput.value = units.toFixed(2); if (changedField !== 'cartons') row.querySelector('.edit-cartons-input').value = cartons.toFixed(2); if (changedField !== 'pallets') row.querySelector('.edit-pallets-input').value = pallets.toFixed(2); updateEstimatedDays(row, prod); updateTotals(); saveGeneratorDraft(); }
     window.updateFields = updateFields;
-    function updateEstimatedDays(row, prod) { const quantity = parseFloat(row.querySelector('.edit-quantity-input')?.value) || 0; const unitInput = row.querySelector('.edit-pack-input') || row.querySelector('.edit-box-input'); const units = unitInput ? parseFloat(unitInput.value) || 0 : 0; row.querySelector('.estimated-days').textContent = formatEstimatedDays(prod, quantity, units); }
+    function updateEstimatedDays(row, prod) { const quantity = parseFloat(row.querySelector('.edit-quantity-input')?.value) || 0; const unitInput = row.querySelector('.edit-pack-input') || row.querySelector('.edit-box-input'); const units = unitInput ? parseFloat(unitInput.value) || 0 : 0; const estimated = row.querySelector('.estimated-days'); const arrival = row.querySelector('.arrival-days'); if (estimated) estimated.textContent = formatEstimatedDays(prod, quantity, units); if (arrival) arrival.textContent = formatPostArrivalDays(prod, quantity, units); }
     function checkTarget(targetInput) { const row = targetInput.closest('tr'); const unitInput = row.querySelector('.edit-pack-input') || row.querySelector('.edit-box-input'); const currentVal = unitInput ? (parseFloat(unitInput.value) || 0) : (parseFloat(row.querySelector('.edit-quantity-input').value) || 0); const tVal = parseFloat(targetInput.value) || 0; if (tVal > 0 && currentVal >= tVal) { targetInput.style.backgroundColor = '#23c87d'; targetInput.style.color = '#fff'; } else if (tVal > 0) { targetInput.style.backgroundColor = '#fa5353'; targetInput.style.color = '#fff'; } else { targetInput.style.backgroundColor = ''; targetInput.style.color = ''; } saveGeneratorDraft(); }
     window.checkTarget = checkTarget;
     function toggleLock(btn) { const row = btn.closest('tr'); const isLocked = row.classList.contains('locked'); row.querySelectorAll('input').forEach(inp => inp.disabled = !isLocked); row.classList.toggle('locked', !isLocked); btn.innerHTML = isLocked ? '<i class="fa-solid fa-lock"></i>' : '<i class="fa-solid fa-lock-open"></i>'; saveGeneratorDraft(); }
@@ -3250,11 +3305,13 @@
         { label: '越南廠', value: totals.factory.VN, color: '#63c47a' },
         { label: '未對應', value: totals.factory.unknown, color: '#c0c7d1' }
       ]);
-      renderPieChart(document.getElementById('categoryPie'), document.getElementById('categoryLegend'), salesCategoryDefinitions.map(def => ({
+      const categorySlices = salesCategoryDefinitions.map((def, originalIndex) => ({
         label: def.label,
         value: totals.category[def.key],
-        color: def.color
-      })));
+        color: def.color,
+        originalIndex
+      })).sort((a, b) => b.value - a.value || a.originalIndex - b.originalIndex);
+      renderPieChart(document.getElementById('categoryPie'), document.getElementById('categoryLegend'), categorySlices);
       const notes = [];
       if (totals.factory.unknown > 0) notes.push(`未對應工廠：${formatCurrency(totals.factory.unknown)}`);
       if (missingBusinessReportNames.size) notes.push(`Business Report 缺少品名：${missingBusinessReportNames.size} 個 SKU（歸入其他）`);
@@ -3415,6 +3472,7 @@
       wireDecisionDashboard();
       wireOtherTools();
       wireSalesBlocks();
+      wireGeneratorColumnVisibility();
       wireWorkflowNavigation();
       buildTables();
       restoreGeneratorDraft(currentCountry);
