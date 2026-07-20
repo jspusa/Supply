@@ -509,6 +509,9 @@
     .toolTab.active { background:#111827; color:#fff; border-color:#111827; }
     .toolPanel { display:none; }
     .toolPanel.active { display:block; }
+    .embeddedToolSource { display:none !important; }
+    .embeddedToolHeader { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:14px; }
+    .embeddedToolHeader .summary-actions { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; }
     .treeBox { border:1px solid rgba(226,232,240,.9); border-radius:24px; background:rgba(255,255,255,.84); padding:16px; margin-top:10px; overflow:auto; }
     .skuTreeResultCard { margin-top: 14px; border: 2px solid #dbeafe; border-radius: 22px; background: linear-gradient(180deg,#ffffff,#f8fbff); box-shadow: 0 12px 34px rgba(37,99,235,.08); overflow: hidden; }
     .skuTreeResultHeader { display:flex; align-items:center; justify-content:space-between; gap:10px; padding: 10px 14px; background: #eaf3ff; border-bottom: 1px solid #cfe2ff; color:#12315f; font-weight:850; }
@@ -614,7 +617,7 @@
     .newLaunchStatus.missing { background:#e2e8f0; color:#475569; }
     #uploadCard { order:1; } #decisionDashboard { order:2; } #reorderCard { order:3; }
     #generatorCard { order:4; } #skuDecisionTreeCard { order:5; } #autoDecisionTreeCard { order:6; } #mainCard { order:7; }
-    #hotCard { order:8; } #newCard { order:9; }
+    #newCard { order:8; }
     .sectionFlash { animation:sectionFlash 1.1s ease; }
     @keyframes sectionFlash { 0%,100% { box-shadow:var(--shadow); } 45% { box-shadow:0 0 0 5px rgba(0,113,227,.18), var(--shadow); } }
     @media (max-width:1180px) {
@@ -658,12 +661,9 @@
       <button class="navItem" data-target="skuDecisionTreeCard"><i class="fa-solid fa-code-branch"></i>SKU 決策樹</button>
       <button class="navItem" data-target="autoDecisionTreeCard"><i class="fa-solid fa-triangle-exclamation"></i>自動缺貨警示<span class="navBadge" id="navAutoDecisionCount">0</span></button>
       <button class="navItem" data-target="mainCard"><i class="fa-solid fa-table"></i>H10 主表<span class="navBadge" id="navMainCount">0</span></button>
-      <button class="navItem" data-target="hotCard"><i class="fa-solid fa-fire"></i>熱銷品<span class="navBadge" id="navHotCount">0</span></button>
       <button class="navItem" data-target="newCard"><i class="fa-solid fa-sparkles"></i>新品<span class="navBadge" id="navNewCount">0</span></button>
-      <button class="navItem" data-target="salesGanttDetails"><i class="fa-solid fa-calendar-days"></i>缺貨甘特圖</button>
-      <button class="navItem" data-target="salesPieDetails"><i class="fa-solid fa-chart-pie"></i>銷售額分析</button>
       <div class="navGroupTitle">其他工具</div>
-      <button class="navItem" data-target="otherToolsDetails"><i class="fa-solid fa-screwdriver-wrench"></i>庫齡／停產／報表</button>
+      <button class="navItem" data-target="otherToolsDetails"><i class="fa-solid fa-screwdriver-wrench"></i>其他功能</button>
     </nav>
   </aside>
   <div class="navScrim" id="navScrim"></div>
@@ -970,7 +970,7 @@
         </div>
       </details>
 
-      <details class="card priority" id="hotCard">
+      <details class="card priority embeddedToolSource" id="hotCard">
         <summary>
           <div>
             <h2>熱銷品專區（<span id="countHot">0</span>）</h2>
@@ -998,7 +998,7 @@
 
 
 
-    <details class="card" id="salesPieDetails">
+    <details class="card embeddedToolSource" id="salesPieDetails">
       <summary>
         <div>
           <p class="eyebrow">銷售額分析</p>
@@ -1038,14 +1038,6 @@
             </div>
           </div>
           <div class="salesChartCard">
-            <p class="eyebrow">品項篩選</p>
-            <h2>火雞 vs 非火雞</h2>
-            <div class="pieRow">
-              <div class="pieChart" id="itemPie"></div>
-              <div class="pieLegend" id="itemLegend"></div>
-            </div>
-          </div>
-          <div class="salesChartCard">
             <p class="eyebrow">Business Report 品名分類</p>
             <h2>8 類產品銷售占比</h2>
             <div class="pieRow">
@@ -1060,7 +1052,7 @@
       </div>
     </details>
 
-    <details class="card" id="salesGanttDetails">
+    <details class="card embeddedToolSource" id="salesGanttDetails">
       <summary>
         <div>
           <p class="eyebrow">缺貨預測</p>
@@ -1111,7 +1103,7 @@
         <div>
           <p class="eyebrow">其他功能</p>
           <h2>其他功能區</h2>
-          <div class="hint">長庫齡風險、停產品清單與 Business Report 診斷。</div>
+          <div class="hint">集中管理庫齡、停產品、熱銷品、Business Report 與缺貨月曆。</div>
         </div>
         <div class="summary-actions"><span class="pill">Tools</span></div>
       </summary>
@@ -1119,7 +1111,9 @@
         <div class="toolTabs" id="otherToolTabs">
           <button class="toolTab active" data-panel="amzOver180Panel">AMZ超過180天</button>
           <button class="toolTab" data-panel="discontinuedPanel">停產清單</button>
+          <button class="toolTab" data-panel="hotToolPanel">熱銷品專區</button>
           <button class="toolTab" data-panel="businessReportPanel">Business Report</button>
+          <button class="toolTab" data-panel="salesGanttToolPanel">缺貨甘特圖／月曆</button>
         </div>
         <div id="amzOver180Panel" class="toolPanel active">
           <div class="hint">以 AMZ 庫存 ÷ H10 速度估算。此清單不受「隱藏停產品」影響，避免漏掉長期倉儲費風險。</div>
@@ -1129,10 +1123,14 @@
           <div class="hint">固定停產品清單；若停產品仍有 AMZ/JSP 庫存或未到貨訂單，會一併顯示。</div>
           <div class="tableWrap" id="discontinuedListWrap"></div>
         </div>
+        <div id="hotToolPanel" class="toolPanel"><div id="hotToolHost"></div></div>
         <div id="businessReportPanel" class="toolPanel">
-          <div class="hint">上傳 Business Report CSV 後，這裡會顯示流量、轉換率、Buy Box、B2B 占比等診斷。</div>
+          <div id="businessReportChartsHost"></div>
+          <h3>Business Report 營運診斷</h3>
+          <div class="hint">上傳 Business Report CSV 後，這裡會同時顯示八類銷售占比、流量、轉換率、Buy Box 與 B2B 占比。</div>
           <div id="businessReportInsightsWrap"></div>
         </div>
+        <div id="salesGanttToolPanel" class="toolPanel"><div id="salesGanttToolHost"></div></div>
       </div>
     </details>
 
@@ -3065,7 +3063,7 @@
       if (!wrap) return;
       const data = latestBusinessReport;
       if (!data || !data.ok || !data.rows?.length) {
-        wrap.innerHTML = '<div class="hint">尚未讀取 Business Report。可在「銷售額圓餅圖」或「總檔案上傳區」上傳 CSV。</div>';
+        wrap.innerHTML = '<div class="hint">尚未讀取 Business Report。可直接在這個頁籤或「總檔案上傳區」上傳 CSV。</div>';
         return;
       }
       const rows = data.rows;
@@ -3113,6 +3111,26 @@
       renderBusinessReportInsights();
     }
     function wireOtherTools() {
+      const embedToolCard = (sourceId, hostId) => {
+        const source = document.getElementById(sourceId);
+        const host = document.getElementById(hostId);
+        if (!source || !host) return;
+        const summary = source.querySelector('summary');
+        const content = source.querySelector('.cardContent');
+        if (summary) {
+          const header = document.createElement('div');
+          header.className = 'embeddedToolHeader';
+          while (summary.firstChild) header.appendChild(summary.firstChild);
+          host.appendChild(header);
+        }
+        if (content) {
+          while (content.firstChild) host.appendChild(content.firstChild);
+        }
+        source.remove();
+      };
+      embedToolCard('hotCard', 'hotToolHost');
+      embedToolCard('salesPieDetails', 'businessReportChartsHost');
+      embedToolCard('salesGanttDetails', 'salesGanttToolHost');
       document.querySelectorAll('.toolTab').forEach(btn => {
         btn.addEventListener('click', () => {
           document.querySelectorAll('.toolTab').forEach(b => b.classList.remove('active'));
@@ -3215,15 +3233,12 @@
       const businessReportNameMap = new Map((latestBusinessReport?.rows || []).map(row => [normalizeSkuKey(row.sku), String(row.productName || '').trim()]));
       const categoryTotals = Object.fromEntries(salesCategoryDefinitions.map(def => [def.key, 0]));
       const missingBusinessReportNames = new Set();
-      const totals = { factory: { TW: 0, VN: 0, unknown: 0 }, item: { turkey: 0, nonTurkey: 0, unknown: 0 }, category: categoryTotals, total: 0 };
+      const totals = { factory: { TW: 0, VN: 0, unknown: 0 }, category: categoryTotals, total: 0 };
       records.forEach(record => {
         const prod = getProductBySku(record.sku);
         if (prod?.country === 'TW') totals.factory.TW += record.amount;
         else if (prod?.country === 'VN') totals.factory.VN += record.amount;
         else totals.factory.unknown += record.amount;
-        if (isTurkeySkuForSales(record.sku)) totals.item.turkey += record.amount;
-        else if (prod || isExplicitNonTurkeySku(record.sku)) totals.item.nonTurkey += record.amount;
-        else totals.item.unknown += record.amount;
         const businessReportName = businessReportNameMap.get(record.sku) || '';
         if (!businessReportName) missingBusinessReportNames.add(record.sku);
         const category = classifyBusinessReportProductName(businessReportName);
@@ -3235,11 +3250,6 @@
         { label: '越南廠', value: totals.factory.VN, color: '#63c47a' },
         { label: '未對應', value: totals.factory.unknown, color: '#c0c7d1' }
       ]);
-      renderPieChart(document.getElementById('itemPie'), document.getElementById('itemLegend'), [
-        { label: '火雞', value: totals.item.turkey, color: '#f1b94b' },
-        { label: '非火雞', value: totals.item.nonTurkey, color: '#8c9caf' },
-        { label: '未對應', value: totals.item.unknown, color: '#c0c7d1' }
-      ]);
       renderPieChart(document.getElementById('categoryPie'), document.getElementById('categoryLegend'), salesCategoryDefinitions.map(def => ({
         label: def.label,
         value: totals.category[def.key],
@@ -3247,7 +3257,6 @@
       })));
       const notes = [];
       if (totals.factory.unknown > 0) notes.push(`未對應工廠：${formatCurrency(totals.factory.unknown)}`);
-      if (totals.item.unknown > 0) notes.push(`未對應品項：${formatCurrency(totals.item.unknown)}`);
       if (missingBusinessReportNames.size) notes.push(`Business Report 缺少品名：${missingBusinessReportNames.size} 個 SKU（歸入其他）`);
       const summaryEl = document.getElementById('salesSummary');
       if (summaryEl) summaryEl.textContent = totals.total > 0 ? `總銷售額：${formatCurrency(totals.total)}${notes.length ? `（${notes.join(' / ')}）` : ''}` : '尚未偵測到可解析的銷售額資料。';
