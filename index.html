@@ -600,6 +600,18 @@
     .autoDecisionAlert.okState { border-color:#bbf7d0; background:#f0fdf4; color:#166534; }
     .autoDecisionBox { max-height:760px; overflow:auto; }
     .autoDecisionFinal { margin-top:10px; padding:10px 12px; border-radius:12px; background:#fee2e2; color:#991b1b; font-size:12px; font-weight:850; }
+    .newLaunchSummary { display:flex; align-items:flex-start; gap:10px; margin-bottom:12px; padding:12px 14px; border:1px solid #bfdbfe; border-radius:14px; background:#eff6ff; color:#1e3a8a; font-size:12px; line-height:1.6; }
+    .newLaunchSummary.urgent { border-color:#fecaca; background:#fef2f2; color:#991b1b; }
+    .newLaunchDateStack { display:grid; gap:3px; min-width:128px; }
+    .newLaunchDateStack span { white-space:nowrap; }
+    .newLaunchDateStack small { color:#64748b; font-weight:700; }
+    .newLaunchDeadline { font-weight:850; white-space:nowrap; }
+    .newLaunchStatus { display:inline-flex; align-items:center; gap:5px; padding:4px 8px; border-radius:999px; font-size:11px; font-weight:850; white-space:nowrap; }
+    .newLaunchStatus.overdue { background:#fee2e2; color:#991b1b; }
+    .newLaunchStatus.now { background:#ffedd5; color:#9a3412; }
+    .newLaunchStatus.soon { background:#fef3c7; color:#92400e; }
+    .newLaunchStatus.planned { background:#dcfce7; color:#166534; }
+    .newLaunchStatus.missing { background:#e2e8f0; color:#475569; }
     #uploadCard { order:1; } #decisionDashboard { order:2; } #reorderCard { order:3; }
     #generatorCard { order:4; } #skuDecisionTreeCard { order:5; } #autoDecisionTreeCard { order:6; } #mainCard { order:7; }
     #hotCard { order:8; } #newCard { order:9; }
@@ -976,11 +988,11 @@
         <summary>
           <div>
             <h2>新品（訂單有，但 H10 沒有）（<span id="countNewOrder">0</span>）</h2>
-            <div class="hint">訂單有、H10 沒有的 SKU。</div>
+            <div class="hint">精簡顯示新品訂單與首批日期；建議在首批到港前 30 天完成圖片與上架。</div>
           </div>
           <div class="summary-actions"><button class="secondary" id="btnDownloadNewOrderCSV">下載Excel</button></div>
         </summary>
-        <div class="cardContent"><div class="tableWrap" id="newOrderWrap"></div></div>
+        <div class="cardContent"><div id="newLaunchSummary"></div><div class="tableWrap" id="newOrderWrap"></div></div>
       </details>
     </div>
 
@@ -2029,12 +2041,63 @@
       const body = rows.map((r, idx) => `<tr><td>${idx + 1}</td>${renderSkuCell(r.sku)}${r.speed === null ? '<td class="bad">(未抓到)</td>' : `<td class="ok">${escapeHtml(String(r.speed))}</td>`}${renderNumericCell(r.order)}${renderInventoryCell(r.usAmz)}${renderInventoryCell(r.usJsp)}${r.usDays === null ? '<td class="bad">(不可算)</td>' : `<td class="ok">${fmtDays(r.usDays)}</td>`}${r.days === null ? '<td class="bad">(不可算)</td>' : `<td class="ok">${fmtDays(r.days)}</td>`}${jamFrontCells(r)}</tr>`).join("");
       hotWrap.innerHTML = `<table><thead><tr><th>#</th><th>SKU</th><th>速度</th><th>訂單</th><th>美國AMZ倉</th><th>美國JSP倉</th><th>美國可售天數</th><th>含訂單可售天數</th><th>JAM/FY訂單來源</th><th>裝櫃日</th><th>預計到港日</th></tr></thead><tbody>${body}</tbody></table>`;
     }
+    function getNewProductLaunchPlan(row) {
+      const breakdown = getJamBreakdownForSku(row?.sku)
+        .filter(item => !item.isReceived && safeNumber(item.qty, 0) > 0)
+        .map(item => {
+          const loadingDate = parseYmdDate(item.loadingDate);
+          const arrivalDate = parseYmdDate(item.arrivalDate);
+          return { ...item, loadingDateObj: loadingDate, arrivalDateObj: arrivalDate, anchorDate: arrivalDate || loadingDate };
+        })
+        .filter(item => item.anchorDate)
+        .sort((a, b) => a.anchorDate - b.anchorDate);
+      const firstShipment = breakdown[0] || null;
+      const loadingDate = firstShipment?.loadingDateObj || parseYmdDate(row?.loadingDate);
+      const arrivalDate = firstShipment?.arrivalDateObj || parseYmdDate(row?.arrivalDate);
+      const deadline = arrivalDate ? addDays(arrivalDate, -30) : loadingDate;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const daysLeft = deadline ? Math.ceil((deadline - today) / 86400000) : null;
+      let statusKey = 'missing', statusText = '缺日期', icon = 'fa-calendar-xmark', sortValue = Number.MAX_SAFE_INTEGER;
+      if (daysLeft !== null) {
+        sortValue = daysLeft;
+        if (daysLeft < 0) { statusKey = 'overdue'; statusText = `已逾期 ${Math.abs(daysLeft)} 天`; icon = 'fa-circle-exclamation'; }
+        else if (daysLeft <= 14) { statusKey = 'now'; statusText = daysLeft === 0 ? '今天要完成' : `${daysLeft} 天內，立刻處理`; icon = 'fa-bolt'; }
+        else if (daysLeft <= 30) { statusKey = 'soon'; statusText = `剩 ${daysLeft} 天，儘快安排`; icon = 'fa-clock'; }
+        else { statusKey = 'planned'; statusText = `剩 ${daysLeft} 天`; icon = 'fa-calendar-check'; }
+      }
+      return {
+        loadingText: loadingDate ? formatDateYMD(loadingDate) : 'N/A',
+        arrivalText: arrivalDate ? formatDateYMD(arrivalDate) : 'N/A',
+        deadlineText: deadline ? formatDateYMD(deadline) : '待補日期',
+        sourceLabel: arrivalDate ? '首批到港前 30 天' : (loadingDate ? '缺到港日，暫用裝櫃日' : ''),
+        statusKey,
+        statusText,
+        icon,
+        sortValue
+      };
+    }
     function renderNewOrder() {
-      const rows = applyFilters(newOrderRowsAll);
+      const rows = applyFilters(newOrderRowsAll)
+        .map(row => ({ ...row, launchPlan: getNewProductLaunchPlan(row) }))
+        .sort((a, b) => a.launchPlan.sortValue - b.launchPlan.sortValue || a.sku.localeCompare(b.sku));
       document.getElementById('countNewOrder').textContent = String(rows.length);
-      if (!rows.length) { newOrderWrap.innerHTML = ""; return; }
-      const body = rows.map((r, idx) => `<tr><td>${idx + 1}</td>${renderSkuCell(r.sku)}<td class="ok">${fmtQty(r.order)}</td>${renderInventoryCell(r.usAmz, '(未提供)')}${renderInventoryCell(r.usJsp, '(未提供)')}${jamFrontCells(r)}</tr>`).join("");
-      newOrderWrap.innerHTML = `<table><thead><tr><th>#</th><th>SKU</th><th>訂單</th><th>美國AMZ倉</th><th>美國JSP倉</th><th>JAM/FY訂單來源</th><th>裝櫃日</th><th>預計到港日</th></tr></thead><tbody>${body}</tbody></table>`;
+      const summary = document.getElementById('newLaunchSummary');
+      if (!rows.length) {
+        if (summary) summary.innerHTML = '<div class="newLaunchSummary"><i class="fa-solid fa-circle-check"></i><div><b>目前沒有新品上架待辦</b><br>訂單有但 H10 尚未出現的 SKU 會自動列在這裡。</div></div>';
+        newOrderWrap.innerHTML = "";
+        return;
+      }
+      const urgentCount = rows.filter(r => ['overdue', 'now'].includes(r.launchPlan.statusKey)).length;
+      const missingDateCount = rows.filter(r => r.launchPlan.statusKey === 'missing').length;
+      if (summary) summary.innerHTML = `<div class="newLaunchSummary ${urgentCount ? 'urgent' : ''}"><i class="fa-solid ${urgentCount ? 'fa-triangle-exclamation' : 'fa-wand-magic-sparkles'}"></i><div><b>${urgentCount ? `${urgentCount} 個新品需要立刻處理圖片／上架` : `${rows.length} 個新品已排入上架時程`}</b><br>期限＝首批預計到港前 30 天${missingDateCount ? `；另有 ${missingDateCount} 個缺少可用日期，請補 JAM/FY 日期` : ''}。</div></div>`;
+      const body = rows.map((r, idx) => {
+        const plan = r.launchPlan;
+        const orderNames = r.jamOrders && r.jamOrders !== 'N/A' ? r.jamOrders : '訂單來源未對應';
+        const sourceNote = plan.sourceLabel ? `<small>${escapeHtml(plan.sourceLabel)}</small>` : '';
+        return `<tr><td>${idx + 1}</td>${renderSkuCell(r.sku)}<td><b>${escapeHtml(orderNames)}</b><br><span class="miniMetric">數量 ${fmtQty(r.order)}</span></td><td><div class="newLaunchDateStack"><span><small>裝櫃</small> ${escapeHtml(plan.loadingText)}</span><span><small>到港</small> ${escapeHtml(plan.arrivalText)}</span></div></td><td><div class="newLaunchDateStack"><span class="newLaunchDeadline">${escapeHtml(plan.deadlineText)}</span>${sourceNote}</div></td><td><span class="newLaunchStatus ${plan.statusKey}"><i class="fa-solid ${escapeHtml(plan.icon)}"></i>${escapeHtml(plan.statusText)}</span></td></tr>`;
+      }).join("");
+      newOrderWrap.innerHTML = `<table><thead><tr><th>#</th><th>品號</th><th>訂單</th><th>首批日期</th><th>圖／上架完成期限</th><th>提醒</th></tr></thead><tbody>${body}</tbody></table>`;
     }
 
     function normalizeJamOrderName(value) { return String(value ?? "").replace(/\n/g, " ").replace(/\s+/g, " ").trim(); }
@@ -2391,7 +2454,7 @@
       return { headers, body };
     }
     function exportReorderRowsFiltered() { const target = Math.max(1, Number(daysThresholdEl.value || 180)); const lead = getLeadTimeDays(); const headers = ['SKU','ASIN','日銷售','目前美國庫存',`${lead}天內確定到貨`,'到港前需求','新單到港時預估剩餘','缺貨空窗天數','本次建議下單','到港後可售天數','未定日期訂單','較晚到貨訂單','新單預計到港日','JAM/FY訂單來源','原訂單預計到港日']; const filtered = applyFilters(mainRowsAll).filter(r => r.speed !== null && r.speed > 0).map(r => ({ row:r, plan:getLeadTimePlan(r,target) })).filter(x => x.plan.suggestedQty > 0).map(({row:r,plan:p}) => [r.sku,r.asin,r.speed ?? '',p.currentStock,p.inboundBefore,p.leadDemand,p.projectedStock,Number(p.shortageDays.toFixed(1)),p.suggestedQty,Number(p.postArrivalDays.toFixed(1)),p.uncertainInbound,p.laterInbound,formatDateYMD(p.newArrivalDate),r.jamOrders || '',r.jamArrivalDates || fmtDateText(r.arrivalDate)]); return { headers, body:filtered }; }
-    function exportNewOrderRowsFiltered() { const headers = ["SKU","訂單","美國AMZ倉總數","美國JSP倉總數","美國總數","JAM/FY訂單來源","裝櫃日","預計到港日"]; const body = applyFilters(newOrderRowsAll).map(r => [r.sku, r.order ?? "", r.usAmz ?? "", r.usJsp ?? "", r.us ?? "", r.jamOrders || "", r.jamLoadingDates || fmtDateText(r.loadingDate), r.jamArrivalDates || fmtDateText(r.arrivalDate)]); return { headers, body }; }
+    function exportNewOrderRowsFiltered() { const headers = ["品號","JAM/FY訂單","訂單數量","首批裝櫃日","首批預計到港日","圖／上架完成期限","提醒"]; const body = applyFilters(newOrderRowsAll).map(r => { const p = getNewProductLaunchPlan(r); return [r.sku, r.jamOrders || "", r.order ?? "", p.loadingText, p.arrivalText, p.deadlineText, p.statusText]; }); return { headers, body }; }
 
     document.getElementById("btnBuild").addEventListener("click", buildTables);
     document.getElementById("btnClearAll").addEventListener("click", () => { if (!confirm('確定要清空所有上傳資料與三個工廠的訂單草稿嗎？此操作無法復原。')) return; localStorage.removeItem(GENERATOR_DRAFT_KEY); clearTable(); [h10El, ordersEl, usAmzEl, usJspEl].forEach(el => el.value = ""); latestJamBreakdownMap = new Map(); latestJamSummaryMap = new Map(); window.latestJamBreakdownMap = latestJamBreakdownMap; window.latestJamSummaryMap = latestJamSummaryMap; document.getElementById('jamMetaBox').textContent = '尚未讀取 JAM Excel。'; hideDiscontinuedMode = true; if (hideDiscontinuedFilterEl) hideDiscontinuedFilterEl.checked = true; onlyNoOrderMode = false; if (onlyNoOrderFilterEl) onlyNoOrderFilterEl.checked = false; const amzMeta = document.getElementById('amzMetaBox'); if (amzMeta) amzMeta.textContent = '尚未讀取 AMZ 庫存檔。'; const jspMeta = document.getElementById('jspMetaBox'); if (jspMeta) jspMeta.textContent = '尚未讀取 JSP 庫存檔。'; const masterMeta = document.getElementById('masterMetaBox'); if (masterMeta) masterMeta.textContent = '尚未使用總檔案上傳。'; const salesInput = document.getElementById('salesInput'); if (salesInput) salesInput.value = ''; buildTables(); updateTotals(); updateWorkflowUi(); });
