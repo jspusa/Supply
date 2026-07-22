@@ -2186,7 +2186,15 @@
     function parseUsSummaryRows(rows) {
       if (!rows || rows.length < 5) return { orderText: "", breakdownMap: new Map(), summaryMap: new Map(), skuCount: 0, totalQty: 0, orderCount: 0 };
       const headerRow = rows[0] || [], loadingDateRow = rows[1] || [], arrivalDateRow = rows[2] || [], receivedRow = rows[3] || [];
-      let skuCol = headerRow.findIndex(cell => String(cell ?? "").toLowerCase().includes("productcode") || String(cell ?? "").includes("品號"));
+      const normalizeSkuHeader = value => String(value ?? "").replace(/\s+/g, "").trim().toLowerCase();
+      // 「美國總表」同時有「對應品號」與「品號 (productCode)」。
+      // 必須優先抓 productCode；若只找第一個含「品號」的欄位，會誤抓對應品號，
+      // 讓該欄空白的 SKU（例如 TTR01AM-4）連同有效 JAM 訂單一起被略過。
+      let skuCol = headerRow.findIndex(cell => normalizeSkuHeader(cell).includes("productcode"));
+      if (skuCol < 0) skuCol = headerRow.findIndex(cell => {
+        const text = normalizeSkuHeader(cell);
+        return text === "品號" || text === "sku" || (text.includes("品號") && !text.includes("對應品號"));
+      });
       if (skuCol < 0) skuCol = 2;
 
       const normalizeHeaderForMatch = value => String(value ?? "").replace(/\s+/g, "").trim();
