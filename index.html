@@ -1539,8 +1539,9 @@
       }
       return map;
     }
-    function parseAmzInventoryTextToMap(raw) {
-      const map = new Map();
+    function parseAmzInventoryTextToMaps(raw) {
+      const sellableMap = new Map();
+      const inboundMap = new Map();
       const lines = String(raw || "").split(/\r?\n/);
       for (let line of lines) {
         line = line.trim();
@@ -1556,11 +1557,12 @@
         if (!nums || !nums.length) continue;
         const sellable = normalizeNumber(nums[0]) ?? 0;
         const inbound = nums.length >= 2 ? (normalizeNumber(nums[1]) ?? 0) : 0;
-        const val = sellable + inbound;
-        map.set(sku, (map.get(sku) ?? 0) + val);
+        sellableMap.set(sku, (sellableMap.get(sku) ?? 0) + sellable);
+        inboundMap.set(sku, (inboundMap.get(sku) ?? 0) + inbound);
       }
-      return map;
+      return { sellableMap, inboundMap };
     }
+    function parseAmzInventoryTextToMap(raw) { return parseAmzInventoryTextToMaps(raw).sellableMap; }
 
     function findHeaderIndex(rows, requiredNames) {
       const lowered = requiredNames.map(name => String(name).toLowerCase());
@@ -1746,15 +1748,17 @@
         if (!sku || !/^[A-Z0-9][A-Z0-9-]{2,}$/i.test(sku)) continue;
         const sellable = normalizeNumber(row[sellableCol]) ?? 0;
         const inbound = normalizeNumber(row[inboundCol]) ?? 0;
-        const qty = sellable + inbound;
-        map.set(sku, (map.get(sku) ?? 0) + qty);
+        const qty = map.get(sku) || { sellable:0, inbound:0 };
+        qty.sellable += sellable;
+        qty.inbound += inbound;
+        map.set(sku, qty);
         sellableTotal += sellable;
         inboundTotal += inbound;
       }
       const lines = Array.from(map.entries())
         .sort((a, b) => a[0].localeCompare(b[0]))
-        .map(([sku, qty]) => `${sku}	${qty}`);
-      const totalQty = Array.from(map.values()).reduce((sum, qty) => sum + qty, 0);
+        .map(([sku, qty]) => `${sku}	${qty.sellable}	${qty.inbound}`);
+      const totalQty = sellableTotal + inboundTotal;
       const sales = parseSalesRowsFromTable(rows);
       return { orderText: lines.join("\n"), skuCount: map.size, totalQty, sellableTotal, inboundTotal, ...sales };
     }
@@ -1951,7 +1955,7 @@
       const currentStock = currentAmzStock + jspReserve;
       const jamItems = getJamBreakdownForSku(row?.sku).filter(item => !item.isReceived);
       const events = [];
-      let inboundBefore = 0, uncertainInbound = 0, laterInbound = 0, breakdownQty = 0;
+      let inboundBefore = 0, uncertainInbound = Math.max(0, Number(row?.usAmzInbound || 0)), laterInbound = 0, breakdownQty = 0;
       if (jspReserve > 0) events.push({ date:addDays(today, transferDays), qty:jspReserve, source:'JSP' });
       jamItems.forEach(item => {
         const qty = Math.max(0, physicalToAmazonUnits(row?.sku, item.qty));
@@ -1997,7 +2001,9 @@
       let h10Rows = aggregateH10RowsByEquivalent(dedupeH10(parseH10ToRows(h10El.value || "")));
       const rawOrderMap = aggregateSkuNumberMapByEquivalent(parseSkuNumberMap(ordersEl.value || ""));
       const orderMap = convertPhysicalMapToAmazonUnits(parseSkuNumberMap(ordersEl.value || ""));
-      const usAmzMap = aggregateSkuNumberMapByEquivalent(parseAmzInventoryTextToMap(usAmzEl.value || ""));
+      const amzComponents = parseAmzInventoryTextToMaps(usAmzEl.value || "");
+      const usAmzMap = aggregateSkuNumberMapByEquivalent(amzComponents.sellableMap);
+      const usAmzInboundMap = aggregateSkuNumberMapByEquivalent(amzComponents.inboundMap);
       const rawUsJspMap = aggregateSkuNumberMapByEquivalent(parseSkuNumberMap(usJspEl.value || ""));
       const usJspMap = convertPhysicalMapToAmazonUnits(parseSkuNumberMap(usJspEl.value || ""));
       const usMap = mergeSkuNumberMaps(usAmzMap, usJspMap);
@@ -2010,6 +2016,7 @@
         r.order = orderMap.get(r.sku) ?? 0;
         r.orderRaw = rawOrderMap.get(r.sku) ?? 0;
         r.usAmz = usAmzMap.has(r.sku) ? usAmzMap.get(r.sku) : null;
+        r.usAmzInbound = usAmzInboundMap.get(r.sku) ?? 0;
         r.usJsp = usJspMap.has(r.sku) ? usJspMap.get(r.sku) : null;
         r.usJspRaw = rawUsJspMap.has(r.sku) ? rawUsJspMap.get(r.sku) : null;
         r.us = usMap.has(r.sku) ? usMap.get(r.sku) : 0;
@@ -2026,14 +2033,14 @@
       for (const [sku, qty] of orderMap.entries()) {
         if (!h10SkuSet.has(sku)) {
           const jam = getJamSummaryForSku(sku);
-          newOrder.push({ sku, order: qty, orderRaw:rawOrderMap.get(sku) ?? qty, usAmz: usAmzMap.get(sku) ?? null, usJsp: usJspMap.get(sku) ?? null, usJspRaw:rawUsJspMap.get(sku) ?? null, us: usMap.get(sku) ?? null, loadingDate: jam.loadingDate, arrivalDate: jam.arrivalDate, jamOrders: jam.orderNames, jamLoadingDates: jam.loadingDatesText, jamArrivalDates: jam.arrivalDatesText });
+          newOrder.push({ sku, order: qty, orderRaw:rawOrderMap.get(sku) ?? qty, usAmz: usAmzMap.get(sku) ?? null, usAmzInbound:usAmzInboundMap.get(sku) ?? 0, usJsp: usJspMap.get(sku) ?? null, usJspRaw:rawUsJspMap.get(sku) ?? null, us: usMap.get(sku) ?? null, loadingDate: jam.loadingDate, arrivalDate: jam.arrivalDate, jamOrders: jam.orderNames, jamLoadingDates: jam.loadingDatesText, jamArrivalDates: jam.arrivalDatesText });
         }
       }
       const hotRows = hotSkuList.map(rawSku => {
         const sku = getCanonicalSku(rawSku);
         const h10Row = h10RowMap.get(sku);
         const jam = getJamSummaryForSku(sku);
-        const row = { sku, asin: h10Row?.asin ?? null, speed: h10Row?.speed ?? null, order: orderMap.get(sku) ?? null, orderRaw:rawOrderMap.get(sku) ?? null, usAmz: usAmzMap.get(sku) ?? null, usJsp: usJspMap.get(sku) ?? null, usJspRaw:rawUsJspMap.get(sku) ?? null, us: usMap.get(sku) ?? null, avail: null, usDays: null, days: null, loadingDate: jam.loadingDate, arrivalDate: jam.arrivalDate, jamOrders: jam.orderNames, jamLoadingDates: jam.loadingDatesText, jamArrivalDates: jam.arrivalDatesText };
+        const row = { sku, asin: h10Row?.asin ?? null, speed: h10Row?.speed ?? null, order: orderMap.get(sku) ?? null, orderRaw:rawOrderMap.get(sku) ?? null, usAmz: usAmzMap.get(sku) ?? null, usAmzInbound:usAmzInboundMap.get(sku) ?? 0, usJsp: usJspMap.get(sku) ?? null, usJspRaw:rawUsJspMap.get(sku) ?? null, us: usMap.get(sku) ?? null, avail: null, usDays: null, days: null, loadingDate: jam.loadingDate, arrivalDate: jam.arrivalDate, jamOrders: jam.orderNames, jamLoadingDates: jam.loadingDatesText, jamArrivalDates: jam.arrivalDatesText };
         computeDerived(row);
         return row;
       });
@@ -2118,15 +2125,15 @@
       if (searchCount) searchCount.textContent = mainSearchQuery.trim() ? `找到 ${rows.length} / ${totalRows} 筆` : `顯示 ${rows.length} 筆`;
       if (clearButton) clearButton.disabled = !mainSearchQuery.trim();
       if (!rows.length) { mainWrap.innerHTML = `<div class="hint" style="padding:24px;text-align:center;">${mainSearchQuery.trim() ? `找不到符合「${escapeHtml(mainSearchQuery.trim())}」的 SKU、品名或 ASIN。` : '目前沒有符合篩選條件的 H10 產品。'}</div>`; return; }
-      const body = rows.map((r, idx) => `<tr><td>${idx + 1}</td>${renderSkuCell(r.sku)}${r.speed === null ? '<td class="bad">(未抓到)</td>' : `<td class="ok">${escapeHtml(String(r.speed))}</td>`}${renderAmazonUnitCell(r.order, r.orderRaw, r.sku)}${renderInventoryCell(r.usAmz)}${renderAmazonUnitCell(r.usJsp, r.usJspRaw, r.sku)}${r.usDays === null ? '<td class="bad">(不可算)</td>' : `<td class="ok">${fmtDays(r.usDays)}</td>`}${r.days === null ? '<td class="bad">(不可算)</td>' : `<td class="ok">${fmtDays(r.days)}</td>`}${jamFrontCells(r)}</tr>`).join("");
-      mainWrap.innerHTML = `<table><thead><tr><th>#</th><th>SKU</th><th>速度<br>AMZ單位/天</th><th>訂單<br>AMZ單位</th><th>AMZ可售<br>AMZ單位</th><th>JSP後備<br>AMZ單位</th><th>AMZ目前可售天數</th><th>帳面總覆蓋天數</th><th>JAM/FY訂單來源</th><th>裝櫃日</th><th>預計到港日</th></tr></thead><tbody>${body}</tbody></table>`;
+      const body = rows.map((r, idx) => `<tr><td>${idx + 1}</td>${renderSkuCell(r.sku)}${r.speed === null ? '<td class="bad">(未抓到)</td>' : `<td class="ok">${escapeHtml(String(r.speed))}</td>`}${renderAmazonUnitCell(r.order, r.orderRaw, r.sku)}${renderInventoryCell(r.usAmz)}<td class="${r.usAmzInbound > 0 ? 'warn' : 'ok'}">${fmtQty(r.usAmzInbound || 0)}${r.usAmzInbound > 0 ? '<br><span class="miniMetric">未定可售日</span>' : ''}</td>${renderAmazonUnitCell(r.usJsp, r.usJspRaw, r.sku)}${r.usDays === null ? '<td class="bad">(不可算)</td>' : `<td class="ok">${fmtDays(r.usDays)}</td>`}${r.days === null ? '<td class="bad">(不可算)</td>' : `<td class="ok">${fmtDays(r.days)}</td>`}${jamFrontCells(r)}</tr>`).join("");
+      mainWrap.innerHTML = `<table><thead><tr><th>#</th><th>SKU</th><th>速度<br>AMZ單位/天</th><th>訂單<br>AMZ單位</th><th>AMZ Sellable</th><th>AMZ Inbound<br>不先計入</th><th>JSP後備<br>AMZ單位</th><th>AMZ目前可售天數</th><th>帳面總覆蓋天數</th><th>JAM/FY訂單來源</th><th>裝櫃日</th><th>預計到港日</th></tr></thead><tbody>${body}</tbody></table>`;
     }
     function renderHot() {
       const rows = sortByConfig(applyFilters(hotRowsAll));
       document.getElementById('countHot').textContent = String(rows.length);
       if (!rows.length) { hotWrap.innerHTML = ""; return; }
-      const body = rows.map((r, idx) => `<tr><td>${idx + 1}</td>${renderSkuCell(r.sku)}${r.speed === null ? '<td class="bad">(未抓到)</td>' : `<td class="ok">${escapeHtml(String(r.speed))}</td>`}${renderAmazonUnitCell(r.order, r.orderRaw, r.sku)}${renderInventoryCell(r.usAmz)}${renderAmazonUnitCell(r.usJsp, r.usJspRaw, r.sku)}${r.usDays === null ? '<td class="bad">(不可算)</td>' : `<td class="ok">${fmtDays(r.usDays)}</td>`}${r.days === null ? '<td class="bad">(不可算)</td>' : `<td class="ok">${fmtDays(r.days)}</td>`}${jamFrontCells(r)}</tr>`).join("");
-      hotWrap.innerHTML = `<table><thead><tr><th>#</th><th>SKU</th><th>速度<br>AMZ單位/天</th><th>訂單<br>AMZ單位</th><th>AMZ可售</th><th>JSP後備<br>AMZ單位</th><th>AMZ目前可售天數</th><th>帳面總覆蓋天數</th><th>JAM/FY訂單來源</th><th>裝櫃日</th><th>預計到港日</th></tr></thead><tbody>${body}</tbody></table>`;
+      const body = rows.map((r, idx) => `<tr><td>${idx + 1}</td>${renderSkuCell(r.sku)}${r.speed === null ? '<td class="bad">(未抓到)</td>' : `<td class="ok">${escapeHtml(String(r.speed))}</td>`}${renderAmazonUnitCell(r.order, r.orderRaw, r.sku)}${renderInventoryCell(r.usAmz)}<td class="${r.usAmzInbound > 0 ? 'warn' : 'ok'}">${fmtQty(r.usAmzInbound || 0)}</td>${renderAmazonUnitCell(r.usJsp, r.usJspRaw, r.sku)}${r.usDays === null ? '<td class="bad">(不可算)</td>' : `<td class="ok">${fmtDays(r.usDays)}</td>`}${r.days === null ? '<td class="bad">(不可算)</td>' : `<td class="ok">${fmtDays(r.days)}</td>`}${jamFrontCells(r)}</tr>`).join("");
+      hotWrap.innerHTML = `<table><thead><tr><th>#</th><th>SKU</th><th>速度<br>AMZ單位/天</th><th>訂單<br>AMZ單位</th><th>AMZ Sellable</th><th>AMZ Inbound<br>不先計入</th><th>JSP後備<br>AMZ單位</th><th>AMZ目前可售天數</th><th>帳面總覆蓋天數</th><th>JAM/FY訂單來源</th><th>裝櫃日</th><th>預計到港日</th></tr></thead><tbody>${body}</tbody></table>`;
     }
     function getNewProductLaunchPlan(row) {
       const breakdown = getJamBreakdownForSku(row?.sku)
@@ -2549,8 +2556,8 @@
     function downloadRowsAsExcel(headers, rows, filename, sheetName = "Sheet1") { const wb = XLSX.utils.book_new(); const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]); XLSX.utils.book_append_sheet(wb, ws, sheetName); XLSX.writeFile(wb, filename); }
     function getDateStamp() { const now = new Date(); return `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`; }
     function exportMainRowsFiltered() {
-      const headers = ["SKU","ASIN","速度_AMZ單位/天","訂單原始實體包數","訂單_AMZ單位","AMZ可售_AMZ單位","JSP原始實體包數","JSP後備_AMZ單位","帳面總數_AMZ單位","含訂單帳面總量_AMZ單位","AMZ目前可售天數","帳面總覆蓋天數","JAM/FY訂單來源","裝櫃日","預計到港日"];
-      const body = getMainRowsForView().map(r => [r.sku, r.asin, r.speed ?? "", r.orderRaw ?? "", r.order ?? "", r.usAmz ?? "", r.usJspRaw ?? "", r.usJsp ?? "", r.us ?? "", r.avail ?? "", r.usDays === null ? "" : fmtDays(r.usDays), r.days === null ? "" : fmtDays(r.days), r.jamOrders || "", r.jamLoadingDates || fmtDateText(r.loadingDate), r.jamArrivalDates || fmtDateText(r.arrivalDate)]);
+      const headers = ["SKU","ASIN","速度_AMZ單位/天","訂單原始實體包數","訂單_AMZ單位","AMZ_Sellable","AMZ_Inbound_未定可售日","JSP原始實體包數","JSP後備_AMZ單位","帳面總數_AMZ單位","含訂單帳面總量_AMZ單位","AMZ目前可售天數","帳面總覆蓋天數","JAM/FY訂單來源","裝櫃日","預計到港日"];
+      const body = getMainRowsForView().map(r => [r.sku, r.asin, r.speed ?? "", r.orderRaw ?? "", r.order ?? "", r.usAmz ?? "", r.usAmzInbound ?? "", r.usJspRaw ?? "", r.usJsp ?? "", r.us ?? "", r.avail ?? "", r.usDays === null ? "" : fmtDays(r.usDays), r.days === null ? "" : fmtDays(r.days), r.jamOrders || "", r.jamLoadingDates || fmtDateText(r.loadingDate), r.jamArrivalDates || fmtDateText(r.arrivalDate)]);
       return { headers, body };
     }
     function exportReorderRowsFiltered() { const target = Math.max(1, Number(daysThresholdEl.value || 180)); const lead = getLeadTimeDays(); const transfer = getFbaTransferDays(); const headers = ['SKU','ASIN','日銷售_AMZ單位','AMZ現在可售','JSP後備_AMZ單位',`可售日前確定到貨`,'可售前需求','新單真正可售時預估剩餘','缺貨空窗天數','理論建議量','可執行建議量_AMZ單位','完整箱規增量','真正可售後天數','未定日期訂單_AMZ單位','較晚到貨訂單_AMZ單位','新單預計到港日',`新單真正可售日_到港加${transfer}天`,'JAM/FY訂單來源','原訂單預計到港日']; const filtered = applyFilters(mainRowsAll).filter(r => r.speed !== null && r.speed > 0).map(r => ({ row:r, plan:getLeadTimePlan(r,target) })).filter(x => x.plan.suggestedQty > 0).map(({row:r,plan:p}) => [r.sku,r.asin,r.speed ?? '',p.currentAmzStock,p.jspReserve,p.inboundBefore,p.leadDemand,p.projectedStock,Number(p.shortageDays.toFixed(1)),p.rawSuggestedQty,p.suggestedQty,p.orderIncrement,Number(p.postArrivalDays.toFixed(1)),p.uncertainInbound,p.laterInbound,formatDateYMD(p.newArrivalDate),formatDateYMD(p.newSellableDate),r.jamOrders || '',r.jamArrivalDates || fmtDateText(r.arrivalDate)]); return { headers, body:filtered }; }
@@ -2890,6 +2897,7 @@
       rows.forEach(r => {
         if (!productMap.has(r.sku)) issues.push({ sku:r.sku, type:'產品資料未對應', detail:'H10 有 SKU，但 product-data.js 找不到' });
         if (r.usAmz === null || r.usAmz === undefined) issues.push({ sku:r.sku, type:'缺 AMZ 庫存', detail:'只有速度、沒有 AMZ 庫存，不可安全產生建議量' });
+        if (r.usAmzInbound > 0) issues.push({ sku:r.sku, type:'AMZ Inbound 無 ETA', detail:`Inbound ${fmtQty(r.usAmzInbound)} 尚未有真正可售日，因此未先算入安全庫存` });
         if (r.usJsp === null || r.usJsp === undefined) issues.push({ sku:r.sku, type:'缺 JSP 庫存', detail:'JSP 檔案沒有此 SKU，不能直接當成 0' });
         if (r.speed > 0 && r.order <= 0) issues.push({ sku:r.sku, type:'有速度但無訂單', detail:`速度 ${r.speed}，未到貨訂單為 0` });
         if (r.speed <= 0 && (r.amz + r.jsp) > 0) issues.push({ sku:r.sku, type:'有庫存但無速度', detail:`AMZ+JSP ${fmtQty(r.amz + r.jsp)}` });
