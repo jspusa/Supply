@@ -1934,6 +1934,45 @@
       if (stock >= demand) return { stock:stock - demand, shortageDays:0 };
       return { stock:0, shortageDays:Math.max(0, days - (stock / speed)) };
     }
+    function getRequiredQtyAcrossEvents(startStock, startDate, endDate, speed, events) {
+      let stock = Math.max(0, Number(startStock || 0));
+      let requiredQty = 0;
+      let cursor = startDate;
+      const scheduledQty = events.reduce((sum, event) => sum + Math.max(0, Number(event.qty || 0)), 0);
+      events.forEach(event => {
+        const elapsed = Math.max(0, Math.round((event.date - cursor) / 86400000));
+        const demand = elapsed * speed;
+        if (stock < demand) {
+          requiredQty += demand - stock;
+          stock = 0;
+        } else {
+          stock -= demand;
+        }
+        stock += Math.max(0, Number(event.qty || 0));
+        cursor = event.date;
+      });
+      const finalDays = Math.max(0, Math.round((endDate - cursor) / 86400000));
+      const finalDemand = finalDays * speed;
+      if (stock < finalDemand) requiredQty += finalDemand - stock;
+      else stock -= finalDemand;
+      return { requiredQty, scheduledQty, endingStock:stock };
+    }
+    function getFirstStockoutDateAcrossEvents(startStock, startDate, endDate, speed, events) {
+      let stock = Math.max(0, Number(startStock || 0));
+      let cursor = startDate;
+      for (const event of events) {
+        if (event.date > endDate) break;
+        const elapsed = Math.max(0, Math.round((event.date - cursor) / 86400000));
+        const demand = elapsed * speed;
+        if (stock < demand) return addDays(cursor, stock / speed);
+        stock -= demand;
+        stock += Math.max(0, Number(event.qty || 0));
+        cursor = event.date;
+      }
+      const remainingDays = Math.max(0, Math.round((endDate - cursor) / 86400000));
+      if (stock < remainingDays * speed) return addDays(cursor, stock / speed);
+      return null;
+    }
     function getLeadTimePlan(row, targetDays = Math.max(1, Number(daysThresholdEl.value || 180))) {
       const speed = Number(row?.speed || 0);
       const leadDays = getLeadTimeDays();
@@ -1941,21 +1980,22 @@
       const today = new Date(); today.setHours(0,0,0,0);
       const newArrivalDate = addDays(today, leadDays);
       const newSellableDate = addDays(newArrivalDate, transferDays);
+      const targetEndDate = addDays(newSellableDate, Math.max(0, targetDays));
       const missingSources = [];
       if (row?.usAmz === null || row?.usAmz === undefined) missingSources.push('AMZ庫存');
       if (row?.usJsp === null || row?.usJsp === undefined) missingSources.push('JSP庫存');
       const jamDataReady = Boolean(ordersEl?.value.trim()) || metaIsReady('jamMetaBox');
       if (!jamDataReady) missingSources.push('JAM訂單');
       if (speed > 0 && Number.isFinite(speed) && missingSources.length) {
-        return { leadDays, transferDays, targetDays, newArrivalDate, newSellableDate, currentStock:0, currentAmzStock:Math.max(0, Number(row?.usAmz || 0)), jspReserve:Math.max(0, Number(row?.usJsp || 0)), inboundBefore:0, uncertainInbound:0, laterInbound:0, leadDemand:(leadDays + transferDays) * speed, projectedStock:0, shortageDays:0, rawSuggestedQty:0, suggestedQty:0, orderIncrement:getOrderIncrementInAmazonUnits(row?.sku), postArrivalDays:null, canRecommend:false, missingSources };
+        return { leadDays, transferDays, targetDays, targetEndDate, newArrivalDate, newSellableDate, currentStock:0, currentAmzStock:Math.max(0, Number(row?.usAmz || 0)), jspReserve:Math.max(0, Number(row?.usJsp || 0)), inboundBefore:0, scheduledWithinTarget:0, uncertainInbound:0, laterInbound:0, uncertainDeadline:null, confirmedStockoutDate:null, orderByDate:null, leadDemand:(leadDays + transferDays) * speed, projectedStock:0, shortageDays:0, rawSuggestedQty:0, suggestedQty:0, orderIncrement:getOrderIncrementInAmazonUnits(row?.sku), postArrivalDays:null, canRecommend:false, missingSources };
       }
-      if (!speed || !Number.isFinite(speed)) return { leadDays, transferDays, targetDays, newArrivalDate, newSellableDate, currentStock:Number(row?.us || 0), currentAmzStock:Number(row?.usAmz || 0), jspReserve:Number(row?.usJsp || 0), inboundBefore:0, uncertainInbound:Number(row?.order || 0), laterInbound:0, leadDemand:0, projectedStock:0, shortageDays:0, rawSuggestedQty:0, suggestedQty:0, orderIncrement:getOrderIncrementInAmazonUnits(row?.sku), postArrivalDays:null };
+      if (!speed || !Number.isFinite(speed)) return { leadDays, transferDays, targetDays, targetEndDate, newArrivalDate, newSellableDate, currentStock:Number(row?.us || 0), currentAmzStock:Number(row?.usAmz || 0), jspReserve:Number(row?.usJsp || 0), inboundBefore:0, scheduledWithinTarget:0, uncertainInbound:Number(row?.order || 0), laterInbound:0, uncertainDeadline:null, confirmedStockoutDate:null, orderByDate:null, leadDemand:0, projectedStock:0, shortageDays:0, rawSuggestedQty:0, suggestedQty:0, orderIncrement:getOrderIncrementInAmazonUnits(row?.sku), postArrivalDays:null };
       const currentAmzStock = Math.max(0, Number(row?.usAmz || 0));
       const jspReserve = Math.max(0, Number(row?.usJsp || 0));
       const currentStock = currentAmzStock + jspReserve;
       const jamItems = getJamBreakdownForSku(row?.sku).filter(item => !item.isReceived);
       const events = [];
-      let inboundBefore = 0, uncertainInbound = Math.max(0, Number(row?.usAmzInbound || 0)), laterInbound = 0, breakdownQty = 0;
+      let inboundBefore = 0, scheduledWithinTarget = 0, uncertainInbound = Math.max(0, Number(row?.usAmzInbound || 0)), laterInbound = 0, breakdownQty = 0;
       if (jspReserve > 0) events.push({ date:addDays(today, transferDays), qty:jspReserve, source:'JSP' });
       jamItems.forEach(item => {
         const qty = Math.max(0, physicalToAmazonUnits(row?.sku, item.qty));
@@ -1963,14 +2003,21 @@
         const portDate = parseYmdDate(item.arrivalDate);
         const date = portDate ? addDays(portDate, transferDays) : null;
         if (!date || date < today) { uncertainInbound += qty; return; }
-        if (date <= newSellableDate) { inboundBefore += qty; events.push({ date, qty, source:item.orderName || 'JAM' }); }
+        events.push({ date, qty, source:item.orderName || 'JAM' });
+        if (date <= newSellableDate) inboundBefore += qty;
+        else if (date <= targetEndDate) scheduledWithinTarget += qty;
         else laterInbound += qty;
       });
       const unmatchedOrder = Math.max(0, Number(row?.order || 0) - breakdownQty);
       uncertainInbound += unmatchedOrder;
       events.sort((a,b) => a.date - b.date);
+      const eventsBeforeSellable = events.filter(event => event.date <= newSellableDate);
+      const eventsWithinTarget = events.filter(event => event.date > newSellableDate && event.date <= targetEndDate);
+      const planningHorizonEnd = addDays(today, 1095);
+      const confirmedStockoutDate = getFirstStockoutDateAcrossEvents(currentAmzStock, today, planningHorizonEnd, speed, events);
+      const orderByDate = confirmedStockoutDate ? addDays(confirmedStockoutDate, -(leadDays + transferDays)) : null;
       let stock = currentAmzStock, shortageDays = 0, cursor = today;
-      events.forEach(event => {
+      eventsBeforeSellable.forEach(event => {
         const elapsed = Math.max(0, Math.round((event.date - cursor) / 86400000));
         const consumed = consumeStockForDays(stock, elapsed, speed);
         stock = consumed.stock + event.qty;
@@ -1981,11 +2028,12 @@
       const finalConsumed = consumeStockForDays(stock, remainingDays, speed);
       stock = finalConsumed.stock;
       shortageDays += finalConsumed.shortageDays;
-      const targetQty = targetDays * speed;
-      const rawSuggestedQty = Math.ceil(Math.max(0, targetQty - stock));
+      const targetPlan = getRequiredQtyAcrossEvents(stock, newSellableDate, targetEndDate, speed, eventsWithinTarget);
+      const rawSuggestedQty = Math.ceil(Math.max(0, targetPlan.requiredQty));
       const suggestedQty = roundToExecutableOrderQty(row?.sku, rawSuggestedQty);
-      const postArrivalDays = (stock + suggestedQty) / speed;
-      return { leadDays, transferDays, targetDays, newArrivalDate, newSellableDate, currentStock, currentAmzStock, jspReserve, inboundBefore, uncertainInbound, laterInbound, leadDemand:(leadDays + transferDays) * speed, projectedStock:stock, shortageDays, rawSuggestedQty, suggestedQty, orderIncrement:getOrderIncrementInAmazonUnits(row?.sku), postArrivalDays, canRecommend:true, missingSources:[] };
+      const postArrivalDays = (stock + suggestedQty + targetPlan.scheduledQty) / speed;
+      const uncertainDeadline = uncertainInbound > 0 ? (confirmedStockoutDate || planningHorizonEnd) : null;
+      return { leadDays, transferDays, targetDays, targetEndDate, newArrivalDate, newSellableDate, currentStock, currentAmzStock, jspReserve, inboundBefore, scheduledWithinTarget, uncertainInbound, laterInbound, uncertainDeadline, confirmedStockoutDate, orderByDate, leadDemand:(leadDays + transferDays) * speed, projectedStock:stock, shortageDays, rawSuggestedQty, suggestedQty, orderIncrement:getOrderIncrementInAmazonUnits(row?.sku), postArrivalDays, canRecommend:true, missingSources:[] };
     }
     function sortByConfig(rows) {
       const field = sortConfig.field, direction = sortConfig.direction;
@@ -2109,8 +2157,8 @@
       if (insight) { const exampleSpeed = 10, exampleStock = exampleSpeed * leadDays, oldSuggestion = Math.max(0, exampleSpeed * targetDays - exampleStock), newSuggestion = exampleSpeed * targetDays; insight.innerHTML = `<div class="leadTimeInsightTitle"><i class="fa-solid fa-route"></i> 改用「真正可售日」思考，不再只看今天帳面</div><div class="leadTimeInsightText">所有數量先統一成 Amazon 可售單位。JSP 庫存與 JAM 到港貨都要再經過 ${transferDays} 天轉入 FBA，只有在新單真正可售前接得上的數量才會列入；沒有到港日或已逾期未入庫的訂單採保守方式，不先算進安全庫存。建議量最後依完整外箱倍數向上取整。</div><div class="leadTimeSteps"><div class="leadTimeStep"><div class="leadTimeStepLabel">今天</div><div class="leadTimeStepValue">先用 AMZ 可售庫存</div></div><div class="leadTimeStep"><div class="leadTimeStepLabel">新單 ${leadDays} 天到港</div><div class="leadTimeStepValue">${arrival}</div></div><div class="leadTimeStep"><div class="leadTimeStepLabel">再轉入 FBA ${transferDays} 天</div><div class="leadTimeStepValue">${sellable} 可售</div></div><div class="leadTimeStep"><div class="leadTimeStepLabel">真正可售後目標</div><div class="leadTimeStepValue">維持 ${targetDays} 天</div></div></div><div class="leadTimeExample"><b>單位保護：</b>例如 SKU 為 4 入組，JAM 7,560 個實體包會換算成 1,890 個 Amazon 可售單位，不會再高估 4 倍。</div>`; }
       document.getElementById('countReorder').textContent = String(rows.length);
       if (!rows.length) { reorderWrap.innerHTML = '<div class="hint" style="padding:24px;text-align:center;">依目前前置期與目標天數，沒有需要新增訂單的品項。</div>'; return; }
-      const body = rows.map((r, idx) => { const p = getLeadTimePlan(r, targetDays); const gap = p.shortageDays > 0.05 ? `<span class="leadTimeRisk">${p.shortageDays.toFixed(1)} 天</span>` : '<span style="color:#15803d;font-weight:800;">0 天</span>'; const uncertain = p.uncertainInbound > 0 ? `<span class="leadTimeRisk">${fmtQty(p.uncertainInbound)} 未定日期</span>` : '0'; const rounding = p.suggestedQty > p.rawSuggestedQty + 0.01 ? `<br><span class="miniMetric">理論 ${fmtQty(p.rawSuggestedQty)} → 箱規 ${fmtQty(p.orderIncrement)}</span>` : ''; return `<tr><td>${idx + 1}</td>${renderSkuCell(r.sku)}<td class="ok">${escapeHtml(String(r.speed))}</td><td class="ok">${fmtQty(p.currentAmzStock)}</td><td class="ok">${fmtQty(p.jspReserve)}</td><td class="ok">${fmtQty(p.inboundBefore)}</td><td>${fmtQty(p.leadDemand)}</td><td class="${p.projectedStock > 0 ? 'ok' : 'bad'}">${fmtQty(p.projectedStock)}</td><td>${gap}</td><td class="warn"><b>${fmtQty(p.suggestedQty)}</b>${rounding}</td><td class="ok"><b>${fmtDays(p.postArrivalDays)}</b></td><td>${uncertain}</td><td>${fmtQty(p.laterInbound)}</td>${jamFrontCells(r)}</tr>`; }).join("");
-      reorderWrap.innerHTML = `<table><thead><tr><th>#</th><th>SKU</th><th>日銷售<br>AMZ單位</th><th>AMZ現在可售</th><th>JSP後備<br>${transferDays}天轉入</th><th>可售日前確定到貨</th><th>可售前需求</th><th>新單可售時預估剩餘</th><th>缺貨空窗</th><th>可執行建議量<br>AMZ單位</th><th>真正可售後天數</th><th>未定日期訂單</th><th>較晚到貨訂單</th><th>JAM/FY訂單來源</th><th>裝櫃日</th><th>預計到港日</th></tr></thead><tbody>${body}</tbody></table>`;
+      const body = rows.map((r, idx) => { const p = getLeadTimePlan(r, targetDays); const gap = p.shortageDays > 0.05 ? `<span class="leadTimeRisk">${p.shortageDays.toFixed(1)} 天</span>` : '<span style="color:#15803d;font-weight:800;">0 天</span>'; const today = new Date(); today.setHours(0,0,0,0); const orderBy = p.orderByDate && p.orderByDate <= today ? `<span class="leadTimeRisk">立即下單</span><br><span class="miniMetric">最晚 ${formatDateYMD(p.orderByDate)}</span>` : formatDateYMD(p.orderByDate); const uncertain = p.uncertainInbound > 0 ? `<span class="leadTimeRisk">${fmtQty(p.uncertainInbound)} 未定日期</span><br><span class="miniMetric">最晚 ${formatDateYMD(p.uncertainDeadline)} 可售</span>` : '0'; const rounding = p.suggestedQty > p.rawSuggestedQty + 0.01 ? `<br><span class="miniMetric">理論 ${fmtQty(p.rawSuggestedQty)} → 箱規 ${fmtQty(p.orderIncrement)}</span>` : ''; return `<tr><td>${idx + 1}</td>${renderSkuCell(r.sku)}<td class="ok">${escapeHtml(String(r.speed))}</td><td class="ok">${fmtQty(p.currentAmzStock)}</td><td class="ok">${fmtQty(p.jspReserve)}</td><td class="ok">${fmtQty(p.inboundBefore)}</td><td>${fmtQty(p.leadDemand)}</td><td class="${p.projectedStock > 0 ? 'ok' : 'bad'}">${fmtQty(p.projectedStock)}</td><td>${gap}</td><td>${orderBy}</td><td class="warn"><b>${fmtQty(p.suggestedQty)}</b>${rounding}</td><td class="ok"><b>${fmtDays(p.postArrivalDays)}</b></td><td>${fmtQty(p.scheduledWithinTarget)}</td><td>${uncertain}</td><td>${fmtQty(p.laterInbound)}</td>${jamFrontCells(r)}</tr>`; }).join("");
+      reorderWrap.innerHTML = `<table><thead><tr><th>#</th><th>SKU</th><th>日銷售<br>AMZ單位</th><th>AMZ現在可售</th><th>JSP後備<br>${transferDays}天轉入</th><th>可售日前確定到貨</th><th>可售前需求</th><th>新單可售時預估剩餘</th><th>缺貨空窗</th><th>最晚下單日</th><th>可執行建議量<br>AMZ單位</th><th>真正可售後天數</th><th>目標期內已排到貨<br>已扣除</th><th>未定日期供給<br>追貨期限</th><th>目標期後到貨</th><th>JAM/FY訂單來源</th><th>裝櫃日</th><th>預計到港日</th></tr></thead><tbody>${body}</tbody></table>`;
     }
     function renderMain() {
       const filteredRows = getMainRowsForView();
@@ -2560,7 +2608,7 @@
       const body = getMainRowsForView().map(r => [r.sku, r.asin, r.speed ?? "", r.orderRaw ?? "", r.order ?? "", r.usAmz ?? "", r.usAmzInbound ?? "", r.usJspRaw ?? "", r.usJsp ?? "", r.us ?? "", r.avail ?? "", r.usDays === null ? "" : fmtDays(r.usDays), r.days === null ? "" : fmtDays(r.days), r.jamOrders || "", r.jamLoadingDates || fmtDateText(r.loadingDate), r.jamArrivalDates || fmtDateText(r.arrivalDate)]);
       return { headers, body };
     }
-    function exportReorderRowsFiltered() { const target = Math.max(1, Number(daysThresholdEl.value || 180)); const lead = getLeadTimeDays(); const transfer = getFbaTransferDays(); const headers = ['SKU','ASIN','日銷售_AMZ單位','AMZ現在可售','JSP後備_AMZ單位',`可售日前確定到貨`,'可售前需求','新單真正可售時預估剩餘','缺貨空窗天數','理論建議量','可執行建議量_AMZ單位','完整箱規增量','真正可售後天數','未定日期訂單_AMZ單位','較晚到貨訂單_AMZ單位','新單預計到港日',`新單真正可售日_到港加${transfer}天`,'JAM/FY訂單來源','原訂單預計到港日']; const filtered = applyFilters(mainRowsAll).filter(r => r.speed !== null && r.speed > 0).map(r => ({ row:r, plan:getLeadTimePlan(r,target) })).filter(x => x.plan.suggestedQty > 0).map(({row:r,plan:p}) => [r.sku,r.asin,r.speed ?? '',p.currentAmzStock,p.jspReserve,p.inboundBefore,p.leadDemand,p.projectedStock,Number(p.shortageDays.toFixed(1)),p.rawSuggestedQty,p.suggestedQty,p.orderIncrement,Number(p.postArrivalDays.toFixed(1)),p.uncertainInbound,p.laterInbound,formatDateYMD(p.newArrivalDate),formatDateYMD(p.newSellableDate),r.jamOrders || '',r.jamArrivalDates || fmtDateText(r.arrivalDate)]); return { headers, body:filtered }; }
+    function exportReorderRowsFiltered() { const target = Math.max(1, Number(daysThresholdEl.value || 180)); const lead = getLeadTimeDays(); const transfer = getFbaTransferDays(); const headers = ['SKU','ASIN','日銷售_AMZ單位','AMZ現在可售','JSP後備_AMZ單位',`可售日前確定到貨`,'可售前需求','新單真正可售時預估剩餘','缺貨空窗天數','最晚下單日','理論建議量','可執行建議量_AMZ單位','完整箱規增量','真正可售後天數','目標期內已排到貨_已扣除','未定日期供給_AMZ單位','未定供給最晚可售日','目標期後到貨_AMZ單位','新單預計到港日',`新單真正可售日_到港加${transfer}天`,'JAM/FY訂單來源','原訂單預計到港日']; const filtered = applyFilters(mainRowsAll).filter(r => r.speed !== null && r.speed > 0).map(r => ({ row:r, plan:getLeadTimePlan(r,target) })).filter(x => x.plan.suggestedQty > 0).map(({row:r,plan:p}) => [r.sku,r.asin,r.speed ?? '',p.currentAmzStock,p.jspReserve,p.inboundBefore,p.leadDemand,p.projectedStock,Number(p.shortageDays.toFixed(1)),formatDateYMD(p.orderByDate),p.rawSuggestedQty,p.suggestedQty,p.orderIncrement,Number(p.postArrivalDays.toFixed(1)),p.scheduledWithinTarget,p.uncertainInbound,formatDateYMD(p.uncertainDeadline),p.laterInbound,formatDateYMD(p.newArrivalDate),formatDateYMD(p.newSellableDate),r.jamOrders || '',r.jamArrivalDates || fmtDateText(r.arrivalDate)]); return { headers, body:filtered }; }
     function exportNewOrderRowsFiltered() { const headers = ["品號","JAM/FY訂單","訂單原始實體包數","訂單_AMZ單位","首批裝櫃日","首批預計到港日","圖／上架完成期限","提醒"]; const body = applyFilters(newOrderRowsAll).map(r => { const p = getNewProductLaunchPlan(r); return [r.sku, r.jamOrders || "", r.orderRaw ?? "", r.order ?? "", p.loadingText, p.arrivalText, p.deadlineText, p.statusText]; }); return { headers, body }; }
 
     document.getElementById("btnBuild").addEventListener("click", buildTables);
