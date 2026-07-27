@@ -3570,7 +3570,7 @@
 
     window.addEventListener('DOMContentLoaded', () => {
       try { const savedLeadTime = Number(localStorage.getItem('supply-lead-time-days')); if (leadTimeDaysEl && Number.isFinite(savedLeadTime) && savedLeadTime >= 1 && savedLeadTime <= 365) leadTimeDaysEl.value = String(savedLeadTime); } catch (_) {}
-      try { const savedTransferDays = Number(localStorage.getItem('supply-fba-transfer-days')); if (fbaTransferDaysEl && Number.isFinite(savedTransferDays) && savedTransferDays >= 0 && savedTransferDays <= 90) fbaTransferDaysEl.value = String(savedTransferDays); } catch (_) {}
+      try { const savedTransferRaw = localStorage.getItem('supply-fba-transfer-days'); const savedTransferDays = savedTransferRaw === null ? null : Number(savedTransferRaw); if (fbaTransferDaysEl && savedTransferDays !== null && Number.isFinite(savedTransferDays) && savedTransferDays >= 0 && savedTransferDays <= 90) fbaTransferDaysEl.value = String(savedTransferDays); } catch (_) {}
       document.querySelectorAll('[name="countrySelect"]').forEach(radio => radio.addEventListener('change', e => {
         saveGeneratorDraft(currentCountry);
         currentCountry = e.target.value;
