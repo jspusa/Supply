@@ -673,6 +673,7 @@
     .bossSaveHint { margin-top:4px; color:#52647d; font-size:12px; line-height:1.55; }
     .bossSaveState { margin-top:9px; color:#475569; font-size:12px; font-weight:750; }
     .bossSaveState.ready { color:#166534; }
+    .bossSaveState.syncing { color:#1d4ed8; }
     .bossSaveState.error { color:#991b1b; }
     .bossSaveActions, .bossH10Actions { display:flex; align-items:center; justify-content:flex-end; gap:8px; flex-wrap:wrap; }
     .bossDangerButton { color:#b91c1c !important; border-color:#fecaca !important; background:#fff !important; box-shadow:none !important; }
@@ -955,15 +956,15 @@
               <div class="bossOnly bossSavePanel" id="bossSavePanel">
                 <div class="bossSaveRow">
                   <div>
-                    <div class="bossSaveTitle">儲存為本週老闆版資料</div>
-                    <div class="bossSaveHint">JAM 與 JSP 可上傳檔案；H10 可上傳檔案或在下方貼上原始文字。三類都辨識成功後即可儲存。</div>
+                    <div class="bossSaveTitle">自動同步本週老闆版資料</div>
+                    <div class="bossSaveHint">JAM、H10、JSP 三類一齊辨識成功後會自動存到雲端；看到綠色「已同步」後，老闆用手機登入就會看到相同資料。</div>
                   </div>
                   <div class="bossSaveActions">
-                    <button type="button" id="bossSaveSnapshot" disabled><i class="fa-solid fa-cloud-arrow-up"></i> 儲存本週更新</button>
+                    <button type="button" id="bossSaveSnapshot" disabled><i class="fa-solid fa-cloud-arrow-up"></i> 立即同步</button>
                     <button type="button" class="secondary bossDangerButton" id="bossDeleteSnapshot" disabled><i class="fa-regular fa-trash-can"></i> 清除已儲存資料</button>
                   </div>
                 </div>
-                <div class="bossSaveState" id="bossSaveState">尚未選擇本週檔案。</div>
+                <div class="bossSaveState" id="bossSaveState" role="status" aria-live="polite">尚未選擇本週檔案。</div>
               </div>
             </section>
 
@@ -1480,6 +1481,12 @@
     let bossMasterFiles = [];
     let bossRawH10Text = '';
     let bossH10SyncTimer = null;
+    let bossAutoSaveTimer = null;
+    let bossSaveInFlight = false;
+    let bossHasUnsavedChanges = false;
+    let bossInputRevision = 0;
+    let bossRebuildQueue = Promise.resolve();
+    let bossResumeSaveAfterLogin = false;
 
     const productMap = new Map(allProducts.map(p => [normalizeSkuKey(p.productCode), p]));
     const h10El = document.getElementById('inputH10');
@@ -2760,7 +2767,7 @@
       const el = document.getElementById('bossSaveState');
       if (!el) return;
       el.textContent = message;
-      el.classList.remove('ready', 'error');
+      el.classList.remove('ready', 'syncing', 'error');
       if (state) el.classList.add(state);
     }
 
@@ -2783,23 +2790,58 @@
       lastAutoDecisionSignature = '';
     }
 
+    function cancelBossAutoSave() {
+      if (!bossAutoSaveTimer) return;
+      clearTimeout(bossAutoSaveTimer);
+      bossAutoSaveTimer = null;
+    }
+
+    function scheduleBossAutoSave() {
+      cancelBossAutoSave();
+      bossAutoSaveTimer = setTimeout(() => {
+        bossAutoSaveTimer = null;
+        if (bossSaveInFlight) {
+          scheduleBossAutoSave();
+          return;
+        }
+        saveBossSnapshot({ automatic:true });
+      }, 800);
+    }
+
+    function beginBossInputChange(message = '') {
+      cancelBossAutoSave();
+      bossInputRevision += 1;
+      bossHasUnsavedChanges = true;
+      if (message) setBossSaveState(message, 'syncing');
+      return bossInputRevision;
+    }
+
     function rememberBossFiles(files, analysis) {
       if (!IS_BOSS_PORTAL) return;
       bossPendingFiles = Array.from(files || []);
-      bossPendingAnalysis = analysis || null;
-      const recognized = new Set(analysis?.recognizedTypes || []);
+      const invalidRawText = Boolean(bossRawH10Text && dedupeH10(parseH10ToRows(bossRawH10Text)).length === 0);
+      bossPendingAnalysis = analysis ? { ...analysis, invalidRawText } : null;
+      bossHasUnsavedChanges = bossPendingFiles.length > 0;
+      const recognized = new Set(bossPendingAnalysis?.recognizedTypes || []);
       const missing = BOSS_REQUIRED_FILE_TYPES.filter(item => !recognized.has(item.key));
       const saveButton = document.getElementById('bossSaveSnapshot');
-      const valid = bossPendingFiles.length > 0 && missing.length === 0 && !analysis?.failedCount;
-      if (saveButton) saveButton.disabled = !valid;
+      const valid = bossPendingFiles.length > 0 && missing.length === 0 && !bossPendingAnalysis?.failedCount && !invalidRawText;
+      if (saveButton) saveButton.disabled = !valid || bossSaveInFlight;
       if (!bossPendingFiles.length) {
+        cancelBossAutoSave();
         setBossSaveState('尚未選擇本週檔案。');
       } else if (missing.length) {
-        setBossSaveState(`尚缺少：${missing.map(item => item.label).join('、')}。請重新一次選齊三類檔案。`, 'error');
-      } else if (analysis?.failedCount) {
-        setBossSaveState('有檔案讀取失敗，尚未儲存。請確認上方辨識結果。', 'error');
+        cancelBossAutoSave();
+        setBossSaveState(`尚缺少：${missing.map(item => item.label).join('、')}。資料仍在本頁，選齊後會自動同步。`, 'error');
+      } else if (bossPendingAnalysis?.failedCount) {
+        cancelBossAutoSave();
+        setBossSaveState('有檔案讀取失敗，尚未同步。請確認上方辨識結果。', 'error');
+      } else if (invalidRawText) {
+        cancelBossAutoSave();
+        setBossSaveState('H10 貼上文字無法辨識，尚未同步；請修正內容或清除貼上文字。', 'error');
       } else {
-        setBossSaveState(`已確認 ${bossPendingFiles.length} 個檔案，JAM／H10／JSP 均辨識成功，可以儲存。`, 'ready');
+        setBossSaveState(`已確認 ${bossPendingFiles.length} 個檔案，正在自動同步至雲端…`, 'syncing');
+        scheduleBossAutoSave();
       }
     }
 
@@ -2811,57 +2853,81 @@
       if (state) element.classList.add(state);
     }
 
-    async function rebuildBossPendingInputs({ silent = false } = {}) {
-      const files = Array.from(bossMasterFiles || []);
-      if (bossRawH10Text) {
-        files.push(new File([bossRawH10Text], BOSS_H10_TEXT_FILENAME, {
-          type:'text/plain',
-          lastModified:Date.now()
-        }));
-      }
-      resetBossAnalysisData();
-      if (!files.length) {
-        const empty = { files:[], results:[], recognizedTypes:[], failedCount:0 };
-        rememberBossFiles([], empty);
-        setBossH10TextState('尚未貼上 H10 原始文字；也可以直接上傳 H10 檔案。');
-        buildTables();
-        updateWorkflowUi();
-        return empty;
-      }
-      const analysis = await autoClassifyAndReadFiles(files, { silent:true });
-      rememberBossFiles(files, analysis);
-      if (bossRawH10Text) {
-        const rows = dedupeH10(parseH10ToRows(bossRawH10Text));
-        setBossH10TextState(
-          rows.length ? `已辨識 ${rows.length} 筆 H10 資料，儲存時會一併保存。` : '貼上的內容尚未辨識為 H10 格式。',
-          rows.length ? 'ready' : 'error'
-        );
-      } else {
-        setBossH10TextState('未使用貼上文字；若已上傳 H10 檔案，會以檔案內容為準。');
-      }
-      if (!silent) showTip('已更新本週待儲存資料', analysis.failedCount ? 'error' : 'success');
-      return analysis;
+    function rebuildBossPendingInputs({ silent = false, revision = null } = {}) {
+      const requestedRevision = Number.isInteger(revision) ? revision : beginBossInputChange();
+      const masterSnapshot = Array.from(bossMasterFiles || []);
+      const rawSnapshot = String(bossRawH10Text || '');
+      const run = async () => {
+        const files = Array.from(masterSnapshot);
+        if (rawSnapshot) {
+          files.push(new File([rawSnapshot], BOSS_H10_TEXT_FILENAME, {
+            type:'text/plain',
+            lastModified:Date.now()
+          }));
+        }
+        resetBossAnalysisData();
+        if (!files.length) {
+          const empty = { files:[], results:[], recognizedTypes:[], failedCount:0 };
+          if (requestedRevision === bossInputRevision) {
+            rememberBossFiles([], empty);
+            setBossH10TextState('尚未貼上 H10 原始文字；也可以直接上傳 H10 檔案。');
+            buildTables();
+            updateWorkflowUi();
+          }
+          return { ...empty, stale:requestedRevision !== bossInputRevision };
+        }
+        const analysis = await autoClassifyAndReadFiles(files, { silent:true });
+        if (requestedRevision !== bossInputRevision) return { ...analysis, stale:true };
+        rememberBossFiles(files, analysis);
+        if (rawSnapshot) {
+          const rows = dedupeH10(parseH10ToRows(rawSnapshot));
+          setBossH10TextState(
+            rows.length ? `已辨識 ${rows.length} 筆 H10 資料；JAM／JSP 齊全後會自動同步。` : '貼上的內容尚未辨識為 H10 格式。',
+            rows.length ? 'ready' : 'error'
+          );
+        } else {
+          setBossH10TextState('未使用貼上文字；若已上傳 H10 檔案，會以檔案內容為準。');
+        }
+        if (!silent) showTip('已更新本週待同步資料', analysis.failedCount ? 'error' : 'success');
+        return analysis;
+      };
+      const queued = bossRebuildQueue.then(run, run);
+      bossRebuildQueue = queued.catch(() => {});
+      return queued;
     }
 
-    async function applyBossRawH10Text({ silent = false } = {}) {
+    async function applyBossRawH10Text({ silent = false, revision = null } = {}) {
+      if (bossH10SyncTimer) {
+        clearTimeout(bossH10SyncTimer);
+        bossH10SyncTimer = null;
+      }
       bossRawH10Text = String(document.getElementById('bossH10RawInput')?.value || '').trim();
-      return rebuildBossPendingInputs({ silent });
+      const requestedRevision = Number.isInteger(revision)
+        ? revision
+        : beginBossInputChange('正在辨識 H10 文字；辨識完成後會自動同步…');
+      return rebuildBossPendingInputs({ silent, revision:requestedRevision });
     }
 
     function scheduleBossRawH10Sync() {
       bossRawH10Text = String(document.getElementById('bossH10RawInput')?.value || '').trim();
+      const revision = beginBossInputChange('正在辨識 H10 文字；辨識完成後會自動同步…');
       if (bossH10SyncTimer) clearTimeout(bossH10SyncTimer);
       bossH10SyncTimer = setTimeout(() => {
         bossH10SyncTimer = null;
-        applyBossRawH10Text({ silent:true });
+        applyBossRawH10Text({ silent:true, revision });
       }, 450);
     }
 
     async function clearBossRawH10Text() {
+      if (bossH10SyncTimer) {
+        clearTimeout(bossH10SyncTimer);
+        bossH10SyncTimer = null;
+      }
       bossRawH10Text = '';
       const input = document.getElementById('bossH10RawInput');
       if (input) input.value = '';
-      await rebuildBossPendingInputs({ silent:true });
+      const revision = beginBossInputChange('正在清除 H10 文字並重新檢查資料…');
+      await rebuildBossPendingInputs({ silent:true, revision });
       showTip('已清除貼上的 H10 文字', 'success');
     }
 
@@ -2869,8 +2935,14 @@
       const files = Array.from(fileList || []);
       if (!files.length) return null;
       if (IS_BOSS_PORTAL) {
+        if (bossH10SyncTimer) {
+          clearTimeout(bossH10SyncTimer);
+          bossH10SyncTimer = null;
+        }
+        bossRawH10Text = String(document.getElementById('bossH10RawInput')?.value || '').trim();
         bossMasterFiles = files.filter(file => file.name !== BOSS_H10_TEXT_FILENAME);
-        return rebuildBossPendingInputs();
+        const revision = beginBossInputChange('正在辨識所選檔案；三類齊全後會自動同步…');
+        return rebuildBossPendingInputs({ revision });
       }
       const analysis = await autoClassifyAndReadFiles(files);
       return analysis;
@@ -2901,6 +2973,19 @@
       const password = document.getElementById('bossLoginPassword');
       if (password) password.value = '';
       showBossLogin(message);
+    }
+
+    function requestBossLogout() {
+      if ((bossHasUnsavedChanges || bossSaveInFlight) && !window.confirm('目前資料尚未同步完成，確定要放棄並登出嗎？')) return;
+      cancelBossAutoSave();
+      if (bossH10SyncTimer) {
+        clearTimeout(bossH10SyncTimer);
+        bossH10SyncTimer = null;
+      }
+      bossInputRevision += 1;
+      bossResumeSaveAfterLogin = false;
+      bossHasUnsavedChanges = false;
+      clearBossSession('已安全登出');
     }
 
     async function bossApiFetch(path, options = {}) {
@@ -2934,7 +3019,13 @@
         const passwordInput = document.getElementById('bossLoginPassword');
         if (passwordInput) passwordInput.value = '';
         hideBossLogin();
-        await loadBossSnapshot({ scrollToTree:false });
+        if (bossResumeSaveAfterLogin && bossPendingFiles.length && bossPendingAnalysis) {
+          bossResumeSaveAfterLogin = false;
+          setBossSaveState('重新登入成功，正在繼續同步未完成的資料…', 'syncing');
+          scheduleBossAutoSave();
+        } else {
+          await loadBossSnapshot({ scrollToTree:false });
+        }
       } catch (error) {
         setBossAuthMessage(error.message || '目前無法登入，請稍後再試');
       } finally {
@@ -2944,7 +3035,7 @@
 
     async function initializeBossAuth() {
       document.getElementById('bossLoginForm')?.addEventListener('submit', submitBossLogin);
-      document.getElementById('bossLogoutButton')?.addEventListener('click', () => clearBossSession('已安全登出'));
+      document.getElementById('bossLogoutButton')?.addEventListener('click', requestBossLogout);
       if (!bossAuthToken) { showBossLogin(); return; }
       try {
         const response = await bossApiFetch('/api/session', { headers:{ Accept:'application/json' } });
@@ -2967,8 +3058,16 @@
 
     async function loadBossSnapshot({ scrollToTree = true } = {}) {
       if (!IS_BOSS_PORTAL) return;
+      cancelBossAutoSave();
+      if (bossH10SyncTimer) {
+        clearTimeout(bossH10SyncTimer);
+        bossH10SyncTimer = null;
+      }
+      bossInputRevision += 1;
+      bossHasUnsavedChanges = false;
       setBossLoading(true);
       suppressUserTips = true;
+      await bossRebuildQueue.catch(() => {});
       try {
         const response = await bossApiFetch('/api/snapshot', { headers:{ Accept:'application/json' } });
         if (response.status === 401) { clearBossSession(); return; }
@@ -2976,8 +3075,8 @@
           resetBossAnalysisData();
           buildTables();
           updateWorkflowUi();
-          setBossLastUpdated(null, '尚未建立資料，請到頁面底部上傳本週檔案');
-          setBossSaveState('目前沒有已儲存資料。請一次選齊 JAM、H10 與 JSP。', 'error');
+          setBossLastUpdated(null, '尚未建立雲端資料，請展開「每週資料更新」');
+          setBossSaveState('雲端目前沒有資料。請選齊 JAM、H10、JSP；辨識完成後會自動同步。', 'error');
           bossMasterFiles = [];
           bossRawH10Text = '';
           const rawInput = document.getElementById('bossH10RawInput');
@@ -3018,7 +3117,8 @@
           setBossH10TextState('這批資料使用 H10 檔案，沒有另外保存貼上文字。');
         }
         setBossLastUpdated(manifest.updatedAt);
-        setBossSaveState(missing.length ? `已載入，但缺少：${missing.map(item => item.label).join('、')}。建議在下方重新上傳完整資料。` : `已自動載入 ${files.length} 個已儲存檔案。`, missing.length ? 'error' : 'ready');
+        bossHasUnsavedChanges = false;
+        setBossSaveState(missing.length ? `已載入，但缺少：${missing.map(item => item.label).join('、')}。建議重新上傳完整資料。` : `已從雲端載入 ${files.length} 個檔案；老闆手機會看到相同資料。`, missing.length ? 'error' : 'ready');
         const skuCard = document.getElementById('skuDecisionTreeCard');
         const autoCard = document.getElementById('autoDecisionTreeCard');
         if (skuCard) skuCard.open = true;
@@ -3034,48 +3134,78 @@
       }
     }
 
-    async function saveBossSnapshot() {
+    async function saveBossSnapshot({ automatic = false } = {}) {
       if (!IS_BOSS_PORTAL || !bossPendingFiles.length || !bossPendingAnalysis) return;
-      const recognized = new Set(bossPendingAnalysis.recognizedTypes || []);
+      if (bossSaveInFlight) {
+        if (automatic) scheduleBossAutoSave();
+        return;
+      }
+      cancelBossAutoSave();
+      const filesToSave = Array.from(bossPendingFiles);
+      const analysisToSave = bossPendingAnalysis;
+      const revisionAtSave = bossInputRevision;
+      const recognized = new Set(analysisToSave.recognizedTypes || []);
       const missing = BOSS_REQUIRED_FILE_TYPES.filter(item => !recognized.has(item.key));
-      if (missing.length || bossPendingAnalysis.failedCount) {
-        setBossSaveState('檔案尚未完整辨識，不能覆蓋目前資料。', 'error');
+      if (missing.length || analysisToSave.failedCount || analysisToSave.invalidRawText) {
+        setBossSaveState('檔案尚未完整辨識，不能覆蓋目前雲端資料。', 'error');
         return;
       }
       const button = document.getElementById('bossSaveSnapshot');
+      bossSaveInFlight = true;
+      bossHasUnsavedChanges = true;
       if (button) button.disabled = true;
-      setBossLoading(true, '正在儲存本週更新', '上傳完成前請不要關閉頁面。');
+      setBossSaveState(automatic ? '正在自動同步至雲端…' : '正在同步至雲端…', 'syncing');
+      setBossLoading(true, automatic ? '正在自動同步本週資料' : '正在同步本週資料', '看到「已同步」前請保持頁面開啟。');
+      let needsResave = false;
       try {
         const form = new FormData();
-        bossPendingFiles.forEach(file => form.append('files', file, file.name));
+        filesToSave.forEach(file => form.append('files', file, file.name));
         const response = await bossApiFetch('/api/snapshot', {
           method:'POST', body:form,
-          headers:{ Accept:'application/json', 'X-Supply-Action':'weekly-update' }
+          headers:{ Accept:'application/json', 'X-Supply-Action':automatic ? 'automatic-weekly-update' : 'weekly-update' }
         });
-        if (response.status === 401) { clearBossSession(); return; }
-        if (!response.ok) throw new Error(await readBossApiError(response, '儲存失敗'));
+        if (response.status === 401) {
+          bossResumeSaveAfterLogin = true;
+          clearBossSession('登入已過期；重新登入後會自動繼續同步');
+          return;
+        }
+        if (!response.ok) throw new Error(await readBossApiError(response, '同步失敗'));
         const manifest = await response.json();
+        bossResumeSaveAfterLogin = false;
         setBossLastUpdated(manifest.updatedAt);
-        setBossSaveState(`儲存完成，共 ${manifest.files?.length || bossPendingFiles.length} 個檔案。`, 'ready');
-        bossMasterFiles = bossPendingFiles.filter(file => file.name !== BOSS_H10_TEXT_FILENAME);
         const deleteButton = document.getElementById('bossDeleteSnapshot');
         if (deleteButton) deleteButton.disabled = false;
-        bossPendingFiles = [];
-        bossPendingAnalysis = null;
-        const input = document.getElementById('masterFileInput');
-        if (input) input.value = '';
-        const uploadCard = document.getElementById('uploadCard');
-        const autoCard = document.getElementById('autoDecisionTreeCard');
-        if (uploadCard) uploadCard.open = false;
-        if (autoCard) autoCard.open = true;
-        showTip('本週老闆版資料已安全更新', 'success');
-        requestAnimationFrame(() => autoCard?.scrollIntoView({ behavior:'smooth', block:'start' }));
+        needsResave = bossInputRevision !== revisionAtSave;
+        if (!needsResave) {
+          bossMasterFiles = filesToSave.filter(file => file.name !== BOSS_H10_TEXT_FILENAME);
+          bossPendingFiles = [];
+          bossPendingAnalysis = null;
+          bossHasUnsavedChanges = false;
+          const input = document.getElementById('masterFileInput');
+          if (input) input.value = '';
+          setBossSaveState(`已同步至雲端（${manifest.files?.length || filesToSave.length} 個檔案）；老闆現在可用手機登入查看。`, 'ready');
+          showTip('已同步，老闆現在可用手機查看', 'success');
+        }
+        if (!automatic && !needsResave) {
+          const uploadCard = document.getElementById('uploadCard');
+          const autoCard = document.getElementById('autoDecisionTreeCard');
+          if (uploadCard) uploadCard.open = false;
+          if (autoCard) autoCard.open = true;
+          requestAnimationFrame(() => autoCard?.scrollIntoView({ behavior:'smooth', block:'start' }));
+        }
       } catch (err) {
         console.error(err);
+        bossHasUnsavedChanges = true;
         if (button) button.disabled = false;
-        setBossSaveState(err.message || '儲存失敗，原本資料未被覆蓋。', 'error');
+        setBossSaveState(`${err.message || '同步失敗'}；雲端仍保留前一版，請按「立即同步」重試。`, 'error');
       } finally {
+        bossSaveInFlight = false;
         setBossLoading(false);
+        if (needsResave) {
+          if (button) button.disabled = false;
+          setBossSaveState('偵測到同步期間有新變更，正在再次同步…', 'syncing');
+          scheduleBossAutoSave();
+        }
       }
     }
 
@@ -3083,6 +3213,13 @@
       if (!IS_BOSS_PORTAL) return;
       const confirmed = window.confirm('確定要清除目前已儲存的 JAM、H10 與 JSP 資料嗎？清除後無法復原。');
       if (!confirmed) return;
+      cancelBossAutoSave();
+      if (bossH10SyncTimer) {
+        clearTimeout(bossH10SyncTimer);
+        bossH10SyncTimer = null;
+      }
+      bossInputRevision += 1;
+      await bossRebuildQueue.catch(() => {});
       const button = document.getElementById('bossDeleteSnapshot');
       if (button) button.disabled = true;
       setBossLoading(true, '正在清除已儲存資料', '完成前請不要關閉頁面。');
@@ -3093,8 +3230,10 @@
         });
         if (response.status === 401) { clearBossSession(); return; }
         if (!response.ok) throw new Error(await readBossApiError(response, '清除失敗'));
+        cancelBossAutoSave();
         bossPendingFiles = [];
         bossPendingAnalysis = null;
+        bossHasUnsavedChanges = false;
         bossMasterFiles = [];
         bossRawH10Text = '';
         const rawInput = document.getElementById('bossH10RawInput');
@@ -3213,12 +3352,20 @@
     document.getElementById('jspInventoryInput')?.addEventListener('change', () => handleFileAutoRead('jspInventoryInput', parseJspInventoryFile, "請先選擇 JSP 庫存檔"));
     document.getElementById('masterFileInput')?.addEventListener('change', (event) => handleMasterFileSelection(event.target.files));
     document.getElementById('salesBusinessReportInput')?.addEventListener('change', () => handleFileAutoRead('salesBusinessReportInput', parseSalesBusinessReportFile, '請先選擇 Business Report / 銷售額檔案'));
-    document.getElementById('bossSaveSnapshot')?.addEventListener('click', saveBossSnapshot);
+    document.getElementById('bossSaveSnapshot')?.addEventListener('click', () => saveBossSnapshot({ automatic:false }));
     document.getElementById('bossDeleteSnapshot')?.addEventListener('click', deleteBossSnapshot);
     document.getElementById('bossApplyH10Text')?.addEventListener('click', () => applyBossRawH10Text());
     document.getElementById('bossClearH10Text')?.addEventListener('click', clearBossRawH10Text);
     document.getElementById('bossH10RawInput')?.addEventListener('input', scheduleBossRawH10Sync);
-    document.getElementById('bossReloadSnapshot')?.addEventListener('click', () => loadBossSnapshot({ scrollToTree:false }));
+    document.getElementById('bossReloadSnapshot')?.addEventListener('click', async () => {
+      if ((bossHasUnsavedChanges || bossSaveInFlight) && !window.confirm('目前資料尚未同步完成，確定要放棄並重新載入雲端版本嗎？')) return;
+      await loadBossSnapshot({ scrollToTree:false });
+    });
+    window.addEventListener('beforeunload', event => {
+      if (!IS_BOSS_PORTAL || (!bossHasUnsavedChanges && !bossSaveInFlight)) return;
+      event.preventDefault();
+      event.returnValue = '';
+    });
     if (hideDiscontinuedFilterEl) hideDiscontinuedFilterEl.checked = true;
     setupFileDropZones();
 
