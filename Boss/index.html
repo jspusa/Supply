@@ -674,6 +674,13 @@
     .bossSaveState { margin-top:9px; color:#475569; font-size:12px; font-weight:750; }
     .bossSaveState.ready { color:#166534; }
     .bossSaveState.error { color:#991b1b; }
+    .bossSaveActions, .bossH10Actions { display:flex; align-items:center; justify-content:flex-end; gap:8px; flex-wrap:wrap; }
+    .bossDangerButton { color:#b91c1c !important; border-color:#fecaca !important; background:#fff !important; box-shadow:none !important; }
+    .bossDangerButton:hover { background:#fef2f2 !important; }
+    .bossH10Actions { margin-top:10px; }
+    .bossH10TextState { margin-top:8px; color:#64748b; font-size:12px; font-weight:750; line-height:1.55; }
+    .bossH10TextState.ready { color:#166534; }
+    .bossH10TextState.error { color:#991b1b; }
     .bossTreeUpdated { margin-top:7px; color:#64748b; font-size:12px; font-weight:750; line-height:1.5; }
     .bossTreeUpdated i { margin-right:5px; color:#2563eb; }
     .bossLoadingMask { display:none; position:fixed; inset:0; z-index:5000; place-items:center; padding:20px; background:rgba(248,250,252,.82); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
@@ -759,7 +766,6 @@
     body.bossPortal #autoDecisionTreeCard { order:2; }
     body.bossPortal #uploadCard { order:3; }
     body.bossPortal #uploadCard .uploadWorkspace { grid-template-columns:1fr; }
-    body.bossPortal #uploadCard .uploadPrimaryPanel:nth-child(2),
     body.bossPortal #uploadCard .uploadAdvancedDetails { display:none; }
     @media (max-width:1180px) {
       body { padding-left:18px; }
@@ -787,6 +793,8 @@
       .bossStatusActions { width:100%; }
       .bossStatusActions button { flex:1; }
       .bossSaveRow { align-items:stretch; flex-direction:column; }
+      .bossSaveActions, .bossH10Actions { width:100%; }
+      .bossSaveActions button, .bossH10Actions button { flex:1; }
       .bossSaveRow button { width:100%; }
       .workflowHealth { display:flex; overflow-x:auto; padding-bottom:5px; }
       .healthItem { min-width:150px; }
@@ -913,7 +921,7 @@
     </section>
 
     <div class="grid">
-      <details class="card" id="uploadCard" open>
+      <details class="card" id="uploadCard">
         <summary>
           <div>
             <p class="eyebrow">資料輸入區</p>
@@ -926,7 +934,7 @@
 
           <div class="uploadWorkspace">
             <section class="uploadPrimaryPanel">
-              <div class="uploadPanelTitle"><h3><i class="fa-solid fa-cloud-arrow-up"></i> 三個檔案一起丟這裡</h3><span class="pill">自動分類</span></div>
+              <div class="uploadPanelTitle"><h3><i class="fa-solid fa-cloud-arrow-up"></i> JAM／H10／JSP 檔案</h3><span class="pill">自動分類</span></div>
               <div class="downloadLinks" aria-label="下載來源">
                 <a class="downloadLinkChip" href="https://24466647-my.sharepoint.com/:x:/g/personal/hongren_petlifeco_com/ER_jNs_oIg9JlOmxXlpGb6sBG3yRl9Zd7gzqAfH_q3WL1A?CID=bbf41374-a2d3-7260-37b3-d7bdd684d58e&amp;e=ocBSqj" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-file-excel"></i> 1. JAM 訂單</a>
                 <a class="downloadLinkChip" href="https://members.helium10.com/inventory-management/restock-suggestions-new/index?accountId=1547156136" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-chart-line"></i> 2. H10</a>
@@ -948,9 +956,12 @@
                 <div class="bossSaveRow">
                   <div>
                     <div class="bossSaveTitle">儲存為本週老闆版資料</div>
-                    <div class="bossSaveHint">請一次選齊 JAM、H10 與 JSP 三類檔案。確認辨識成功後，再儲存到私密空間。</div>
+                    <div class="bossSaveHint">JAM 與 JSP 可上傳檔案；H10 可上傳檔案或在下方貼上原始文字。三類都辨識成功後即可儲存。</div>
                   </div>
-                  <button type="button" id="bossSaveSnapshot" disabled><i class="fa-solid fa-cloud-arrow-up"></i> 儲存本週更新</button>
+                  <div class="bossSaveActions">
+                    <button type="button" id="bossSaveSnapshot" disabled><i class="fa-solid fa-cloud-arrow-up"></i> 儲存本週更新</button>
+                    <button type="button" class="secondary bossDangerButton" id="bossDeleteSnapshot" disabled><i class="fa-regular fa-trash-can"></i> 清除已儲存資料</button>
+                  </div>
                 </div>
                 <div class="bossSaveState" id="bossSaveState">尚未選擇本週檔案。</div>
               </div>
@@ -958,8 +969,14 @@
 
             <section class="uploadPrimaryPanel">
               <div class="uploadPanelTitle"><h3>Helium 10 原始文字</h3><a class="summaryLink" href="https://members.helium10.com/inventory-management/restock-suggestions-new/index?accountId=1547156136" target="_blank" rel="noopener noreferrer">開啟 Helium 10</a></div>
-              <textarea id="inputH10" class="h10PasteArea" placeholder="在這裡貼上 Helium 10 原始文字…"></textarea>
-              <div class="hint">貼上後按頁面上方「更新分析」；讀取成功會顯示綠色「已代入」。</div>
+              <textarea id="bossH10RawInput" class="h10PasteArea" placeholder="在這裡貼上 Helium 10 原始文字…"></textarea>
+              <textarea id="inputH10" hidden aria-hidden="true"></textarea>
+              <div class="bossH10Actions">
+                <button type="button" id="bossApplyH10Text"><i class="fa-solid fa-wand-magic-sparkles"></i> 套用並納入儲存</button>
+                <button type="button" class="secondary" id="bossClearH10Text"><i class="fa-solid fa-eraser"></i> 清除貼上文字</button>
+              </div>
+              <div class="bossH10TextState" id="bossH10TextState">尚未貼上 H10 原始文字；也可以直接上傳 H10 檔案。</div>
+              <div class="hint">貼上後會自動辨識並轉成文字檔，與 JAM／JSP 一起保存；下次登入會自動還原。</div>
             </section>
           </div>
 
@@ -1457,8 +1474,12 @@
     let sortConfig = { field: "speed", direction: "desc" };
     let mainRowsAll = [], reorderRowsAll = [], hotRowsAll = [], newOrderRowsAll = [];
     let suppressUserTips = false;
+    const BOSS_H10_TEXT_FILENAME = 'Helium10_原始文字.txt';
     let bossPendingFiles = [];
     let bossPendingAnalysis = null;
+    let bossMasterFiles = [];
+    let bossRawH10Text = '';
+    let bossH10SyncTimer = null;
 
     const productMap = new Map(allProducts.map(p => [normalizeSkuKey(p.productCode), p]));
     const h10El = document.getElementById('inputH10');
@@ -2782,12 +2803,76 @@
       }
     }
 
+    function setBossH10TextState(message, state = '') {
+      const element = document.getElementById('bossH10TextState');
+      if (!element) return;
+      element.textContent = message;
+      element.classList.remove('ready', 'error');
+      if (state) element.classList.add(state);
+    }
+
+    async function rebuildBossPendingInputs({ silent = false } = {}) {
+      const files = Array.from(bossMasterFiles || []);
+      if (bossRawH10Text) {
+        files.push(new File([bossRawH10Text], BOSS_H10_TEXT_FILENAME, {
+          type:'text/plain',
+          lastModified:Date.now()
+        }));
+      }
+      resetBossAnalysisData();
+      if (!files.length) {
+        const empty = { files:[], results:[], recognizedTypes:[], failedCount:0 };
+        rememberBossFiles([], empty);
+        setBossH10TextState('尚未貼上 H10 原始文字；也可以直接上傳 H10 檔案。');
+        buildTables();
+        updateWorkflowUi();
+        return empty;
+      }
+      const analysis = await autoClassifyAndReadFiles(files, { silent:true });
+      rememberBossFiles(files, analysis);
+      if (bossRawH10Text) {
+        const rows = dedupeH10(parseH10ToRows(bossRawH10Text));
+        setBossH10TextState(
+          rows.length ? `已辨識 ${rows.length} 筆 H10 資料，儲存時會一併保存。` : '貼上的內容尚未辨識為 H10 格式。',
+          rows.length ? 'ready' : 'error'
+        );
+      } else {
+        setBossH10TextState('未使用貼上文字；若已上傳 H10 檔案，會以檔案內容為準。');
+      }
+      if (!silent) showTip('已更新本週待儲存資料', analysis.failedCount ? 'error' : 'success');
+      return analysis;
+    }
+
+    async function applyBossRawH10Text({ silent = false } = {}) {
+      bossRawH10Text = String(document.getElementById('bossH10RawInput')?.value || '').trim();
+      return rebuildBossPendingInputs({ silent });
+    }
+
+    function scheduleBossRawH10Sync() {
+      bossRawH10Text = String(document.getElementById('bossH10RawInput')?.value || '').trim();
+      if (bossH10SyncTimer) clearTimeout(bossH10SyncTimer);
+      bossH10SyncTimer = setTimeout(() => {
+        bossH10SyncTimer = null;
+        applyBossRawH10Text({ silent:true });
+      }, 450);
+    }
+
+    async function clearBossRawH10Text() {
+      bossRawH10Text = '';
+      const input = document.getElementById('bossH10RawInput');
+      if (input) input.value = '';
+      await rebuildBossPendingInputs({ silent:true });
+      showTip('已清除貼上的 H10 文字', 'success');
+    }
+
     async function handleMasterFileSelection(fileList) {
       const files = Array.from(fileList || []);
       if (!files.length) return null;
-      if (IS_BOSS_PORTAL) resetBossAnalysisData();
+      if (IS_BOSS_PORTAL) {
+        bossMasterFiles = files.filter(file => file.name !== BOSS_H10_TEXT_FILENAME);
+        return rebuildBossPendingInputs();
+      }
       const analysis = await autoClassifyAndReadFiles(files);
-      if (IS_BOSS_PORTAL) rememberBossFiles(files, analysis);
       return analysis;
     }
 
@@ -2893,8 +2978,13 @@
           updateWorkflowUi();
           setBossLastUpdated(null, '尚未建立資料，請到頁面底部上傳本週檔案');
           setBossSaveState('目前沒有已儲存資料。請一次選齊 JAM、H10 與 JSP。', 'error');
-          const uploadCard = document.getElementById('uploadCard');
-          if (uploadCard) uploadCard.open = true;
+          bossMasterFiles = [];
+          bossRawH10Text = '';
+          const rawInput = document.getElementById('bossH10RawInput');
+          if (rawInput) rawInput.value = '';
+          setBossH10TextState('尚未貼上 H10 原始文字；也可以直接上傳 H10 檔案。');
+          const deleteButton = document.getElementById('bossDeleteSnapshot');
+          if (deleteButton) deleteButton.disabled = true;
           return;
         }
         if (!response.ok) throw new Error(await readBossApiError(response, '無法讀取本週資料'));
@@ -2906,6 +2996,11 @@
           const blob = await fileResponse.blob();
           return new File([blob], fileInfo.name, { type:fileInfo.type || blob.type, lastModified:Date.parse(manifest.updatedAt) || Date.now() });
         }));
+        const storedRawH10 = files.find(file => file.name === BOSS_H10_TEXT_FILENAME);
+        bossRawH10Text = storedRawH10 ? (await storedRawH10.text()).trim() : '';
+        bossMasterFiles = files.filter(file => file.name !== BOSS_H10_TEXT_FILENAME);
+        const rawInput = document.getElementById('bossH10RawInput');
+        if (rawInput) rawInput.value = bossRawH10Text;
         resetBossAnalysisData();
         const analysis = await autoClassifyAndReadFiles(files, { silent:true });
         const recognized = new Set(analysis.recognizedTypes || []);
@@ -2914,6 +3009,14 @@
         bossPendingAnalysis = null;
         const saveButton = document.getElementById('bossSaveSnapshot');
         if (saveButton) saveButton.disabled = true;
+        const deleteButton = document.getElementById('bossDeleteSnapshot');
+        if (deleteButton) deleteButton.disabled = false;
+        if (bossRawH10Text) {
+          const rawRows = dedupeH10(parseH10ToRows(bossRawH10Text));
+          setBossH10TextState(`已還原並載入 ${rawRows.length} 筆 H10 原始文字。`, rawRows.length ? 'ready' : 'error');
+        } else {
+          setBossH10TextState('這批資料使用 H10 檔案，沒有另外保存貼上文字。');
+        }
         setBossLastUpdated(manifest.updatedAt);
         setBossSaveState(missing.length ? `已載入，但缺少：${missing.map(item => item.label).join('、')}。建議在下方重新上傳完整資料。` : `已自動載入 ${files.length} 個已儲存檔案。`, missing.length ? 'error' : 'ready');
         const skuCard = document.getElementById('skuDecisionTreeCard');
@@ -2954,6 +3057,9 @@
         const manifest = await response.json();
         setBossLastUpdated(manifest.updatedAt);
         setBossSaveState(`儲存完成，共 ${manifest.files?.length || bossPendingFiles.length} 個檔案。`, 'ready');
+        bossMasterFiles = bossPendingFiles.filter(file => file.name !== BOSS_H10_TEXT_FILENAME);
+        const deleteButton = document.getElementById('bossDeleteSnapshot');
+        if (deleteButton) deleteButton.disabled = false;
         bossPendingFiles = [];
         bossPendingAnalysis = null;
         const input = document.getElementById('masterFileInput');
@@ -2968,6 +3074,47 @@
         console.error(err);
         if (button) button.disabled = false;
         setBossSaveState(err.message || '儲存失敗，原本資料未被覆蓋。', 'error');
+      } finally {
+        setBossLoading(false);
+      }
+    }
+
+    async function deleteBossSnapshot() {
+      if (!IS_BOSS_PORTAL) return;
+      const confirmed = window.confirm('確定要清除目前已儲存的 JAM、H10 與 JSP 資料嗎？清除後無法復原。');
+      if (!confirmed) return;
+      const button = document.getElementById('bossDeleteSnapshot');
+      if (button) button.disabled = true;
+      setBossLoading(true, '正在清除已儲存資料', '完成前請不要關閉頁面。');
+      try {
+        const response = await bossApiFetch('/api/snapshot', {
+          method:'DELETE',
+          headers:{ Accept:'application/json', 'X-Supply-Action':'delete-snapshot' }
+        });
+        if (response.status === 401) { clearBossSession(); return; }
+        if (!response.ok) throw new Error(await readBossApiError(response, '清除失敗'));
+        bossPendingFiles = [];
+        bossPendingAnalysis = null;
+        bossMasterFiles = [];
+        bossRawH10Text = '';
+        const rawInput = document.getElementById('bossH10RawInput');
+        const fileInput = document.getElementById('masterFileInput');
+        if (rawInput) rawInput.value = '';
+        if (fileInput) fileInput.value = '';
+        resetBossAnalysisData();
+        buildTables();
+        updateWorkflowUi();
+        setBossLastUpdated(null, '尚未建立每週資料');
+        setBossSaveState('已清除已儲存資料。');
+        setBossH10TextState('尚未貼上 H10 原始文字；也可以直接上傳 H10 檔案。');
+        const saveButton = document.getElementById('bossSaveSnapshot');
+        if (saveButton) saveButton.disabled = true;
+        const uploadCard = document.getElementById('uploadCard');
+        if (uploadCard) uploadCard.open = false;
+        showTip('已清除本週儲存資料', 'success');
+      } catch (error) {
+        if (button) button.disabled = false;
+        setBossSaveState(error.message || '清除失敗，原本資料仍保留。', 'error');
       } finally {
         setBossLoading(false);
       }
@@ -3067,6 +3214,10 @@
     document.getElementById('masterFileInput')?.addEventListener('change', (event) => handleMasterFileSelection(event.target.files));
     document.getElementById('salesBusinessReportInput')?.addEventListener('change', () => handleFileAutoRead('salesBusinessReportInput', parseSalesBusinessReportFile, '請先選擇 Business Report / 銷售額檔案'));
     document.getElementById('bossSaveSnapshot')?.addEventListener('click', saveBossSnapshot);
+    document.getElementById('bossDeleteSnapshot')?.addEventListener('click', deleteBossSnapshot);
+    document.getElementById('bossApplyH10Text')?.addEventListener('click', () => applyBossRawH10Text());
+    document.getElementById('bossClearH10Text')?.addEventListener('click', clearBossRawH10Text);
+    document.getElementById('bossH10RawInput')?.addEventListener('input', scheduleBossRawH10Sync);
     document.getElementById('bossReloadSnapshot')?.addEventListener('click', () => loadBossSnapshot({ scrollToTree:false }));
     if (hideDiscontinuedFilterEl) hideDiscontinuedFilterEl.checked = true;
     setupFileDropZones();
