@@ -537,6 +537,8 @@
     .toolTabs { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 14px; }
     .toolTab { border:1px solid #dbe5f2; background:#fff; color:#334155; border-radius:999px; padding:9px 13px; font-weight:700; cursor:pointer; box-shadow:0 4px 12px rgba(15,23,42,.04); }
     .toolTab.active { background:#111827; color:#fff; border-color:#111827; }
+    .toolDataLink { display:inline-flex; align-items:center; border:1px dashed #cbd5e1; background:#f8fafc; color:#64748b; border-radius:999px; padding:9px 13px; font-weight:700; cursor:pointer; box-shadow:0 4px 12px rgba(15,23,42,.04); text-decoration:none; }
+    .toolDataLink:hover, .toolDataLink:focus-visible { background:#eef2f7; color:#334155; border-color:#94a3b8; outline:none; }
     .toolPanel { display:none; }
     .toolPanel.active { display:block; }
     .embeddedToolSource { display:none !important; }
@@ -1230,6 +1232,7 @@
           <button class="toolTab" data-panel="hotToolPanel">熱銷品專區</button>
           <button class="toolTab" data-panel="businessReportPanel">Business Report</button>
           <button class="toolTab" data-panel="salesGanttToolPanel">缺貨甘特圖／月曆</button>
+          <a class="toolDataLink" href="https://supply-boss.workspace-288819.chatgpt.site" target="_blank" rel="noopener noreferrer" aria-label="開啟資料補充登入頁">資料補充</a>
         </div>
         <div id="amzOver180Panel" class="toolPanel active">
           <div class="hint">以 AMZ 庫存 ÷ H10 速度估算。此清單不受「隱藏停產品」影響，避免漏掉長期倉儲費風險。</div>
