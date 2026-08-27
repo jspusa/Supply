@@ -1389,6 +1389,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
   <script src="../product-data.js"></script>
+  <script type="module" src="../shared/legacy-planning-adapter.js"></script>
   <script>
     const IS_BOSS_PORTAL = true;
     const BOSS_API_BASE = 'https://supply-boss.brave-prawn-0848.chatgpt.site';
@@ -2142,11 +2143,6 @@
       const cartonsNeeded = factor / greatestCommonDivisor(perCarton, factor);
       return (perCarton * cartonsNeeded) / factor;
     }
-    function roundToExecutableOrderQty(sku, qty) {
-      const raw = Math.max(0, Number(qty || 0));
-      const increment = getOrderIncrementInAmazonUnits(sku);
-      return increment > 0 ? Math.ceil((raw - 1e-9) / increment) * increment : Math.ceil(raw);
-    }
     function computeDerived(r) {
       const order = (r.order ?? 0), us = (r.us ?? 0);
       r.avail = order + us;
@@ -2154,78 +2150,14 @@
       r.usDays = Math.max(0, Number(r.usAmz || 0)) / r.speed;
       r.days = r.avail / r.speed;
     }
-    function getReorderTargetDays(value = daysThresholdEl?.value) { return Math.min(365, Math.max(1, Number(value || 180))); }
-    function getLeadTimeDays() { return Math.max(1, Math.min(365, Number(leadTimeDaysEl?.value || 90))); }
-    function getFbaTransferDays() { return Math.max(0, Math.min(90, Number(fbaTransferDaysEl?.value ?? 21))); }
-    function consumeStockForDays(stock, days, speed) {
-      const demand = Math.max(0, days) * speed;
-      if (stock >= demand) return { stock:stock - demand, shortageDays:0 };
-      return { stock:0, shortageDays:Math.max(0, days - (stock / speed)) };
-    }
-    function projectStockAcrossEvents(startStock, startDate, endDate, speed, events) {
-      let stock = Math.max(0, Number(startStock || 0));
-      let shortageDays = 0;
-      let cursor = startDate;
-      events.forEach(event => {
-        const elapsed = Math.max(0, Math.round((event.date - cursor) / 86400000));
-        const consumed = consumeStockForDays(stock, elapsed, speed);
-        stock = consumed.stock + Math.max(0, Number(event.qty || 0));
-        shortageDays += consumed.shortageDays;
-        cursor = event.date;
-      });
-      const remainingDays = Math.max(0, Math.round((endDate - cursor) / 86400000));
-      const finalConsumed = consumeStockForDays(stock, remainingDays, speed);
-      return { stock:finalConsumed.stock, shortageDays:shortageDays + finalConsumed.shortageDays };
-    }
-    function getRequiredQtyAcrossEvents(startStock, startDate, endDate, speed, events) {
-      let stock = Math.max(0, Number(startStock || 0));
-      let requiredQty = 0;
-      let cursor = startDate;
-      const scheduledQty = events.reduce((sum, event) => sum + Math.max(0, Number(event.qty || 0)), 0);
-      events.forEach(event => {
-        const elapsed = Math.max(0, Math.round((event.date - cursor) / 86400000));
-        const demand = elapsed * speed;
-        if (stock < demand) {
-          requiredQty += demand - stock;
-          stock = 0;
-        } else {
-          stock -= demand;
-        }
-        stock += Math.max(0, Number(event.qty || 0));
-        cursor = event.date;
-      });
-      const finalDays = Math.max(0, Math.round((endDate - cursor) / 86400000));
-      const finalDemand = finalDays * speed;
-      if (stock < finalDemand) requiredQty += finalDemand - stock;
-      else stock -= finalDemand;
-      return { requiredQty, scheduledQty, endingStock:stock };
-    }
-    function getFirstStockoutDateAcrossEvents(startStock, startDate, endDate, speed, events) {
-      let stock = Math.max(0, Number(startStock || 0));
-      let cursor = startDate;
-      for (const event of events) {
-        if (event.date > endDate) break;
-        const elapsed = Math.max(0, Math.round((event.date - cursor) / 86400000));
-        const demand = elapsed * speed;
-        if (stock < demand) return addDays(cursor, stock / speed);
-        stock -= demand;
-        stock += Math.max(0, Number(event.qty || 0));
-        cursor = event.date;
-      }
-      const remainingDays = Math.max(0, Math.round((endDate - cursor) / 86400000));
-      if (stock < remainingDays * speed) return addDays(cursor, stock / speed);
-      return null;
-    }
-    function getJamOrderState(item) {
-      if (item?.isReceived) return 'received';
-      const loadingText = String(item?.loadingDate ?? '').trim();
-      const arrivalText = String(item?.arrivalDate ?? '').trim();
-      const stateText = `${loadingText} ${arrivalText} ${String(item?.receivedMark ?? '')}`;
-      if (/(^|\s)STOP($|\s)|取消/i.test(stateText)) return 'stopped';
-      if (/還沒下單|尚未下單|未下單/i.test(stateText)) return 'planned';
-      if (parseYmdDate(loadingText) || parseYmdDate(arrivalText) || /下單了|已下單/i.test(stateText)) return 'ordered';
-      return 'unknown';
-    }
+    function getBoundedWholeDays(value, fallback, min, max) { const parsed = Number(value); return Math.min(max, Math.max(min, Math.round(Number.isFinite(parsed) ? parsed : fallback))); }
+    function getReorderTargetDays(value = daysThresholdEl?.value) { return getBoundedWholeDays(value, 180, 1, 365); }
+    function getLeadTimeDays() { return getBoundedWholeDays(leadTimeDaysEl?.value, 90, 1, 365); }
+    function getFbaTransferDays() { return getBoundedWholeDays(fbaTransferDaysEl?.value, 21, 0, 90); }
+    function normalizePlanningDayInputs() { if (daysThresholdEl) daysThresholdEl.value = String(getReorderTargetDays()); if (leadTimeDaysEl) leadTimeDaysEl.value = String(getLeadTimeDays()); if (fbaTransferDaysEl) fbaTransferDaysEl.value = String(getFbaTransferDays()); }
+    function getPlanningAsOfDate() { const today = new Date(); today.setHours(0,0,0,0); return formatDateYMD(today); }
+    function getPlanningPolicy(targetDays = getReorderTargetDays(), sku = null) { return { leadTimeDays:getLeadTimeDays(), transferTimeDays:getFbaTransferDays(), targetDays:getBoundedWholeDays(targetDays, getReorderTargetDays(), 0, 365), executableOrderIncrement:sku ? getOrderIncrementInAmazonUnits(sku) : 1 }; }
+    function getJamOrderState(item) { return window.SupplyPlanningLegacy.getLegacyOpenOrderState(item); }
     function getJamOrderStateLabel(item) {
       const state = getJamOrderState(item);
       if (state === 'received') return '已入庫';
@@ -2234,28 +2166,7 @@
       if (state === 'stopped') return 'STOP（未納入）';
       return '未標記（依舊單假設納入）';
     }
-    function getJamSupplyDecision(item, targetDays = getReorderTargetDays()) {
-      const orderState = getJamOrderState(item);
-      const today = new Date(); today.setHours(0,0,0,0);
-      const transferDays = getFbaTransferDays();
-      const newArrivalDate = addDays(today, getLeadTimeDays());
-      const newSellableDate = addDays(newArrivalDate, transferDays);
-      const targetEndDate = addDays(newSellableDate, Math.max(0, Number(targetDays || 0)));
-      if (orderState === 'received') return { bucket:'received', orderState, date:null };
-      if (orderState === 'planned') return { bucket:'planned', orderState, date:null };
-      if (orderState === 'stopped') return { bucket:'stopped', orderState, date:null };
-      const portDate = parseYmdDate(item?.arrivalDate);
-      if (portDate && portDate < today) return { bucket:'overdue', orderState, date:null };
-      const date = portDate ? addDays(portDate, transferDays) : null;
-      if (!date) {
-        const loadingDate = parseYmdDate(item?.loadingDate);
-        if (loadingDate && loadingDate > newArrivalDate) return { bucket:'conflicting', orderState, date:null };
-        return { bucket:'assumed', orderState, date:null };
-      }
-      if (date <= newSellableDate) return { bucket:'before', orderState, date };
-      if (date <= targetEndDate) return { bucket:'target', orderState, date };
-      return { bucket:'later', orderState, date };
-    }
+    function getJamSupplyDecision(item, targetDays = getReorderTargetDays()) { return window.SupplyPlanningLegacy.getLegacySupplyDecision({ asOfDate:getPlanningAsOfDate(), openOrder:{ ...item, id:item?.orderName || 'JAM', quantity:Math.max(0, Number(item?.qty || 0)), portArrivalDate:item?.arrivalDate }, policy:getPlanningPolicy(targetDays) }); }
     function getJamSupplyDecisionLabel(item, targetDays = getReorderTargetDays()) {
       const decision = getJamSupplyDecision(item, targetDays);
       if (decision.bucket === 'received') return '已入庫，不重複計算';
@@ -2268,67 +2179,19 @@
       if (decision.bucket === 'target') return `有 ETA；${formatDateYMD(decision.date)} 可售，列入目標期供給`;
       return `有 ETA；${formatDateYMD(decision.date)} 可售，晚於目標期`;
     }
-    function getLeadTimePlan(row, targetDays = getReorderTargetDays()) {
-      const speed = Number(row?.speed || 0);
-      const leadDays = getLeadTimeDays();
-      const transferDays = getFbaTransferDays();
-      const today = new Date(); today.setHours(0,0,0,0);
-      const newArrivalDate = addDays(today, leadDays);
-      const newSellableDate = addDays(newArrivalDate, transferDays);
-      const targetEndDate = addDays(newSellableDate, Math.max(0, targetDays));
-      const missingSources = [];
-      if (row?.usAmz === null || row?.usAmz === undefined) missingSources.push('AMZ庫存');
-      if (row?.usJsp === null || row?.usJsp === undefined) missingSources.push('JSP庫存');
-      const jamDataReady = Boolean(ordersEl?.value.trim()) || metaIsReady('jamMetaBox');
-      if (!jamDataReady) missingSources.push('JAM訂單');
-      if (speed > 0 && Number.isFinite(speed) && missingSources.length) {
-        return { leadDays, transferDays, targetDays, targetEndDate, newArrivalDate, newSellableDate, currentStock:0, currentAmzStock:Math.max(0, Number(row?.usAmz || 0)), jspReserve:Math.max(0, Number(row?.usJsp || 0)), inboundBefore:0, assumedBeforeNew:0, assumedPriorInbound:0, plannedNotPlaced:0, stoppedInbound:0, unknownStatusInbound:0, overdueInbound:0, conflictingScheduleInbound:0, unmatchedInbound:0, amzInboundNoEta:Math.max(0, Number(row?.usAmzInbound || 0)), scheduledWithinTarget:0, uncertainInbound:Math.max(0, Number(row?.usAmzInbound || 0)), laterInbound:0, uncertainDeadline:null, confirmedStockoutDate:null, orderByDate:null, leadDemand:(leadDays + transferDays) * speed, conservativeProjectedStock:0, projectedStock:0, shortageDays:0, rawSuggestedQty:0, suggestedQty:0, orderIncrement:getOrderIncrementInAmazonUnits(row?.sku), postArrivalDays:null, canRecommend:false, missingSources };
-      }
-      if (!speed || !Number.isFinite(speed)) return { leadDays, transferDays, targetDays, targetEndDate, newArrivalDate, newSellableDate, currentStock:Number(row?.us || 0), currentAmzStock:Number(row?.usAmz || 0), jspReserve:Number(row?.usJsp || 0), inboundBefore:0, assumedBeforeNew:0, assumedPriorInbound:0, plannedNotPlaced:0, stoppedInbound:0, unknownStatusInbound:0, overdueInbound:0, conflictingScheduleInbound:0, unmatchedInbound:Math.max(0, Number(row?.order || 0)), amzInboundNoEta:Math.max(0, Number(row?.usAmzInbound || 0)), scheduledWithinTarget:0, uncertainInbound:Math.max(0, Number(row?.order || 0)) + Math.max(0, Number(row?.usAmzInbound || 0)), laterInbound:0, uncertainDeadline:null, confirmedStockoutDate:null, orderByDate:null, leadDemand:0, conservativeProjectedStock:0, projectedStock:0, shortageDays:0, rawSuggestedQty:0, suggestedQty:0, orderIncrement:getOrderIncrementInAmazonUnits(row?.sku), postArrivalDays:null };
-      const currentAmzStock = Math.max(0, Number(row?.usAmz || 0));
-      const jspReserve = Math.max(0, Number(row?.usJsp || 0));
-      const currentStock = currentAmzStock + jspReserve;
-      const jamItems = getJamBreakdownForSku(row?.sku).filter(item => !item.isReceived);
-      const events = [];
-      const amzInboundNoEta = Math.max(0, Number(row?.usAmzInbound || 0));
-      let inboundBefore = 0, assumedBeforeNew = 0, plannedNotPlaced = 0, stoppedInbound = 0, unknownStatusInbound = 0, overdueInbound = 0, conflictingScheduleInbound = 0, scheduledWithinTarget = 0, uncertainInbound = amzInboundNoEta, laterInbound = 0, breakdownQty = 0;
-      if (jspReserve > 0) events.push({ date:addDays(today, transferDays), qty:jspReserve, source:'JSP' });
-      jamItems.forEach(item => {
-        const qty = Math.max(0, physicalToAmazonUnits(row?.sku, item.qty));
-        breakdownQty += qty;
-        const decision = getJamSupplyDecision(item, targetDays);
-        if (decision.bucket === 'planned') { plannedNotPlaced += qty; uncertainInbound += qty; return; }
-        if (decision.bucket === 'stopped') { stoppedInbound += qty; uncertainInbound += qty; return; }
-        if (decision.bucket === 'overdue') { assumedBeforeNew += qty; overdueInbound += qty; uncertainInbound += qty; return; }
-        if (decision.bucket === 'conflicting') { conflictingScheduleInbound += qty; uncertainInbound += qty; return; }
-        if (decision.bucket === 'assumed') { assumedBeforeNew += qty; if (decision.orderState === 'unknown') unknownStatusInbound += qty; uncertainInbound += qty; return; }
-        if (!decision.date) return;
-        events.push({ date:decision.date, qty, source:item.orderName || 'JAM' });
-        if (decision.bucket === 'before') inboundBefore += qty;
-        else if (decision.bucket === 'target') scheduledWithinTarget += qty;
-        else laterInbound += qty;
+    function getLeadTimePlan(row, targetDays = getReorderTargetDays(), orderDraftQuantity = null) {
+      if (!window.SupplyPlanningLegacy) throw new Error('共用補貨核心尚未載入');
+      const openOrders = getJamBreakdownForSku(row?.sku).filter(item => !item.isReceived).map(item => ({ ...item, id:item.orderName || 'JAM', quantity:Math.max(0, physicalToAmazonUnits(row?.sku, item.qty)), portArrivalDate:item.arrivalDate }));
+      return window.SupplyPlanningLegacy.planLegacyReplenishment({
+        asOfDate:getPlanningAsOfDate(),
+        row,
+        readiness:{ amazonInventory:row?.usAmz !== null && row?.usAmz !== undefined, jspInventory:row?.usJsp !== null && row?.usJsp !== undefined, openOrders:Boolean(ordersEl?.value.trim()) || metaIsReady('jamMetaBox') },
+        openOrders,
+        policy:getPlanningPolicy(targetDays, row?.sku),
+        orderDraftQuantity,
       });
-      const unmatchedInbound = Math.max(0, Number(row?.order || 0) - breakdownQty);
-      uncertainInbound += unmatchedInbound;
-      events.sort((a,b) => a.date - b.date);
-      const eventsBeforeSellable = events.filter(event => event.date <= newSellableDate);
-      const eventsWithinTarget = events.filter(event => event.date > newSellableDate && event.date <= targetEndDate);
-      const planningHorizonEnd = addDays(today, 1095);
-      const confirmedStockoutDate = getFirstStockoutDateAcrossEvents(currentAmzStock, today, planningHorizonEnd, speed, events);
-      const orderByDate = confirmedStockoutDate ? addDays(confirmedStockoutDate, -(leadDays + transferDays)) : null;
-      const confirmedProjection = projectStockAcrossEvents(currentAmzStock, today, newSellableDate, speed, eventsBeforeSellable);
-      const stock = confirmedProjection.stock;
-      const shortageDays = confirmedProjection.shortageDays;
-      const leadDemand = (leadDays + transferDays) * speed;
-      const assumedProjection = projectStockAcrossEvents(currentAmzStock + assumedBeforeNew, today, newSellableDate, speed, eventsBeforeSellable);
-      const projectedStock = assumedProjection.stock;
-      const targetPlan = getRequiredQtyAcrossEvents(projectedStock, newSellableDate, targetEndDate, speed, eventsWithinTarget);
-      const rawSuggestedQty = Math.ceil(Math.max(0, targetPlan.requiredQty));
-      const suggestedQty = roundToExecutableOrderQty(row?.sku, rawSuggestedQty);
-      const postArrivalDays = (projectedStock + suggestedQty + targetPlan.scheduledQty) / speed;
-      const uncertainDeadline = uncertainInbound > 0 ? (confirmedStockoutDate || planningHorizonEnd) : null;
-      return { leadDays, transferDays, targetDays, targetEndDate, newArrivalDate, newSellableDate, currentStock, currentAmzStock, jspReserve, inboundBefore, assumedBeforeNew, assumedPriorInbound:assumedBeforeNew, plannedNotPlaced, stoppedInbound, unknownStatusInbound, overdueInbound, conflictingScheduleInbound, unmatchedInbound, amzInboundNoEta, scheduledWithinTarget, uncertainInbound, laterInbound, uncertainDeadline, confirmedStockoutDate, orderByDate, leadDemand, conservativeProjectedStock:stock, projectedStock, shortageDays, rawSuggestedQty, suggestedQty, orderIncrement:getOrderIncrementInAmazonUnits(row?.sku), postArrivalDays, canRecommend:true, missingSources:[] };
     }
+    function getPlanningUnavailableReason(plan) { if (plan?.status === 'no-velocity') return '無速度，無法判斷'; const missing = Array.isArray(plan?.missingSources) ? plan.missingSources.filter(Boolean) : []; return missing.length ? `缺 ${missing.join('、')}` : '資料不足，無法判斷'; }
     function sortByConfig(rows) {
       const field = sortConfig.field, direction = sortConfig.direction;
       return [...rows].sort((a, b) => {
@@ -3656,41 +3519,14 @@
     function getUnitsPerPallet(prod) { const perCarton = Number(prod?.perCarton ?? 0), perPallet = Number(prod?.perPallet ?? 0), factor = getPhysicalUnitsPerAmazonUnit(prod?.productCode); return perCarton && perPallet ? (perCarton * perPallet) / factor : 0; }
     function formatPalletDays(prod) { const speed = getSpeedForProduct(prod.productCode); if (!speed || speed <= 0) return '—'; const days = getUnitsPerPallet(prod) / speed; return Number.isFinite(days) ? `${days.toFixed(1)} 天` : '—'; }
     function formatEstimatedDays(prod, quantity, units) { const speed = getSpeedForProduct(prod.productCode); if (!speed || speed <= 0) return '—'; const total = getAvailForProduct(prod.productCode) + ((Number.isFinite(units) && units > 0) ? units : (Number(quantity) || 0)); const days = total / speed; return Number.isFinite(days) ? `${days.toFixed(1)} 天` : '—'; }
-    function getContinuousCoverageDays(startStock, startDate, speed, events) {
-      if (!startDate || typeof startDate.getTime !== 'function' || Number.isNaN(startDate.getTime()) || !Number.isFinite(speed) || speed <= 0) return null;
-      let stock = Math.max(0, Number(startStock || 0));
-      let elapsedDays = 0;
-      let cursor = startDate;
-      const sortedEvents = [...(events || [])].filter(event => event?.date && typeof event.date.getTime === 'function' && !Number.isNaN(event.date.getTime())).sort((a, b) => a.date - b.date);
-      for (const event of sortedEvents) {
-        const daysUntilEvent = Math.max(0, Math.round((event.date - cursor) / 86400000));
-        const demand = daysUntilEvent * speed;
-        if (stock < demand) return elapsedDays + stock / speed;
-        stock -= demand;
-        stock += Math.max(0, Number(event.qty || 0));
-        elapsedDays += daysUntilEvent;
-        cursor = event.date;
-      }
-      return elapsedDays + stock / speed;
-    }
     function getPostArrivalCoverageDays(prod, quantity, units) {
       const code = getCanonicalSku(prod.productCode);
       const speed = getSpeedForProduct(code);
       if (!speed || speed <= 0) return null;
       const newOrderUnits = (Number.isFinite(units) && units > 0) ? units : (Number(quantity) || 0);
       const sourceRow = mainRowsAll.find(row => getCanonicalSku(row.sku) === code);
-      let days;
-      if (sourceRow) {
-        const plan = getLeadTimePlan(sourceRow, 365);
-        const scheduledEvents = getJamBreakdownForSku(sourceRow.sku).filter(item => !item.isReceived).map(item => {
-          const decision = getJamSupplyDecision(item, 365);
-          return decision.bucket === 'target' && decision.date ? { date:decision.date, qty:Math.max(0, physicalToAmazonUnits(sourceRow.sku, item.qty)) } : null;
-        }).filter(Boolean);
-        days = getContinuousCoverageDays(Math.max(0, plan.projectedStock) + newOrderUnits, plan.newSellableDate, speed, scheduledEvents);
-      } else {
-        const plannedCoverageStock = Math.max(0, getAvailForProduct(code) - speed * (getLeadTimeDays() + getFbaTransferDays()));
-        days = (plannedCoverageStock + newOrderUnits) / speed;
-      }
+      if (!sourceRow) return null;
+      const days = getLeadTimePlan(sourceRow, 365, Math.max(0, newOrderUnits)).continuousPostOrderCoverageDays;
       return Number.isFinite(days) ? Math.round(days * 10) / 10 : null;
     }
     function getGeneratorCoverageBand(days, targetDays = 180) {
@@ -3868,7 +3704,7 @@
         const supplyPlan = getLeadTimePlan(row, 0);
         let level = 'green', riskLabel = '安全', connectLabel = '接得上';
         if (!speed) { level = 'gray'; riskLabel = '無速度'; connectLabel = '不可判斷'; }
-        else if (supplyPlan.canRecommend === false) { level = 'gray'; riskLabel = '資料不完整'; connectLabel = `缺 ${supplyPlan.missingSources.join('、')}`; }
+        else if (supplyPlan.canRecommend === false) { level = 'gray'; riskLabel = '資料不完整'; connectLabel = getPlanningUnavailableReason(supplyPlan); }
         else if (supplyPlan.shortageDays > 0.05) {
           level = 'red';
           if (supplyPlan.assumedBeforeNew > 0) { riskLabel = 'ETA待確認'; connectLabel = `舊單已納入建議量；未確認接貨風險 ${supplyPlan.shortageDays.toFixed(1)} 天`; }
@@ -3886,7 +3722,7 @@
         const shortageDays = simulatedShortage === null ? shortageInfo.days : simulatedShortage;
         const shortageDaysText = shortageDays === null ? 'N/A' : (shortageDays > 60 ? '>60天' : `${Number(shortageDays.toFixed(1))}天`);
         const shortageLogic = supplyPlan.canRecommend === false
-          ? `缺少 ${supplyPlan.missingSources.join('、')}`
+          ? getPlanningUnavailableReason(supplyPlan)
           : supplyPlan.assumedBeforeNew > 0
             ? `建議量已納入 ${fmtQty(supplyPlan.assumedBeforeNew)} 舊單，假設早於今天新單；因 ETA 未確認，若舊單未及時到貨仍有 ${Number(supplyPlan.shortageDays.toFixed(1))} 天風險空窗`
             : supplyPlan.plannedNotPlaced + supplyPlan.stoppedInbound > 0
@@ -4695,6 +4531,7 @@
       activateBossPortalUi();
       try { const savedLeadTime = Number(localStorage.getItem('supply-lead-time-days')); if (leadTimeDaysEl && Number.isFinite(savedLeadTime) && savedLeadTime >= 1 && savedLeadTime <= 365) leadTimeDaysEl.value = String(savedLeadTime); } catch (_) {}
       try { const savedTransferRaw = localStorage.getItem('supply-fba-transfer-days'); const savedTransferDays = savedTransferRaw === null ? null : Number(savedTransferRaw); if (fbaTransferDaysEl && savedTransferDays !== null && Number.isFinite(savedTransferDays) && savedTransferDays >= 0 && savedTransferDays <= 90) fbaTransferDaysEl.value = String(savedTransferDays); } catch (_) {}
+      normalizePlanningDayInputs();
       document.querySelectorAll('[name="countrySelect"]').forEach(radio => radio.addEventListener('change', e => {
         saveGeneratorDraft(currentCountry);
         currentCountry = e.target.value;

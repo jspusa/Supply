@@ -56,6 +56,8 @@ test('site build emits the exact deterministic deployment artifact', t => {
     'index.html',
     'product-data.js',
     'release.json',
+    'shared/legacy-planning-adapter.js',
+    'shared/supply-planner.js',
   ];
   assert.deepEqual(listFiles(firstDist), expectedFiles);
   assert.deepEqual(listFiles(secondDist), expectedFiles);
@@ -67,6 +69,8 @@ test('site build emits the exact deterministic deployment artifact', t => {
     'Boss/index.html',
     'index.html',
     'product-data.js',
+    'shared/legacy-planning-adapter.js',
+    'shared/supply-planner.js',
   ]);
   for (const relativePath of Object.keys(manifest.files)) {
     assert.match(manifest.files[relativePath], /^[a-f0-9]{64}$/);
@@ -91,7 +95,7 @@ test('artifact verifier accepts a complete unmodified site build', t => {
 
   const verified = runNode(verifyScript, ['--dir', dist, '--revision', 'verified-revision']);
   assert.equal(verified.status, 0, verified.stderr || verified.stdout);
-  assert.match(verified.stdout, /Verified 3 hashed site files for verified-revision/);
+  assert.match(verified.stdout, /Verified 5 hashed site files for verified-revision/);
 });
 
 test('artifact verifier rejects repository-only or unexpected files', t => {

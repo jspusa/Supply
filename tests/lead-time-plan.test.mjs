@@ -12,7 +12,6 @@ function extractFunctionSource(html, name) {
   const marker = `function ${name}(`;
   const start = html.indexOf(marker);
   assert.notEqual(start, -1, `page should define ${name}`);
-
   const bodyStart = html.indexOf('{', start);
   let depth = 0;
   for (let index = bodyStart; index < html.length; index += 1) {
@@ -26,110 +25,6 @@ function extractFunctionSource(html, name) {
   throw new Error(`Could not extract ${name}`);
 }
 
-function createLeadTimeHarness(jamItems, html = indexHtml) {
-  const context = {
-    console,
-    generatorSpeed: 10,
-    mainRowsAll: [],
-    daysThresholdEl: { value: '180' },
-    leadTimeDaysEl: { value: '90' },
-    fbaTransferDaysEl: { value: '21' },
-    ordersEl: { value: 'ready' },
-    metaIsReady: () => true,
-    addDays(date, days) {
-      return new Date(date.getTime() + days * 86400000);
-    },
-    parseYmdDate(value) {
-      const text = String(value ?? '').trim();
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) return null;
-      const parsed = new Date(`${text}T00:00:00`);
-      return Number.isNaN(parsed.getTime()) ? null : parsed;
-    },
-    physicalToAmazonUnits(_sku, quantity) {
-      return Number(quantity || 0);
-    },
-    getJamBreakdownForSku() {
-      return jamItems;
-    },
-    getOrderIncrementInAmazonUnits() {
-      return 28;
-    },
-    getCanonicalSku(value) {
-      return value;
-    },
-    getSpeedForProduct() {
-      return context.generatorSpeed;
-    },
-    getAvailForProduct() {
-      return 0;
-    },
-    escapeHtml(value) {
-      return String(value);
-    },
-    fmtQty(value) {
-      return String(Number(value));
-    },
-    formatDateYMD(value) {
-      if (!(value instanceof Date) || Number.isNaN(value.getTime())) return 'N/A';
-      return `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, '0')}-${String(value.getDate()).padStart(2, '0')}`;
-    },
-    roundToExecutableOrderQty(_sku, quantity) {
-      return Math.ceil(Math.max(0, quantity) / 28) * 28;
-    },
-  };
-
-  vm.createContext(context);
-  for (const name of [
-    'getReorderTargetDays',
-    'getLeadTimeDays',
-    'getFbaTransferDays',
-    'consumeStockForDays',
-    'projectStockAcrossEvents',
-    'getRequiredQtyAcrossEvents',
-    'getFirstStockoutDateAcrossEvents',
-    'getJamOrderState',
-    'getJamSupplyDecision',
-    'getJamSupplyDecisionLabel',
-    'getLeadTimePlan',
-    'getContinuousCoverageDays',
-    'getPostArrivalCoverageDays',
-    'getGeneratorCoverageBand',
-    'formatPostArrivalDays',
-    'renderGeneratorArrivalCoverage',
-    'roundUpToHalfPallet',
-  ]) {
-    vm.runInContext(`${extractFunctionSource(html, name)}\nthis.${name} = ${name};`, context);
-  }
-  return context;
-}
-
-test('public and Boss planning functions stay in sync', () => {
-  for (const name of [
-    'getReorderTargetDays',
-    'getJamOrderState',
-    'getJamOrderStateLabel',
-    'getJamSupplyDecision',
-    'getJamSupplyDecisionLabel',
-    'projectStockAcrossEvents',
-    'getLeadTimePlan',
-    'renderIncludedLeadTimeSupply',
-    'renderLeadTimeSupplyWarnings',
-    'getContinuousCoverageDays',
-    'getPostArrivalCoverageDays',
-    'getGeneratorCoverageBand',
-    'formatPostArrivalDays',
-    'renderGeneratorArrivalCoverage',
-    'roundUpToHalfPallet',
-    'calculateReorderPallets',
-    'calculatePriorityPallets',
-    'applyPlannedQuantityToGenerator',
-    'wireGeneratorRowSorting',
-    'exportReorderRowsFiltered',
-  ]) {
-    assert.equal(extractFunctionSource(indexHtml, name), extractFunctionSource(bossHtml, name), `${name} should match in both entrypoints`);
-  }
-});
-
 for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
   test(`${entrypoint}: order generator uses compact labels and one combined quantity column`, () => {
     const tableStart = html.indexOf('<table id="productTable"');
@@ -137,7 +32,6 @@ for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
     assert.notEqual(tableStart, -1);
     assert.notEqual(tableEnd, -1);
     const generatorMarkup = html.slice(html.lastIndexOf('id="generatorColumnBar"', tableStart), tableEnd);
-
     assert.match(generatorMarkup, /<th>序號<\/th><th>品號<\/th><th>數量<\/th>/);
     assert.doesNotMatch(generatorMarkup, /品號 \/ 下單品號|<th>包數<\/th><th>袋數\/盒數<\/th>/);
     assert.match(generatorMarkup, /含舊訂單可售天數/);
@@ -158,79 +52,7 @@ for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
     assert.match(html, /\.generatorCoverageStatus\.excess \{ color:#b91c1c; \}/);
     assert.match(html, /wireGeneratorRowSorting\(\);/);
   });
-}
 
-test('the reorder target is clamped to the supported 1 to 365 day range', () => {
-  const harness = createLeadTimeHarness([]);
-  harness.daysThresholdEl.value = '500';
-  assert.equal(harness.getReorderTargetDays(), 365);
-  harness.daysThresholdEl.value = '0';
-  assert.equal(harness.getReorderTargetDays(), 1);
-  harness.daysThresholdEl.value = '180';
-  assert.equal(harness.getReorderTargetDays(), 180);
-});
-
-test('coverage colors use the displayed 180 and 365 day boundaries', () => {
-  const harness = createLeadTimeHarness([]);
-  assert.equal(harness.getGeneratorCoverageBand(null, 180), 'neutral');
-  assert.equal(harness.getGeneratorCoverageBand(179.94, 180), 'low');
-  assert.equal(harness.getGeneratorCoverageBand(179.96, 180), 'healthy');
-  assert.equal(harness.getGeneratorCoverageBand(365.04, 180), 'healthy');
-  assert.equal(harness.getGeneratorCoverageBand(365.06, 180), 'excess');
-});
-
-test('recommended pallet counts round up to the smallest half pallet', () => {
-  const harness = createLeadTimeHarness([]);
-  assert.equal(harness.roundUpToHalfPallet(0), 0);
-  assert.equal(harness.roundUpToHalfPallet(3.01), 3.5);
-  assert.equal(harness.roundUpToHalfPallet(3.5), 3.5);
-  assert.equal(harness.roundUpToHalfPallet(3.5001), 4);
-});
-
-test('planned quantity application skips zero suggestions and drives valid plans from pallets', () => {
-  let addCalls = 0;
-  let updatedInput = null;
-  const palletInput = { value: '' };
-  const quantityInput = { value: '' };
-  const row = { querySelector(selector) { if (selector === '.edit-pallets-input') return palletInput; if (selector === '.edit-quantity-input') return quantityInput; return null; } };
-  const context = {
-    addProduct() { addCalls += 1; return row; },
-    updateFields(input) { updatedInput = input; },
-  };
-  vm.createContext(context);
-  for (const name of ['roundUpToHalfPallet', 'applyPlannedQuantityToGenerator']) {
-    vm.runInContext(`${extractFunctionSource(indexHtml, name)}\nthis.${name} = ${name};`, context);
-  }
-
-  assert.equal(context.applyPlannedQuantityToGenerator({ productCode: 'ZERO' }, 0, null), null);
-  assert.equal(addCalls, 0);
-  context.applyPlannedQuantityToGenerator({ productCode: 'PLAN' }, 1000, 3.01);
-  assert.equal(addCalls, 1);
-  assert.equal(palletInput.value, '3.5');
-  assert.equal(updatedInput, palletInput);
-});
-
-test('drag sorting renumbers rows and persists the new order', () => {
-  const source = extractFunctionSource(indexHtml, 'wireGeneratorRowSorting');
-  assert.match(source, /pointerdown/);
-  assert.match(source, /pointermove/);
-  assert.match(source, /pointerup/);
-  assert.match(source, /setPointerCapture/);
-  assert.match(source, /document\.elementFromPoint/);
-  assert.match(source, /insertBefore/);
-  assert.match(source, /document\.addEventListener\('pointerup', finishDrag\)/);
-  assert.match(source, /document\.addEventListener\('pointercancel', finishDrag\)/);
-  assert.match(source, /updateRowNumbers\(\)/);
-  assert.match(source, /saveGeneratorDraft\(\)/);
-});
-
-test('decision tree uses the reorder target instead of its stockout display threshold', () => {
-  for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
-    assert.doesNotMatch(html, /getJamSupplyDecisionLabel\(item,\s*treeDaysThreshold\)/, `${entrypoint} should not use the decision-tree stockout threshold for supply buckets`);
-  }
-});
-
-for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
   test(`${entrypoint}: inline JavaScript parses`, () => {
     const scripts = Array.from(html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi));
     assert.ok(scripts.length > 0);
@@ -256,6 +78,7 @@ for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
       fmtDateText: value => value,
     };
     vm.createContext(exportContext);
+    vm.runInContext(`${extractFunctionSource(html, 'getBoundedWholeDays')}\nthis.getBoundedWholeDays = getBoundedWholeDays;`, exportContext);
     vm.runInContext(`${extractFunctionSource(html, 'getReorderTargetDays')}\nthis.getReorderTargetDays = getReorderTargetDays;`, exportContext);
     vm.runInContext(`${extractFunctionSource(html, 'exportReorderRowsFiltered')}\nthis.exportReorderRowsFiltered = exportReorderRowsFiltered;`, exportContext);
     const result = exportContext.exportReorderRowsFiltered();
@@ -264,248 +87,173 @@ for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
     assert.ok(result.headers.includes('舊單假設早於新單_已納入合計_勿與其中欄重複加總'));
     assert.ok(result.headers.includes('全部待確認供給_含已納入與未納入_僅供追蹤勿橫向加總'));
   });
-
-  test(`${entrypoint}: an existing placed order without ETA is assumed to precede a new order`, () => {
-    const harness = createLeadTimeHarness([
-      {
-        orderName: 'JAM-101',
-        qty: 1176,
-        loadingDate: '2026-08-27',
-        arrivalDate: 'N/A',
-        isReceived: false,
-      },
-      {
-        orderName: 'JAM-108',
-        qty: 1848,
-        loadingDate: 'N/A',
-        arrivalDate: 'N/A',
-        isReceived: false,
-      },
-    ], html);
-
-    const plan = harness.getLeadTimePlan({
-      sku: 'GCTL03',
-      speed: 8.83,
-      usAmz: 369,
-      usAmzInbound: 0,
-      usJsp: 0,
-      order: 3024,
-    }, 180);
-
-    assert.equal(plan.assumedBeforeNew, 3024);
-    assert.equal(plan.plannedNotPlaced, 0);
-    assert.equal(plan.unknownStatusInbound, 1848);
-    assert.ok(Math.abs(plan.projectedStock - 2412.87) < 0.001);
-    assert.equal(plan.suggestedQty, 0);
-    assert.ok(Math.abs(plan.postArrivalDays - 273.2582) < 0.001);
-    assert.ok(plan.shortageDays > 69 && plan.shortageDays < 70);
-    assert.match(harness.getJamSupplyDecisionLabel({ loadingDate: 'N/A', arrivalDate: 'N/A' }), /依舊單假設納入/);
-
-    harness.mainRowsAll.push({ sku: 'GCTL03', speed: 8.83, usAmz: 369, usAmzInbound: 0, usJsp: 0, order: 3024 });
-    harness.generatorSpeed = 8.83;
-    const healthyCoverage = harness.renderGeneratorArrivalCoverage({ productCode: 'GCTL03' }, 500, 0);
-    assert.match(healthyCoverage, /generatorCoverageStatus healthy/);
-    assert.doesNotMatch(healthyCoverage, /高於最新建議|generatorCoverageStatus excess/);
-    const coverage = harness.renderGeneratorArrivalCoverage({ productCode: 'GCTL03' }, 1596, 0);
-    assert.match(coverage, /超過 365 天/);
-    assert.doesNotMatch(coverage, /高於最新建議/);
-  });
-
-  test(`${entrypoint}: not-placed and STOP supply stay out of the recommendation`, () => {
-    const harness = createLeadTimeHarness([
-      {
-        orderName: 'FY-2612',
-        qty: 1512,
-        loadingDate: '還沒下單',
-        arrivalDate: 'N/A',
-        isReceived: false,
-      },
-      {
-        orderName: 'HS-2601',
-        qty: 1512,
-        loadingDate: 'STOP',
-        arrivalDate: 'N/A',
-        isReceived: false,
-      },
-    ], html);
-
-    const plan = harness.getLeadTimePlan({
-      sku: 'GCTL03',
-      speed: 8.83,
-      usAmz: 369,
-      usAmzInbound: 0,
-      usJsp: 0,
-      order: 3024,
-    }, 180);
-
-    assert.equal(plan.assumedBeforeNew, 0);
-    assert.equal(plan.plannedNotPlaced, 1512);
-    assert.equal(plan.stoppedInbound, 1512);
-    assert.equal(plan.projectedStock, 0);
-    assert.equal(plan.suggestedQty, 1596);
-    assert.ok(Math.abs(plan.postArrivalDays - 180.7475) < 0.001);
-    assert.match(harness.getJamSupplyDecisionLabel({ loadingDate: '還沒下單', arrivalDate: 'N/A' }), /未納入/);
-    assert.match(harness.getJamSupplyDecisionLabel({ loadingDate: 'STOP', arrivalDate: 'N/A' }), /未納入/);
-  });
-
-  test(`${entrypoint}: H10 inbound remains separate to avoid double-counting a JAM shipment`, () => {
-    const harness = createLeadTimeHarness([], html);
-    const plan = harness.getLeadTimePlan({
-      sku: 'SAMPLE01',
-      speed: 10,
-      usAmz: 0,
-      usAmzInbound: 3000,
-      usJsp: 0,
-      order: 0,
-    }, 180);
-
-    assert.equal(plan.amzInboundNoEta, 3000);
-    assert.equal(plan.assumedBeforeNew, 0);
-    assert.equal(plan.projectedStock, 0);
-    assert.equal(plan.suggestedQty, 1820);
-  });
-
-  test(`${entrypoint}: an overdue ETA is included in assumed supply but remains a risk`, () => {
-    const harness = createLeadTimeHarness([
-      {
-        orderName: 'JAM-101',
-        qty: 3024,
-        loadingDate: '2026-08-01',
-        arrivalDate: '2000-01-01',
-        isReceived: false,
-      },
-    ], html);
-
-    const plan = harness.getLeadTimePlan({
-      sku: 'GCTL03',
-      speed: 8.83,
-      usAmz: 369,
-      usAmzInbound: 0,
-      usJsp: 0,
-      order: 3024,
-    }, 180);
-
-    assert.equal(plan.assumedBeforeNew, 3024);
-    assert.equal(plan.overdueInbound, 3024);
-    assert.ok(plan.shortageDays > 69 && plan.shortageDays < 70);
-    assert.match(harness.getJamSupplyDecisionLabel({ loadingDate: '2026-08-01', arrivalDate: '2000-01-01' }), /ETA 已逾期.*依舊單假設納入/);
-  });
-
-  test(`${entrypoint}: a port ETA from yesterday is overdue even during the FBA transfer window`, () => {
-    const yesterday = new Date();
-    yesterday.setHours(0, 0, 0, 0);
-    yesterday.setDate(yesterday.getDate() - 1);
-    const ymd = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
-    const harness = createLeadTimeHarness([
-      { orderName: 'JAM-YESTERDAY', qty: 1000, loadingDate: '2026-08-01', arrivalDate: ymd, isReceived: false },
-    ], html);
-    const plan = harness.getLeadTimePlan({ sku: 'OVERDUE01', speed: 10, usAmz: 0, usAmzInbound: 0, usJsp: 0, order: 1000 }, 180);
-
-    assert.equal(plan.overdueInbound, 1000);
-    assert.equal(plan.assumedBeforeNew, 1000);
-    assert.equal(plan.inboundBefore, 0);
-  });
-
-  test(`${entrypoint}: a port ETA of today remains a confirmed transfer event`, () => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const ymd = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-    const harness = createLeadTimeHarness([
-      { orderName: 'JAM-TODAY', qty: 1000, loadingDate: '2026-08-01', arrivalDate: ymd, isReceived: false },
-    ], html);
-    const plan = harness.getLeadTimePlan({ sku: 'TODAY01', speed: 10, usAmz: 0, usAmzInbound: 0, usJsp: 0, order: 1000 }, 180);
-
-    assert.equal(plan.overdueInbound, 0);
-    assert.equal(plan.assumedBeforeNew, 0);
-    assert.equal(plan.inboundBefore, 1000);
-    assert.equal(plan.projectedStock, 100);
-  });
-
-  test(`${entrypoint}: confirmed dated supply keeps its chronological remaining stock`, () => {
-    const portDate = new Date();
-    portDate.setHours(0, 0, 0, 0);
-    portDate.setDate(portDate.getDate() + 50);
-    const ymd = `${portDate.getFullYear()}-${String(portDate.getMonth() + 1).padStart(2, '0')}-${String(portDate.getDate()).padStart(2, '0')}`;
-    const harness = createLeadTimeHarness([
-      { orderName: 'JAM-DATED', qty: 1000, loadingDate: '2026-08-27', arrivalDate: ymd, isReceived: false },
-    ], html);
-    const plan = harness.getLeadTimePlan({ sku: 'DATED01', speed: 10, usAmz: 0, usAmzInbound: 0, usJsp: 0, order: 1000 }, 180);
-
-    assert.equal(plan.assumedBeforeNew, 0);
-    assert.equal(plan.inboundBefore, 1000);
-    assert.equal(plan.projectedStock, 600);
-    assert.equal(plan.rawSuggestedQty, 1200);
-    assert.equal(plan.suggestedQty, 1204);
-  });
-
-  test(`${entrypoint}: the real TTS05 mix includes placed supply and excludes planned supply`, () => {
-    const harness = createLeadTimeHarness([
-      { orderName: 'FY-2608', qty: 84000, loadingDate: '2026-08-10', arrivalDate: 'N/A', isReceived: false },
-      { orderName: 'FY-2611', qty: 84000, loadingDate: '下單了', arrivalDate: 'N/A', isReceived: false },
-      { orderName: 'FY-2614', qty: 42000, loadingDate: '還沒下單', arrivalDate: 'N/A', isReceived: false },
-    ], html);
-
-    const plan = harness.getLeadTimePlan({
-      sku: 'TTS05AM-1',
-      speed: 495.18,
-      usAmz: 19628,
-      usAmzInbound: 3900,
-      usJsp: 0,
-      order: 210000,
-    }, 180);
-
-    assert.equal(plan.assumedBeforeNew, 168000);
-    assert.equal(plan.plannedNotPlaced, 42000);
-    assert.equal(plan.amzInboundNoEta, 3900);
-    assert.ok(Math.abs(plan.projectedStock - 132663.02) < 0.001);
-    assert.equal(plan.suggestedQty, 0);
-    assert.ok(Math.abs(plan.postArrivalDays - 267.9088) < 0.001);
-    assert.ok(plan.shortageDays > 71 && plan.shortageDays < 72);
-  });
-
-  test(`${entrypoint}: a loading date later than the new order arrival is not assumed early`, () => {
-    const lateLoading = new Date();
-    lateLoading.setHours(0, 0, 0, 0);
-    lateLoading.setDate(lateLoading.getDate() + 120);
-    const ymd = `${lateLoading.getFullYear()}-${String(lateLoading.getMonth() + 1).padStart(2, '0')}-${String(lateLoading.getDate()).padStart(2, '0')}`;
-    const harness = createLeadTimeHarness([
-      { orderName: 'FY-LATE', qty: 3024, loadingDate: ymd, arrivalDate: 'N/A', isReceived: false },
-    ], html);
-    const plan = harness.getLeadTimePlan({ sku: 'GCTL03', speed: 8.83, usAmz: 369, usAmzInbound: 0, usJsp: 0, order: 3024 }, 180);
-
-    assert.equal(plan.assumedBeforeNew, 0);
-    assert.equal(plan.conflictingScheduleInbound, 3024);
-    assert.equal(plan.suggestedQty, 1596);
-    assert.match(harness.getJamSupplyDecisionLabel({ loadingDate: ymd, arrivalDate: 'N/A' }), /晚於本次新單到港.*未納入/);
-  });
-
-  test(`${entrypoint}: generator coverage includes confirmed supply scheduled inside the target window`, () => {
-    const portDate = new Date();
-    portDate.setHours(0, 0, 0, 0);
-    portDate.setDate(portDate.getDate() + 120);
-    const ymd = `${portDate.getFullYear()}-${String(portDate.getMonth() + 1).padStart(2, '0')}-${String(portDate.getDate()).padStart(2, '0')}`;
-    const harness = createLeadTimeHarness([
-      { orderName: 'JAM-SCHEDULED', qty: 1000, loadingDate: '2026-08-27', arrivalDate: ymd, isReceived: false },
-    ], html);
-    const sourceRow = { sku: 'SCHEDULED01', speed: 10, usAmz: 3000, usAmzInbound: 0, usJsp: 0, order: 1000 };
-    harness.mainRowsAll.push(sourceRow);
-    harness.generatorSpeed = 10;
-
-    assert.equal(harness.formatPostArrivalDays({ productCode: 'SCHEDULED01' }, 0, 0), '289.0 天');
-  });
 }
 
-test('a late old order does not hide a stockout gap after the new order arrives', () => {
-  const portDate = new Date();
-  portDate.setHours(0, 0, 0, 0);
-  portDate.setDate(portDate.getDate() + 390);
-  const ymd = `${portDate.getFullYear()}-${String(portDate.getMonth() + 1).padStart(2, '0')}-${String(portDate.getDate()).padStart(2, '0')}`;
-  const harness = createLeadTimeHarness([
-    { orderName: 'JAM-LATE-GAP', qty: 1000, loadingDate: '2026-08-27', arrivalDate: ymd, isReceived: false },
-  ]);
-  harness.mainRowsAll.push({ sku: 'GAP01', speed: 10, usAmz: 0, usAmzInbound: 0, usJsp: 0, order: 1000 });
-  harness.generatorSpeed = 10;
+test('both entrypoints load the same planner Module and contain only thin planner adapters', () => {
+  assert.match(indexHtml, /<script type="module" src="\.\/shared\/legacy-planning-adapter\.js"><\/script>/);
+  assert.match(bossHtml, /<script type="module" src="\.\.\/shared\/legacy-planning-adapter\.js"><\/script>/);
+  for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
+    for (const removedImplementation of [
+      'roundToExecutableOrderQty',
+      'consumeStockForDays',
+      'projectStockAcrossEvents',
+      'getRequiredQtyAcrossEvents',
+      'getFirstStockoutDateAcrossEvents',
+      'getContinuousCoverageDays',
+    ]) {
+      assert.equal(html.includes(`function ${removedImplementation}(`), false, `${entrypoint} should not copy ${removedImplementation}`);
+    }
+    assert.match(extractFunctionSource(html, 'getLeadTimePlan'), /SupplyPlanningLegacy\.planLegacyReplenishment/);
+    assert.match(extractFunctionSource(html, 'getPostArrivalCoverageDays'), /continuousPostOrderCoverageDays/);
+  }
+});
 
-  assert.equal(harness.getPostArrivalCoverageDays({ productCode: 'GAP01' }, 1000, 0), 100);
-  assert.equal(harness.getGeneratorCoverageBand(100, 180), 'low');
+test('public and Boss adapters send the same normalized row to the shared planner Interface', () => {
+  function runAdapter(html) {
+    const calls = [];
+    const context = {
+      window: { SupplyPlanningLegacy: { planLegacyReplenishment(input) { calls.push(input); return { marker: 'shared-result' }; } } },
+      getJamBreakdownForSku: () => [{ orderName: 'JAM-1', qty: 280, arrivalDate: '2026-10-16', isReceived: false }],
+      physicalToAmazonUnits: (_sku, qty) => qty / 2,
+      getPlanningAsOfDate: () => '2026-08-27',
+      getPlanningPolicy: (targetDays, sku) => ({ targetDays, sku }),
+      ordersEl: { value: 'ready' },
+      metaIsReady: () => false,
+      getReorderTargetDays: () => 180,
+    };
+    vm.createContext(context);
+    vm.runInContext(`${extractFunctionSource(html, 'getLeadTimePlan')}\nthis.getLeadTimePlan = getLeadTimePlan;`, context);
+    const row = { sku: 'GCTL03', speed: 8.83, usAmz: 369, usJsp: 0 };
+    assert.deepEqual(context.getLeadTimePlan(row, 365, 500), { marker: 'shared-result' });
+    assert.equal(calls.length, 1);
+    return structuredClone(calls[0]);
+  }
+  const publicInput = runAdapter(indexHtml);
+  const bossInput = runAdapter(bossHtml);
+  assert.deepEqual(publicInput, bossInput);
+  assert.equal(publicInput.asOfDate, '2026-08-27');
+  assert.equal(publicInput.openOrders[0].quantity, 140);
+  assert.equal(publicInput.openOrders[0].portArrivalDate, '2026-10-16');
+  assert.equal(publicInput.orderDraftQuantity, 500);
+});
+
+test('planning-day compatibility adapters clamp, round, and sync persisted decimal values', () => {
+  for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
+    const context = {
+      daysThresholdEl: { value: '180.6' },
+      leadTimeDaysEl: { value: '90.5' },
+      fbaTransferDaysEl: { value: '21.5' },
+      getOrderIncrementInAmazonUnits: () => 28,
+    };
+    vm.createContext(context);
+    for (const name of [
+      'getBoundedWholeDays',
+      'getReorderTargetDays',
+      'getLeadTimeDays',
+      'getFbaTransferDays',
+      'normalizePlanningDayInputs',
+      'getPlanningPolicy',
+    ]) {
+      vm.runInContext(`${extractFunctionSource(html, name)}\nthis.${name} = ${name};`, context);
+    }
+    assert.equal(context.getReorderTargetDays(), 181, entrypoint);
+    assert.equal(context.getLeadTimeDays(), 91, entrypoint);
+    assert.equal(context.getFbaTransferDays(), 22, entrypoint);
+    assert.deepEqual(structuredClone(context.getPlanningPolicy(180.6, 'SKU01')), {
+      leadTimeDays: 91,
+      transferTimeDays: 22,
+      targetDays: 181,
+      executableOrderIncrement: 28,
+    });
+    context.normalizePlanningDayInputs();
+    assert.deepEqual([
+      context.daysThresholdEl.value,
+      context.leadTimeDaysEl.value,
+      context.fbaTransferDaysEl.value,
+    ], ['181', '91', '22']);
+  }
+});
+
+test('no-velocity plans remain unavailable without an empty missing-data message', () => {
+  for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
+    const context = {};
+    vm.createContext(context);
+    vm.runInContext(`${extractFunctionSource(html, 'getPlanningUnavailableReason')}\nthis.getPlanningUnavailableReason = getPlanningUnavailableReason;`, context);
+    assert.equal(context.getPlanningUnavailableReason({ status: 'no-velocity', missingSources: [] }), '無速度，無法判斷', entrypoint);
+    assert.equal(context.getPlanningUnavailableReason({ status: 'missing-data', missingSources: ['AMZ庫存', 'JAM訂單'] }), '缺 AMZ庫存、JAM訂單', entrypoint);
+    assert.match(extractFunctionSource(html, 'getDecisionRows'), /getPlanningUnavailableReason\(supplyPlan\)/, entrypoint);
+  }
+});
+
+test('Order Draft coverage is unavailable instead of bypassing the shared planner', () => {
+  for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
+    const source = extractFunctionSource(html, 'getPostArrivalCoverageDays');
+    const context = {
+      getCanonicalSku: value => value,
+      getSpeedForProduct: () => 10,
+      mainRowsAll: [],
+      getLeadTimePlan: () => { throw new Error('planner should not be called without a normalized source row'); },
+    };
+    vm.createContext(context);
+    vm.runInContext(`${source}\nthis.getPostArrivalCoverageDays = getPostArrivalCoverageDays;`, context);
+    assert.equal(context.getPostArrivalCoverageDays({ productCode: 'NO-ROW' }, 1000, 1000), null, entrypoint);
+    assert.doesNotMatch(source, /getAvailForProduct|getLeadTimeDays|getFbaTransferDays/, entrypoint);
+  }
+});
+
+test('coverage colors use the displayed 180 and 365 day boundaries', () => {
+  const context = {};
+  vm.createContext(context);
+  vm.runInContext(`${extractFunctionSource(indexHtml, 'getGeneratorCoverageBand')}\nthis.getGeneratorCoverageBand = getGeneratorCoverageBand;`, context);
+  assert.equal(context.getGeneratorCoverageBand(null, 180), 'neutral');
+  assert.equal(context.getGeneratorCoverageBand(179.94, 180), 'low');
+  assert.equal(context.getGeneratorCoverageBand(179.96, 180), 'healthy');
+  assert.equal(context.getGeneratorCoverageBand(365.04, 180), 'healthy');
+  assert.equal(context.getGeneratorCoverageBand(365.06, 180), 'excess');
+});
+
+test('recommended pallet counts still round up to the smallest half pallet before #57 migration', () => {
+  const context = {};
+  vm.createContext(context);
+  vm.runInContext(`${extractFunctionSource(indexHtml, 'roundUpToHalfPallet')}\nthis.roundUpToHalfPallet = roundUpToHalfPallet;`, context);
+  assert.equal(context.roundUpToHalfPallet(0), 0);
+  assert.equal(context.roundUpToHalfPallet(3.01), 3.5);
+  assert.equal(context.roundUpToHalfPallet(3.5), 3.5);
+  assert.equal(context.roundUpToHalfPallet(3.5001), 4);
+});
+
+test('planned quantity application skips zero suggestions and drives valid plans from pallets', () => {
+  let addCalls = 0;
+  let updatedInput = null;
+  const palletInput = { value: '' };
+  const quantityInput = { value: '' };
+  const row = { querySelector(selector) { if (selector === '.edit-pallets-input') return palletInput; if (selector === '.edit-quantity-input') return quantityInput; return null; } };
+  const context = {
+    addProduct() { addCalls += 1; return row; },
+    updateFields(input) { updatedInput = input; },
+  };
+  vm.createContext(context);
+  for (const name of ['roundUpToHalfPallet', 'applyPlannedQuantityToGenerator']) {
+    vm.runInContext(`${extractFunctionSource(indexHtml, name)}\nthis.${name} = ${name};`, context);
+  }
+  assert.equal(context.applyPlannedQuantityToGenerator({ productCode: 'ZERO' }, 0, null), null);
+  assert.equal(addCalls, 0);
+  context.applyPlannedQuantityToGenerator({ productCode: 'PLAN' }, 1000, 3.01);
+  assert.equal(addCalls, 1);
+  assert.equal(palletInput.value, '3.5');
+  assert.equal(updatedInput, palletInput);
+});
+
+test('drag sorting renumbers rows and persists the new order', () => {
+  const source = extractFunctionSource(indexHtml, 'wireGeneratorRowSorting');
+  assert.match(source, /pointerdown/);
+  assert.match(source, /pointermove/);
+  assert.match(source, /pointerup/);
+  assert.match(source, /setPointerCapture/);
+  assert.match(source, /document\.elementFromPoint/);
+  assert.match(source, /insertBefore/);
+  assert.match(source, /document\.addEventListener\('pointerup', finishDrag\)/);
+  assert.match(source, /document\.addEventListener\('pointercancel', finishDrag\)/);
+  assert.match(source, /updateRowNumbers\(\)/);
+  assert.match(source, /saveGeneratorDraft\(\)/);
 });

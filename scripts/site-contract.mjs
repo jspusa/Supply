@@ -5,6 +5,8 @@ export const runtimeFiles = Object.freeze([
   'Boss/index.html',
   'index.html',
   'product-data.js',
+  'shared/legacy-planning-adapter.js',
+  'shared/supply-planner.js',
 ]);
 
 export const supportFiles = Object.freeze([
