@@ -171,6 +171,12 @@ test('planning-day compatibility adapters clamp, round, and sync persisted decim
       context.leadTimeDaysEl.value,
       context.fbaTransferDaysEl.value,
     ], ['181', '91', '22']);
+    context.daysThresholdEl.value = '';
+    context.leadTimeDaysEl.value = '';
+    context.fbaTransferDaysEl.value = '';
+    assert.equal(context.getReorderTargetDays(), 180, `${entrypoint} blank target`);
+    assert.equal(context.getLeadTimeDays(), 90, `${entrypoint} blank lead time`);
+    assert.equal(context.getFbaTransferDays(), 0, `${entrypoint} blank transfer`);
   }
 });
 
@@ -198,6 +204,26 @@ test('Order Draft coverage is unavailable instead of bypassing the shared planne
     vm.runInContext(`${source}\nthis.getPostArrivalCoverageDays = getPostArrivalCoverageDays;`, context);
     assert.equal(context.getPostArrivalCoverageDays({ productCode: 'NO-ROW' }, 1000, 1000), null, entrypoint);
     assert.doesNotMatch(source, /getAvailForProduct|getLeadTimeDays|getFbaTransferDays/, entrypoint);
+  }
+});
+
+test('Book coverage comes from the shared planner and excludes the current Order Draft', () => {
+  for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
+    const calls = [];
+    const sourceRow = { sku: 'BOOK01' };
+    const context = {
+      getCanonicalSku: value => value,
+      mainRowsAll: [sourceRow],
+      getLeadTimePlan(...args) { calls.push(args); return { bookCoverageDays: 150 }; },
+    };
+    vm.createContext(context);
+    vm.runInContext(`${extractFunctionSource(html, 'formatEstimatedDays')}\nthis.formatEstimatedDays = formatEstimatedDays;`, context);
+    assert.equal(context.formatEstimatedDays({ productCode: 'BOOK01' }, 1000, 1000), '150.0 天', entrypoint);
+    assert.equal(calls.length, 1, entrypoint);
+    assert.equal(calls[0][0], sourceRow, entrypoint);
+    assert.equal(calls[0][1], 365, entrypoint);
+    assert.equal(calls[0][2], undefined, `${entrypoint} must not pass the current draft quantity into Book coverage`);
+    assert.doesNotMatch(extractFunctionSource(html, 'formatEstimatedDays'), /getAvailForProduct|quantity|units/, entrypoint);
   }
 });
 
