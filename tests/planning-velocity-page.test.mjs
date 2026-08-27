@@ -271,7 +271,7 @@ test('public and Boss produce the same GTP03 assessment, plan, rendering, and ex
   assert.deepEqual({ ...outcomes[0], entrypoint:null }, { ...outcomes[1], entrypoint:null });
 });
 
-test('Boss records velocity history only after a canonical saved-snapshot date exists', () => {
+test('Boss records velocity history only after save and never during restore', () => {
   const bossHtml = pages.find(([entrypoint]) => entrypoint === 'Boss')[1];
   const context = {
     window:{ SupplyVelocityHistory:{ derivePlanningVelocityObservedOn:() => '2026-08-29' } },
@@ -288,8 +288,13 @@ test('Boss records velocity history only after a canonical saved-snapshot date e
   const pendingSource = extractFunctionSource(bossHtml, 'rebuildBossPendingInputs');
   assert.match(pendingSource, /recordVelocityHistory:false/);
   const loadSource = extractFunctionSource(bossHtml, 'loadBossSnapshot');
-  assert.match(loadSource, /sourceObservedOn:observedOn, recordVelocityHistory:false/);
+  assert.match(loadSource, /restoreWorkspaceInputs\(\{/);
+  assert.match(loadSource, /sourceObservedOn:observedOn/);
+  assert.doesNotMatch(loadSource, /recordBossSnapshotVelocityHistory\(manifest\)/);
   assert.doesNotMatch(loadSource, /sourceObservedOn:observedOn \|\| getPlanningAsOfDate/);
+  const restoreSource = extractFunctionSource(bossHtml, 'restoreWorkspaceInputs');
+  assert.match(restoreSource, /recordVelocityHistory:false/);
+  assert.match(restoreSource, /shouldRecordVelocityHistory = false/);
   assert.match(extractFunctionSource(bossHtml, 'buildVelocityAssessments'), /sourceObservedOn:h10SourceObservedOn === undefined \? asOfDate : h10SourceObservedOn/);
   const saveSource = extractFunctionSource(bossHtml, 'saveBossSnapshot');
   assert.ok(saveSource.indexOf("if (!response.ok) throw") < saveSource.indexOf('recordBossSnapshotVelocityHistory(manifest)'));

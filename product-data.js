@@ -1,4 +1,15 @@
 // 產品資料已獨立於 index.html，方便維護
+window.SUPPLY_EQUIVALENT_SKU_PAIRS = Object.freeze([
+  ["TTS05AM-1", "7ATSD010AB"], ["TTS05AM", "7ATSD019AB"], ["TTSL05", "7ATSD017AB"],
+  ["ATR01", "7ATRD013AB"], ["ATS01", "7ATSD011AB"],
+  ["GTP01", "7GTPD013AB"], ["GTR01", "7GTRD013AB"], ["GTP05", "7GTPD053AB"],
+  ["GTB05", "7GTBD053AB"], ["GTS01", "7GTSD013AB"], ["GTB01", "7GTBD013AB"],
+  ["GTBL03", "7GTBD037AB"], ["GTRL01", "7GTRD017AB"], ["GTRL03", "7GTRD037AB"],
+  ["GTPL03", "7GTPD037AB"], ["GTSL01", "7GTSD017AB"], ["GTBL01", "7GTBD017AB"],
+  ["GTPL01", "7GTPD017AB"], ["GTPL05", "7GTPD057AB"], ["GTBL05", "7GTBD057AB"],
+  ["VTS01-1", "7VTSD013AB"], ["VTB01-4", "7VTBD410AB"]
+].map(pair => Object.freeze(pair)));
+
 window.allProductsData = [
   { productCode: "1GBRD019A0", productName: "Gootoe - Buffalo Bites Bone Shaped - 1.5lb (Pack of 3)", boxSize: "50*40*30", perCarton: 9, perPack: 3, perBox: null, perPallet: 42, country: "VN" },
   { productCode: "1GBRD029A0", productName: "Gootoe - Buffalo Bites Stick (Large) - 1.5lb (Pack of 3)", boxSize: "50*40*30", perCarton: 8, perPack: 3, perBox: null, perPallet: 42, country: "VN" },
@@ -397,4 +408,3 @@ window.allProductsData = [
   window.isTurkeyProduct = isTurkeyProduct;
   window.isNonTurkeyProduct = isNonTurkeyProduct;
 })();
-

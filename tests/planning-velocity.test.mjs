@@ -1,7 +1,19 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
 import test from 'node:test';
+import vm from 'node:vm';
 
 import { buildPlanningVelocities } from '../shared/planning-velocity.js';
+
+const repoRoot = path.resolve(import.meta.dirname, '..');
+
+function loadApprovedEquivalentSkuPairs() {
+  const context = { window:{} };
+  vm.createContext(context);
+  vm.runInContext(fs.readFileSync(path.join(repoRoot, 'product-data.js'), 'utf8'), context);
+  return Array.from(context.window.SUPPLY_EQUIVALENT_SKU_PAIRS, pair => Array.from(pair));
+}
 
 function buildInput(overrides = {}) {
   return {
@@ -67,6 +79,51 @@ test('H10 observations retain every source occurrence in original text order', (
   ]);
   assert.deepEqual(result.assessments[0].h10SourceVelocity.values, [1, 2, 1]);
   assert.deepEqual(result.assessments[0].candidates, [{ kind: 'h10-source', value: 2 }]);
+});
+
+test('approved Order SKU evidence is normalized to its Product SKU before velocity comparison', () => {
+  const approvedPairs = loadApprovedEquivalentSkuPairs();
+  const [productSku, orderSku] = approvedPairs.find(pair => pair[0] === 'GTP01');
+  const result = buildPlanningVelocities(buildInput({
+    productSkuAliases:approvedPairs,
+    rawH10Text:`B000000034 ${orderSku} 5`,
+    inventoryRows:[
+      ['SKU', 'Days of Supply', 'Sellable Inventory', 'Inbound'],
+      [orderSku, 10, 80, 0],
+    ],
+    historySamples:[
+      { productSku:orderSku, date:'2026-08-26', h10SourceVelocity:11 },
+    ],
+  }));
+
+  assert.equal(result.assessments.length, 1, 'equivalent evidence must not split into separate Product and Order SKU assessments');
+  const assessment = result.assessments[0];
+  assert.equal(assessment.productSku, productSku);
+  assert.deepEqual(result.h10Observations, [{
+    productSku,
+    sourceSku:orderSku,
+    asin:'B000000034',
+    value:5,
+    rawValue:'5',
+  }]);
+  assert.deepEqual(result.inventorySummary.evidence.map(({ productSku:normalized, sourceSku, sellable, daysOfSupply }) => ({
+    productSku:normalized,
+    sourceSku,
+    sellable,
+    daysOfSupply,
+  })), [{ productSku, sourceSku:orderSku, sellable:80, daysOfSupply:10 }]);
+  assert.deepEqual(assessment.candidates, [
+    { kind:'h10-source', value:5 },
+    { kind:'sellable-over-days-of-supply', value:8, rowIndex:1 },
+    { kind:'local-28-day-median', value:11 },
+  ]);
+  assert.equal(assessment.historyMedian, 11);
+  assert.equal(assessment.planningVelocity, 11);
+  assert.deepEqual(assessment.winningEvidence, [{ kind:'local-28-day-median', value:11 }]);
+  assert.deepEqual(result.nextHistorySamples, [
+    { productSku, date:'2026-08-26', h10SourceVelocity:11 },
+    { productSku, date:'2026-08-27', h10SourceVelocity:5 },
+  ]);
 });
 
 test('Hot SKU floor raises 9.99 to 10 while a non-hot 5 remains 5', () => {

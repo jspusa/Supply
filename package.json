@@ -9,8 +9,15 @@
   "scripts": {
     "check": "npm ci --ignore-scripts --no-audit --no-fund && npm run verify",
     "test": "node --test tests/*.test.mjs",
+    "test:browser": "playwright test --config tests/browser/playwright.config.mjs",
     "build": "node scripts/build-site.mjs",
     "verify:dist": "node scripts/verify-dist.mjs",
-    "verify": "npm test && npm run build && npm run verify:dist"
+    "verify:live": "node scripts/verify-live.mjs",
+    "verify:live:browser": "node scripts/verify-live-browser.mjs",
+    "verify": "npm test && npm run build && npm run verify:dist && npm run test:browser"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   }
 }

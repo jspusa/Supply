@@ -58,9 +58,15 @@ test('site build emits the exact deterministic deployment artifact', t => {
     'release.json',
     'shared/legacy-planning-adapter.js',
     'shared/order-draft-quantity.js',
+    'shared/order-draft-state.js',
     'shared/planning-velocity-history.js',
     'shared/planning-velocity.js',
     'shared/supply-planner.js',
+    'shared/workspace-navigation.js',
+    'shared/workspace-snapshot.js',
+    'shared/workspace-ui.js',
+    'vendor/LICENSE.sheetjs.txt',
+    'vendor/xlsx.full.min.js',
   ];
   assert.deepEqual(listFiles(firstDist), expectedFiles);
   assert.deepEqual(listFiles(secondDist), expectedFiles);
@@ -74,9 +80,15 @@ test('site build emits the exact deterministic deployment artifact', t => {
     'product-data.js',
     'shared/legacy-planning-adapter.js',
     'shared/order-draft-quantity.js',
+    'shared/order-draft-state.js',
     'shared/planning-velocity-history.js',
     'shared/planning-velocity.js',
     'shared/supply-planner.js',
+    'shared/workspace-navigation.js',
+    'shared/workspace-snapshot.js',
+    'shared/workspace-ui.js',
+    'vendor/LICENSE.sheetjs.txt',
+    'vendor/xlsx.full.min.js',
   ]);
   for (const relativePath of Object.keys(manifest.files)) {
     assert.match(manifest.files[relativePath], /^[a-f0-9]{64}$/);
@@ -101,7 +113,7 @@ test('artifact verifier accepts a complete unmodified site build', t => {
 
   const verified = runNode(verifyScript, ['--dir', dist, '--revision', 'verified-revision']);
   assert.equal(verified.status, 0, verified.stderr || verified.stdout);
-  assert.match(verified.stdout, /Verified 8 hashed site files for verified-revision/);
+  assert.match(verified.stdout, /Verified 14 hashed site files for verified-revision/);
 });
 
 test('artifact verifier rejects repository-only or unexpected files', t => {

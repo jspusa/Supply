@@ -7,9 +7,15 @@ export const runtimeFiles = Object.freeze([
   'product-data.js',
   'shared/legacy-planning-adapter.js',
   'shared/order-draft-quantity.js',
+  'shared/order-draft-state.js',
   'shared/planning-velocity-history.js',
   'shared/planning-velocity.js',
   'shared/supply-planner.js',
+  'shared/workspace-navigation.js',
+  'shared/workspace-snapshot.js',
+  'shared/workspace-ui.js',
+  'vendor/LICENSE.sheetjs.txt',
+  'vendor/xlsx.full.min.js',
 ]);
 
 export const supportFiles = Object.freeze([

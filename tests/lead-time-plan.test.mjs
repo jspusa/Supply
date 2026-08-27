@@ -14,7 +14,9 @@ function extractFunctionSource(html, name) {
   const marker = `function ${name}(`;
   const start = html.indexOf(marker);
   assert.notEqual(start, -1, `page should define ${name}`);
-  const bodyStart = html.indexOf('{', start);
+  const signatureEnd = html.indexOf(') {', start);
+  assert.notEqual(signatureEnd, -1, `page should define a body for ${name}`);
+  const bodyStart = signatureEnd + 2;
   let depth = 0;
   for (let index = bodyStart; index < html.length; index += 1) {
     const char = html[index];
@@ -28,6 +30,31 @@ function extractFunctionSource(html, name) {
 }
 
 for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
+  test(`${entrypoint}: Order Draft exposes exactly Taiwan, Vietnam, and Subcontract groups`, () => {
+    const generatorStart = html.indexOf('class="order-generator"');
+    const generatorEnd = html.indexOf('</section>', generatorStart);
+    assert.notEqual(generatorStart, -1);
+    assert.notEqual(generatorEnd, -1);
+    const generatorMarkup = html.slice(generatorStart, generatorEnd);
+    const tabs = Array.from(generatorMarkup.matchAll(/<input type="radio" name="orderGroupSelect" value="([^"]+)"[^>]*>\s*<span>([^<]+)<\/span>/g))
+      .map(match => [match[1], match[2].trim()]);
+    assert.deepEqual(tabs, [
+      ['taiwan', '台灣'],
+      ['vietnam', '越南'],
+      ['subcontract', '代工'],
+    ]);
+    assert.doesNotMatch(generatorMarkup, /name="countrySelect"|value="VN"|value="TW"|value="Others"|越南廠|台灣廠|其他/);
+  });
+
+  test(`${entrypoint}: Order Draft loads the shared versioned state adapter and approved SKU pairs`, () => {
+    const expectedStateSource = entrypoint === 'public'
+      ? './shared/order-draft-state.js'
+      : '../shared/order-draft-state.js';
+    assert.match(html, new RegExp(`<script type="module" src="${expectedStateSource.replaceAll('.', '\\.')}"></script>`));
+    assert.match(html, /const equivalentSkuPairs = Array\.from\(window\.SUPPLY_EQUIVALENT_SKU_PAIRS/);
+    assert.doesNotMatch(html, /const equivalentSkuPairs = \[\s*\["TTS05AM-1", "7ATSD010AB"\]/);
+  });
+
   test(`${entrypoint}: order generator uses compact labels and one combined quantity column`, () => {
     const tableStart = html.indexOf('<table id="productTable"');
     const tableEnd = html.indexOf('</table>', tableStart);
@@ -44,7 +71,10 @@ for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
     const addProductSource = extractFunctionSource(html, 'addProduct');
     const totalsSource = extractFunctionSource(html, 'updateTotals');
     const saveDraftSource = extractFunctionSource(html, 'saveGeneratorDraft');
+    const serializeDraftSource = extractFunctionSource(html, 'serializeGeneratorRow');
+    const persistDraftSource = extractFunctionSource(html, 'persistGeneratorDraft');
     const restoreDraftSource = extractFunctionSource(html, 'restoreGeneratorDraft');
+    const loadDraftSource = extractFunctionSource(html, 'loadGeneratorDraftState');
     const lockSource = extractFunctionSource(html, 'toggleLock');
     const exportSource = extractFunctionSource(html, 'exportGeneratorToExcel');
     assert.match(addProductSource, /generatorQuantityGroup/);
@@ -58,32 +88,39 @@ for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
     assert.match(addProductSource, /class="drag-handle"[^>]*aria-label="按住拖曳排序"/);
     assert.match(totalsSource, /querySelector\('\.box-size-cell'\)/);
     assert.doesNotMatch(totalsSource, /row\.cells\[7\]/);
-    assert.match(html, /\.generatorQuantityGroup \{[^}]*grid-template-columns:minmax\(0,1fr\)/);
+    assert.match(html, /\.generatorQuantityGroup \{[^}]*display:flex;[^}]*flex-direction:column/);
     assert.match(html, /\.generatorCoverageStatus\.healthy \{ color:#15803d; \}/);
     assert.match(html, /\.generatorCoverageStatus\.excess \{ color:#b91c1c; \}/);
     assert.match(html, /wireGeneratorRowSorting\(\);/);
     assert.doesNotMatch(html, /function roundUpToHalfPallet\(/);
     assert.doesNotMatch(html, /最小 0\.5 棧板/);
-    assert.match(saveDraftSource, /guidance:/);
-    assert.match(saveDraftSource, /warningCode:/);
-    assert.match(saveDraftSource, /orderDraftQuantity:/);
-    assert.match(saveDraftSource, /authoritativeField:/);
-    assert.match(restoreDraftSource, /item\.guidance/);
-    assert.match(restoreDraftSource, /item\.warningCode/);
-    assert.match(restoreDraftSource, /item\.authoritativeField/);
-    assert.match(restoreDraftSource, /authoritativeInput/);
-    assert.match(restoreDraftSource, /formatPalletValue/);
-    assert.match(restoreDraftSource, /checkTarget\(targetInput\)/);
+    assert.match(serializeDraftSource, /guidance:/);
+    assert.match(serializeDraftSource, /warningCode:/);
+    assert.match(serializeDraftSource, /orderDraft:/);
+    assert.match(serializeDraftSource, /authoritativeField:/);
+    assert.match(saveDraftSource, /syncVisibleGeneratorRowsToDraft\(\)/);
+    assert.match(saveDraftSource, /persistGeneratorDraft\(\)/);
+    assert.match(persistDraftSource, /saveOrderDraft/);
+    assert.match(loadDraftSource, /loadOrderDraft/);
+    assert.match(loadDraftSource, /result\.needsSave/);
+    assert.match(loadDraftSource, /saveOrderDraft/);
+    assert.match(loadDraftSource, /countOrderDraftRepairItems/);
+    assert.doesNotMatch(loadDraftSource, /\(result\.issues \|\| \[\]\)\.length \+ \(generatorDraft\.repairOrder \|\| \[\]\)\.length/);
+    assert.match(restoreDraftSource, /setActiveOrderGroup/);
+    assert.match(restoreDraftSource, /renderActiveOrderGroup/);
     assert.match(lockSource, /setGeneratorPalletState/);
-    assert.match(exportSource, /getRowExactMetrics/);
+    assert.match(exportSource, /projectOrderWorkbook/);
+    assert.doesNotMatch(exportSource, /getRowExactMetrics/);
     assert.doesNotMatch(extractFunctionSource(html, 'updateFields'), /perPallet\s*\|\|\s*1/);
     assert.match(extractFunctionSource(html, 'updateFields'), /changedField === 'pallets' && catalogIssue/);
   });
 
   test(`${entrypoint}: generator draft is restored during initial startup`, () => {
     const startup = html.slice(html.lastIndexOf("window.addEventListener('DOMContentLoaded'"));
-    assert.match(startup, /buildTables\(\);\s*restoreGeneratorDraft\(currentCountry\);/);
+    assert.match(startup, /buildTables\(\);\s*loadGeneratorDraftState\(\);/);
     assert.doesNotMatch(startup, /if \(!IS_BOSS_PORTAL\) restoreGeneratorDraft/);
+    assert.match(startup, /\[name="orderGroupSelect"\]/);
+    assert.doesNotMatch(startup, /currentCountry|countrySelect/);
   });
 
   test(`${entrypoint}: inline JavaScript parses`, () => {
@@ -285,42 +322,63 @@ test('coverage colors use the displayed 180 and 365 day boundaries', () => {
   assert.match(extractFunctionSource(indexHtml, 'getGeneratorCoverageBand'), /SupplyPlanningLegacy\.classifyCoverageDays/);
 });
 
-test('planned quantity application follows the shared whole or fractional strategy', () => {
-  let addCalls = 0;
-  let updatedInput = null;
-  const palletInput = { value: '' };
-  const quantityInput = { value: '' };
-  const warning = { textContent: '', hidden: true };
-  const row = { dataset:{}, classList: { contains: () => false }, querySelector(selector) { if (selector === '.edit-pallets-input') return palletInput; if (selector === '.edit-quantity-input') return quantityInput; if (selector === '.pallet-guidance') return warning; return null; } };
-  let palletState = null;
+test('planned quantity application updates the shared Product SKU row without using the active tab as factory truth', () => {
+  const commands = [];
+  let persists = 0;
+  let renders = 0;
   const context = {
-    addProduct() { addCalls += 1; return row; },
-    updateFields(input) { updatedInput = input; },
-    getPalletRecommendationWarning: code => code || '',
-    formatPalletValue: value => String(value),
-    formatDraftNumber: value => String(value),
-    setGeneratorPalletState(_row, state) { palletState = state; },
-    saveGeneratorDraft() {},
+    generatorDraft: { rowsByProductSku:{} },
+    currentOrderGroup:'subcontract',
+    loadGeneratorDraftState() { throw new Error('already loaded'); },
+    normalizeSkuKey: value => value,
+    createGeneratorDraftRow(prod, { recommendation }) {
+      return {
+        productSku:prod.productCode,
+        orderSku:prod.productCode,
+        quantities:{ orderDraft:recommendation.quantity },
+        pallet:{ value:recommendation.pallets, strategy:recommendation.strategy || '' },
+        locked:false,
+      };
+    },
+    applyGeneratorDraftCommand(command) {
+      commands.push(structuredClone(command));
+      const row = { ...command.row, orderGroup:'vietnam' };
+      context.generatorDraft.rowsByProductSku[row.productSku] = row;
+      return { ok:true, row };
+    },
+    persistGeneratorDraft() { persists += 1; },
+    renderActiveOrderGroup() { renders += 1; },
   };
   vm.createContext(context);
   vm.runInContext(`${extractFunctionSource(indexHtml, 'applyPlannedQuantityToGenerator')}\nthis.applyPlannedQuantityToGenerator = applyPlannedQuantityToGenerator;`, context);
   assert.equal(context.applyPlannedQuantityToGenerator({ productCode: 'ZERO' }, { quantity: 0, pallets: 0, applyBy: 'none' }), null);
-  assert.equal(addCalls, 0);
-  context.applyPlannedQuantityToGenerator({ productCode: 'PLAN' }, { quantity: 2000, pallets: 2, applyBy: 'pallets' });
-  assert.equal(addCalls, 1);
-  assert.equal(palletInput.value, '2');
-  assert.equal(updatedInput, palletInput);
+  assert.equal(commands.length, 0);
+  const added = context.applyPlannedQuantityToGenerator({ productCode: 'PLAN' }, { quantity: 2000, pallets: 2, applyBy: 'pallets' });
+  assert.equal(commands.length, 1);
+  assert.equal(commands[0].type, 'upsert-row');
+  assert.equal(commands[0].row.productSku, 'PLAN');
+  assert.equal(added.orderGroup, 'vietnam');
+  assert.equal(persists, 1);
+  assert.equal(renders, 0, 'an inactive factory group must not be rendered into the current tab');
+
+  context.generatorDraft.rowsByProductSku.PLAN = {
+    ...context.generatorDraft.rowsByProductSku.PLAN,
+    orderSku:'7PLAN',
+    orderGroup:'subcontract',
+    locked:false,
+  };
   context.applyPlannedQuantityToGenerator({ productCode: 'PLAN' }, { quantity: 180, pallets: 0.45, applyBy: 'quantity' });
-  assert.equal(quantityInput.value, '180');
-  assert.equal(updatedInput, quantityInput);
-  context.applyPlannedQuantityToGenerator({ productCode: 'PLAN' }, { quantity: 180, pallets: null, applyBy: 'quantity', warning:{ code:'INVALID_PALLET_CATALOG' }, strategy:'unit-guidance' });
-  assert.equal(palletState.warningCode, 'INVALID_PALLET_CATALOG');
-  assert.equal(palletState.strategy, 'unit-guidance');
+  assert.equal(commands[1].row.orderSku, '7PLAN', 'batch refresh must preserve an approved alternate Order SKU');
+
+  context.generatorDraft.rowsByProductSku.PLAN.locked = true;
+  assert.equal(context.applyPlannedQuantityToGenerator({ productCode: 'PLAN' }, { quantity: 999, pallets: 1, applyBy: 'quantity' }), null);
+  assert.equal(commands.length, 2, 'locked rows must not be overwritten');
 });
 
 test('pallet arrow adapter calls the shared one-pallet step without snapping fractions', () => {
   for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
     let updatedInput = null;
+    let updatedState = null;
     let saved = 0;
     const input = { value: '2.35' };
     const quantityInput = { value: '940' };
@@ -333,7 +391,7 @@ test('pallet arrow adapter calls the shared one-pallet step without snapping fra
       getProductSpecByCode: () => ({ productCode: 'PLAN' }),
       getProductPalletCatalogIssue: () => catalogIssue,
       getUnitsPerPallet: () => 400,
-      updateFields(value) { updatedInput = value; },
+      updateFields(value, _productCode, state) { updatedInput = value; updatedState = state; },
       formatPalletValue: value => String(value),
       formatDraftNumber: value => String(value),
       getPalletRecommendationWarning: () => 'repair pallet catalog',
@@ -345,13 +403,18 @@ test('pallet arrow adapter calls the shared one-pallet step without snapping fra
     context.stepGeneratorPallets(button, 1);
     assert.equal(quantityInput.value, '1340', entrypoint);
     assert.equal(updatedInput, quantityInput, entrypoint);
+    assert.deepEqual(JSON.parse(JSON.stringify(updatedState)), {
+      mode:'manual', authoritativeField:'pallets', exactOrderDraftQuantity:1340,
+    }, `${entrypoint} arrow state`);
 
     catalogIssue = { code:'INVALID_PALLET_CATALOG' };
     updatedInput = null;
+    updatedState = null;
     input.value = '2.35';
     context.stepGeneratorPallets(button, 1);
     assert.equal(input.value, '2.35', `${entrypoint} invalid catalog preserves pallets`);
     assert.equal(updatedInput, null, `${entrypoint} invalid catalog does not fabricate quantities`);
+    assert.equal(updatedState, null, `${entrypoint} invalid catalog does not claim a pallet mode`);
     assert.equal(guidance.hidden, false, entrypoint);
     assert.equal(guidance.textContent, 'repair pallet catalog', entrypoint);
     assert.equal(saved, 1, entrypoint);

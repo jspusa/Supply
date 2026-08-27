@@ -1,7 +1,9 @@
 import { classifyCoverageDays, getPalletCatalogIssue, planReplenishment } from './supply-planner.js';
 import './order-draft-quantity.js';
+import './order-draft-state.js';
 import './planning-velocity.js';
 import './planning-velocity-history.js';
+import './workspace-navigation.js';
 
 const MISSING_SOURCE_LABELS = {
   AMAZON_INVENTORY: 'AMZ庫存',
