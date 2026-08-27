@@ -526,6 +526,12 @@
     .risk-gray { background:#e5e7eb; color:#374151; }
     .decisionNote { color:var(--muted); font-size:.9rem; margin:8px 0 0; }
     .miniMetric { color:#64748b; font-size:.86rem; }
+    .velocityCell { min-width:190px; line-height:1.45; }
+    .velocityValue { display:block; color:#0f172a; font-weight:850; }
+    .velocitySource { display:block; color:#64748b; font-size:11px; }
+    .velocityReason { display:block; margin-top:3px; color:#1d4ed8; font-size:11px; font-weight:750; }
+    .velocityRisk { display:block; margin-top:3px; color:#b45309; font-size:11px; font-weight:750; }
+    .velocityUnavailable { color:#991b1b; font-size:11px; font-weight:800; }
 
     @media (max-width: 1100px) { .subGrid { grid-template-columns: repeat(2, minmax(240px, 1fr)); } .uploadWorkspace { grid-template-columns:1fr; } }
     @media (max-width: 760px) {
@@ -1076,6 +1082,7 @@
         </summary>
         <div class="cardContent">
           <div class="leadTimeInsight" id="leadTimeInsight"></div>
+          <div class="row"><label class="skuTreeAlertToggle"><input type="checkbox" id="reorderVelocityRiskOnly"> 僅顯示 Velocity Risk</label><span class="hint">只縮小「建議下單」的畫面、匯出與加入訂單；今日總覽仍會顯示全部風險。</span></div>
           <div class="row"><span class="hint">排序：</span><button class="secondary" id="sortReorderFieldSpeed">銷售速度</button><button class="secondary" id="sortReorderFieldDays">可售天數</button><button class="secondary" id="sortReorderDirAsc">由小到大</button><button class="secondary" id="sortReorderDirDesc">由大到小</button></div>
           <div class="tableWrap" id="reorderTableWrap"></div>
         </div>
@@ -1385,6 +1392,9 @@
 
     let latestJamBreakdownMap = new Map();
     let latestJamSummaryMap = new Map();
+    let latestAmzInventoryRows = [];
+    let h10SourceObservedOn = null;
+    let shouldRecordVelocityHistory = false;
     window.latestJamBreakdownMap = latestJamBreakdownMap;
     window.latestJamSummaryMap = latestJamSummaryMap;
 
@@ -1392,7 +1402,7 @@
     let itemFilterMode = "all";
     let hideDiscontinuedMode = true;
     let onlyNoOrderMode = false;
-    let sortConfig = { field: "speed", direction: "desc" };
+    let sortConfig = { field: "planningVelocity", direction: "desc" };
     let mainRowsAll = [], reorderRowsAll = [], hotRowsAll = [], newOrderRowsAll = [];
     let suppressUserTips = false;
     let bossPendingFiles = [];
@@ -1413,8 +1423,8 @@
     const hotWrap = document.getElementById('hotTableWrap');
     const newOrderWrap = document.getElementById('newOrderWrap');
 
-    function showTip(msg, type="info") {
-      if (suppressUserTips) return;
+    function showTip(msg, type="info", force = false) {
+      if (suppressUserTips && !force) return;
       const tip = document.createElement('div');
       tip.className = 'user-tip ' + type;
       tip.innerText = msg;
@@ -1595,52 +1605,16 @@
     }
 
     function parseH10ToRows(raw) {
-      const text = String(raw || "");
-      const found = [];
-      const seenSpan = new Set();
-
-      // H10 畫面複製格式常見兩種：
-      // 1) United StatesB07KX5RM7WTTS05AM-1\n377.81  （ASIN 與 SKU 黏在一起）
-      // 2) B07KX5RM7W TTS05AM-1 377.81                 （ASIN / SKU 有空白）
-      // 舊版用 \b 要求 ASIN 前方有單字邊界，但「StatesB07...」沒有邊界，所以會整批抓不到。
-      const patterns = [
-        /((?:B[0-9A-Z]{9}))\s+([A-Z0-9][A-Z0-9-]{1,24})\s+(\d+(?:,\d{3})*(?:\.\d+)?)/g,
-        /((?:B[0-9A-Z]{9}))([A-Z0-9][A-Z0-9-]{1,24})\s+(\d+(?:,\d{3})*(?:\.\d+)?)/g
-      ];
-
-      for (const re of patterns) {
-        let m;
-        while ((m = re.exec(text)) !== null) {
-          const asin = normalizeSkuKey(m[1]);
-          const sku = normalizeSkuKey(m[2]);
-          const speed = normalizeNumber(m[3]);
-          const spanKey = `${m.index}_${asin}_${sku}_${m[3]}`;
-          if (seenSpan.has(spanKey)) continue;
-          seenSpan.add(spanKey);
-          if (!/^B[0-9A-Z]{9}$/.test(asin)) continue;
-          if (!/^[A-Z0-9][A-Z0-9-]{1,24}$/.test(sku)) continue;
-          if (speed === null || !Number.isFinite(speed)) continue;
-          found.push({ sku, asin, speed, order: null, usAmz: null, usJsp: null, us: null, avail: null, usDays: null, days: null });
-        }
-      }
-
-      return found;
-    }
-    function dedupeH10(list) {
-      const seen = new Set(), out = [];
-      for (const r of list) { const key = `${r.asin}__${r.sku}`; if (seen.has(key)) continue; seen.add(key); out.push(r); }
-      return out;
-    }
-    function aggregateH10RowsByEquivalent(rows) {
-      const rowMap = new Map();
-      for (const row of rows) {
-        const canonicalSku = getCanonicalSku(row.sku);
-        const existing = rowMap.get(canonicalSku);
-        if (!existing) { rowMap.set(canonicalSku, { ...row, sku: canonicalSku }); continue; }
-        if (row.asin && !String(existing.asin || '').split(' / ').includes(row.asin)) existing.asin = existing.asin ? `${existing.asin} / ${row.asin}` : row.asin;
-        if (row.speed !== null && Number.isFinite(row.speed)) existing.speed = (existing.speed !== null && Number.isFinite(existing.speed)) ? existing.speed + row.speed : row.speed;
-      }
-      return Array.from(rowMap.values());
+      if (!window.SupplyVelocity?.parseH10Observations) return [];
+      return window.SupplyVelocity.parseH10Observations(raw, {
+        productSkuAliases:equivalentSkuAliasToCanonical,
+      }).map(item => ({
+        sku:item.sourceSku,
+        productSku:item.productSku,
+        asin:item.asin,
+        sourceVelocity:item.value,
+        rawValue:item.rawValue,
+      }));
     }
     function parseSkuNumberMap(raw) {
       const map = new Map();
@@ -1861,17 +1835,23 @@
       const skuCol = findColumnIndex(header, ["sku"]);
       const sellableCol = findColumnIndex(header, ["sellable inventory", "sellable"]);
       const inboundCol = findColumnIndex(header, ["inbound"]);
+      const daysOfSupplyCol = findColumnIndex(header, ["days of supply"]);
       if (skuCol < 0 || sellableCol < 0 || inboundCol < 0) throw new Error("H10 檔案的 SKU / Sellable / Inbound 欄位不完整");
 
       const map = new Map();
+      const velocityRows = [["SKU", "Days of Supply", "Sellable Inventory", "Inbound"]];
       let sellableTotal = 0;
       let inboundTotal = 0;
       for (let r = headerIndex + 1; r < rows.length; r++) {
         const row = rows[r] || [];
         const sku = normalizeSkuKey(row[skuCol]);
         if (!sku || !/^[A-Z0-9][A-Z0-9-]{2,}$/i.test(sku)) continue;
-        const sellable = normalizeNumber(row[sellableCol]) ?? 0;
-        const inbound = normalizeNumber(row[inboundCol]) ?? 0;
+        const rawSellable = row[sellableCol];
+        const rawInbound = row[inboundCol];
+        const rawDaysOfSupply = daysOfSupplyCol >= 0 ? row[daysOfSupplyCol] : null;
+        const sellable = normalizeNumber(rawSellable) ?? 0;
+        const inbound = normalizeNumber(rawInbound) ?? 0;
+        velocityRows.push([sku, rawDaysOfSupply, rawSellable, rawInbound]);
         const qty = map.get(sku) || { sellable:0, inbound:0 };
         qty.sellable += sellable;
         qty.inbound += inbound;
@@ -1884,7 +1864,7 @@
         .map(([sku, qty]) => `${sku}	${qty.sellable}	${qty.inbound}`);
       const totalQty = sellableTotal + inboundTotal;
       const sales = parseSalesRowsFromTable(rows);
-      return { orderText: lines.join("\n"), skuCount: map.size, totalQty, sellableTotal, inboundTotal, ...sales };
+      return { orderText: lines.join("\n"), skuCount: map.size, totalQty, sellableTotal, inboundTotal, velocityRows, ...sales };
     }
 
     async function parseAmzInventoryFile(file) {
@@ -1896,6 +1876,7 @@
       const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "", raw: true });
       const result = parseAmzInventoryRows(rows);
       usAmzEl.value = result.orderText;
+      latestAmzInventoryRows = result.velocityRows;
       const br = parseBusinessReportRows(rows);
       if (br.ok) {
         setSalesFromBusinessReport(br, file.name);
@@ -2042,16 +2023,128 @@
     function computeDerived(r) {
       const order = (r.order ?? 0), us = (r.us ?? 0);
       r.avail = order + us;
-      if (r.speed === null || r.speed <= 0) { r.usDays = null; r.days = null; return; }
-      r.usDays = Math.max(0, Number(r.usAmz || 0)) / r.speed;
-      r.days = r.avail / r.speed;
+      if (r.planningVelocity === null || r.planningVelocity <= 0) { r.usDays = null; r.days = null; return; }
+      r.usDays = Math.max(0, Number(r.usAmz || 0)) / r.planningVelocity;
+      r.days = r.avail / r.planningVelocity;
     }
     function getBoundedWholeDays(value, fallback, min, max) { const parsed = Number(value); return Math.min(max, Math.max(min, Math.round(Number.isFinite(parsed) ? parsed : fallback))); }
     function getReorderTargetDays(value = daysThresholdEl?.value) { return getBoundedWholeDays(String(value ?? '').trim() ? value : 180, 180, 1, 365); }
     function getLeadTimeDays() { const value = leadTimeDaysEl?.value; return getBoundedWholeDays(String(value ?? '').trim() ? value : 90, 90, 1, 365); }
     function getFbaTransferDays() { return getBoundedWholeDays(fbaTransferDaysEl?.value, 21, 0, 90); }
     function normalizePlanningDayInputs() { if (daysThresholdEl) daysThresholdEl.value = String(getReorderTargetDays()); if (leadTimeDaysEl) leadTimeDaysEl.value = String(getLeadTimeDays()); if (fbaTransferDaysEl) fbaTransferDaysEl.value = String(getFbaTransferDays()); }
-    function getPlanningAsOfDate() { const today = new Date(); today.setHours(0,0,0,0); return formatDateYMD(today); }
+    function getPlanningAsOfDate() { const taipeiDate = window.SupplyVelocityHistory?.derivePlanningVelocityObservedOn?.({ updatedAt:new Date() }, 'Asia/Taipei'); if (taipeiDate) return taipeiDate; const today = new Date(); today.setHours(0,0,0,0); return formatDateYMD(today); }
+    const VELOCITY_HISTORY_KEY = 'supply-velocity-history-v1';
+    let velocityHistoryFailureSignature = '';
+    function reportVelocityHistoryFailure(action, result) {
+      const status = String(result?.status || 'failure');
+      const signature = `${action}:${status}:${String(result?.error?.message || '')}`;
+      if (signature === velocityHistoryFailureSignature) return;
+      velocityHistoryFailureSignature = signature;
+      const actionText = action === 'read' ? '讀取' : '儲存';
+      const reason = status === 'quota' ? '瀏覽器儲存空間已滿' : status === 'denied' ? '瀏覽器拒絕儲存' : status === 'corrupt' ? '歷史資料格式損壞' : '瀏覽器儲存不可用';
+      console.warn(`Planning Velocity history ${action} failed`, result);
+      showTip(`Planning Velocity 歷史${actionText}失敗：${reason}。本次不會假裝已保存。`, 'error', true);
+    }
+    function getVelocityHistoryStorage() {
+      try { return window.localStorage; }
+      catch (error) { return { getItem(){ throw error; }, setItem(){ throw error; } }; }
+    }
+    function loadVelocityHistorySamples() {
+      const result = window.SupplyVelocityHistory?.readPlanningVelocityHistory
+        ? window.SupplyVelocityHistory.readPlanningVelocityHistory(getVelocityHistoryStorage(), VELOCITY_HISTORY_KEY)
+        : { ok:false, status:'unavailable', samples:[], error:{ message:'shared history Interface unavailable' } };
+      if (!result.ok) reportVelocityHistoryFailure('read', result);
+      return Array.isArray(result.samples) ? result.samples : [];
+    }
+    function saveVelocityHistorySamples(samples) {
+      const result = window.SupplyVelocityHistory?.writePlanningVelocityHistory
+        ? window.SupplyVelocityHistory.writePlanningVelocityHistory(getVelocityHistoryStorage(), samples, VELOCITY_HISTORY_KEY)
+        : { ok:false, status:'unavailable', error:{ message:'shared history Interface unavailable' } };
+      if (!result.ok) reportVelocityHistoryFailure('write', result);
+      return result;
+    }
+    function getVelocityInventoryRows(amzComponents) {
+      if (Array.isArray(latestAmzInventoryRows) && latestAmzInventoryRows.length > 1) return latestAmzInventoryRows;
+      const skus = new Set([...(amzComponents?.sellableMap?.keys?.() || []), ...(amzComponents?.inboundMap?.keys?.() || [])]);
+      return [
+        ['SKU', 'Days of Supply', 'Sellable Inventory', 'Inbound'],
+        ...Array.from(skus).map(sku => [sku, null, amzComponents.sellableMap.get(sku) ?? null, amzComponents.inboundMap.get(sku) ?? null])
+      ];
+    }
+    function buildVelocityAssessments(amzComponents) {
+      if (!window.SupplyVelocity?.buildPlanningVelocities) throw new Error('Planning Velocity 共用核心尚未載入');
+      const asOfDate = getPlanningAsOfDate();
+      const result = window.SupplyVelocity.buildPlanningVelocities({
+        asOfDate,
+        sourceObservedOn:h10SourceObservedOn === undefined ? asOfDate : h10SourceObservedOn,
+        rawH10Text:h10El.value || '',
+        inventoryRows:getVelocityInventoryRows(amzComponents),
+        productSkuAliases:equivalentSkuAliasToCanonical,
+        hotProductSkus:hotSkuList,
+        historySamples:loadVelocityHistorySamples(),
+      });
+      if (shouldRecordVelocityHistory && result.h10Observations.length > 0) {
+        const saveResult = saveVelocityHistorySamples(result.nextHistorySamples);
+        if (saveResult.ok) {
+          shouldRecordVelocityHistory = false;
+          velocityHistoryFailureSignature = '';
+        }
+      }
+      return result;
+    }
+    function formatVelocityNumber(value) {
+      if (!Number.isFinite(Number(value))) return '—';
+      return Number(Number(value).toFixed(2)).toLocaleString('en-US', { maximumFractionDigits:2 });
+    }
+    function getVelocityWinnerLabel(kind) {
+      if (kind === 'h10-source') return '最高有效 H10';
+      if (kind === 'sellable-over-days-of-supply') return 'Sellable ÷ DOS';
+      if (kind === 'hot-sku-floor') return '熱銷保護下限 10';
+      if (kind === 'local-28-day-median') return '前 28 天中位數';
+      return String(kind || '未識別證據');
+    }
+    function getVelocityRiskLabel(code) {
+      if (code === 'POSITIVE_SIGNAL_DISAGREEMENT') return '正向證據差異 >20%';
+      if (code === 'HOT_SOURCE_BELOW_FLOOR') return '熱銷 H10 低於 10';
+      if (code === 'ZERO_SELLABLE') return 'Sellable 為 0';
+      if (code === 'LOW_DAYS_OF_SUPPLY') return 'DOS ≤7';
+      if (code === 'HISTORICAL_DECLINE') return 'H10 較歷史下降 >40%';
+      return String(code || '速度證據風險');
+    }
+    function getVelocitySourceText(row) {
+      const values = row?.velocityAssessment?.h10SourceVelocity?.values || [];
+      return values.length ? values.map(formatVelocityNumber).join(' / ') : '未抓到';
+    }
+    function getVelocityWinnerText(row) {
+      const winners = row?.velocityAssessment?.winningEvidence || [];
+      return winners.length ? winners.map(item => `${getVelocityWinnerLabel(item.kind)} ${formatVelocityNumber(item.value)}`).join('＋') : '無';
+    }
+    function getVelocityAdjustmentText(row) {
+      const reasons = row?.velocityAssessment?.adjustmentReasons || [];
+      return reasons.length ? reasons.map(item => item.message).join('；') : '未調高';
+    }
+    function getVelocityRiskText(row) {
+      const risks = row?.velocityAssessment?.velocityRisks || [];
+      return risks.length ? risks.map(item => getVelocityRiskLabel(item.code)).join('；') : '無';
+    }
+    function renderVelocityEvidence(row) {
+      if (!Number.isFinite(row?.planningVelocity) || row.planningVelocity <= 0) {
+        return '<td class="bad velocityCell"><span class="velocityUnavailable">無有效速度證據，無法建議</span><span class="velocitySource">H10 Source：' + escapeHtml(getVelocitySourceText(row)) + '</span></td>';
+      }
+      const risks = row.velocityAssessment?.velocityRisks || [];
+      const adjustments = row.velocityAssessment?.adjustmentReasons || [];
+      const riskTitle = risks.map(item => item.message).join('；');
+      return `<td class="ok velocityCell"><span class="velocityValue">Planning ${escapeHtml(formatVelocityNumber(row.planningVelocity))}</span><span class="velocitySource">H10 Source：${escapeHtml(getVelocitySourceText(row))}</span><span class="velocityReason">採用：${escapeHtml(getVelocityWinnerText(row))}</span>${adjustments.length ? `<span class="velocityReason">${escapeHtml(getVelocityAdjustmentText(row))}</span>` : ''}${risks.length ? `<span class="velocityRisk" title="${escapeHtml(riskTitle)}">可能低估／證據衝突：${escapeHtml(getVelocityRiskText(row))}<br>不代表已證實斷貨</span>` : ''}</td>`;
+    }
+    function getVelocityExportFields(row) {
+      return [
+        getVelocitySourceText(row),
+        Number.isFinite(row?.planningVelocity) ? row.planningVelocity : '',
+        getVelocityWinnerText(row),
+        getVelocityAdjustmentText(row),
+        getVelocityRiskText(row),
+      ];
+    }
     function getPlanningPolicy(targetDays = getReorderTargetDays(), sku = null) { return { leadTimeDays:getLeadTimeDays(), transferTimeDays:getFbaTransferDays(), targetDays:getBoundedWholeDays(targetDays, getReorderTargetDays(), 0, 365), executableOrderIncrement:sku ? getOrderIncrementInAmazonUnits(sku) : 1 }; }
     function getJamOrderState(item) { return window.SupplyPlanningLegacy.getLegacyOpenOrderState(item); }
     function getJamOrderStateLabel(item) {
@@ -2087,7 +2180,7 @@
         orderDraftQuantity,
       });
     }
-    function getPlanningUnavailableReason(plan) { if (plan?.status === 'no-velocity') return '無速度，無法判斷'; const missing = Array.isArray(plan?.missingSources) ? plan.missingSources.filter(Boolean) : []; return missing.length ? `缺 ${missing.join('、')}` : '資料不足，無法判斷'; }
+    function getPlanningUnavailableReason(plan) { if (plan?.status === 'no-velocity') return '無有效速度證據，無法建議'; const missing = Array.isArray(plan?.missingSources) ? plan.missingSources.filter(Boolean) : []; return missing.length ? `缺 ${missing.join('、')}` : '資料不足，無法判斷'; }
     function sortByConfig(rows) {
       const field = sortConfig.field, direction = sortConfig.direction;
       return [...rows].sort((a, b) => {
@@ -2099,17 +2192,36 @@
     }
 
     function buildTables() {
-      let h10Rows = aggregateH10RowsByEquivalent(dedupeH10(parseH10ToRows(h10El.value || "")));
       const rawOrderMap = aggregateSkuNumberMapByEquivalent(parseSkuNumberMap(ordersEl.value || ""));
       const orderMap = convertPhysicalMapToAmazonUnits(parseSkuNumberMap(ordersEl.value || ""));
       const amzComponents = parseAmzInventoryTextToMaps(usAmzEl.value || "");
+      const velocityResult = buildVelocityAssessments(amzComponents);
+      const h10EvidenceMap = new Map();
+      velocityResult.h10Observations.forEach(observation => {
+        const list = h10EvidenceMap.get(observation.productSku) || [];
+        list.push(observation);
+        h10EvidenceMap.set(observation.productSku, list);
+      });
+      let h10Rows = velocityResult.assessments.map(assessment => {
+        const observations = h10EvidenceMap.get(assessment.productSku) || [];
+        return {
+          sku:assessment.productSku,
+          asin:Array.from(new Set(observations.map(item => item.asin).filter(Boolean))).join(' / '),
+          h10Observations:observations,
+          h10SourceVelocity:assessment.h10SourceVelocity.max,
+          planningVelocity:assessment.planningVelocity,
+          velocityAssessment:assessment,
+          order:null, usAmz:null, usJsp:null, us:null, avail:null, usDays:null, days:null,
+        };
+      });
       const usAmzMap = aggregateSkuNumberMapByEquivalent(amzComponents.sellableMap);
       const usAmzInboundMap = aggregateSkuNumberMapByEquivalent(amzComponents.inboundMap);
       const rawUsJspMap = aggregateSkuNumberMapByEquivalent(parseSkuNumberMap(usJspEl.value || ""));
       const usJspMap = convertPhysicalMapToAmazonUnits(parseSkuNumberMap(usJspEl.value || ""));
       const usMap = mergeSkuNumberMaps(usAmzMap, usJspMap);
 
-      window.orderSpeedMap = new Map(h10Rows.filter(r => r.speed !== null && Number.isFinite(r.speed)).map(r => [r.sku, r.speed]));
+      window.planningVelocityMap = new Map(h10Rows.filter(r => r.planningVelocity !== null && Number.isFinite(r.planningVelocity)).map(r => [r.sku, r.planningVelocity]));
+      window.velocityAssessmentMap = new Map(h10Rows.map(r => [r.sku, r.velocityAssessment]));
       const h10SkuSet = new Set(h10Rows.map(r => r.sku));
       const h10RowMap = new Map(h10Rows.map(r => [r.sku, r]));
 
@@ -2141,12 +2253,12 @@
         const sku = getCanonicalSku(rawSku);
         const h10Row = h10RowMap.get(sku);
         const jam = getJamSummaryForSku(sku);
-        const row = { sku, asin: h10Row?.asin ?? null, speed: h10Row?.speed ?? null, order: orderMap.get(sku) ?? null, orderRaw:rawOrderMap.get(sku) ?? null, usAmz: usAmzMap.get(sku) ?? null, usAmzInbound:usAmzInboundMap.get(sku) ?? 0, usJsp: usJspMap.get(sku) ?? null, usJspRaw:rawUsJspMap.get(sku) ?? null, us: usMap.get(sku) ?? null, avail: null, usDays: null, days: null, loadingDate: jam.loadingDate, arrivalDate: jam.arrivalDate, jamOrders: jam.orderNames, jamLoadingDates: jam.loadingDatesText, jamArrivalDates: jam.arrivalDatesText };
+        const row = { ...(h10Row || {}), sku, asin: h10Row?.asin ?? null, h10SourceVelocity:h10Row?.h10SourceVelocity ?? null, planningVelocity:h10Row?.planningVelocity ?? null, velocityAssessment:h10Row?.velocityAssessment ?? null, order: orderMap.get(sku) ?? null, orderRaw:rawOrderMap.get(sku) ?? null, usAmz: usAmzMap.get(sku) ?? null, usAmzInbound:usAmzInboundMap.get(sku) ?? 0, usJsp: usJspMap.get(sku) ?? null, usJspRaw:rawUsJspMap.get(sku) ?? null, us: usMap.get(sku) ?? null, avail: null, usDays: null, days: null, loadingDate: jam.loadingDate, arrivalDate: jam.arrivalDate, jamOrders: jam.orderNames, jamLoadingDates: jam.loadingDatesText, jamArrivalDates: jam.arrivalDatesText };
         computeDerived(row);
         return row;
       });
       const threshold = getReorderTargetDays();
-      const reorder = h10Rows.filter(r => r.speed !== null && r.speed > 0).map(r => ({ ...r, order: r.order ?? 0, us: r.us ?? 0, avail: r.avail ?? 0, usDays: r.usDays ?? 0, days: r.days ?? 0, leadPlan:getLeadTimePlan(r, threshold) })).filter(r => r.leadPlan.canRecommend && r.leadPlan.suggestedQty > 0);
+      const reorder = h10Rows.filter(r => r.planningVelocity !== null && r.planningVelocity > 0).map(r => ({ ...r, order: r.order ?? 0, us: r.us ?? 0, avail: r.avail ?? 0, usDays: r.usDays ?? 0, days: r.days ?? 0, leadPlan:getLeadTimePlan(r, threshold) })).filter(r => r.leadPlan.canRecommend && r.leadPlan.suggestedQty > 0);
 
       mainRowsAll = h10Rows;
       reorderRowsAll = reorder.sort((a, b) => a.days - b.days);
@@ -2219,8 +2331,14 @@
     }
     function renderAll() { renderReorder(); renderMain(); renderHot(); renderNewOrder(); updateSortButtons(); }
 
+    function hasVelocityRisk(row) { return Boolean(row?.velocityAssessment?.velocityRisks?.length); }
+    function getReorderRowsForAction() {
+      const rows = applyFilters(reorderRowsAll);
+      return document.getElementById('reorderVelocityRiskOnly')?.checked ? rows.filter(hasVelocityRisk) : rows;
+    }
+
     function renderReorder() {
-      const rows = sortByConfig(applyFilters(reorderRowsAll));
+      const rows = sortByConfig(getReorderRowsForAction());
       const targetDays = getReorderTargetDays();
       const leadDays = getLeadTimeDays();
       const transferDays = getFbaTransferDays();
@@ -2229,16 +2347,16 @@
       const insight = document.getElementById('leadTimeInsight');
       if (insight) { insight.innerHTML = `<div class="leadTimeInsightTitle"><i class="fa-solid fa-route"></i> 既有已下單貨，預設排在今天新單之前</div><div class="leadTimeInsightText">所有數量先統一成 Amazon 可售單位。JAM/FY 舊單若已有數量，且不是「還沒下單／STOP」，即使 ETA 空白或逾期，也會依你的規則預設早於本次新單並納入建議量；但 ETA 未確認，仍會另外顯示斷貨風險。尚未下單、STOP、對不到明細及可能與 JAM 重複的 AMZ Inbound 都不納入。建議量最後依完整外箱倍數向上取整。</div><div class="leadTimeSteps"><div class="leadTimeStep"><div class="leadTimeStepLabel">今天</div><div class="leadTimeStepValue">先用 AMZ 可售庫存</div></div><div class="leadTimeStep"><div class="leadTimeStepLabel">既有舊單</div><div class="leadTimeStepValue">假設早於本次新單</div></div><div class="leadTimeStep"><div class="leadTimeStepLabel">新單 ${leadDays} 天到港</div><div class="leadTimeStepValue">${arrival}</div></div><div class="leadTimeStep"><div class="leadTimeStepLabel">再轉入 FBA ${transferDays} 天</div><div class="leadTimeStepValue">${sellable} 可售，目標 ${targetDays} 天</div></div></div><div class="leadTimeExample"><b>風險與建議量分開：</b>舊單會降低本次新單建議量；如果舊單沒有 ETA，系統不會假裝它已確認接得上，仍會提醒你追貨。</div>`; }
       document.getElementById('countReorder').textContent = String(rows.length);
-      if (!rows.length) { reorderWrap.innerHTML = '<div class="hint" style="padding:24px;text-align:center;">依目前前置期與目標天數，沒有需要新增訂單的品項。</div>'; return; }
+      if (!rows.length) { reorderWrap.innerHTML = `<div class="hint" style="padding:24px;text-align:center;">${document.getElementById('reorderVelocityRiskOnly')?.checked ? '目前的建議下單品項中，沒有 Velocity Risk。' : '依目前前置期與目標天數，沒有需要新增訂單的品項。'}</div>`; return; }
       const body = rows.map((r, idx) => {
         const p = getLeadTimePlan(r, targetDays);
         const gap = p.shortageDays > 0.05 ? `<span class="leadTimeRisk">${p.shortageDays.toFixed(1)} 天</span>` : '<span style="color:#15803d;font-weight:800;">0 天</span>';
         const today = new Date(); today.setHours(0,0,0,0);
         const orderBy = p.orderByDate && p.orderByDate <= today ? `<span class="leadTimeRisk">立即處理</span><br><span class="miniMetric">確認舊單 ETA／必要時新下單</span>` : formatDateYMD(p.orderByDate);
         const rounding = p.suggestedQty > p.rawSuggestedQty + 0.01 ? `<br><span class="miniMetric">理論 ${fmtQty(p.rawSuggestedQty)} → 箱規 ${fmtQty(p.orderIncrement)}</span>` : '';
-        return `<tr><td>${idx + 1}</td>${renderSkuCell(r.sku)}<td class="ok">${escapeHtml(String(r.speed))}</td><td class="ok">${fmtQty(p.currentAmzStock)}</td><td class="ok">${fmtQty(p.jspReserve)}</td><td class="ok">${renderIncludedLeadTimeSupply(p)}</td><td>${fmtQty(p.leadDemand)}</td><td class="${p.projectedStock > 0 ? 'ok' : 'bad'}">${fmtQty(p.projectedStock)}</td><td>${gap}</td><td>${orderBy}</td><td class="warn"><b>${fmtQty(p.suggestedQty)}</b>${rounding}</td><td class="ok"><b>${fmtDays(p.postArrivalDays)}</b></td><td>${fmtQty(p.scheduledWithinTarget)}</td><td>${renderLeadTimeSupplyWarnings(p)}</td><td>${fmtQty(p.laterInbound)}</td>${jamFrontCells(r)}</tr>`;
+        return `<tr><td>${idx + 1}</td>${renderSkuCell(r.sku)}${renderVelocityEvidence(r)}<td class="ok">${fmtQty(p.currentAmzStock)}</td><td class="ok">${fmtQty(p.jspReserve)}</td><td class="ok">${renderIncludedLeadTimeSupply(p)}</td><td>${fmtQty(p.leadDemand)}</td><td class="${p.projectedStock > 0 ? 'ok' : 'bad'}">${fmtQty(p.projectedStock)}</td><td>${gap}</td><td>${orderBy}</td><td class="warn"><b>${fmtQty(p.suggestedQty)}</b>${rounding}</td><td class="ok"><b>${fmtDays(p.postArrivalDays)}</b></td><td>${fmtQty(p.scheduledWithinTarget)}</td><td>${renderLeadTimeSupplyWarnings(p)}</td><td>${fmtQty(p.laterInbound)}</td>${jamFrontCells(r)}</tr>`;
       }).join("");
-      reorderWrap.innerHTML = `<table><thead><tr><th>#</th><th>SKU</th><th>日銷售<br>AMZ單位</th><th>AMZ現在可售</th><th>JSP後備<br>${transferDays}天轉入</th><th>新單可售前納入供給<br>確定＋舊單假設</th><th>可售前需求</th><th>新單可售時預估剩餘</th><th>ETA未確認<br>風險空窗</th><th>處理期限</th><th>可執行建議量<br>AMZ單位</th><th>真正可售後天數</th><th>目標期內已排到貨<br>已扣除</th><th>舊單假設／未納入供給</th><th>目標期後到貨</th><th>JAM/FY訂單來源</th><th>裝櫃日</th><th>預計到港日</th></tr></thead><tbody>${body}</tbody></table>`;
+      reorderWrap.innerHTML = `<table><thead><tr><th>#</th><th>SKU</th><th>Planning Velocity<br>來源／採用／風險</th><th>AMZ現在可售</th><th>JSP後備<br>${transferDays}天轉入</th><th>新單可售前納入供給<br>確定＋舊單假設</th><th>可售前需求</th><th>新單可售時預估剩餘</th><th>ETA未確認<br>風險空窗</th><th>處理期限</th><th>可執行建議量<br>AMZ單位</th><th>真正可售後天數</th><th>目標期內已排到貨<br>已扣除</th><th>舊單假設／未納入供給</th><th>目標期後到貨</th><th>JAM/FY訂單來源</th><th>裝櫃日</th><th>預計到港日</th></tr></thead><tbody>${body}</tbody></table>`;
     }
     function renderMain() {
       const filteredRows = getMainRowsForView();
@@ -2253,15 +2371,15 @@
       if (searchCount) searchCount.textContent = mainSearchQuery.trim() ? `找到 ${rows.length} / ${totalRows} 筆` : `顯示 ${rows.length} 筆`;
       if (clearButton) clearButton.disabled = !mainSearchQuery.trim();
       if (!rows.length) { mainWrap.innerHTML = `<div class="hint" style="padding:24px;text-align:center;">${mainSearchQuery.trim() ? `找不到符合「${escapeHtml(mainSearchQuery.trim())}」的 SKU、品名或 ASIN。` : '目前沒有符合篩選條件的 H10 產品。'}</div>`; return; }
-      const body = rows.map((r, idx) => `<tr><td>${idx + 1}</td>${renderSkuCell(r.sku)}${r.speed === null ? '<td class="bad">(未抓到)</td>' : `<td class="ok">${escapeHtml(String(r.speed))}</td>`}${renderAmazonUnitCell(r.order, r.orderRaw, r.sku)}${renderInventoryCell(r.usAmz)}<td class="${r.usAmzInbound > 0 ? 'warn' : 'ok'}">${fmtQty(r.usAmzInbound || 0)}${r.usAmzInbound > 0 ? '<br><span class="miniMetric">未定可售日</span>' : ''}</td>${renderAmazonUnitCell(r.usJsp, r.usJspRaw, r.sku)}${r.usDays === null ? '<td class="bad">(不可算)</td>' : `<td class="ok">${fmtDays(r.usDays)}</td>`}${r.days === null ? '<td class="bad">(不可算)</td>' : `<td class="ok">${fmtDays(r.days)}</td>`}${jamFrontCells(r)}</tr>`).join("");
-      mainWrap.innerHTML = `<table><thead><tr><th>#</th><th>SKU</th><th>速度<br>AMZ單位/天</th><th>JAM/FY總數<br>含預計補貨</th><th>AMZ Sellable</th><th>AMZ Inbound<br>不先計入</th><th>JSP後備<br>AMZ單位</th><th>AMZ目前可售天數</th><th>帳面總覆蓋天數</th><th>JAM/FY訂單來源</th><th>裝櫃日／狀態</th><th>預計到港日</th></tr></thead><tbody>${body}</tbody></table>`;
+      const body = rows.map((r, idx) => `<tr><td>${idx + 1}</td>${renderSkuCell(r.sku)}${renderVelocityEvidence(r)}${renderAmazonUnitCell(r.order, r.orderRaw, r.sku)}${renderInventoryCell(r.usAmz)}<td class="${r.usAmzInbound > 0 ? 'warn' : 'ok'}">${fmtQty(r.usAmzInbound || 0)}${r.usAmzInbound > 0 ? '<br><span class="miniMetric">未定可售日</span>' : ''}</td>${renderAmazonUnitCell(r.usJsp, r.usJspRaw, r.sku)}${r.usDays === null ? '<td class="bad">(不可算)</td>' : `<td class="ok">${fmtDays(r.usDays)}</td>`}${r.days === null ? '<td class="bad">(不可算)</td>' : `<td class="ok">${fmtDays(r.days)}</td>`}${jamFrontCells(r)}</tr>`).join("");
+      mainWrap.innerHTML = `<table><thead><tr><th>#</th><th>SKU</th><th>Planning Velocity<br>H10 Source／採用／風險</th><th>JAM/FY總數<br>含預計補貨</th><th>AMZ Sellable</th><th>AMZ Inbound<br>不先計入</th><th>JSP後備<br>AMZ單位</th><th>AMZ目前可售天數</th><th>帳面總覆蓋天數</th><th>JAM/FY訂單來源</th><th>裝櫃日／狀態</th><th>預計到港日</th></tr></thead><tbody>${body}</tbody></table>`;
     }
     function renderHot() {
       const rows = sortByConfig(applyFilters(hotRowsAll));
       document.getElementById('countHot').textContent = String(rows.length);
       if (!rows.length) { hotWrap.innerHTML = ""; return; }
-      const body = rows.map((r, idx) => `<tr><td>${idx + 1}</td>${renderSkuCell(r.sku)}${r.speed === null ? '<td class="bad">(未抓到)</td>' : `<td class="ok">${escapeHtml(String(r.speed))}</td>`}${renderAmazonUnitCell(r.order, r.orderRaw, r.sku)}${renderInventoryCell(r.usAmz)}<td class="${r.usAmzInbound > 0 ? 'warn' : 'ok'}">${fmtQty(r.usAmzInbound || 0)}</td>${renderAmazonUnitCell(r.usJsp, r.usJspRaw, r.sku)}${r.usDays === null ? '<td class="bad">(不可算)</td>' : `<td class="ok">${fmtDays(r.usDays)}</td>`}${r.days === null ? '<td class="bad">(不可算)</td>' : `<td class="ok">${fmtDays(r.days)}</td>`}${jamFrontCells(r)}</tr>`).join("");
-      hotWrap.innerHTML = `<table><thead><tr><th>#</th><th>SKU</th><th>速度<br>AMZ單位/天</th><th>JAM/FY總數<br>含預計補貨</th><th>AMZ Sellable</th><th>AMZ Inbound<br>不先計入</th><th>JSP後備<br>AMZ單位</th><th>AMZ目前可售天數</th><th>帳面總覆蓋天數</th><th>JAM/FY訂單來源</th><th>裝櫃日／狀態</th><th>預計到港日</th></tr></thead><tbody>${body}</tbody></table>`;
+      const body = rows.map((r, idx) => `<tr><td>${idx + 1}</td>${renderSkuCell(r.sku)}${renderVelocityEvidence(r)}${renderAmazonUnitCell(r.order, r.orderRaw, r.sku)}${renderInventoryCell(r.usAmz)}<td class="${r.usAmzInbound > 0 ? 'warn' : 'ok'}">${fmtQty(r.usAmzInbound || 0)}</td>${renderAmazonUnitCell(r.usJsp, r.usJspRaw, r.sku)}${r.usDays === null ? '<td class="bad">(不可算)</td>' : `<td class="ok">${fmtDays(r.usDays)}</td>`}${r.days === null ? '<td class="bad">(不可算)</td>' : `<td class="ok">${fmtDays(r.days)}</td>`}${jamFrontCells(r)}</tr>`).join("");
+      hotWrap.innerHTML = `<table><thead><tr><th>#</th><th>SKU</th><th>Planning Velocity<br>H10 Source／採用／風險</th><th>JAM/FY總數<br>含預計補貨</th><th>AMZ Sellable</th><th>AMZ Inbound<br>不先計入</th><th>JSP後備<br>AMZ單位</th><th>AMZ目前可售天數</th><th>帳面總覆蓋天數</th><th>JAM/FY訂單來源</th><th>裝櫃日／狀態</th><th>預計到港日</th></tr></thead><tbody>${body}</tbody></table>`;
     }
     function getNewProductLaunchPlan(row) {
       const breakdown = getJamBreakdownForSku(row?.sku)
@@ -2514,8 +2632,10 @@
     async function autoClassifyAndReadFiles(fileList, options = {}) {
       const files = Array.from(fileList || []);
       if (!files.length) return { files: [], results: [], recognizedTypes: [], failedCount: 0 };
+      const sourceObservedOn = Object.prototype.hasOwnProperty.call(options, 'sourceObservedOn') ? options.sourceObservedOn : getPlanningAsOfDate();
       const results = [];
       const recognizedTypes = new Set();
+      const h10TextParts = [];
       let failedCount = 0;
 
       for (const file of files) {
@@ -2528,9 +2648,12 @@
           // 不再只用鬆散的 Bxxxxxxxxx 正則，避免一般文字或二進位亂碼誤判。
           if (isPlainText) {
             const text = await file.text();
-            const h10Rows = dedupeH10(parseH10ToRows(text));
+            const h10Rows = parseH10ToRows(text);
             if (h10Rows.length > 0) {
-              h10El.value = `${h10El.value ? h10El.value + '\n\n' : ''}${text}`;
+              h10TextParts.push(text);
+              h10El.value = h10TextParts.join('\n\n');
+              h10SourceObservedOn = sourceObservedOn;
+              if (options.recordVelocityHistory !== false) shouldRecordVelocityHistory = true;
               recognizedTypes.add('h10');
               results.push(`${file.name} → H10 原始文字（${h10Rows.length} 筆）`);
             } else {
@@ -2907,25 +3030,24 @@
     function downloadRowsAsExcel(headers, rows, filename, sheetName = "Sheet1") { const wb = XLSX.utils.book_new(); const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]); XLSX.utils.book_append_sheet(wb, ws, sheetName); XLSX.writeFile(wb, filename); }
     function getDateStamp() { const now = new Date(); return `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`; }
     function exportMainRowsFiltered() {
-      const headers = ["SKU","ASIN","速度_AMZ單位/天","訂單原始實體包數","訂單_AMZ單位","AMZ_Sellable","AMZ_Inbound_未定可售日","JSP原始實體包數","JSP後備_AMZ單位","帳面總數_AMZ單位","含訂單帳面總量_AMZ單位","AMZ目前可售天數","帳面總覆蓋天數","JAM/FY訂單來源","裝櫃日","預計到港日"];
-      const body = getMainRowsForView().map(r => [r.sku, r.asin, r.speed ?? "", r.orderRaw ?? "", r.order ?? "", r.usAmz ?? "", r.usAmzInbound ?? "", r.usJspRaw ?? "", r.usJsp ?? "", r.us ?? "", r.avail ?? "", r.usDays === null ? "" : fmtDays(r.usDays), r.days === null ? "" : fmtDays(r.days), r.jamOrders || "", r.jamLoadingDates || fmtDateText(r.loadingDate), r.jamArrivalDates || fmtDateText(r.arrivalDate)]);
+      const headers = ["SKU","ASIN","H10 Source Velocity","Planning Velocity","採用證據","調高原因","Velocity Risk","訂單原始實體包數","訂單_AMZ單位","AMZ_Sellable","AMZ_Inbound_未定可售日","JSP原始實體包數","JSP後備_AMZ單位","帳面總數_AMZ單位","含訂單帳面總量_AMZ單位","AMZ目前可售天數","帳面總覆蓋天數","JAM/FY訂單來源","裝櫃日","預計到港日"];
+      const body = getMainRowsForView().map(r => [r.sku, r.asin, ...getVelocityExportFields(r), r.orderRaw ?? "", r.order ?? "", r.usAmz ?? "", r.usAmzInbound ?? "", r.usJspRaw ?? "", r.usJsp ?? "", r.us ?? "", r.avail ?? "", r.usDays === null ? "" : fmtDays(r.usDays), r.days === null ? "" : fmtDays(r.days), r.jamOrders || "", r.jamLoadingDates || fmtDateText(r.loadingDate), r.jamArrivalDates || fmtDateText(r.arrivalDate)]);
       return { headers, body };
     }
     function exportReorderRowsFiltered() {
       const target = getReorderTargetDays();
       const transfer = getFbaTransferDays();
-      const headers = ['SKU','ASIN','日銷售_AMZ單位','AMZ現在可售','JSP後備_AMZ單位','可售日前確定到貨','舊單假設早於新單_已納入合計_勿與其中欄重複加總','還沒下單_未納入','STOP_未納入','其中_狀態空白_已納入但警示','其中_逾期ETA_已納入但警示','排程晚於新單_未納入','對不到JAM明細_未納入','AMZ_Inbound_未納入避免重複','可售前需求','新單真正可售時預估剩餘','ETA未確認風險空窗天數','處理期限','理論建議量','可執行建議量_AMZ單位','完整箱規增量','真正可售後天數','目標期內已排到貨_已扣除','全部待確認供給_含已納入與未納入_僅供追蹤勿橫向加總','待確認供給追貨期限','目標期後到貨_AMZ單位','新單預計到港日',`新單真正可售日_到港加${transfer}天`,'JAM/FY訂單來源','原訂單預計到港日'];
-      const body = applyFilters(mainRowsAll)
-        .filter(r => r.speed !== null && r.speed > 0)
+      const headers = ['SKU','ASIN','H10 Source Velocity','Planning Velocity','採用證據','調高原因','Velocity Risk','AMZ現在可售','JSP後備_AMZ單位','可售日前確定到貨','舊單假設早於新單_已納入合計_勿與其中欄重複加總','還沒下單_未納入','STOP_未納入','其中_狀態空白_已納入但警示','其中_逾期ETA_已納入但警示','排程晚於新單_未納入','對不到JAM明細_未納入','AMZ_Inbound_未納入避免重複','可售前需求','新單真正可售時預估剩餘','ETA未確認風險空窗天數','處理期限','理論建議量','可執行建議量_AMZ單位','完整箱規增量','真正可售後天數','目標期內已排到貨_已扣除','全部待確認供給_含已納入與未納入_僅供追蹤勿橫向加總','待確認供給追貨期限','目標期後到貨_AMZ單位','新單預計到港日',`新單真正可售日_到港加${transfer}天`,'JAM/FY訂單來源','原訂單預計到港日'];
+      const body = getReorderRowsForAction()
         .map(r => ({ row:r, plan:getLeadTimePlan(r,target) }))
         .filter(x => x.plan.suggestedQty > 0)
-        .map(({row:r,plan:p}) => [r.sku,r.asin,r.speed ?? '',p.currentAmzStock,p.jspReserve,p.inboundBefore,p.assumedBeforeNew,p.plannedNotPlaced,p.stoppedInbound,p.unknownStatusInbound,p.overdueInbound,p.conflictingScheduleInbound,p.unmatchedInbound,p.amzInboundNoEta,p.leadDemand,p.projectedStock,Number(p.shortageDays.toFixed(1)),formatDateYMD(p.orderByDate),p.rawSuggestedQty,p.suggestedQty,p.orderIncrement,Number(p.postArrivalDays.toFixed(1)),p.scheduledWithinTarget,p.uncertainInbound,formatDateYMD(p.uncertainDeadline),p.laterInbound,formatDateYMD(p.newArrivalDate),formatDateYMD(p.newSellableDate),r.jamOrders || '',r.jamArrivalDates || fmtDateText(r.arrivalDate)]);
+        .map(({row:r,plan:p}) => [r.sku,r.asin,...getVelocityExportFields(r),p.currentAmzStock,p.jspReserve,p.inboundBefore,p.assumedBeforeNew,p.plannedNotPlaced,p.stoppedInbound,p.unknownStatusInbound,p.overdueInbound,p.conflictingScheduleInbound,p.unmatchedInbound,p.amzInboundNoEta,p.leadDemand,p.projectedStock,Number(p.shortageDays.toFixed(1)),formatDateYMD(p.orderByDate),p.rawSuggestedQty,p.suggestedQty,p.orderIncrement,Number(p.postArrivalDays.toFixed(1)),p.scheduledWithinTarget,p.uncertainInbound,formatDateYMD(p.uncertainDeadline),p.laterInbound,formatDateYMD(p.newArrivalDate),formatDateYMD(p.newSellableDate),r.jamOrders || '',r.jamArrivalDates || fmtDateText(r.arrivalDate)]);
       return { headers, body };
     }
     function exportNewOrderRowsFiltered() { const headers = ["品號","JAM/FY訂單","訂單原始實體包數","訂單_AMZ單位","首批裝櫃日","首批預計到港日","圖／上架完成期限","提醒"]; const body = applyFilters(newOrderRowsAll).map(r => { const p = getNewProductLaunchPlan(r); return [r.sku, r.jamOrders || "", r.orderRaw ?? "", r.order ?? "", p.loadingText, p.arrivalText, p.deadlineText, p.statusText]; }); return { headers, body }; }
 
     document.getElementById("btnBuild").addEventListener("click", buildTables);
-    document.getElementById("btnClearAll").addEventListener("click", () => { if (!confirm('確定要清空所有上傳資料與三個工廠的訂單草稿嗎？此操作無法復原。')) return; localStorage.removeItem(GENERATOR_DRAFT_KEY); clearTable(); [h10El, ordersEl, usAmzEl, usJspEl].forEach(el => el.value = ""); latestJamBreakdownMap = new Map(); latestJamSummaryMap = new Map(); window.latestJamBreakdownMap = latestJamBreakdownMap; window.latestJamSummaryMap = latestJamSummaryMap; document.getElementById('jamMetaBox').textContent = '尚未讀取 JAM Excel。'; hideDiscontinuedMode = true; if (hideDiscontinuedFilterEl) hideDiscontinuedFilterEl.checked = true; onlyNoOrderMode = false; if (onlyNoOrderFilterEl) onlyNoOrderFilterEl.checked = false; const amzMeta = document.getElementById('amzMetaBox'); if (amzMeta) amzMeta.textContent = '尚未讀取 H10 檔案。'; const jspMeta = document.getElementById('jspMetaBox'); if (jspMeta) jspMeta.textContent = '尚未讀取 JSP 庫存檔。'; const masterMeta = document.getElementById('masterMetaBox'); if (masterMeta) masterMeta.textContent = '尚未使用總檔案上傳。'; const salesInput = document.getElementById('salesInput'); if (salesInput) salesInput.value = ''; buildTables(); updateTotals(); updateWorkflowUi(); });
+    document.getElementById("btnClearAll").addEventListener("click", () => { if (!confirm('確定要清空所有上傳資料與三個工廠的訂單草稿嗎？此操作無法復原。')) return; localStorage.removeItem(GENERATOR_DRAFT_KEY); localStorage.removeItem(VELOCITY_HISTORY_KEY); clearTable(); [h10El, ordersEl, usAmzEl, usJspEl].forEach(el => el.value = ""); latestJamBreakdownMap = new Map(); latestJamSummaryMap = new Map(); latestAmzInventoryRows = []; h10SourceObservedOn = null; shouldRecordVelocityHistory = false; window.latestJamBreakdownMap = latestJamBreakdownMap; window.latestJamSummaryMap = latestJamSummaryMap; document.getElementById('jamMetaBox').textContent = '尚未讀取 JAM Excel。'; hideDiscontinuedMode = true; if (hideDiscontinuedFilterEl) hideDiscontinuedFilterEl.checked = true; onlyNoOrderMode = false; if (onlyNoOrderFilterEl) onlyNoOrderFilterEl.checked = false; const amzMeta = document.getElementById('amzMetaBox'); if (amzMeta) amzMeta.textContent = '尚未讀取 H10 檔案。'; const jspMeta = document.getElementById('jspMetaBox'); if (jspMeta) jspMeta.textContent = '尚未讀取 JSP 庫存檔。'; const masterMeta = document.getElementById('masterMetaBox'); if (masterMeta) masterMeta.textContent = '尚未使用總檔案上傳。'; const salesInput = document.getElementById('salesInput'); if (salesInput) salesInput.value = ''; buildTables(); updateTotals(); updateWorkflowUi(); });
     document.getElementById("factoryFilter").addEventListener("change", e => { factoryMode = e.target.value; renderAll(); });
     document.getElementById("itemFilter").addEventListener("change", e => { itemFilterMode = e.target.value; renderAll(); });
     hideDiscontinuedFilterEl?.addEventListener("change", e => { hideDiscontinuedMode = e.target.checked; renderAll(); if (typeof renderDecisionDashboard === 'function') renderDecisionDashboard(); if (typeof renderOtherTools === 'function') renderOtherTools(); if (typeof renderSalesGantt === 'function') renderSalesGantt(); if (typeof buildSalesCharts === 'function') buildSalesCharts(); });
@@ -2936,13 +3058,13 @@
 
     const sortIds = ["Main","Reorder","Hot"];
     sortIds.forEach(prefix => {
-      document.getElementById(`sort${prefix}FieldSpeed`).addEventListener('click', () => { sortConfig.field = 'speed'; renderAll(); });
+      document.getElementById(`sort${prefix}FieldSpeed`).addEventListener('click', () => { sortConfig.field = 'planningVelocity'; renderAll(); });
       document.getElementById(`sort${prefix}FieldDays`).addEventListener('click', () => { sortConfig.field = 'days'; renderAll(); });
       document.getElementById(`sort${prefix}DirAsc`).addEventListener('click', () => { sortConfig.direction = 'asc'; renderAll(); });
       document.getElementById(`sort${prefix}DirDesc`).addEventListener('click', () => { sortConfig.direction = 'desc'; renderAll(); });
     });
     function updateSortButtons() {
-      document.querySelectorAll('button[id*="FieldSpeed"]').forEach(btn => btn.classList.toggle('active', sortConfig.field === 'speed'));
+      document.querySelectorAll('button[id*="FieldSpeed"]').forEach(btn => btn.classList.toggle('active', sortConfig.field === 'planningVelocity'));
       document.querySelectorAll('button[id*="FieldDays"]').forEach(btn => btn.classList.toggle('active', sortConfig.field === 'days'));
       document.querySelectorAll('button[id*="DirAsc"]').forEach(btn => btn.classList.toggle('active', sortConfig.direction === 'asc'));
       document.querySelectorAll('button[id*="DirDesc"]').forEach(btn => btn.classList.toggle('active', sortConfig.direction === 'desc'));
@@ -3060,14 +3182,14 @@
     function reloadData() { document.getElementById('searchInput').value = ''; document.getElementById('searchResults').innerHTML = ''; document.getElementById('searchResults').style.display = 'none'; restoreGeneratorDraft(currentCountry); }
     function clearTable() { document.querySelector('#productTable tbody').innerHTML = ''; }
     function getProductSpecByCode(code) { return productMap.get(normalizeSkuKey(code)) || null; }
-    function getSpeedForProduct(code) { return window.orderSpeedMap?.get(getCanonicalSku(code)) ?? window.orderSpeedMap?.get(normalizeSkuKey(code)) ?? null; }
+    function getPlanningVelocityForProduct(code) { return window.planningVelocityMap?.get(getCanonicalSku(code)) ?? window.planningVelocityMap?.get(normalizeSkuKey(code)) ?? null; }
     function getUnitsPerPallet(prod) { const perCarton = Number(prod?.perCarton ?? 0), perPallet = Number(prod?.perPallet ?? 0), factor = getPhysicalUnitsPerAmazonUnit(prod?.productCode); return perCarton && perPallet ? (perCarton * perPallet) / factor : 0; }
-    function formatPalletDays(prod) { const speed = getSpeedForProduct(prod.productCode); if (!speed || speed <= 0) return '—'; const days = getUnitsPerPallet(prod) / speed; return Number.isFinite(days) ? `${days.toFixed(1)} 天` : '—'; }
+    function formatPalletDays(prod) { const planningVelocity = getPlanningVelocityForProduct(prod.productCode); if (!planningVelocity || planningVelocity <= 0) return '—'; const days = getUnitsPerPallet(prod) / planningVelocity; return Number.isFinite(days) ? `${days.toFixed(1)} 天` : '—'; }
     function formatEstimatedDays(prod) { const code = getCanonicalSku(prod.productCode); const sourceRow = mainRowsAll.find(row => getCanonicalSku(row.sku) === code); if (!sourceRow) return '—'; const days = getLeadTimePlan(sourceRow, 365).bookCoverageDays; return Number.isFinite(days) ? `${days.toFixed(1)} 天` : '—'; }
     function getPostArrivalCoverageDays(prod, quantity, units) {
       const code = getCanonicalSku(prod.productCode);
-      const speed = getSpeedForProduct(code);
-      if (!speed || speed <= 0) return null;
+      const planningVelocity = getPlanningVelocityForProduct(code);
+      if (!planningVelocity || planningVelocity <= 0) return null;
       const newOrderUnits = (Number.isFinite(units) && units > 0) ? units : (Number(quantity) || 0);
       const sourceRow = mainRowsAll.find(row => getCanonicalSku(row.sku) === code);
       if (!sourceRow) return null;
@@ -3166,7 +3288,7 @@
     function roundUpToHalfPallet(value) { const pallets = Number(value); return Number.isFinite(pallets) && pallets > 0 ? Math.ceil(pallets * 2 - 1e-9) / 2 : 0; }
     function calculateReorderPallets(row, prod, thresholdDays) { const qty = calculateReorderQuantity(row, thresholdDays), unitsPerPallet = getUnitsPerPallet(prod); return qty && unitsPerPallet ? roundUpToHalfPallet(qty / unitsPerPallet) : null; }
     function applyPlannedQuantityToGenerator(prod, quantity, pallets = null) { const plannedPallets = roundUpToHalfPallet(pallets); const hasQuantity = Number.isFinite(quantity) && quantity > 0; if (plannedPallets <= 0 && !hasQuantity) return null; const row = addProduct(prod, null); if (!row) return null; if (plannedPallets > 0) { const palletInput = row.querySelector('.edit-pallets-input'); palletInput.value = plannedPallets.toFixed(1); updateFields(palletInput, prod.productCode); return row; } const unitInput = row.querySelector('.edit-pack-input') || row.querySelector('.edit-box-input'); const input = unitInput || row.querySelector('.edit-quantity-input'); input.value = Number(quantity).toFixed(Number.isInteger(quantity) ? 0 : 2); updateFields(input, prod.productCode); return row; }
-    function addReorderRowsToGenerator() { const threshold = getReorderTargetDays(); const rows = applyFilters(mainRowsAll).filter(row => row.speed !== null && row.speed > 0 && getLeadTimePlan(row, threshold).suggestedQty > 0); let missing = [], skipped = []; rows.forEach(row => { if (isDiscontinuedSku(row.sku)) { skipped.push(row.sku); return; } const prod = getProductSpecByCode(row.sku); if (!prod) { missing.push(row.sku); return; } applyPlannedQuantityToGenerator(prod, calculateReorderQuantity(row, threshold), calculateReorderPallets(row, prod, threshold)); }); if (missing.length) showTip(`找不到品項資料：${missing.join(', ')}`, 'error'); if (skipped.length) showTip(`停產品未加入：${skipped.join(', ')}`, 'error'); }
+    function addReorderRowsToGenerator() { const threshold = getReorderTargetDays(); const rows = getReorderRowsForAction(); let missing = [], skipped = []; rows.forEach(row => { if (isDiscontinuedSku(row.sku)) { skipped.push(row.sku); return; } const prod = getProductSpecByCode(row.sku); if (!prod) { missing.push(row.sku); return; } applyPlannedQuantityToGenerator(prod, calculateReorderQuantity(row, threshold), calculateReorderPallets(row, prod, threshold)); }); if (missing.length) showTip(`找不到品項資料：${missing.join(', ')}`, 'error'); if (skipped.length) showTip(`停產品未加入：${skipped.join(', ')}`, 'error'); }
     function addHotRowsToGenerator() { let missing = [], skipped = []; applyFilters(hotRowsAll).forEach(row => { if (isDiscontinuedSku(row.sku)) { skipped.push(row.sku); return; } const prod = getProductSpecByCode(row.sku); if (!prod) { missing.push(row.sku); return; } addProduct(prod, row.order !== null && Number.isFinite(row.order) ? row.order : null); }); if (missing.length) showTip(`找不到品項資料：${missing.join(', ')}`, 'error'); if (skipped.length) showTip(`停產品未加入：${skipped.join(', ')}`, 'error'); }
     function calculatePriorityQuantity(row, thresholdDays) { return getLeadTimePlan(row, thresholdDays).suggestedQty; }
     function calculatePriorityPallets(row, prod, thresholdDays) { const qty = calculatePriorityQuantity(row, thresholdDays), unitsPerPallet = getUnitsPerPallet(prod); return qty && unitsPerPallet ? roundUpToHalfPallet(qty / unitsPerPallet) : null; }
@@ -3225,15 +3347,15 @@
       const today = new Date();
       return applyFilters(mainRowsAll).map(row => {
         const sku = normalizeSkuKey(row.sku);
-        const speed = safeNumber(row.speed, 0);
+        const planningVelocity = safeNumber(row.planningVelocity, 0);
         const amz = safeNumber(row.usAmz, 0);
         const jsp = safeNumber(row.usJsp, 0);
         const us = safeNumber(row.us, amz + jsp);
         const order = safeNumber(row.order, 0);
-        const usDays = speed > 0 ? amz / speed : null;
-        const daysWithOrder = speed > 0 ? (us + order) / speed : null;
-        const stockoutDate = speed > 0 ? addDays(today, usDays) : null;
-        const stockoutWithOrderDate = speed > 0 ? addDays(today, daysWithOrder) : null;
+        const usDays = planningVelocity > 0 ? amz / planningVelocity : null;
+        const daysWithOrder = planningVelocity > 0 ? (us + order) / planningVelocity : null;
+        const stockoutDate = planningVelocity > 0 ? addDays(today, usDays) : null;
+        const stockoutWithOrderDate = planningVelocity > 0 ? addDays(today, daysWithOrder) : null;
         const nextArrival = getNextArrivalInfo(sku);
         const nextArrivalDate = nextArrival?.arrivalDateObj || null;
         const transferDays = getFbaTransferDays();
@@ -3248,7 +3370,7 @@
         const gapDays = nextSellableDate && stockoutDate ? daysBetween(stockoutDate, nextSellableDate) : null;
         const supplyPlan = getLeadTimePlan(row, 0);
         let level = 'green', riskLabel = '安全', connectLabel = '接得上';
-        if (!speed) { level = 'gray'; riskLabel = '無速度'; connectLabel = '不可判斷'; }
+        if (!planningVelocity) { level = 'gray'; riskLabel = '無速度'; connectLabel = '不可判斷'; }
         else if (supplyPlan.canRecommend === false) { level = 'gray'; riskLabel = '資料不完整'; connectLabel = getPlanningUnavailableReason(supplyPlan); }
         else if (supplyPlan.shortageDays > 0.05) {
           level = 'red';
@@ -3259,6 +3381,8 @@
         else if (usDays !== null && usDays < 30) { level = 'red'; riskLabel = '立即危險'; connectLabel = nextArrivalDate ? '需確認入倉' : '無到港日'; }
         else if ((usDays !== null && usDays < 60) || (daysWithOrder !== null && daysWithOrder < 90)) { level = 'yellow'; riskLabel = '需要關注'; connectLabel = nextArrivalDate ? '大致接得上' : '到港日不明'; }
         else { level = 'green'; riskLabel = '安全'; connectLabel = nextArrivalDate ? '接得上' : '無近期訂單'; }
+        const velocityRiskCount = row.velocityAssessment?.velocityRisks?.length || 0;
+        if (level === 'green' && velocityRiskCount > 0) { level = 'yellow'; riskLabel = '速度可能低估'; connectLabel = `${velocityRiskCount} 項速度證據風險；不代表已證實斷貨`; }
         const sales = safeNumber(salesMap.get(sku), 0);
         const dailySales = sales > 0 ? sales / 30 : 0;
         const revenueAtRisk = level === 'red' ? dailySales * Math.max(1, Math.min(30, gapDays && gapDays > 0 ? gapDays : 30)) : 0;
@@ -3274,8 +3398,8 @@
               ? `${fmtQty(supplyPlan.plannedNotPlaced + supplyPlan.stoppedInbound)} 為還沒下單／STOP，未納入供給；真正可售前缺口 ${Number(supplyPlan.shortageDays.toFixed(1))} 天`
               : `逐日扣除 AMZ 銷售，JSP／有 ETA 的 JAM 於轉入 FBA 後補入；真正可售前累計缺口 ${Number(supplyPlan.shortageDays.toFixed(1))} 天`;
         const shortageSort = shortageDays === null ? shortageInfo.sort : shortageDays;
-        const priorityScore = (level === 'red' ? 1000 : level === 'yellow' ? 400 : 0) + Math.min(400, speed * 3) + Math.min(500, sales / 250) + (order <= 0 ? 220 : 0) + (shortageSort > 0 ? Math.min(260, shortageSort * 6) : 0);
-        return { ...row, sku, speed, amz, jsp, us, order, usDays, daysWithOrder, stockoutDate, stockoutWithOrderDate, nextArrivalDate, nextSellableDate, nextArrivalOrder: nextSupplyOrder, gapDays, level, riskLabel, connectLabel, sales, revenueAtRisk, shortageDays, shortageDaysText, shortageLogic, shortageSort, priorityScore };
+        const priorityScore = (level === 'red' ? 1000 : level === 'yellow' ? 400 : 0) + Math.min(400, planningVelocity * 3) + Math.min(500, sales / 250) + (order <= 0 ? 220 : 0) + (shortageSort > 0 ? Math.min(260, shortageSort * 6) : 0) + Math.min(300, velocityRiskCount * 100);
+        return { ...row, sku, planningVelocity, velocityRiskCount, amz, jsp, us, order, usDays, daysWithOrder, stockoutDate, stockoutWithOrderDate, nextArrivalDate, nextSellableDate, nextArrivalOrder: nextSupplyOrder, gapDays, level, riskLabel, connectLabel, sales, revenueAtRisk, shortageDays, shortageDaysText, shortageLogic, shortageSort, priorityScore };
       });
     }
     function renderDecisionDashboard() {
@@ -3285,10 +3409,10 @@
       const rows = getDecisionRows();
       const redRows = rows.filter(r => r.level === 'red');
       const yellowRows = rows.filter(r => r.level === 'yellow');
-      const noOrderRows = rows.filter(r => r.speed > 0 && r.order <= 0);
-      const transferRows = rows.filter(r => r.speed > 0 && r.shortageSort > 0 && (r.level === 'red' || r.level === 'yellow')).sort((a,b) => b.shortageSort - a.shortageSort).slice(0, 30);
+      const noOrderRows = rows.filter(r => r.planningVelocity > 0 && r.order <= 0);
+      const transferRows = rows.filter(r => r.planningVelocity > 0 && r.shortageSort > 0 && (r.level === 'red' || r.level === 'yellow')).sort((a,b) => b.shortageSort - a.shortageSort).slice(0, 30);
       const revenueRows = rows.filter(r => r.sales > 0 && (r.level === 'red' || r.level === 'yellow')).sort((a,b) => (b.revenueAtRisk - a.revenueAtRisk) || (b.sales - a.sales)).slice(0, 30);
-      const priorityRows = rows.filter(r => r.level !== 'green' || r.shortageSort > 0 || (r.order <= 0 && r.speed > 0)).sort((a,b) => b.priorityScore - a.priorityScore).slice(0, 30);
+      const priorityRows = rows.filter(r => r.level !== 'green' || r.velocityRiskCount > 0 || r.shortageSort > 0 || (r.order <= 0 && r.planningVelocity > 0)).sort((a,b) => b.priorityScore - a.priorityScore).slice(0, 30);
       const issues = buildDataIssues(rows);
       const jamImpact = buildJamImpactRows(rows).slice(0, 40);
       latestDecisionExport = { priority: priorityRows, transfer: transferRows, revenue: revenueRows, jamImpact, issues };
@@ -3310,15 +3434,15 @@
       const wrap = document.getElementById('priorityDecisionWrap');
       if (!wrap) return;
       if (!rows.length) { wrap.innerHTML = '<div class="hint">目前沒有需要優先處理的品項。</div>'; return; }
-      const body = rows.map((r,i) => `<tr><td>${i+1}</td>${renderSkuCell(r.sku)}<td>${getRiskBadgeHtml(r.level, r.riskLabel)}</td><td class="ok">${escapeHtml(String(r.speed || ''))}</td><td>${fmtQty(r.amz)}</td><td>${fmtQty(r.jsp)}</td><td>${fmtDays(r.usDays)}</td><td>${formatDateYMD(r.stockoutDate)}</td><td>${escapeHtml(r.nextArrivalOrder)}<br><span class="miniMetric">${formatDateYMD(r.nextSellableDate)}</span></td><td>${escapeHtml(r.connectLabel)}</td><td>${escapeHtml(r.shortageDaysText)}</td></tr>`).join('');
-      wrap.innerHTML = `<table><thead><tr><th>#</th><th>SKU</th><th>風險</th><th>速度</th><th>AMZ</th><th>JSP</th><th>AMZ可售天數</th><th>預估斷貨日</th><th>下一批／真正可售日</th><th>接貨</th><th>預計斷貨天數</th></tr></thead><tbody>${body}</tbody></table>`;
+      const body = rows.map((r,i) => `<tr><td>${i+1}</td>${renderSkuCell(r.sku)}<td>${getRiskBadgeHtml(r.level, r.riskLabel)}</td>${renderVelocityEvidence(r)}<td>${fmtQty(r.amz)}</td><td>${fmtQty(r.jsp)}</td><td>${fmtDays(r.usDays)}</td><td>${formatDateYMD(r.stockoutDate)}</td><td>${escapeHtml(r.nextArrivalOrder)}<br><span class="miniMetric">${formatDateYMD(r.nextSellableDate)}</span></td><td>${escapeHtml(r.connectLabel)}</td><td>${escapeHtml(r.shortageDaysText)}</td></tr>`).join('');
+      wrap.innerHTML = `<table><thead><tr><th>#</th><th>SKU</th><th>供給風險</th><th>Planning Velocity<br>來源／採用／風險</th><th>AMZ</th><th>JSP</th><th>AMZ可售天數</th><th>預估斷貨日</th><th>下一批／真正可售日</th><th>接貨</th><th>預計斷貨天數</th></tr></thead><tbody>${body}</tbody></table>`;
     }
     function renderTransferDecision(rows) {
       const wrap = document.getElementById('transferDecisionWrap');
       if (!wrap) return;
       if (!rows.length) { wrap.innerHTML = '<div class="hint">目前沒有明顯的斷貨缺口。</div>'; return; }
-      const body = rows.map((r,i) => `<tr><td>${i+1}</td>${renderSkuCell(r.sku)}<td>${escapeHtml(String(r.speed))}</td><td>${fmtQty(r.amz)}</td><td>${fmtQty(r.jsp)}</td><td>${fmtDays(r.usDays)}</td><td>${formatDateYMD(r.stockoutDate)}</td><td>${escapeHtml(r.nextArrivalOrder)}<br><span class="miniMetric">${formatDateYMD(r.nextSellableDate)}</span></td><td class="warn">${escapeHtml(r.shortageDaysText)}</td><td>${escapeHtml(r.shortageLogic)}</td></tr>`).join('');
-      wrap.innerHTML = `<table><thead><tr><th>#</th><th>SKU</th><th>速度</th><th>AMZ</th><th>JSP</th><th>AMZ可售天數</th><th>斷貨日</th><th>下一批／真正可售日</th><th>預計斷貨天數</th><th>邏輯</th></tr></thead><tbody>${body}</tbody></table>`;
+      const body = rows.map((r,i) => `<tr><td>${i+1}</td>${renderSkuCell(r.sku)}${renderVelocityEvidence(r)}<td>${fmtQty(r.amz)}</td><td>${fmtQty(r.jsp)}</td><td>${fmtDays(r.usDays)}</td><td>${formatDateYMD(r.stockoutDate)}</td><td>${escapeHtml(r.nextArrivalOrder)}<br><span class="miniMetric">${formatDateYMD(r.nextSellableDate)}</span></td><td class="warn">${escapeHtml(r.shortageDaysText)}</td><td>${escapeHtml(r.shortageLogic)}</td></tr>`).join('');
+      wrap.innerHTML = `<table><thead><tr><th>#</th><th>SKU</th><th>Planning Velocity<br>來源／採用／風險</th><th>AMZ</th><th>JSP</th><th>AMZ可售天數</th><th>斷貨日</th><th>下一批／真正可售日</th><th>預計斷貨天數</th><th>邏輯</th></tr></thead><tbody>${body}</tbody></table>`;
     }
     function renderRevenueRiskDecision(rows) {
       const wrap = document.getElementById('revenueRiskDecisionWrap');
@@ -3340,8 +3464,9 @@
         if (leadPlan.canRecommend !== false && leadPlan.conflictingScheduleInbound > 0) issues.push({ sku:r.sku, type:'舊單排程衝突', detail:`${fmtQty(leadPlan.conflictingScheduleInbound)} 的裝櫃日晚於本次新單預計到港日，因此未納入` });
         if (leadPlan.canRecommend !== false && leadPlan.unmatchedInbound > 0) issues.push({ sku:r.sku, type:'訂單總數對不到明細', detail:`${fmtQty(leadPlan.unmatchedInbound)} 未納入，請檢查 JAM/FY 欄位` });
         if (r.usJsp === null || r.usJsp === undefined) issues.push({ sku:r.sku, type:'缺 JSP 庫存', detail:'JSP 檔案沒有此 SKU，不能直接當成 0' });
-        if (r.speed > 0 && r.order <= 0) issues.push({ sku:r.sku, type:'有速度但無訂單', detail:`速度 ${r.speed}，未到貨訂單為 0` });
-        if (r.speed <= 0 && (r.amz + r.jsp) > 0) issues.push({ sku:r.sku, type:'有庫存但無速度', detail:`AMZ+JSP ${fmtQty(r.amz + r.jsp)}` });
+        if (r.planningVelocity > 0 && r.order <= 0) issues.push({ sku:r.sku, type:'有速度但無訂單', detail:`速度 ${r.planningVelocity}，未到貨訂單為 0` });
+        if (r.planningVelocity <= 0 && (r.amz + r.jsp) > 0) issues.push({ sku:r.sku, type:'有庫存但無速度', detail:`AMZ+JSP ${fmtQty(r.amz + r.jsp)}` });
+        (r.velocityAssessment?.velocityRisks || []).forEach(risk => issues.push({ sku:r.sku, type:'Velocity Risk', detail:`${getVelocityRiskLabel(risk.code)}；可能低估／證據衝突，不代表已證實斷貨` }));
         if (isDiscontinuedSku(r.sku) && r.order > 0) issues.push({ sku:r.sku, type:'停產品仍有訂單', detail:`未到貨 ${fmtQty(r.order)}` });
       });
       const h10Set = new Set(rows.map(r => r.sku));
@@ -3368,7 +3493,7 @@
           rec.qty += safeNumber(item.qty);
           rec.skuSet.add(sku);
           if (isHeroHotSku(sku) || isHotSku(sku)) rec.hotCount += 1;
-          if (r) { rec.speedSum += safeNumber(r.speed); rec.salesSum += safeNumber(r.sales); if (r.level === 'red') rec.redCount += 1; }
+          if (r) { rec.speedSum += safeNumber(r.planningVelocity); rec.salesSum += safeNumber(r.sales); if (r.level === 'red') rec.redCount += 1; }
           if (item.arrivalDate && item.arrivalDate !== 'N/A') rec.arrivalDates.add(item.arrivalDate);
         });
       });
@@ -3458,9 +3583,9 @@
       if (!row) {
         return { sku, row:null, hasAlert:true, exportRows:[{ sku, step:'找不到 SKU', tag:'警報', detail:`找不到 ${sku}。請先貼入 H10 或確認 SKU 是否存在於目前資料。` }], html:`<div class="decisionTree"><div class="hint">找不到 ${escapeHtml(sku)}。請先貼入 H10 或確認 SKU 是否存在於目前資料。</div></div>` };
       }
-      const speed = safeNumber(row.speed);
-      const amzDays = speed > 0 ? row.amz / speed : null;
-      const amzNoStock = row.amz < 10 || (speed > 0 && amzDays < treeDaysThreshold);
+      const planningVelocity = safeNumber(row.planningVelocity);
+      const amzDays = planningVelocity > 0 ? row.amz / planningVelocity : null;
+      const amzNoStock = row.amz < 10 || (planningVelocity > 0 && amzDays < treeDaysThreshold);
       const jspHasStock = row.jsp >= 10;
       const jamList = getJamBreakdownForSku(sku);
       const hasOrder = row.order > 0 || jamList.length > 0;
@@ -3476,7 +3601,12 @@
 
       const factor = getPhysicalUnitsPerAmazonUnit(sku);
       const unitNote = factor > 1 ? `｜換算：${fmtQty(factor)} 個實體包＝1 個 AMZ 單位` : '';
-      addNode('neutralNode', `${sku} 單品診斷`, `速度：${row.speed || 'N/A'} AMZ單位/天｜AMZ：${fmtQty(row.amz)}｜JSP：${fmtQty(row.jsp)}｜未到貨：${fmtQty(row.order)} AMZ單位${unitNote}｜停產：${discontinued ? '是' : '否'}`, 'SKU');
+      addNode('neutralNode', `${sku} 單品診斷`, `速度：${row.planningVelocity || 'N/A'} AMZ單位/天｜AMZ：${fmtQty(row.amz)}｜JSP：${fmtQty(row.jsp)}｜未到貨：${fmtQty(row.order)} AMZ單位${unitNote}｜停產：${discontinued ? '是' : '否'}`, 'SKU');
+
+      if (planningVelocity <= 0) {
+        addNode('warnNode', '無有效速度證據，無法判斷', '目前不會使用庫存數量單獨推斷缺貨或漏下單；請先補入可用的 H10 Source Velocity、Sellable ÷ DOS 或歷史證據。', '資料不足');
+        return finish();
+      }
 
       if (amzNoStock) {
         addNode('warnNode', 'AMZ 倉不足', `AMZ 庫存 ${fmtQty(row.amz)}，可售天數 ${fmtDays(amzDays)}；符合沒貨定義。`, 'AMZ');
@@ -3551,12 +3681,14 @@
           const row = rowMap.get(normalizeSkuKey(sku)) || null;
           return {
             sku: normalizeSkuKey(sku),
-            speed: row?.speed ?? null,
+            planningVelocity: row?.planningVelocity ?? null,
+            velocityAssessment: row?.velocityAssessment ?? null,
             amz: row?.usAmz ?? null,
-            amzDays: row?.speed > 0 && row?.usAmz !== null ? row.usAmz / row.speed : null,
+            amzDays: row?.planningVelocity > 0 && row?.usAmz !== null ? row.usAmz / row.planningVelocity : null,
             name: getProductNameBySku(sku)
           };
         })
+        .filter(row => row.planningVelocity > 0)
         .sort((a, b) => {
           const aDays = Number.isFinite(a.amzDays) ? a.amzDays : Infinity;
           const bDays = Number.isFinite(b.amzDays) ? b.amzDays : Infinity;
@@ -3582,7 +3714,7 @@
         return;
       }
       if (!rows.length) {
-        alertEl.innerHTML = '<div class="autoDecisionAlert okState"><i class="fa-solid fa-circle-check"></i><div><b>目前沒有漏下單警示</b><br>沒有找到同時符合「JSP 庫存 0、無 JAM/FY 未到貨訂單、非停產」的 SKU。</div></div>';
+        alertEl.innerHTML = '<div class="autoDecisionAlert okState"><i class="fa-solid fa-circle-check"></i><div><b>目前沒有可確認的漏下單警示</b><br>只有同時具備有效 Planning Velocity、JSP 庫存 0、無 JAM/FY 未到貨訂單、非停產的 SKU 才會列入。</div></div>';
         box.innerHTML = '<div class="hint">自動檢查已完成。</div>';
         lastAutoDecisionSignature = '';
         return;
@@ -3617,8 +3749,8 @@
       const analyses = skus.map(sku => getSkuDecisionTreeAnalysis(sku, treeDaysThreshold, getSkuTreeExpandedStage(sku)));
       const visibleAnalyses = alertsOnly ? analyses.filter(item => item.hasAlert) : analyses;
       if (!visibleAnalyses.length) { showTip('目前沒有可匯出的警報 SKU', 'error'); return; }
-      const headers = ['SKU','步驟','標籤','標題','說明','速度','AMZ','JSP','未到貨','AMZ沒貨天數門檻','已展開至關卡','僅顯示警報'];
-      const body = visibleAnalyses.flatMap(item => item.exportRows.map(row => [item.sku,row.step,row.tag,row.title,row.detail,item.row?.speed ?? '',item.row?.amz ?? '',item.row?.jsp ?? '',item.row?.order ?? '',treeDaysThreshold,getSkuTreeExpandedStage(item.sku),alertsOnly ? '是' : '否']));
+      const headers = ['SKU','步驟','標籤','標題','說明','H10 Source Velocity','Planning Velocity','採用證據','調高原因','Velocity Risk','AMZ','JSP','未到貨','AMZ沒貨天數門檻','已展開至關卡','僅顯示警報'];
+      const body = visibleAnalyses.flatMap(item => item.exportRows.map(row => [item.sku,row.step,row.tag,row.title,row.detail,...getVelocityExportFields(item.row),item.row?.amz ?? '',item.row?.jsp ?? '',item.row?.order ?? '',treeDaysThreshold,getSkuTreeExpandedStage(item.sku),alertsOnly ? '是' : '否']));
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([headers, ...body]), 'SKU決策樹');
       XLSX.writeFile(wb, `${getDateStamp()}_SKU決策樹.xlsx`);
@@ -3628,11 +3760,11 @@
     function exportAutoDecisionTreeExcel() {
       const rows = getAutoDecisionRows();
       if (!rows.length) { showTip('目前沒有可匯出的自動警示 SKU', 'error'); return; }
-      const headers = ['SKU','產品名稱','日銷售速度','AMZ庫存','AMZ可售天數','JSP庫存','JAM／FY未到貨','停產狀態','結論'];
+      const headers = ['SKU','產品名稱','H10 Source Velocity','Planning Velocity','採用證據','調高原因','Velocity Risk','AMZ庫存','AMZ可售天數','JSP庫存','JAM／FY未到貨','停產狀態','結論'];
       const body = rows.map(row => [
         row.sku,
         row.name || '',
-        row.speed ?? '',
+        ...getVelocityExportFields(row),
         row.amz ?? '',
         row.amzDays === null ? '' : Number(row.amzDays.toFixed(1)),
         0,
@@ -3674,9 +3806,9 @@
       if (!latestDecisionExport.priority.length && !latestDecisionExport.issues.length) renderDecisionDashboard();
       const wb = XLSX.utils.book_new();
       const addSheet = (name, headers, body) => XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([headers, ...body]), name);
-      addSheet('優先處理', ['SKU','風險','速度','AMZ','JSP','AMZ可售天數','斷貨日','下一批','真正可售日','接貨','預計斷貨天數'], latestDecisionExport.priority.map(r => [r.sku,r.riskLabel,r.speed,r.amz,r.jsp,r.usDays ?? '',formatDateYMD(r.stockoutDate),r.nextArrivalOrder,formatDateYMD(r.nextSellableDate),r.connectLabel,r.shortageDaysText]));
-      addSheet('預計斷貨天數', ['SKU','速度','AMZ','JSP','AMZ可售天數','斷貨日','下一批','真正可售日','預計斷貨天數','邏輯'], latestDecisionExport.transfer.map(r => [r.sku,r.speed,r.amz,r.jsp,r.usDays ?? '',formatDateYMD(r.stockoutDate),r.nextArrivalOrder,formatDateYMD(r.nextSellableDate),r.shortageDaysText,r.shortageLogic]));
-      addSheet('營收風險', ['SKU','風險','近月銷售額','估計風險營收','AMZ可售天數','斷貨日','下一批'], latestDecisionExport.revenue.map(r => [r.sku,r.riskLabel,r.sales,r.revenueAtRisk,r.usDays ?? '',formatDateYMD(r.stockoutDate),`${r.nextArrivalOrder} ${formatDateYMD(r.nextSellableDate)}`]));
+      addSheet('優先處理', ['SKU','風險','H10 Source Velocity','Planning Velocity','採用證據','調高原因','Velocity Risk','AMZ','JSP','AMZ可售天數','斷貨日','下一批','真正可售日','接貨','預計斷貨天數'], latestDecisionExport.priority.map(r => [r.sku,r.riskLabel,...getVelocityExportFields(r),r.amz,r.jsp,r.usDays ?? '',formatDateYMD(r.stockoutDate),r.nextArrivalOrder,formatDateYMD(r.nextSellableDate),r.connectLabel,r.shortageDaysText]));
+      addSheet('預計斷貨天數', ['SKU','H10 Source Velocity','Planning Velocity','採用證據','調高原因','Velocity Risk','AMZ','JSP','AMZ可售天數','斷貨日','下一批','真正可售日','預計斷貨天數','邏輯'], latestDecisionExport.transfer.map(r => [r.sku,...getVelocityExportFields(r),r.amz,r.jsp,r.usDays ?? '',formatDateYMD(r.stockoutDate),r.nextArrivalOrder,formatDateYMD(r.nextSellableDate),r.shortageDaysText,r.shortageLogic]));
+      addSheet('營收風險', ['SKU','風險','H10 Source Velocity','Planning Velocity','採用證據','調高原因','Velocity Risk','近月銷售額','估計風險營收','AMZ可售天數','斷貨日','下一批'], latestDecisionExport.revenue.map(r => [r.sku,r.riskLabel,...getVelocityExportFields(r),r.sales,r.revenueAtRisk,r.usDays ?? '',formatDateYMD(r.stockoutDate),`${r.nextArrivalOrder} ${formatDateYMD(r.nextSellableDate)}`]));
       addSheet('JAM重要性', ['JAM/FY','未到貨量','SKU數','熱銷SKU','紅燈SKU','預計到港'], latestDecisionExport.jamImpact.map(r => [r.orderName,r.qty,r.skuCount,r.hotCount,r.redCount,r.arrivalText]));
       addSheet('資料異常', ['SKU','異常','說明'], latestDecisionExport.issues.map(x => [x.sku,x.type,x.detail]));
       XLSX.writeFile(wb, `${getDateStamp()}_決策儀表板.xlsx`);
@@ -3695,12 +3827,12 @@
       if (itemFilterMode === "onlyTurkey") sourceRows = sourceRows.filter(r => isTurkeySkuValue(r.sku));
       return sourceRows
         .map(r => {
-          const speed = safeNumber(r.speed, 0);
+          const planningVelocity = safeNumber(r.planningVelocity, 0);
           const amz = safeNumber(r.usAmz, 0);
-          const amzDays = speed > 0 ? amz / speed : null;
-          return { ...r, speed, amz, amzDays };
+          const amzDays = planningVelocity > 0 ? amz / planningVelocity : null;
+          return { ...r, planningVelocity, amz, amzDays };
         })
-        .filter(r => r.speed > 0 && r.amz > 0 && r.amzDays > 180)
+        .filter(r => r.planningVelocity > 0 && r.amz > 0 && r.amzDays > 180)
         .sort((a, b) => b.amzDays - a.amzDays);
     }
     function renderAmzOver180() {
@@ -3708,7 +3840,7 @@
       if (!wrap) return;
       const rows = getAmzOver180Rows();
       if (!rows.length) { wrap.innerHTML = '<div class="hint">目前沒有 AMZ 可售天數超過 180 天的品項。</div>'; return; }
-      const body = rows.map((r, i) => `<tr><td>${i + 1}</td>${renderSkuCell(r.sku)}<td>${escapeHtml(String(r.speed))}</td><td>${fmtQty(r.amz)}</td><td class="warn">${fmtDays(r.amzDays)}</td><td>${formatCurrency(safeNumber(getSalesAmountMapFiltered().get(normalizeSkuKey(r.sku)), 0))}</td><td>${isDiscontinuedSku(r.sku) ? '<span class="discontinued-tag">停產</span>' : ''}</td></tr>`).join('');
+      const body = rows.map((r, i) => `<tr><td>${i + 1}</td>${renderSkuCell(r.sku)}<td>${escapeHtml(String(r.planningVelocity))}</td><td>${fmtQty(r.amz)}</td><td class="warn">${fmtDays(r.amzDays)}</td><td>${formatCurrency(safeNumber(getSalesAmountMapFiltered().get(normalizeSkuKey(r.sku)), 0))}</td><td>${isDiscontinuedSku(r.sku) ? '<span class="discontinued-tag">停產</span>' : ''}</td></tr>`).join('');
       wrap.innerHTML = `<table><thead><tr><th>#</th><th>SKU</th><th>速度</th><th>AMZ庫存</th><th>AMZ可售天數</th><th>銷售額</th><th>狀態</th></tr></thead><tbody>${body}</tbody></table>`;
     }
     function renderDiscontinuedList() {
@@ -3724,14 +3856,14 @@
         return {
           sku: key,
           reason,
-          speed: r.speed ?? '',
+          planningVelocity: r.planningVelocity ?? '',
           order: safeNumber(r.order ?? orderMap.get(key), 0),
           amz: safeNumber(r.usAmz ?? amzMap.get(key), 0),
           jsp: safeNumber(r.usJsp ?? jspMap.get(key), 0),
           name: productMap.get(key)?.productName || ''
         };
       }).sort((a, b) => (b.amz + b.jsp + b.order) - (a.amz + a.jsp + a.order) || a.sku.localeCompare(b.sku));
-      const body = rows.map((r, i) => `<tr><td>${i + 1}</td>${renderSkuCell(r.sku)}<td>${escapeHtml(r.reason)}</td><td>${escapeHtml(String(r.speed))}</td><td>${fmtQty(r.order)}</td><td>${fmtQty(r.amz)}</td><td>${fmtQty(r.jsp)}</td><td>${escapeHtml(r.name)}</td></tr>`).join('');
+      const body = rows.map((r, i) => `<tr><td>${i + 1}</td>${renderSkuCell(r.sku)}<td>${escapeHtml(r.reason)}</td><td>${escapeHtml(String(r.planningVelocity))}</td><td>${fmtQty(r.order)}</td><td>${fmtQty(r.amz)}</td><td>${fmtQty(r.jsp)}</td><td>${escapeHtml(r.name)}</td></tr>`).join('');
       wrap.innerHTML = `<table><thead><tr><th>#</th><th>SKU</th><th>停產原因</th><th>速度</th><th>未到貨</th><th>AMZ</th><th>JSP</th><th>品名</th></tr></thead><tbody>${body}</tbody></table>`;
     }
 
@@ -4083,6 +4215,9 @@
         reloadData();
         showTip(`已切換並還原${e.target.closest('label')?.textContent.trim() || currentCountry}草稿`, 'success');
       }));
+      h10El?.addEventListener('input', () => { h10SourceObservedOn = getPlanningAsOfDate(); shouldRecordVelocityHistory = true; });
+      usAmzEl?.addEventListener('input', () => { latestAmzInventoryRows = []; });
+      document.getElementById('reorderVelocityRiskOnly')?.addEventListener('change', renderReorder);
       ['inputH10','inputOrders','inputUSAmz','inputUSJsp'].forEach(id => document.getElementById(id)?.addEventListener('input', updateWorkflowUi));
       const mainSearchEl = document.getElementById('mainSkuSearch');
       const clearMainSearch = () => { mainSearchQuery = ''; if (mainSearchEl) mainSearchEl.value = ''; renderMain(); mainSearchEl?.focus(); };

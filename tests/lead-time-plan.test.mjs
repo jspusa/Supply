@@ -60,10 +60,12 @@ for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
   });
 
   test(`${entrypoint}: reorder export headers match every data row`, () => {
+    const reorderRows = [{ sku: 'EXPORT01', asin: 'B000000000', planningVelocity: 10, arrivalDate: 'N/A' }];
     const exportContext = {
       daysThresholdEl: { value: '180' },
-      mainRowsAll: [{ sku: 'EXPORT01', asin: 'B000000000', speed: 10, arrivalDate: 'N/A' }],
+      mainRowsAll: reorderRows,
       applyFilters: rows => rows,
+      getReorderRowsForAction:() => reorderRows,
       getFbaTransferDays: () => 21,
       getLeadTimePlan: () => ({
         currentAmzStock: 100, jspReserve: 0, inboundBefore: 0, assumedBeforeNew: 50,
@@ -76,6 +78,7 @@ for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
       }),
       formatDateYMD: () => '2026-08-27',
       fmtDateText: value => value,
+      getVelocityExportFields: row => ['10', row.planningVelocity, '最高有效 H10 10', '未調高', '無'],
     };
     vm.createContext(exportContext);
     vm.runInContext(`${extractFunctionSource(html, 'getBoundedWholeDays')}\nthis.getBoundedWholeDays = getBoundedWholeDays;`, exportContext);
@@ -86,6 +89,9 @@ for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
     assert.equal(result.headers.length, result.body[0].length);
     assert.ok(result.headers.includes('舊單假設早於新單_已納入合計_勿與其中欄重複加總'));
     assert.ok(result.headers.includes('全部待確認供給_含已納入與未納入_僅供追蹤勿橫向加總'));
+    assert.ok(result.headers.includes('H10 Source Velocity'));
+    assert.ok(result.headers.includes('Planning Velocity'));
+    assert.ok(result.headers.includes('Velocity Risk'));
   });
 }
 
@@ -123,7 +129,7 @@ test('public and Boss adapters send the same normalized row to the shared planne
     };
     vm.createContext(context);
     vm.runInContext(`${extractFunctionSource(html, 'getLeadTimePlan')}\nthis.getLeadTimePlan = getLeadTimePlan;`, context);
-    const row = { sku: 'GCTL03', speed: 8.83, usAmz: 369, usJsp: 0 };
+    const row = { sku: 'GCTL03', planningVelocity: 8.83, usAmz: 369, usJsp: 0 };
     assert.deepEqual(context.getLeadTimePlan(row, 365, 500), { marker: 'shared-result' });
     assert.equal(calls.length, 1);
     return structuredClone(calls[0]);
@@ -185,7 +191,7 @@ test('no-velocity plans remain unavailable without an empty missing-data message
     const context = {};
     vm.createContext(context);
     vm.runInContext(`${extractFunctionSource(html, 'getPlanningUnavailableReason')}\nthis.getPlanningUnavailableReason = getPlanningUnavailableReason;`, context);
-    assert.equal(context.getPlanningUnavailableReason({ status: 'no-velocity', missingSources: [] }), '無速度，無法判斷', entrypoint);
+    assert.equal(context.getPlanningUnavailableReason({ status: 'no-velocity', missingSources: [] }), '無有效速度證據，無法建議', entrypoint);
     assert.equal(context.getPlanningUnavailableReason({ status: 'missing-data', missingSources: ['AMZ庫存', 'JAM訂單'] }), '缺 AMZ庫存、JAM訂單', entrypoint);
     assert.match(extractFunctionSource(html, 'getDecisionRows'), /getPlanningUnavailableReason\(supplyPlan\)/, entrypoint);
   }
@@ -196,7 +202,7 @@ test('Order Draft coverage is unavailable instead of bypassing the shared planne
     const source = extractFunctionSource(html, 'getPostArrivalCoverageDays');
     const context = {
       getCanonicalSku: value => value,
-      getSpeedForProduct: () => 10,
+      getPlanningVelocityForProduct: () => 10,
       mainRowsAll: [],
       getLeadTimePlan: () => { throw new Error('planner should not be called without a normalized source row'); },
     };

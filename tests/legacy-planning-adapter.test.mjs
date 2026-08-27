@@ -28,7 +28,7 @@ test('legacy adapter preserves the existing flat lead-time result while exposing
     asOfDate: '2026-08-27',
     row: {
       sku: 'GCTL03',
-      speed: 8.83,
+      planningVelocity: 8.83,
       usAmz: 369,
       usJsp: 0,
       usAmzInbound: 0,
@@ -50,6 +50,17 @@ test('legacy adapter preserves the existing flat lead-time result while exposing
   assert.ok(Math.abs(plan.postArrivalDays - 273.2582) < 0.001);
   assert.equal(plan.postArrivalDays, plan.totalPostOrderCoverageDays);
   assert.equal(plan.continuousPostOrderCoverageDays, plan.planningResult.coverage.postOrderContinuousDays);
+});
+
+test('legacy adapter ignores obsolete source speed and plans only with Planning Velocity', () => {
+  const plan = planLegacyReplenishment({
+    asOfDate:'2026-08-27',
+    row:{ sku:'GTP03', speed:0.36, planningVelocity:18.39, usAmz:1839, usJsp:0, usAmzInbound:0, order:0 },
+    readiness:{ amazonInventory:true, jspInventory:true, openOrders:true },
+    openOrders:[],
+    policy,
+  });
+  assert.ok(Math.abs(plan.bookCoverageDays - 100) < 1e-9);
 });
 
 test('legacy supply decision uses the same explicit planner timeline', () => {

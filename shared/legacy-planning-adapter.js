@@ -1,4 +1,6 @@
 import { planReplenishment } from './supply-planner.js';
+import './planning-velocity.js';
+import './planning-velocity-history.js';
 
 const MISSING_SOURCE_LABELS = {
   AMAZON_INVENTORY: 'AMZ庫存',
@@ -104,7 +106,7 @@ export function planLegacyReplenishment({
   const planningResult = planReplenishment({
     asOfDate,
     productSku: String(row?.sku || '').trim(),
-    planningVelocity: row?.speed ?? null,
+    planningVelocity: row?.planningVelocity ?? null,
     readiness,
     inventory: {
       amazonSellable: row?.usAmz ?? null,
