@@ -157,9 +157,22 @@
     .order-generator th, .order-generator td { padding: 12px 8px; border-bottom: 1px solid #e3e8f0; font-size: 13px; }
     .order-generator th { background: #eaf1fc; color: #375a7f; font-weight: 700; border-bottom: 2px solid #b7d2f6; }
     .order-generator tr:hover td { background: #f0f5fe; }
-    .order-generator .action-button, .order-generator .remove-button, .order-generator .lock-button { background: #e0e7f3; color: #5c6f8f; padding: 5px 9px; margin: 2px 1px; border: none; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: bold; transition: background 0.2s; box-shadow: none; }
+    .order-generator .action-button, .order-generator .remove-button, .order-generator .lock-button, .order-generator .drag-handle { background: #e0e7f3; color: #5c6f8f; padding: 5px 9px; margin: 2px 1px; border: none; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: bold; transition: background 0.2s; box-shadow: none; }
     .order-generator .remove-button { background: #fa7878; color: #fff; }
     .order-generator .lock-button { background: #ffd76b; color: #925700; }
+    .order-generator .drag-handle { cursor: grab; background:#dbeafe; color:#2563eb; touch-action:none; }
+    .order-generator .drag-handle:active { cursor:grabbing; }
+    .order-generator tr.generator-dragging { opacity:.45; pointer-events:none; }
+    .order-generator .generatorActions { white-space:nowrap; }
+    .generatorQuantityGroup { display:grid; grid-template-columns:repeat(2, minmax(72px, 1fr)); gap:6px; min-width:150px; }
+    .generatorQuantityGroup.single { grid-template-columns:minmax(82px, 1fr); min-width:82px; }
+    .generatorQuantityField { display:flex; flex-direction:column; gap:3px; color:#64748b; font-size:10px; font-weight:800; }
+    .generatorQuantityField input { min-width:0; width:100%; }
+    .generatorCoverageStatus { font-size:.78rem; font-weight:850; white-space:nowrap; }
+    .generatorCoverageStatus.low { color:#b45309; }
+    .generatorCoverageStatus.healthy { color:#15803d; }
+    .generatorCoverageStatus.excess { color:#b91c1c; }
+    .generatorCoverageStatus.neutral { color:#64748b; }
     .order-generator tr.locked td, .order-generator tr.locked:hover td { background:#dcfce7 !important; color:#166534; border-bottom-color:#86efac; }
     .order-generator tr.locked input { background:#f0fdf4; color:#166534; border-color:#86efac; font-weight:800; }
     .order-generator tr.locked .lock-button { background:#16a34a; color:#fff; }
@@ -894,7 +907,7 @@
       </div>
       <div class="controlGroup compactNumber">
         <span class="controlLabel">到港後目標</span>
-        <input id="daysThreshold" type="number" min="1" step="1" value="180" />
+        <input id="daysThreshold" type="number" min="1" max="365" step="1" value="180" title="新訂單可售後的最低目標天數；最多設定 365 天" />
       </div>
       <div class="controlGroup compactNumber">
         <span class="controlLabel">新單前置期</span>
@@ -1045,20 +1058,20 @@
                 <label class="generatorColumnToggle"><input type="checkbox" data-generator-column-toggle="target">目標數量</label>
                 <label class="generatorColumnToggle"><input type="checkbox" data-generator-column-toggle="cartons">箱數</label>
                 <label class="generatorColumnToggle"><input type="checkbox" data-generator-column-toggle="box">紙箱尺寸</label>
-                <label class="generatorColumnToggle"><input type="checkbox" data-generator-column-toggle="estimated" checked>帳面總覆蓋天數</label>
-                <label class="generatorColumnToggle"><input type="checkbox" data-generator-column-toggle="arrival" checked>新單可售後覆蓋天數</label>
+                <label class="generatorColumnToggle"><input type="checkbox" data-generator-column-toggle="estimated" checked>含舊訂單可售天數</label>
+                <label class="generatorColumnToggle"><input type="checkbox" data-generator-column-toggle="arrival" checked>新訂單到港後總可售天數</label>
               </div>
               <div class="table-responsive">
                 <table id="productTable" class="hide-col-target hide-col-cartons hide-col-box">
                   <thead>
                     <tr>
-                      <th>序號</th><th>品號 / 下單品號</th><th>包數</th><th>袋數/盒數</th><th data-generator-col="target">目標數量</th><th data-generator-col="cartons">箱數</th><th>棧板數</th><th data-generator-col="box">紙箱尺寸 (cm)</th><th>每棧板可售天數</th><th data-generator-col="estimated">帳面總覆蓋天數</th><th data-generator-col="arrival">新單可售後覆蓋天數</th><th>操作</th>
+                      <th>序號</th><th>品號</th><th>數量</th><th data-generator-col="target">目標數量</th><th data-generator-col="cartons">箱數</th><th>棧板數</th><th data-generator-col="box">紙箱尺寸 (cm)</th><th>每棧板可售天數</th><th data-generator-col="estimated">含舊訂單可售天數</th><th data-generator-col="arrival">新訂單到港後總可售天數</th><th>操作</th>
                     </tr>
                   </thead>
                   <tbody></tbody>
                 </table>
               </div>
-              <div class="hint" style="text-align:right;margin-top:10px;">帳面總覆蓋會包含 JAM/FY 的預計補貨；新單可售後覆蓋先扣前置期銷售，只納入已下單舊單與目標期內確定到貨，並排除「還沒下單／STOP」。已保存草稿不會被自動改量；若舊數量高於最新建議，該格會以紅字提醒。</div>
+              <div class="hint" style="text-align:right;margin-top:10px;">含舊訂單可售天數會包含 JAM/FY 的預計補貨；新訂單到港後總可售天數會先扣前置期銷售，納入已下單舊單，並排除「還沒下單／STOP」。低於目標天數會提醒，達標到 365 天為綠色，只有超過 365 天才標紅；建議數量會向上取到最小 0.5 棧板。按住拖曳圖示可調整順序，草稿會自動保存。</div>
               <div class="totals-container">
                 <div class="total"><i class="fa-solid fa-boxes-stacked"></i> 總包數: <span id="totalQuantity">0</span> | 總箱數: <span id="totalCartons">0</span> | 總棧板數: <span id="totalPallets">0</span></div>
                 <div class="box-counts" id="boxCounts"></div>
@@ -2141,6 +2154,7 @@
       r.usDays = Math.max(0, Number(r.usAmz || 0)) / r.speed;
       r.days = r.avail / r.speed;
     }
+    function getReorderTargetDays(value = daysThresholdEl?.value) { return Math.min(365, Math.max(1, Number(value || 180))); }
     function getLeadTimeDays() { return Math.max(1, Math.min(365, Number(leadTimeDaysEl?.value || 90))); }
     function getFbaTransferDays() { return Math.max(0, Math.min(90, Number(fbaTransferDaysEl?.value ?? 21))); }
     function consumeStockForDays(stock, days, speed) {
@@ -2220,7 +2234,7 @@
       if (state === 'stopped') return 'STOP（未納入）';
       return '未標記（依舊單假設納入）';
     }
-    function getJamSupplyDecision(item, targetDays = Math.max(1, Number(daysThresholdEl.value || 180))) {
+    function getJamSupplyDecision(item, targetDays = getReorderTargetDays()) {
       const orderState = getJamOrderState(item);
       const today = new Date(); today.setHours(0,0,0,0);
       const transferDays = getFbaTransferDays();
@@ -2242,7 +2256,7 @@
       if (date <= targetEndDate) return { bucket:'target', orderState, date };
       return { bucket:'later', orderState, date };
     }
-    function getJamSupplyDecisionLabel(item, targetDays = Math.max(1, Number(daysThresholdEl.value || 180))) {
+    function getJamSupplyDecisionLabel(item, targetDays = getReorderTargetDays()) {
       const decision = getJamSupplyDecision(item, targetDays);
       if (decision.bucket === 'received') return '已入庫，不重複計算';
       if (decision.bucket === 'planned') return '還沒下單，未納入';
@@ -2254,7 +2268,7 @@
       if (decision.bucket === 'target') return `有 ETA；${formatDateYMD(decision.date)} 可售，列入目標期供給`;
       return `有 ETA；${formatDateYMD(decision.date)} 可售，晚於目標期`;
     }
-    function getLeadTimePlan(row, targetDays = Math.max(1, Number(daysThresholdEl.value || 180))) {
+    function getLeadTimePlan(row, targetDays = getReorderTargetDays()) {
       const speed = Number(row?.speed || 0);
       const leadDays = getLeadTimeDays();
       const transferDays = getFbaTransferDays();
@@ -2372,7 +2386,7 @@
         computeDerived(row);
         return row;
       });
-      const threshold = Math.max(1, Number(daysThresholdEl.value || 180));
+      const threshold = getReorderTargetDays();
       const reorder = h10Rows.filter(r => r.speed !== null && r.speed > 0).map(r => ({ ...r, order: r.order ?? 0, us: r.us ?? 0, avail: r.avail ?? 0, usDays: r.usDays ?? 0, days: r.days ?? 0, leadPlan:getLeadTimePlan(r, threshold) })).filter(r => r.leadPlan.canRecommend && r.leadPlan.suggestedQty > 0);
 
       mainRowsAll = h10Rows;
@@ -2448,7 +2462,7 @@
 
     function renderReorder() {
       const rows = sortByConfig(applyFilters(reorderRowsAll));
-      const targetDays = Math.max(1, Number(daysThresholdEl.value || 180));
+      const targetDays = getReorderTargetDays();
       const leadDays = getLeadTimeDays();
       const transferDays = getFbaTransferDays();
       const arrival = formatDateYMD(addDays(new Date(), leadDays));
@@ -3489,7 +3503,7 @@
       return { headers, body };
     }
     function exportReorderRowsFiltered() {
-      const target = Math.max(1, Number(daysThresholdEl.value || 180));
+      const target = getReorderTargetDays();
       const transfer = getFbaTransferDays();
       const headers = ['SKU','ASIN','日銷售_AMZ單位','AMZ現在可售','JSP後備_AMZ單位','可售日前確定到貨','舊單假設早於新單_已納入合計_勿與其中欄重複加總','還沒下單_未納入','STOP_未納入','其中_狀態空白_已納入但警示','其中_逾期ETA_已納入但警示','排程晚於新單_未納入','對不到JAM明細_未納入','AMZ_Inbound_未納入避免重複','可售前需求','新單真正可售時預估剩餘','ETA未確認風險空窗天數','處理期限','理論建議量','可執行建議量_AMZ單位','完整箱規增量','真正可售後天數','目標期內已排到貨_已扣除','全部待確認供給_含已納入與未納入_僅供追蹤勿橫向加總','待確認供給追貨期限','目標期後到貨_AMZ單位','新單預計到港日',`新單真正可售日_到港加${transfer}天`,'JAM/FY訂單來源','原訂單預計到港日'];
       const body = applyFilters(mainRowsAll)
@@ -3507,7 +3521,7 @@
     document.getElementById("itemFilter").addEventListener("change", e => { itemFilterMode = e.target.value; renderAll(); });
     hideDiscontinuedFilterEl?.addEventListener("change", e => { hideDiscontinuedMode = e.target.checked; renderAll(); if (typeof renderDecisionDashboard === 'function') renderDecisionDashboard(); if (typeof renderOtherTools === 'function') renderOtherTools(); if (typeof renderSalesGantt === 'function') renderSalesGantt(); if (typeof buildSalesCharts === 'function') buildSalesCharts(); });
     onlyNoOrderFilterEl?.addEventListener("change", e => { onlyNoOrderMode = e.target.checked; renderAll(); if (typeof renderDecisionDashboard === 'function') renderDecisionDashboard(); if (typeof renderOtherTools === 'function') renderOtherTools(); if (typeof renderSalesGantt === 'function') renderSalesGantt(); if (typeof buildSalesCharts === 'function') buildSalesCharts(); });
-    daysThresholdEl.addEventListener("change", buildTables);
+    daysThresholdEl.addEventListener("change", () => { daysThresholdEl.value = String(getReorderTargetDays()); buildTables(); });
     leadTimeDaysEl?.addEventListener("change", () => { const days = getLeadTimeDays(); leadTimeDaysEl.value = String(days); try { localStorage.setItem('supply-lead-time-days', String(days)); } catch (_) {} buildTables(); });
     fbaTransferDaysEl?.addEventListener("change", () => { const days = getFbaTransferDays(); fbaTransferDaysEl.value = String(days); try { localStorage.setItem('supply-fba-transfer-days', String(days)); } catch (_) {} buildTables(); });
 
@@ -3554,6 +3568,43 @@
         applyGeneratorColumnVisibility(state);
         try { localStorage.setItem(GENERATOR_COLUMNS_KEY, JSON.stringify(state)); } catch (_) {}
       }));
+    }
+    function wireGeneratorRowSorting() {
+      const tbody = document.querySelector('#productTable tbody');
+      if (!tbody || tbody.dataset.sortWired === 'true') return;
+      tbody.dataset.sortWired = 'true';
+      let draggedRow = null;
+      let activeHandle = null;
+      tbody.addEventListener('pointerdown', event => {
+        const handle = event.target.closest('.drag-handle');
+        if (!handle || event.button !== 0) return;
+        draggedRow = handle.closest('tr');
+        if (!draggedRow) return;
+        activeHandle = handle;
+        event.preventDefault();
+        handle.setPointerCapture?.(event.pointerId);
+        draggedRow.classList.add('generator-dragging');
+      });
+      tbody.addEventListener('pointermove', event => {
+        if (!draggedRow) return;
+        event.preventDefault();
+        const targetRow = document.elementFromPoint(event.clientX, event.clientY)?.closest('tr');
+        if (!targetRow || targetRow === draggedRow || targetRow.parentElement !== tbody) return;
+        const bounds = targetRow.getBoundingClientRect();
+        const insertAfter = event.clientY > bounds.top + bounds.height / 2;
+        tbody.insertBefore(draggedRow, insertAfter ? targetRow.nextSibling : targetRow);
+      });
+      const finishDrag = event => {
+        if (!draggedRow) return;
+        if (activeHandle?.hasPointerCapture?.(event.pointerId)) activeHandle.releasePointerCapture(event.pointerId);
+        draggedRow.classList.remove('generator-dragging');
+        draggedRow = null;
+        activeHandle = null;
+        updateRowNumbers();
+        saveGeneratorDraft();
+      };
+      document.addEventListener('pointerup', finishDrag);
+      document.addEventListener('pointercancel', finishDrag);
     }
     function readGeneratorDrafts() { try { return JSON.parse(localStorage.getItem(GENERATOR_DRAFT_KEY) || '{}'); } catch (_) { return {}; } }
     function saveGeneratorDraft(country = currentCountry) {
@@ -3605,32 +3656,67 @@
     function getUnitsPerPallet(prod) { const perCarton = Number(prod?.perCarton ?? 0), perPallet = Number(prod?.perPallet ?? 0), factor = getPhysicalUnitsPerAmazonUnit(prod?.productCode); return perCarton && perPallet ? (perCarton * perPallet) / factor : 0; }
     function formatPalletDays(prod) { const speed = getSpeedForProduct(prod.productCode); if (!speed || speed <= 0) return '—'; const days = getUnitsPerPallet(prod) / speed; return Number.isFinite(days) ? `${days.toFixed(1)} 天` : '—'; }
     function formatEstimatedDays(prod, quantity, units) { const speed = getSpeedForProduct(prod.productCode); if (!speed || speed <= 0) return '—'; const total = getAvailForProduct(prod.productCode) + ((Number.isFinite(units) && units > 0) ? units : (Number(quantity) || 0)); const days = total / speed; return Number.isFinite(days) ? `${days.toFixed(1)} 天` : '—'; }
-    function formatPostArrivalDays(prod, quantity, units) {
+    function getContinuousCoverageDays(startStock, startDate, speed, events) {
+      if (!startDate || typeof startDate.getTime !== 'function' || Number.isNaN(startDate.getTime()) || !Number.isFinite(speed) || speed <= 0) return null;
+      let stock = Math.max(0, Number(startStock || 0));
+      let elapsedDays = 0;
+      let cursor = startDate;
+      const sortedEvents = [...(events || [])].filter(event => event?.date && typeof event.date.getTime === 'function' && !Number.isNaN(event.date.getTime())).sort((a, b) => a.date - b.date);
+      for (const event of sortedEvents) {
+        const daysUntilEvent = Math.max(0, Math.round((event.date - cursor) / 86400000));
+        const demand = daysUntilEvent * speed;
+        if (stock < demand) return elapsedDays + stock / speed;
+        stock -= demand;
+        stock += Math.max(0, Number(event.qty || 0));
+        elapsedDays += daysUntilEvent;
+        cursor = event.date;
+      }
+      return elapsedDays + stock / speed;
+    }
+    function getPostArrivalCoverageDays(prod, quantity, units) {
       const code = getCanonicalSku(prod.productCode);
       const speed = getSpeedForProduct(code);
-      if (!speed || speed <= 0) return '—';
+      if (!speed || speed <= 0) return null;
       const newOrderUnits = (Number.isFinite(units) && units > 0) ? units : (Number(quantity) || 0);
       const sourceRow = mainRowsAll.find(row => getCanonicalSku(row.sku) === code);
-      let plannedCoverageStock;
+      let days;
       if (sourceRow) {
-        const plan = getLeadTimePlan(sourceRow, Math.max(1, Number(daysThresholdEl.value || 180)));
-        plannedCoverageStock = Math.max(0, plan.projectedStock + plan.scheduledWithinTarget);
-      } else plannedCoverageStock = Math.max(0, getAvailForProduct(code) - speed * (getLeadTimeDays() + getFbaTransferDays()));
-      const days = (plannedCoverageStock + newOrderUnits) / speed;
+        const plan = getLeadTimePlan(sourceRow, 365);
+        const scheduledEvents = getJamBreakdownForSku(sourceRow.sku).filter(item => !item.isReceived).map(item => {
+          const decision = getJamSupplyDecision(item, 365);
+          return decision.bucket === 'target' && decision.date ? { date:decision.date, qty:Math.max(0, physicalToAmazonUnits(sourceRow.sku, item.qty)) } : null;
+        }).filter(Boolean);
+        days = getContinuousCoverageDays(Math.max(0, plan.projectedStock) + newOrderUnits, plan.newSellableDate, speed, scheduledEvents);
+      } else {
+        const plannedCoverageStock = Math.max(0, getAvailForProduct(code) - speed * (getLeadTimeDays() + getFbaTransferDays()));
+        days = (plannedCoverageStock + newOrderUnits) / speed;
+      }
+      return Number.isFinite(days) ? Math.round(days * 10) / 10 : null;
+    }
+    function getGeneratorCoverageBand(days, targetDays = 180) {
+      if (!Number.isFinite(days)) return 'neutral';
+      const displayedDays = Math.round(days * 10) / 10;
+      const target = Math.min(365, Math.max(1, Number(targetDays) || 180));
+      if (displayedDays > 365) return 'excess';
+      if (displayedDays < target) return 'low';
+      return 'healthy';
+    }
+    function formatPostArrivalDays(prod, quantity, units) {
+      const days = getPostArrivalCoverageDays(prod, quantity, units);
       return Number.isFinite(days) ? `${days.toFixed(1)} 天` : '—';
     }
     function renderGeneratorArrivalCoverage(prod, quantity, units) {
+      const days = getPostArrivalCoverageDays(prod, quantity, units);
       const coverage = formatPostArrivalDays(prod, quantity, units);
       const code = getCanonicalSku(prod.productCode);
       const sourceRow = mainRowsAll.find(row => getCanonicalSku(row.sku) === code);
-      if (!sourceRow) return escapeHtml(coverage);
-      const plan = getLeadTimePlan(sourceRow, Math.max(1, Number(daysThresholdEl.value || 180)));
-      if (plan.canRecommend === false) return escapeHtml(coverage);
-      const currentUnits = (Number.isFinite(units) && units > 0) ? units : (Number(quantity) || 0);
-      const suggested = Math.max(0, Number(plan.suggestedQty || 0));
-      if (currentUnits > suggested + 0.01) return `${escapeHtml(coverage)}<br><span class="leadTimeRisk">目前輸入 ${fmtQty(currentUnits)}，高於最新建議 ${fmtQty(suggested)}</span>`;
-      if (Math.abs(currentUnits - suggested) <= 0.01) return `${escapeHtml(coverage)}<br><span class="miniMetric">符合最新建議 ${fmtQty(suggested)}</span>`;
-      return `${escapeHtml(coverage)}<br><span class="miniMetric">最新建議 ${fmtQty(suggested)} AMZ單位</span>`;
+      if (!sourceRow || !Number.isFinite(days)) return escapeHtml(coverage);
+      const plan = getLeadTimePlan(sourceRow, 365);
+      if (plan.canRecommend === false) return `${escapeHtml(coverage)}<br><span class="generatorCoverageStatus neutral">資料未完整，不判色</span>`;
+      const target = getReorderTargetDays();
+      const band = getGeneratorCoverageBand(days, target);
+      const label = band === 'excess' ? '超過 365 天' : (band === 'low' ? `低於目標 ${target} 天` : `健康範圍 ${target}–365 天`);
+      return `${escapeHtml(coverage)}<br><span class="generatorCoverageStatus ${band}">${escapeHtml(label)}</span>`;
     }
     window.refreshGeneratorSpeedMetrics = function() { document.querySelectorAll('#productTable tbody tr').forEach(row => { const prod = getProductSpecByCode(row.dataset.product); if (!prod) return; row.querySelector('.pallet-days').textContent = formatPalletDays(prod); updateEstimatedDays(row, prod); }); };
     function searchProduct() { const raw = document.getElementById('searchInput').value.trim(); const val = normalizeSkuKey(raw); const nameVal = raw.toLocaleLowerCase('zh-Hant'); const res = document.getElementById('searchResults'); res.innerHTML = ''; if (!val) { res.style.display = 'none'; return; } const matched = getFilteredProducts().filter(p => normalizeSkuKey(p.productCode).includes(val) || String(p.productName || '').toLocaleLowerCase('zh-Hant').includes(nameVal)).slice(0, 40); if (matched.length) { res.style.display = 'block'; matched.forEach(prod => { const item = document.createElement('div'); item.className = 'search-result-item'; item.textContent = `${prod.productCode} - ${prod.productName}`; item.onclick = () => { addProduct(prod); document.getElementById('searchInput').value = ''; res.innerHTML = ''; res.style.display = 'none'; }; res.appendChild(item); }); } else res.style.display = 'none'; }
@@ -3646,13 +3732,16 @@
       const existingRow = Array.from(tbody.querySelectorAll('tr')).find(r => r.dataset.product === code);
       if (existingRow) { if (quantity !== null && Number.isFinite(quantity)) { const qtyInput = existingRow.querySelector('.edit-quantity-input'); qtyInput.value = Number(quantity).toFixed(0); updateFields(qtyInput, code); } showTip('已更新或已在列表', 'success'); saveGeneratorDraft(); return existingRow; }
       const { hasPack, hasBox } = checkPackageType(prod);
-      const packOrBoxInput = hasPack ? `<input type="number" class="edit-pack-input" placeholder="袋數" oninput="updateFields(this,'${code}')">` : (hasBox ? `<input type="number" class="edit-box-input" placeholder="盒數" oninput="updateFields(this,'${code}')">` : '-');
+      const unitLabel = hasPack ? '袋' : (hasBox ? '盒' : '');
+      const unitInput = hasPack ? `<input type="number" class="edit-pack-input" placeholder="袋數" oninput="updateFields(this,'${code}')">` : (hasBox ? `<input type="number" class="edit-box-input" placeholder="盒數" oninput="updateFields(this,'${code}')">` : '');
+      const quantityInputs = `<div class="generatorQuantityGroup${unitInput ? '' : ' single'}"><label class="generatorQuantityField"><span>包</span><input type="number" class="edit-quantity-input" placeholder="包數" oninput="updateFields(this,'${code}')"></label>${unitInput ? `<label class="generatorQuantityField"><span>${unitLabel}</span>${unitInput}</label>` : ''}</div>`;
       const targetPlaceholder = hasPack ? '目標袋數' : (hasBox ? '目標盒數' : '目標包數');
-      const rowHTML = `<tr data-product="${escapeHtml(code)}" data-order-code="${escapeHtml(code)}"><td></td><td><span class="order-code-label">${escapeHtml(code)}</span>${renderEquivalentOrderToggle(code)}</td><td><input type="number" class="edit-quantity-input" placeholder="包數" oninput="updateFields(this,'${code}')"></td><td>${packOrBoxInput}</td><td data-generator-col="target"><input type="number" class="target-input" placeholder="${targetPlaceholder}" oninput="checkTarget(this)"></td><td data-generator-col="cartons"><input type="number" class="edit-cartons-input" placeholder="箱數" oninput="updateFields(this,'${code}')"></td><td><input type="number" class="edit-pallets-input" placeholder="棧板數" oninput="updateFields(this,'${code}')"></td><td data-generator-col="box">${escapeHtml(prod.boxSize || '')} cm</td><td class="pallet-days">${formatPalletDays(prod)}</td><td class="estimated-days" data-generator-col="estimated">${formatEstimatedDays(prod, 0, 0)}</td><td class="arrival-days" data-generator-col="arrival">${renderGeneratorArrivalCoverage(prod, 0, 0)}</td><td><button type="button" class="lock-button" onclick="toggleLock(this)"><i class="fa-solid fa-lock"></i></button><button type="button" class="remove-button" onclick="removeRow(this)"><i class="fa-solid fa-trash"></i></button></td></tr>`;
+      const rowHTML = `<tr data-product="${escapeHtml(code)}" data-order-code="${escapeHtml(code)}"><td></td><td><span class="order-code-label">${escapeHtml(code)}</span>${renderEquivalentOrderToggle(code)}</td><td>${quantityInputs}</td><td data-generator-col="target"><input type="number" class="target-input" placeholder="${targetPlaceholder}" oninput="checkTarget(this)"></td><td data-generator-col="cartons"><input type="number" class="edit-cartons-input" placeholder="箱數" oninput="updateFields(this,'${code}')"></td><td><input type="number" class="edit-pallets-input" step="0.5" min="0" placeholder="棧板數" oninput="updateFields(this,'${code}')"></td><td class="box-size-cell" data-generator-col="box">${escapeHtml(prod.boxSize || '')} cm</td><td class="pallet-days">${formatPalletDays(prod)}</td><td class="estimated-days" data-generator-col="estimated">${formatEstimatedDays(prod, 0, 0)}</td><td class="arrival-days" data-generator-col="arrival">${renderGeneratorArrivalCoverage(prod, 0, 0)}</td><td class="generatorActions"><button type="button" class="drag-handle" aria-label="按住拖曳排序" title="按住拖曳排序"><i class="fa-solid fa-grip-vertical"></i></button><button type="button" class="lock-button" onclick="toggleLock(this)" aria-label="鎖定這列"><i class="fa-solid fa-lock"></i></button><button type="button" class="remove-button" onclick="removeRow(this)" aria-label="刪除這列"><i class="fa-solid fa-trash"></i></button></td></tr>`;
       tbody.insertAdjacentHTML('beforeend', rowHTML);
       const row = tbody.lastElementChild;
       updateRowNumbers();
       if (quantity !== null && Number.isFinite(quantity)) { const qtyInput = row.querySelector('.edit-quantity-input'); qtyInput.value = Number(quantity).toFixed(0); updateFields(qtyInput, code); }
+      else if (!isRestoringDraft) { const palletInput = row.querySelector('.edit-pallets-input'); palletInput.value = '0.5'; updateFields(palletInput, code); }
       showTip('已加入產品', 'success');
       saveGeneratorDraft();
       return row;
@@ -3690,16 +3779,17 @@
     function removeRow(btn) { btn.closest('tr').remove(); updateRowNumbers(); updateTotals(); saveGeneratorDraft(); }
     window.toggleLock = toggleLock; window.removeRow = removeRow;
     function updateRowNumbers() { document.querySelectorAll('#productTable tbody tr').forEach((r, i) => { r.cells[0].textContent = i + 1; }); }
-    function updateTotals() { let totalQuantity = 0, totalCartons = 0; const palletCounts = {}; document.querySelectorAll('#productTable .edit-quantity-input').forEach(i => totalQuantity += parseFloat(i.value) || 0); document.querySelectorAll('#productTable .edit-cartons-input').forEach(i => totalCartons += parseFloat(i.value) || 0); document.querySelectorAll('#productTable tbody tr').forEach(row => { const pVal = parseFloat(row.querySelector('.edit-pallets-input')?.value) || 0; const boxSize = row.cells[7].textContent.replace(" cm", "").trim(); if (boxSize) palletCounts[boxSize] = (palletCounts[boxSize] || 0) + pVal; }); const totalPallets = Object.values(palletCounts).reduce((a, b) => a + b, 0); document.getElementById('totalQuantity').textContent = totalQuantity.toFixed(0); document.getElementById('totalCartons').textContent = totalCartons.toFixed(2); document.getElementById('totalPallets').textContent = totalPallets.toFixed(2); document.getElementById('boxCounts').innerHTML = Object.entries(palletCounts).map(([size, cnt]) => `<span style="font-weight:bold;">${escapeHtml(size)}cm</span>: <span>${cnt.toFixed(2)}</span>`).join(' '); updateContainerInfo(totalPallets); updateWorkflowUi(); }
+    function updateTotals() { let totalQuantity = 0, totalCartons = 0; const palletCounts = {}; document.querySelectorAll('#productTable .edit-quantity-input').forEach(i => totalQuantity += parseFloat(i.value) || 0); document.querySelectorAll('#productTable .edit-cartons-input').forEach(i => totalCartons += parseFloat(i.value) || 0); document.querySelectorAll('#productTable tbody tr').forEach(row => { const pVal = parseFloat(row.querySelector('.edit-pallets-input')?.value) || 0; const boxSize = row.querySelector('.box-size-cell')?.textContent.replace(" cm", "").trim() || ''; if (boxSize) palletCounts[boxSize] = (palletCounts[boxSize] || 0) + pVal; }); const totalPallets = Object.values(palletCounts).reduce((a, b) => a + b, 0); document.getElementById('totalQuantity').textContent = totalQuantity.toFixed(0); document.getElementById('totalCartons').textContent = totalCartons.toFixed(2); document.getElementById('totalPallets').textContent = totalPallets.toFixed(2); document.getElementById('boxCounts').innerHTML = Object.entries(palletCounts).map(([size, cnt]) => `<span style="font-weight:bold;">${escapeHtml(size)}cm</span>: <span>${cnt.toFixed(2)}</span>`).join(' '); updateContainerInfo(totalPallets); updateWorkflowUi(); }
     function updateContainerInfo(totalPallets) { const infoDiv = document.getElementById('containerInfo'); infoDiv.innerHTML = ''; let remaining = totalPallets, containerCount = 1; while (remaining > 0) { const type = remaining <= 10 ? '20 尺貨櫃' : '40 尺貨櫃'; const cap = remaining <= 10 ? 10 : 20; const use = Math.min(remaining, cap); const fillRate = (use / cap) * 100; const cDiv = document.createElement('div'); cDiv.innerHTML = `<strong>貨櫃 ${containerCount}：${type}（${fillRate.toFixed(0)}%）</strong><div class="progress-container"><div class="progress-bar" style="width:${fillRate}%">${use.toFixed(2)} / ${cap} 棧板</div></div>`; infoDiv.appendChild(cDiv); remaining -= use; containerCount++; } }
     function calculateReorderQuantity(row, thresholdDays) { return getLeadTimePlan(row, thresholdDays).suggestedQty; }
-    function calculateReorderPallets(row, prod, thresholdDays) { const qty = calculateReorderQuantity(row, thresholdDays), unitsPerPallet = getUnitsPerPallet(prod); return qty && unitsPerPallet ? Math.ceil((qty / unitsPerPallet) * 100) / 100 : null; }
-    function applyPlannedQuantityToGenerator(prod, quantity, pallets = null) { const row = addProduct(prod, null); if (!row || !Number.isFinite(quantity) || quantity <= 0) return; const unitInput = row.querySelector('.edit-pack-input') || row.querySelector('.edit-box-input'); const input = unitInput || row.querySelector('.edit-quantity-input'); input.value = Number(quantity).toFixed(Number.isInteger(quantity) ? 0 : 2); updateFields(input, prod.productCode); }
-    function addReorderRowsToGenerator() { const threshold = Math.max(1, Number(daysThresholdEl.value || 180)); const rows = applyFilters(mainRowsAll).filter(row => row.speed !== null && row.speed > 0 && getLeadTimePlan(row, threshold).suggestedQty > 0); let missing = [], skipped = []; rows.forEach(row => { if (isDiscontinuedSku(row.sku)) { skipped.push(row.sku); return; } const prod = getProductSpecByCode(row.sku); if (!prod) { missing.push(row.sku); return; } applyPlannedQuantityToGenerator(prod, calculateReorderQuantity(row, threshold), calculateReorderPallets(row, prod, threshold)); }); if (missing.length) showTip(`找不到品項資料：${missing.join(', ')}`, 'error'); if (skipped.length) showTip(`停產品未加入：${skipped.join(', ')}`, 'error'); }
+    function roundUpToHalfPallet(value) { const pallets = Number(value); return Number.isFinite(pallets) && pallets > 0 ? Math.ceil(pallets * 2 - 1e-9) / 2 : 0; }
+    function calculateReorderPallets(row, prod, thresholdDays) { const qty = calculateReorderQuantity(row, thresholdDays), unitsPerPallet = getUnitsPerPallet(prod); return qty && unitsPerPallet ? roundUpToHalfPallet(qty / unitsPerPallet) : null; }
+    function applyPlannedQuantityToGenerator(prod, quantity, pallets = null) { const plannedPallets = roundUpToHalfPallet(pallets); const hasQuantity = Number.isFinite(quantity) && quantity > 0; if (plannedPallets <= 0 && !hasQuantity) return null; const row = addProduct(prod, null); if (!row) return null; if (plannedPallets > 0) { const palletInput = row.querySelector('.edit-pallets-input'); palletInput.value = plannedPallets.toFixed(1); updateFields(palletInput, prod.productCode); return row; } const unitInput = row.querySelector('.edit-pack-input') || row.querySelector('.edit-box-input'); const input = unitInput || row.querySelector('.edit-quantity-input'); input.value = Number(quantity).toFixed(Number.isInteger(quantity) ? 0 : 2); updateFields(input, prod.productCode); return row; }
+    function addReorderRowsToGenerator() { const threshold = getReorderTargetDays(); const rows = applyFilters(mainRowsAll).filter(row => row.speed !== null && row.speed > 0 && getLeadTimePlan(row, threshold).suggestedQty > 0); let missing = [], skipped = []; rows.forEach(row => { if (isDiscontinuedSku(row.sku)) { skipped.push(row.sku); return; } const prod = getProductSpecByCode(row.sku); if (!prod) { missing.push(row.sku); return; } applyPlannedQuantityToGenerator(prod, calculateReorderQuantity(row, threshold), calculateReorderPallets(row, prod, threshold)); }); if (missing.length) showTip(`找不到品項資料：${missing.join(', ')}`, 'error'); if (skipped.length) showTip(`停產品未加入：${skipped.join(', ')}`, 'error'); }
     function addHotRowsToGenerator() { let missing = [], skipped = []; applyFilters(hotRowsAll).forEach(row => { if (isDiscontinuedSku(row.sku)) { skipped.push(row.sku); return; } const prod = getProductSpecByCode(row.sku); if (!prod) { missing.push(row.sku); return; } addProduct(prod, row.order !== null && Number.isFinite(row.order) ? row.order : null); }); if (missing.length) showTip(`找不到品項資料：${missing.join(', ')}`, 'error'); if (skipped.length) showTip(`停產品未加入：${skipped.join(', ')}`, 'error'); }
     function calculatePriorityQuantity(row, thresholdDays) { return getLeadTimePlan(row, thresholdDays).suggestedQty; }
-    function calculatePriorityPallets(row, prod, thresholdDays) { const qty = calculatePriorityQuantity(row, thresholdDays), unitsPerPallet = getUnitsPerPallet(prod); return qty && unitsPerPallet ? Math.ceil((qty / unitsPerPallet) * 100) / 100 : null; }
-    function addPriorityRowsToGenerator() { if (!latestDecisionExport.priority.length) renderDecisionDashboard(); const threshold = Math.max(1, Number(daysThresholdEl.value || 180)); let missing = [], skipped = [], added = 0; latestDecisionExport.priority.forEach(row => { if (isDiscontinuedSku(row.sku)) { skipped.push(row.sku); return; } const prod = getProductSpecByCode(row.sku); if (!prod) { missing.push(row.sku); return; } applyPlannedQuantityToGenerator(prod, calculatePriorityQuantity(row, threshold), calculatePriorityPallets(row, prod, threshold)); added++; }); if (added) showTip(`已加入今日優先處理 ${added} 個品項`, 'success'); if (missing.length) showTip(`找不到品項資料：${missing.join(', ')}`, 'error'); if (skipped.length) showTip(`停產品未加入：${skipped.join(', ')}`, 'error'); }
+    function calculatePriorityPallets(row, prod, thresholdDays) { const qty = calculatePriorityQuantity(row, thresholdDays), unitsPerPallet = getUnitsPerPallet(prod); return qty && unitsPerPallet ? roundUpToHalfPallet(qty / unitsPerPallet) : null; }
+    function addPriorityRowsToGenerator() { if (!latestDecisionExport.priority.length) renderDecisionDashboard(); const threshold = getReorderTargetDays(); let missing = [], skipped = [], added = 0; latestDecisionExport.priority.forEach(row => { if (isDiscontinuedSku(row.sku)) { skipped.push(row.sku); return; } const prod = getProductSpecByCode(row.sku); if (!prod) { missing.push(row.sku); return; } if (applyPlannedQuantityToGenerator(prod, calculatePriorityQuantity(row, threshold), calculatePriorityPallets(row, prod, threshold))) added++; }); if (added) showTip(`已加入今日優先處理 ${added} 個品項`, 'success'); if (missing.length) showTip(`找不到品項資料：${missing.join(', ')}`, 'error'); if (skipped.length) showTip(`停產品未加入：${skipped.join(', ')}`, 'error'); }
     document.getElementById('btnAddReorderToGenerator').addEventListener('click', addReorderRowsToGenerator);
     document.getElementById('btnAddHotToGenerator').addEventListener('click', addHotRowsToGenerator);
     document.getElementById('btnAddPriorityToGenerator').addEventListener('click', addPriorityRowsToGenerator);
@@ -4626,6 +4716,7 @@
       wireOtherTools();
       wireSalesBlocks();
       wireGeneratorColumnVisibility();
+      wireGeneratorRowSorting();
       if (!IS_BOSS_PORTAL) wireWorkflowNavigation();
       buildTables();
       if (!IS_BOSS_PORTAL) restoreGeneratorDraft(currentCountry);
