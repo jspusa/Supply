@@ -4,6 +4,8 @@ import path from 'node:path';
 import test from 'node:test';
 import vm from 'node:vm';
 
+import { classifyCoverageDays } from '../shared/supply-planner.js';
+
 const repoRoot = path.resolve(import.meta.dirname, '..');
 const indexHtml = fs.readFileSync(path.join(repoRoot, 'index.html'), 'utf8');
 const bossHtml = fs.readFileSync(path.join(repoRoot, 'Boss', 'index.html'), 'utf8');
@@ -41,16 +43,47 @@ for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
   test(`${entrypoint}: generator quantity rows and pallet controls use semantic compact markup`, () => {
     const addProductSource = extractFunctionSource(html, 'addProduct');
     const totalsSource = extractFunctionSource(html, 'updateTotals');
+    const saveDraftSource = extractFunctionSource(html, 'saveGeneratorDraft');
+    const restoreDraftSource = extractFunctionSource(html, 'restoreGeneratorDraft');
+    const lockSource = extractFunctionSource(html, 'toggleLock');
+    const exportSource = extractFunctionSource(html, 'exportGeneratorToExcel');
     assert.match(addProductSource, /generatorQuantityGroup/);
-    assert.match(addProductSource, /class="edit-pallets-input"[^>]*step="0\.5"/);
+    assert.match(addProductSource, /class="palletStepControl"/);
+    assert.match(addProductSource, /class="edit-pallets-input"[^>]*step="any"/);
+    assert.match(addProductSource, /stepGeneratorPallets\(this,-1\)/);
+    assert.match(addProductSource, /stepGeneratorPallets\(this,1\)/);
+    assert.match(addProductSource, /handleGeneratorPalletKey\(event\)/);
+    assert.match(addProductSource, /normalizeGeneratorPallets\(this,/);
     assert.match(addProductSource, /class="box-size-cell"/);
     assert.match(addProductSource, /class="drag-handle"[^>]*aria-label="按住拖曳排序"/);
     assert.match(totalsSource, /querySelector\('\.box-size-cell'\)/);
     assert.doesNotMatch(totalsSource, /row\.cells\[7\]/);
-    assert.match(html, /\.generatorQuantityGroup \{[^}]*grid-template-columns:repeat\(2,/);
+    assert.match(html, /\.generatorQuantityGroup \{[^}]*grid-template-columns:minmax\(0,1fr\)/);
     assert.match(html, /\.generatorCoverageStatus\.healthy \{ color:#15803d; \}/);
     assert.match(html, /\.generatorCoverageStatus\.excess \{ color:#b91c1c; \}/);
     assert.match(html, /wireGeneratorRowSorting\(\);/);
+    assert.doesNotMatch(html, /function roundUpToHalfPallet\(/);
+    assert.doesNotMatch(html, /最小 0\.5 棧板/);
+    assert.match(saveDraftSource, /guidance:/);
+    assert.match(saveDraftSource, /warningCode:/);
+    assert.match(saveDraftSource, /orderDraftQuantity:/);
+    assert.match(saveDraftSource, /authoritativeField:/);
+    assert.match(restoreDraftSource, /item\.guidance/);
+    assert.match(restoreDraftSource, /item\.warningCode/);
+    assert.match(restoreDraftSource, /item\.authoritativeField/);
+    assert.match(restoreDraftSource, /authoritativeInput/);
+    assert.match(restoreDraftSource, /formatPalletValue/);
+    assert.match(restoreDraftSource, /checkTarget\(targetInput\)/);
+    assert.match(lockSource, /setGeneratorPalletState/);
+    assert.match(exportSource, /getRowExactMetrics/);
+    assert.doesNotMatch(extractFunctionSource(html, 'updateFields'), /perPallet\s*\|\|\s*1/);
+    assert.match(extractFunctionSource(html, 'updateFields'), /changedField === 'pallets' && catalogIssue/);
+  });
+
+  test(`${entrypoint}: generator draft is restored during initial startup`, () => {
+    const startup = html.slice(html.lastIndexOf("window.addEventListener('DOMContentLoaded'"));
+    assert.match(startup, /buildTables\(\);\s*restoreGeneratorDraft\(currentCountry\);/);
+    assert.doesNotMatch(startup, /if \(!IS_BOSS_PORTAL\) restoreGeneratorDraft/);
   });
 
   test(`${entrypoint}: inline JavaScript parses`, () => {
@@ -123,6 +156,8 @@ test('public and Boss adapters send the same normalized row to the shared planne
       physicalToAmazonUnits: (_sku, qty) => qty / 2,
       getPlanningAsOfDate: () => '2026-08-27',
       getPlanningPolicy: (targetDays, sku) => ({ targetDays, sku }),
+      getProductSpecByCode: sku => ({ productCode: sku }),
+      getUnitsPerPallet: () => 840,
       ordersEl: { value: 'ready' },
       metaIsReady: () => false,
       getReorderTargetDays: () => 180,
@@ -140,6 +175,7 @@ test('public and Boss adapters send the same normalized row to the shared planne
   assert.equal(publicInput.asOfDate, '2026-08-27');
   assert.equal(publicInput.openOrders[0].quantity, 140);
   assert.equal(publicInput.openOrders[0].portArrivalDate, '2026-10-16');
+  assert.deepEqual(publicInput.packaging, { unitsPerPallet: 840 });
   assert.equal(publicInput.orderDraftQuantity, 500);
 });
 
@@ -169,6 +205,7 @@ test('planning-day compatibility adapters clamp, round, and sync persisted decim
       leadTimeDays: 91,
       transferTimeDays: 22,
       targetDays: 181,
+      maximumCoverageDays: 365,
       executableOrderIncrement: 28,
     });
     context.normalizePlanningDayInputs();
@@ -234,46 +271,148 @@ test('Book coverage comes from the shared planner and excludes the current Order
 });
 
 test('coverage colors use the displayed 180 and 365 day boundaries', () => {
-  const context = {};
+  const context = { window: { SupplyPlanningLegacy: { classifyCoverageDays } } };
   vm.createContext(context);
   vm.runInContext(`${extractFunctionSource(indexHtml, 'getGeneratorCoverageBand')}\nthis.getGeneratorCoverageBand = getGeneratorCoverageBand;`, context);
   assert.equal(context.getGeneratorCoverageBand(null, 180), 'neutral');
-  assert.equal(context.getGeneratorCoverageBand(179.94, 180), 'low');
-  assert.equal(context.getGeneratorCoverageBand(179.96, 180), 'healthy');
-  assert.equal(context.getGeneratorCoverageBand(365.04, 180), 'healthy');
-  assert.equal(context.getGeneratorCoverageBand(365.06, 180), 'excess');
+  assert.equal(context.getGeneratorCoverageBand(179.999999998, 180), 'low');
+  assert.equal(context.getGeneratorCoverageBand(179.9999999995, 180), 'healthy');
+  assert.equal(context.getGeneratorCoverageBand(365, 180), 'healthy');
+  assert.equal(context.getGeneratorCoverageBand(365.0000000005, 180), 'healthy');
+  assert.equal(context.getGeneratorCoverageBand(365.000000002, 180), 'excess');
+  assert.equal(context.getGeneratorCoverageBand(179.96, 180), 'low');
+  assert.equal(context.getGeneratorCoverageBand(365.04, 180), 'excess');
+  assert.match(extractFunctionSource(indexHtml, 'getGeneratorCoverageBand'), /SupplyPlanningLegacy\.classifyCoverageDays/);
 });
 
-test('recommended pallet counts still round up to the smallest half pallet before #57 migration', () => {
-  const context = {};
-  vm.createContext(context);
-  vm.runInContext(`${extractFunctionSource(indexHtml, 'roundUpToHalfPallet')}\nthis.roundUpToHalfPallet = roundUpToHalfPallet;`, context);
-  assert.equal(context.roundUpToHalfPallet(0), 0);
-  assert.equal(context.roundUpToHalfPallet(3.01), 3.5);
-  assert.equal(context.roundUpToHalfPallet(3.5), 3.5);
-  assert.equal(context.roundUpToHalfPallet(3.5001), 4);
-});
-
-test('planned quantity application skips zero suggestions and drives valid plans from pallets', () => {
+test('planned quantity application follows the shared whole or fractional strategy', () => {
   let addCalls = 0;
   let updatedInput = null;
   const palletInput = { value: '' };
   const quantityInput = { value: '' };
-  const row = { querySelector(selector) { if (selector === '.edit-pallets-input') return palletInput; if (selector === '.edit-quantity-input') return quantityInput; return null; } };
+  const warning = { textContent: '', hidden: true };
+  const row = { dataset:{}, classList: { contains: () => false }, querySelector(selector) { if (selector === '.edit-pallets-input') return palletInput; if (selector === '.edit-quantity-input') return quantityInput; if (selector === '.pallet-guidance') return warning; return null; } };
+  let palletState = null;
   const context = {
     addProduct() { addCalls += 1; return row; },
     updateFields(input) { updatedInput = input; },
+    getPalletRecommendationWarning: code => code || '',
+    formatPalletValue: value => String(value),
+    formatDraftNumber: value => String(value),
+    setGeneratorPalletState(_row, state) { palletState = state; },
+    saveGeneratorDraft() {},
   };
   vm.createContext(context);
-  for (const name of ['roundUpToHalfPallet', 'applyPlannedQuantityToGenerator']) {
-    vm.runInContext(`${extractFunctionSource(indexHtml, name)}\nthis.${name} = ${name};`, context);
-  }
-  assert.equal(context.applyPlannedQuantityToGenerator({ productCode: 'ZERO' }, 0, null), null);
+  vm.runInContext(`${extractFunctionSource(indexHtml, 'applyPlannedQuantityToGenerator')}\nthis.applyPlannedQuantityToGenerator = applyPlannedQuantityToGenerator;`, context);
+  assert.equal(context.applyPlannedQuantityToGenerator({ productCode: 'ZERO' }, { quantity: 0, pallets: 0, applyBy: 'none' }), null);
   assert.equal(addCalls, 0);
-  context.applyPlannedQuantityToGenerator({ productCode: 'PLAN' }, 1000, 3.01);
+  context.applyPlannedQuantityToGenerator({ productCode: 'PLAN' }, { quantity: 2000, pallets: 2, applyBy: 'pallets' });
   assert.equal(addCalls, 1);
-  assert.equal(palletInput.value, '3.5');
+  assert.equal(palletInput.value, '2');
   assert.equal(updatedInput, palletInput);
+  context.applyPlannedQuantityToGenerator({ productCode: 'PLAN' }, { quantity: 180, pallets: 0.45, applyBy: 'quantity' });
+  assert.equal(quantityInput.value, '180');
+  assert.equal(updatedInput, quantityInput);
+  context.applyPlannedQuantityToGenerator({ productCode: 'PLAN' }, { quantity: 180, pallets: null, applyBy: 'quantity', warning:{ code:'INVALID_PALLET_CATALOG' }, strategy:'unit-guidance' });
+  assert.equal(palletState.warningCode, 'INVALID_PALLET_CATALOG');
+  assert.equal(palletState.strategy, 'unit-guidance');
+});
+
+test('pallet arrow adapter calls the shared one-pallet step without snapping fractions', () => {
+  for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
+    let updatedInput = null;
+    let saved = 0;
+    const input = { value: '2.35' };
+    const quantityInput = { value: '940' };
+    const guidance = { textContent: '', hidden: true };
+    const row = { dataset: { product: 'PLAN', orderDraftQuantity:'940' }, querySelector(selector) { if (selector === '.edit-pallets-input') return input; if (selector === '.edit-quantity-input') return quantityInput; if (selector === '.pallet-guidance') return guidance; return null; } };
+    const button = { closest: selector => selector === 'tr' ? row : null };
+    let catalogIssue = null;
+    const context = {
+      window: { SupplyOrderDraft: { stepPalletDraft: ({ currentOrderDraftQuantity, delta, unitsPerPallet }) => ({ pallets:3.35, orderDraftQuantity:currentOrderDraftQuantity + delta * unitsPerPallet }) } },
+      getProductSpecByCode: () => ({ productCode: 'PLAN' }),
+      getProductPalletCatalogIssue: () => catalogIssue,
+      getUnitsPerPallet: () => 400,
+      updateFields(value) { updatedInput = value; },
+      formatPalletValue: value => String(value),
+      formatDraftNumber: value => String(value),
+      getPalletRecommendationWarning: () => 'repair pallet catalog',
+      setGeneratorPalletState(_row, state) { guidance.textContent = state.warningCode === 'INVALID_PALLET_CATALOG' ? 'repair pallet catalog' : ''; guidance.hidden = !guidance.textContent; },
+      saveGeneratorDraft() { saved += 1; },
+    };
+    vm.createContext(context);
+    vm.runInContext(`${extractFunctionSource(html, 'stepGeneratorPallets')}\nthis.stepGeneratorPallets = stepGeneratorPallets;`, context);
+    context.stepGeneratorPallets(button, 1);
+    assert.equal(quantityInput.value, '1340', entrypoint);
+    assert.equal(updatedInput, quantityInput, entrypoint);
+
+    catalogIssue = { code:'INVALID_PALLET_CATALOG' };
+    updatedInput = null;
+    input.value = '2.35';
+    context.stepGeneratorPallets(button, 1);
+    assert.equal(input.value, '2.35', `${entrypoint} invalid catalog preserves pallets`);
+    assert.equal(updatedInput, null, `${entrypoint} invalid catalog does not fabricate quantities`);
+    assert.equal(guidance.hidden, false, entrypoint);
+    assert.equal(guidance.textContent, 'repair pallet catalog', entrypoint);
+    assert.equal(saved, 1, entrypoint);
+  }
+});
+
+test('manual fractional pallets keep every synchronized value at consistent precision', () => {
+  for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
+    const context = {};
+    vm.createContext(context);
+    vm.runInContext(`${extractFunctionSource(html, 'recalcValues')}\nthis.recalcValues = recalcValues;`, context);
+    vm.runInContext(`${extractFunctionSource(html, 'formatDraftNumber')}\nthis.formatDraftNumber = formatDraftNumber;`, context);
+    const values = context.recalcValues('pallets', {
+      quantity:0, units:0, cartons:0, pallets:2.35,
+      perPack:3, perBox:0, perCarton:8, perPallet:42,
+    });
+    assert.deepEqual(structuredClone(values), { quantity:789.6, units:263.2, cartons:98.7, pallets:2.35 }, entrypoint);
+    assert.deepEqual(Object.values(values).map(context.formatDraftNumber), ['789.6', '263.2', '98.7', '2.35'], entrypoint);
+  }
+});
+
+test('fractional totals sum canonical pallet precision before formatting once', () => {
+  for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
+    const outputs = Object.fromEntries(['totalQuantity','totalCartons','totalPallets','boxCounts'].map(id => [id, { textContent:'', innerHTML:'' }]));
+    const rows = [1, 2].map(() => ({ querySelector(selector) { return selector === '.box-size-cell' ? { textContent:'60 cm' } : null; } }));
+    let containerPallets = null;
+    const context = {
+      document: {
+        querySelectorAll: selector => selector === '#productTable tbody tr' ? rows : [],
+        getElementById: id => outputs[id],
+      },
+      getRowExactMetrics: () => ({ quantity:80, cartons:4, pallets:80 / 300 }),
+      formatDraftNumber: value => { const rounded = Math.round((Number(value) || 0) * 100) / 100; return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2).replace(/0+$/, '').replace(/\.$/, ''); },
+      formatPalletValue: value => { const rounded = Math.round((Number(value) || 0) * 100) / 100; return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2).replace(/0+$/, '').replace(/\.$/, ''); },
+      escapeHtml: value => value,
+      updateContainerInfo(value) { containerPallets = value; },
+      updateWorkflowUi() {},
+    };
+    vm.createContext(context);
+    vm.runInContext(`${extractFunctionSource(html, 'updateTotals')}\nthis.updateTotals = updateTotals;`, context);
+    context.updateTotals();
+    assert.equal(outputs.totalPallets.textContent, '0.53', entrypoint);
+    assert.match(outputs.boxCounts.innerHTML, />0\.53</, entrypoint);
+    assert.ok(Math.abs(containerPallets - 160 / 300) < 1e-12, entrypoint);
+  }
+});
+
+test('main and generator coverage surfaces mark only real values above 365 as excess', () => {
+  for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
+    const context = {
+      getReorderTargetDays: () => 180,
+      getGeneratorCoverageBand: value => classifyCoverageDays({ coverageDays:value, targetDays:180, maximumCoverageDays:365 }),
+      fmtDays: value => `${value} 天`,
+    };
+    vm.createContext(context);
+    vm.runInContext(`${extractFunctionSource(html, 'renderCoverageDaysCell')}\nthis.renderCoverageDaysCell = renderCoverageDaysCell;`, context);
+    assert.match(context.renderCoverageDaysCell(365), /class="ok"/, entrypoint);
+    assert.doesNotMatch(context.renderCoverageDaysCell(365), /超過 365 天/, entrypoint);
+    assert.match(context.renderCoverageDaysCell(365.04), /class="bad"/, entrypoint);
+    assert.match(context.renderCoverageDaysCell(365.04), /超過 365 天/, entrypoint);
+  }
 });
 
 test('drag sorting renumbers rows and persists the new order', () => {

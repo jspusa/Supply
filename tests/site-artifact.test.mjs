@@ -57,6 +57,7 @@ test('site build emits the exact deterministic deployment artifact', t => {
     'product-data.js',
     'release.json',
     'shared/legacy-planning-adapter.js',
+    'shared/order-draft-quantity.js',
     'shared/planning-velocity-history.js',
     'shared/planning-velocity.js',
     'shared/supply-planner.js',
@@ -72,6 +73,7 @@ test('site build emits the exact deterministic deployment artifact', t => {
     'index.html',
     'product-data.js',
     'shared/legacy-planning-adapter.js',
+    'shared/order-draft-quantity.js',
     'shared/planning-velocity-history.js',
     'shared/planning-velocity.js',
     'shared/supply-planner.js',
@@ -99,7 +101,7 @@ test('artifact verifier accepts a complete unmodified site build', t => {
 
   const verified = runNode(verifyScript, ['--dir', dist, '--revision', 'verified-revision']);
   assert.equal(verified.status, 0, verified.stderr || verified.stdout);
-  assert.match(verified.stdout, /Verified 7 hashed site files for verified-revision/);
+  assert.match(verified.stdout, /Verified 8 hashed site files for verified-revision/);
 });
 
 test('artifact verifier rejects repository-only or unexpected files', t => {

@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
 
-import { PlannerInputError, planReplenishment } from '../shared/supply-planner.js';
+import { classifyCoverageDays, PlannerInputError, planReplenishment } from '../shared/supply-planner.js';
 
 const repoRoot = path.resolve(import.meta.dirname, '..');
 
@@ -238,4 +238,169 @@ test('invalid normalized inputs fail with Product SKU and source path', () => {
       && error.productSku === 'BAD01'
       && error.path === 'openOrders[0].state',
   );
+});
+
+test('whole-pallet recommendation chooses the smallest whole pallet inside 180–365 days', () => {
+  const result = planReplenishment(planningInput({
+    packaging: { unitsPerPallet: 1000 },
+    policy: { executableOrderIncrement: 100 },
+  }));
+
+  assert.equal(result.recommendation.strategy, 'whole-pallet');
+  assert.equal(result.recommendation.rawQuantity, 1800);
+  assert.equal(result.recommendation.unitGuidanceQuantity, 1800);
+  assert.equal(result.recommendation.executableQuantity, 2000);
+  assert.equal(result.recommendation.pallets, 2);
+  assert.equal(result.recommendation.applyBy, 'pallets');
+  assert.equal(result.recommendation.resultingCoverageDays, 200);
+  assert.equal(result.recommendation.warning, null);
+});
+
+test('fractional exception uses the smallest executable quantity when adjacent whole pallets straddle 180–365', () => {
+  const result = planReplenishment(planningInput({
+    planningVelocity: 1,
+    packaging: { unitsPerPallet: 400 },
+    policy: { executableOrderIncrement: 10 },
+  }));
+
+  assert.equal(result.recommendation.strategy, 'fractional-exception');
+  assert.equal(result.recommendation.executableQuantity, 180);
+  assert.equal(result.recommendation.pallets, 0.45);
+  assert.equal(result.recommendation.applyBy, 'quantity');
+  assert.equal(result.recommendation.resultingCoverageDays, 180);
+  assert.equal(result.recommendation.warning, null);
+});
+
+test('existing target coverage and excess coverage both produce zero without a negative order', () => {
+  const exactTarget = planReplenishment(planningInput({
+    inventory: { amazonSellable: 2910 },
+    packaging: { unitsPerPallet: 1000 },
+    policy: { executableOrderIncrement: 100 },
+  }));
+  assert.equal(exactTarget.coverage.postOrderContinuousDays, 180);
+  assert.equal(exactTarget.recommendation.strategy, 'none');
+  assert.equal(exactTarget.recommendation.executableQuantity, 0);
+  assert.equal(exactTarget.recommendation.pallets, 0);
+
+  const excess = planReplenishment(planningInput({
+    inventory: { amazonSellable: 5000 },
+    packaging: { unitsPerPallet: 1000 },
+    policy: { executableOrderIncrement: 100 },
+  }));
+  assert.ok(excess.coverage.postOrderContinuousDays > 365);
+  assert.equal(excess.recommendation.strategy, 'none');
+  assert.equal(excess.recommendation.executableQuantity, 0);
+  assert.equal(excess.recommendation.isExcess, true);
+});
+
+test('exactly 365 days is healthy and only coverage above the tolerance is excess', () => {
+  const exact = planReplenishment(planningInput({
+    inventory: { amazonSellable: 4760 },
+    packaging: { unitsPerPallet: 1000 },
+    policy: { executableOrderIncrement: 100 },
+  }));
+  assert.equal(exact.coverage.postOrderContinuousDays, 365);
+  assert.equal(exact.recommendation.isExcess, false);
+
+  const above = planReplenishment(planningInput({
+    inventory: { amazonSellable: 4760.6 },
+    packaging: { unitsPerPallet: 1000 },
+    policy: { executableOrderIncrement: 100 },
+  }));
+  assert.ok(above.coverage.postOrderContinuousDays > 365.05);
+  assert.equal(above.recommendation.isExcess, true);
+});
+
+test('missing or incompatible pallet data preserves executable unit guidance with a repair warning', () => {
+  for (const packaging of [undefined, { unitsPerPallet: 0 }, { unitsPerPallet: Number.NaN }, { unitsPerPallet: 950 }]) {
+    const result = planReplenishment(planningInput({
+      packaging,
+      policy: { executableOrderIncrement: 100 },
+    }));
+    assert.equal(result.recommendation.strategy, 'unit-guidance');
+    assert.equal(result.recommendation.unitGuidanceQuantity, 1800);
+    assert.equal(result.recommendation.executableQuantity, 1800);
+    assert.equal(result.recommendation.pallets, null);
+    assert.equal(result.recommendation.applyBy, 'quantity');
+    assert.equal(result.recommendation.warning.code, 'INVALID_PALLET_CATALOG');
+  }
+});
+
+test('coarse executable quantity above 365 remains auditable instead of silently prefilling a safe-looking pallet', () => {
+  const result = planReplenishment(planningInput({
+    planningVelocity: 1,
+    packaging: { unitsPerPallet: 400 },
+    policy: { executableOrderIncrement: 400 },
+  }));
+
+  assert.equal(result.recommendation.strategy, 'unit-guidance');
+  assert.equal(result.recommendation.executableQuantity, 400);
+  assert.equal(result.recommendation.pallets, null);
+  assert.equal(result.recommendation.resultingCoverageDays, 400);
+  assert.equal(result.recommendation.warning.code, 'NO_EXECUTABLE_QUANTITY_WITHIN_CEILING');
+});
+
+test('fractional display rounding never changes the authoritative executable quantity', () => {
+  const exact = planReplenishment(planningInput({
+    planningVelocity: 1,
+    inventory: { amazonSellable: 211 },
+    packaging: { unitsPerPallet: 300 },
+    policy: { executableOrderIncrement: 1 },
+  }));
+  assert.equal(exact.projection.assumedStockAtArrival, 100);
+  assert.equal(exact.recommendation.strategy, 'fractional-exception');
+  assert.equal(exact.recommendation.executableQuantity, 80);
+  assert.equal(exact.recommendation.pallets, 0.27);
+  assert.equal(exact.recommendation.resultingCoverageDays, 180);
+
+  const rounded = planReplenishment(planningInput({
+    planningVelocity: 1,
+    inventory: { amazonSellable: 211 },
+    packaging: { unitsPerPallet: 301 },
+    policy: { executableOrderIncrement: 7 },
+  }));
+  assert.equal(rounded.recommendation.strategy, 'fractional-exception');
+  assert.equal(rounded.recommendation.executableQuantity, 84);
+  assert.equal(rounded.recommendation.pallets, 0.28);
+  assert.equal(rounded.recommendation.resultingCoverageDays, 184);
+});
+
+test('a whole pallet that lands exactly on 365 remains the preferred recommendation', () => {
+  const result = planReplenishment(planningInput({
+    planningVelocity: 1,
+    inventory: { amazonSellable: 211 },
+    packaging: { unitsPerPallet: 265 },
+    policy: { executableOrderIncrement: 1 },
+  }));
+  assert.equal(result.projection.assumedStockAtArrival, 100);
+  assert.equal(result.recommendation.strategy, 'whole-pallet');
+  assert.equal(result.recommendation.pallets, 1);
+  assert.equal(result.recommendation.executableQuantity, 265);
+  assert.equal(result.recommendation.resultingCoverageDays, 365);
+  assert.equal(result.recommendation.isExcess, false);
+});
+
+test('shared coverage classification owns the displayed 180 and 365 boundaries', () => {
+  assert.equal(classifyCoverageDays({ coverageDays:null, targetDays:180 }), 'neutral');
+  assert.equal(classifyCoverageDays({ coverageDays:179.999999998, targetDays:180 }), 'low');
+  assert.equal(classifyCoverageDays({ coverageDays:179.9999999995, targetDays:180 }), 'healthy');
+  assert.equal(classifyCoverageDays({ coverageDays:365, targetDays:180 }), 'healthy');
+  assert.equal(classifyCoverageDays({ coverageDays:365.0000000005, targetDays:180 }), 'healthy');
+  assert.equal(classifyCoverageDays({ coverageDays:365.000000002, targetDays:180 }), 'excess');
+});
+
+test('whole-pallet ceiling includes confirmed old orders after the target but before day 365', () => {
+  const result = planReplenishment(planningInput({
+    planningVelocity: 1,
+    inventory: { reportedOpenOrder: 200 },
+    openOrders: [order({ quantity:200, portArrivalDate:'2027-06-13' })],
+    packaging: { unitsPerPallet: 200 },
+    policy: { executableOrderIncrement: 1 },
+  }));
+
+  assert.equal(result.supply.later, 200);
+  assert.equal(result.recommendation.strategy, 'fractional-exception');
+  assert.equal(result.recommendation.executableQuantity, 180);
+  assert.equal(result.recommendation.pallets, 0.9);
+  assert.equal(result.recommendation.resultingCoverageDays, 180);
 });

@@ -6,6 +6,7 @@ export const runtimeFiles = Object.freeze([
   'index.html',
   'product-data.js',
   'shared/legacy-planning-adapter.js',
+  'shared/order-draft-quantity.js',
   'shared/planning-velocity-history.js',
   'shared/planning-velocity.js',
   'shared/supply-planner.js',

@@ -1,4 +1,5 @@
-import { planReplenishment } from './supply-planner.js';
+import { classifyCoverageDays, getPalletCatalogIssue, planReplenishment } from './supply-planner.js';
+import './order-draft-quantity.js';
 import './planning-velocity.js';
 import './planning-velocity-history.js';
 
@@ -81,7 +82,14 @@ function toLegacyPlan(result, policy) {
     shortageDays: coverage.shortageBeforeArrivalDays ?? 0,
     rawSuggestedQty: recommendation.rawQuantity,
     suggestedQty: recommendation.executableQuantity,
+    unitGuidanceQty: recommendation.unitGuidanceQuantity,
     orderIncrement: recommendation.increment,
+    recommendationStrategy: recommendation.strategy,
+    recommendedPallets: recommendation.pallets,
+    recommendationApplyBy: recommendation.applyBy,
+    recommendationCoverageDays: recommendation.resultingCoverageDays,
+    recommendationIsExcess: recommendation.isExcess,
+    recommendationWarning: recommendation.warning,
     postArrivalDays: coverage.postOrderTotalDays,
     totalPostOrderCoverageDays: coverage.postOrderTotalDays,
     continuousPostOrderCoverageDays: coverage.postOrderContinuousDays,
@@ -101,6 +109,7 @@ export function planLegacyReplenishment({
   readiness,
   openOrders,
   policy,
+  packaging = {},
   orderDraftQuantity = null,
 }) {
   const planningResult = planReplenishment({
@@ -116,6 +125,7 @@ export function planLegacyReplenishment({
     },
     openOrders: (openOrders || []).map(normalizeLegacyOpenOrder),
     policy,
+    packaging,
     orderDraftQuantity,
   });
   return toLegacyPlan(planningResult, policy);
@@ -136,6 +146,7 @@ export function getLegacySupplyDecision({ asOfDate, openOrder, policy }) {
     },
     openOrders: [normalizeLegacyOpenOrder({ ...openOrder, quantity }, 0)],
     policy,
+    packaging: { unitsPerPallet: null },
     orderDraftQuantity: null,
   });
   const decision = result.openOrderDecisions[0];
@@ -147,6 +158,8 @@ export function getLegacySupplyDecision({ asOfDate, openOrder, policy }) {
 }
 
 const browserInterface = Object.freeze({
+  classifyCoverageDays,
+  getPalletCatalogIssue,
   getLegacyOpenOrderState,
   getLegacySupplyDecision,
   planLegacyReplenishment,

@@ -1,4 +1,5 @@
 const DAY_MS = 86_400_000;
+const COVERAGE_TOLERANCE_DAYS = 1e-9;
 const VALID_ORDER_STATES = new Set(['received', 'ordered', 'planned', 'stopped', 'unknown']);
 
 export class PlannerInputError extends TypeError {
@@ -68,7 +69,9 @@ function normalizeInput(input) {
   const readiness = input.readiness || {};
   const inventory = input.inventory || {};
   const policy = input.policy || {};
+  const packaging = input.packaging || {};
   const planningVelocity = input.planningVelocity;
+  const rawUnitsPerPallet = packaging.unitsPerPallet;
   const normalized = {
     productSku,
     asOfDay,
@@ -88,7 +91,11 @@ function normalizeInput(input) {
       leadTimeDays: requireInteger(policy.leadTimeDays, productSku, 'policy.leadTimeDays', 1, 365),
       transferTimeDays: requireInteger(policy.transferTimeDays, productSku, 'policy.transferTimeDays', 0, 90),
       targetDays: requireInteger(policy.targetDays, productSku, 'policy.targetDays', 0, 365),
+      maximumCoverageDays: requireInteger(policy.maximumCoverageDays ?? 365, productSku, 'policy.maximumCoverageDays', 1, 1095),
       executableOrderIncrement: requireQuantity(policy.executableOrderIncrement, productSku, 'policy.executableOrderIncrement'),
+    },
+    packaging: {
+      unitsPerPallet: Number.isFinite(rawUnitsPerPallet) && rawUnitsPerPallet > 0 ? rawUnitsPerPallet : null,
     },
     orderDraftQuantity: input.orderDraftQuantity === null || input.orderDraftQuantity === undefined
       ? null
@@ -96,6 +103,9 @@ function normalizeInput(input) {
   };
   if (normalized.policy.executableOrderIncrement <= 0) {
     fail(productSku, 'policy.executableOrderIncrement', 'INVALID_POLICY', 'policy.executableOrderIncrement must be greater than zero');
+  }
+  if (normalized.policy.targetDays > normalized.policy.maximumCoverageDays) {
+    fail(productSku, 'policy.maximumCoverageDays', 'INVALID_POLICY', 'policy.maximumCoverageDays must be at least policy.targetDays');
   }
 
   if (!Array.isArray(input.openOrders)) fail(productSku, 'openOrders', 'INVALID_ORDERS', 'openOrders must be an array');
@@ -197,6 +207,142 @@ function roundToIncrement(quantity, increment) {
   const nonNegativeQuantity = Math.max(0, quantity);
   if (nonNegativeQuantity <= 1e-9) return 0;
   return Math.ceil((nonNegativeQuantity - 1e-9) / increment) * increment;
+}
+
+function roundToTwoDecimals(value) {
+  return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+export function classifyCoverageDays({
+  coverageDays,
+  targetDays = 180,
+  maximumCoverageDays = 365,
+}) {
+  if (!Number.isFinite(coverageDays)) return 'neutral';
+  if (coverageDays > maximumCoverageDays + COVERAGE_TOLERANCE_DAYS) return 'excess';
+  if (coverageDays < targetDays - COVERAGE_TOLERANCE_DAYS) return 'low';
+  return 'healthy';
+}
+
+export function getPalletCatalogIssue({ unitsPerPallet, executableOrderIncrement }) {
+  if (!Number.isFinite(unitsPerPallet) || unitsPerPallet <= 0) {
+    return {
+      code: 'INVALID_PALLET_CATALOG',
+      message: 'Pallet catalog capacity is missing or invalid',
+    };
+  }
+  const increment = executableOrderIncrement;
+  if (!Number.isFinite(increment) || increment <= 0) {
+    return {
+      code: 'INVALID_PALLET_CATALOG',
+      message: 'Executable order increment is missing or invalid',
+    };
+  }
+  const incrementsPerPallet = unitsPerPallet / increment;
+  const compatible = Number.isFinite(incrementsPerPallet)
+    && incrementsPerPallet >= 1
+    && Math.abs(incrementsPerPallet - Math.round(incrementsPerPallet)) <= 1e-9;
+  return compatible ? null : {
+    code: 'INVALID_PALLET_CATALOG',
+    message: 'Pallet catalog capacity is incompatible with the executable order increment',
+  };
+}
+
+function buildPalletRecommendation({
+  rawQuantity,
+  increment,
+  unitsPerPallet,
+  targetDays,
+  maximumCoverageDays,
+  coverageForQuantity,
+}) {
+  const unitGuidanceQuantity = roundToIncrement(rawQuantity, increment);
+  const baseCoverageDays = coverageForQuantity(0);
+  const isExcess = classifyCoverageDays({ coverageDays:baseCoverageDays, targetDays, maximumCoverageDays }) === 'excess';
+  const common = {
+    rawQuantity,
+    unitGuidanceQuantity,
+    increment,
+    isExcess,
+  };
+
+  if (rawQuantity <= 1e-9 || baseCoverageDays >= targetDays - COVERAGE_TOLERANCE_DAYS) {
+    return {
+      ...common,
+      strategy: 'none',
+      executableQuantity: 0,
+      pallets: 0,
+      applyBy: 'none',
+      resultingCoverageDays: baseCoverageDays,
+      warning: null,
+    };
+  }
+
+  const unitGuidanceCoverageDays = coverageForQuantity(unitGuidanceQuantity);
+  const palletCatalogIssue = getPalletCatalogIssue({ unitsPerPallet, executableOrderIncrement:increment });
+  if (palletCatalogIssue) {
+    return {
+      ...common,
+      strategy: 'unit-guidance',
+      executableQuantity: unitGuidanceQuantity,
+      pallets: null,
+      applyBy: 'quantity',
+      resultingCoverageDays: unitGuidanceCoverageDays,
+      warning: palletCatalogIssue,
+    };
+  }
+
+  const upperWholePallets = Math.max(1, Math.ceil((rawQuantity - 1e-9) / unitsPerPallet));
+  const lowerWholePallets = Math.max(0, upperWholePallets - 1);
+  const upperWholeQuantity = upperWholePallets * unitsPerPallet;
+  const upperWholeCoverageDays = coverageForQuantity(upperWholeQuantity);
+  const lowerWholeCoverageDays = coverageForQuantity(lowerWholePallets * unitsPerPallet);
+
+  if (
+    upperWholeCoverageDays >= targetDays - COVERAGE_TOLERANCE_DAYS
+    && upperWholeCoverageDays <= maximumCoverageDays + COVERAGE_TOLERANCE_DAYS
+  ) {
+    return {
+      ...common,
+      strategy: 'whole-pallet',
+      executableQuantity: upperWholeQuantity,
+      pallets: upperWholePallets,
+      applyBy: 'pallets',
+      resultingCoverageDays: upperWholeCoverageDays,
+      warning: null,
+    };
+  }
+
+  const wholePalletsStraddleWindow = lowerWholeCoverageDays < targetDays - COVERAGE_TOLERANCE_DAYS
+    && upperWholeCoverageDays > maximumCoverageDays + COVERAGE_TOLERANCE_DAYS;
+  if (
+    wholePalletsStraddleWindow
+    && unitGuidanceCoverageDays >= targetDays - COVERAGE_TOLERANCE_DAYS
+    && unitGuidanceCoverageDays <= maximumCoverageDays + COVERAGE_TOLERANCE_DAYS
+  ) {
+    return {
+      ...common,
+      strategy: 'fractional-exception',
+      executableQuantity: unitGuidanceQuantity,
+      pallets: roundToTwoDecimals(unitGuidanceQuantity / unitsPerPallet),
+      applyBy: 'quantity',
+      resultingCoverageDays: unitGuidanceCoverageDays,
+      warning: null,
+    };
+  }
+
+  return {
+    ...common,
+    strategy: 'unit-guidance',
+    executableQuantity: unitGuidanceQuantity,
+    pallets: null,
+    applyBy: 'quantity',
+    resultingCoverageDays: unitGuidanceCoverageDays,
+    warning: {
+      code: 'NO_EXECUTABLE_QUANTITY_WITHIN_CEILING',
+      message: 'The smallest executable quantity that reaches the target exceeds the maximum coverage ceiling',
+    },
+  };
 }
 
 function addWarning(warnings, code, order, extra = {}) {
@@ -333,10 +479,17 @@ function statusResult(input, dates, classification, status, missingData, noVeloc
     },
     recommendation: {
       canRecommend: false,
+      strategy: 'none',
       rawQuantity: 0,
+      unitGuidanceQuantity: 0,
       executableQuantity: 0,
       appliedQuantity: input.orderDraftQuantity ?? 0,
       increment: input.policy.executableOrderIncrement,
+      pallets: null,
+      applyBy: 'none',
+      resultingCoverageDays: null,
+      isExcess: false,
+      warning: null,
     },
     coverage: {
       arrivalDays: null,
@@ -375,6 +528,8 @@ export function planReplenishment(rawInput) {
 
   const eventsBeforeNew = classification.events.filter(event => event.day <= dates.newOrderSellableDay);
   const eventsWithinTarget = classification.events.filter(event => event.day > dates.newOrderSellableDay && event.day <= dates.targetEndDay);
+  const maximumCoverageEndDay = addCalendarDays(dates.newOrderSellableDay, input.policy.maximumCoverageDays);
+  const eventsWithinMaximumCoverage = classification.events.filter(event => event.day > dates.newOrderSellableDay && event.day <= maximumCoverageEndDay);
   const planningHorizonEndDay = addCalendarDays(input.asOfDay, 1095);
   const confirmedStockoutExactDay = firstStockoutDayAcrossEvents(
     input.inventory.amazonSellable,
@@ -409,15 +564,28 @@ export function planReplenishment(rawInput) {
     eventsWithinTarget,
   );
   const rawQuantity = Math.ceil(Math.max(0, targetPlan.requiredQuantity));
-  const executableQuantity = roundToIncrement(rawQuantity, input.policy.executableOrderIncrement);
-  const appliedQuantity = input.orderDraftQuantity ?? executableQuantity;
+  const coverageForQuantity = quantity => continuousCoverageDays(
+    assumedProjection.stock + Math.max(0, quantity),
+    dates.newOrderSellableDay,
+    velocity,
+    eventsWithinMaximumCoverage,
+  );
+  const recommendation = buildPalletRecommendation({
+    rawQuantity,
+    increment: input.policy.executableOrderIncrement,
+    unitsPerPallet: input.packaging.unitsPerPallet,
+    targetDays: input.policy.targetDays,
+    maximumCoverageDays: input.policy.maximumCoverageDays,
+    coverageForQuantity,
+  });
+  const appliedQuantity = input.orderDraftQuantity ?? recommendation.executableQuantity;
   const postOrderStock = assumedProjection.stock + appliedQuantity;
   const postOrderTotalDays = (postOrderStock + targetPlan.scheduledQuantity) / velocity;
   const postOrderContinuousDays = continuousCoverageDays(
     postOrderStock,
     dates.newOrderSellableDay,
     velocity,
-    eventsWithinTarget,
+    eventsWithinMaximumCoverage,
   );
   const uncertainSupplyDeadlineDay = classification.supply.uncertain > 0
     ? (confirmedStockoutDay ?? planningHorizonEndDay)
@@ -448,10 +616,8 @@ export function planReplenishment(rawInput) {
     },
     recommendation: {
       canRecommend: true,
-      rawQuantity,
-      executableQuantity,
+      ...recommendation,
       appliedQuantity,
-      increment: input.policy.executableOrderIncrement,
     },
     coverage: {
       arrivalDays: assumedProjection.stock / velocity,
