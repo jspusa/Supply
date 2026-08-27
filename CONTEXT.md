@@ -13,14 +13,22 @@ The SKU printed on the purchase order for a Product SKU. It may be the Product S
 _Avoid_: Product SKU, display SKU
 
 **Standard Order**:
-An order whose Order SKU does not begin with `7`.
+An order whose Order SKU does not begin with `7`, grouped under either Taiwan or Vietnam according to the Product SKU's standard factory.
 _Avoid_: Main order, normal factory row
 
 **Subcontract Order**:
-An order whose Order SKU begins with `7`. It is displayed separately from Standard Orders and grouped by the Order SKU prefix while retaining the Product SKU's demand and packaging specifications.
+An order whose Order SKU begins with `7`. All Subcontract Orders belong to the same subcontract vendor and retain the Product SKU's demand and packaging specifications.
 _Avoid_: Standard Order, alias-only display
 
+**Order Group**:
+One of the three operational destinations for an order row: Taiwan, Vietnam, or Subcontract. Each group is displayed separately and exported as its own worksheet in one workbook.
+_Avoid_: 7AT factory, 7GT factory, 7VT factory, country tab
+
 ## Demand and coverage
+
+**Hot SKU**:
+A Product SKU identified by the existing hot-product business rule and therefore protected by a minimum Planning Velocity of 10 units per day when its H10 Source Velocity is lower.
+_Avoid_: Proven bestseller, high-velocity SKU
 
 **H10 Source Velocity**:
 The daily sales velocity value or value range read from the Helium 10 pasted source, preserved without silently discarding conflicting duplicate rows.
@@ -43,6 +51,14 @@ The projected total sellable days after the new order arrives and becomes availa
 _Avoid_: Suggested units, current coverage
 
 ## Draft quantities and local data
+
+**Supply Snapshot**:
+A source-attributed, as-of representation of inventory, open orders, velocities, and readiness after raw inputs have been normalized into planning units.
+_Avoid_: Workspace Snapshot, raw upload
+
+**Order Draft**:
+The user-controlled order rows, quantities, Order SKUs, Order Groups, locks, and within-group ordering that have not yet been exported as a purchase order.
+_Avoid_: Supply Snapshot, submitted order
 
 **Whole-Pallet Suggestion**:
 The normal suggested pallet quantity expressed as a whole number. When no whole number can satisfy both the 180-day target and 365-day ceiling, the suggestion may use a fractional pallet instead.
