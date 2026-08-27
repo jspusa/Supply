@@ -4,35 +4,109 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  verify:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
+      - name: Use project Node.js version
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
 
-      - name: Upload static site
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify tests, exact site artifact, and browser behavior
+        run: npm run verify
+
+      - name: Upload verified Pages artifact
+        if: github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: dist
+
+      - name: Preserve exact verified release manifest
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: supply-release-manifest-${{ github.sha }}
+          path: dist/release.json
+          if-no-files-found: error
+          retention-days: 7
+
+  deploy:
+    needs: verify
+    if: github.ref == 'refs/heads/main' && needs.verify.result == 'success'
+    permissions:
+      pages: write
+      id-token: write
+      contents: read
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
 
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Checkout live verifier
+        uses: actions/checkout@v4
+
+      - name: Use project Node.js version
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      - name: Install live browser verifier
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Install exact Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Download exact verified release manifest
+        uses: actions/download-artifact@v4
+        with:
+          name: supply-release-manifest-${{ github.sha }}
+          path: .release-evidence
+
+      - name: Verify live revision, hashes, and entrypoints
+        env:
+          SUPPLY_LIVE_BASE_URL: ${{ steps.deployment.outputs.page_url }}
+          SUPPLY_EXPECTED_REVISION: ${{ github.sha }}
+          SUPPLY_RELEASE_MANIFEST: .release-evidence/release.json
+          SUPPLY_LIVE_ATTEMPTS: 18
+          SUPPLY_LIVE_RETRY_DELAY_MS: 5000
+          SUPPLY_LIVE_REQUEST_TIMEOUT_MS: 15000
+        run: npm run verify:live
+
+      - name: Verify live browser canonicalization and read-only entrypoints
+        env:
+          SUPPLY_LIVE_BASE_URL: ${{ steps.deployment.outputs.page_url }}
+          SUPPLY_EXPECTED_REVISION: ${{ github.sha }}
+          SUPPLY_LIVE_BROWSER_ATTEMPTS: 6
+          SUPPLY_LIVE_BROWSER_RETRY_DELAY_MS: 5000
+          SUPPLY_LIVE_BROWSER_NAVIGATION_TIMEOUT_MS: 20000
+          SUPPLY_LIVE_BROWSER_ASSERTION_TIMEOUT_MS: 12000
+        run: npm run verify:live:browser
