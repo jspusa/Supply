@@ -32,6 +32,13 @@ function runNode(script, args) {
   });
 }
 
+function updateManifestHash(dist, relativePath) {
+  const manifestPath = path.join(dist, 'release.json');
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  manifest.files[relativePath] = sha256(path.join(dist, relativePath));
+  fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+}
+
 test('site build emits the exact deterministic deployment artifact', t => {
   const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'supply-site-build-'));
   t.after(() => fs.rmSync(tempRoot, { recursive: true, force: true }));
@@ -133,6 +140,28 @@ test('artifact verifier rejects a missing local runtime reference', t => {
   assert.match(verified.stderr, /Missing local reference in index\.html: missing-runtime\.js/);
 });
 
+test('artifact verifier checks srcset, CSS URLs, and JavaScript imports', t => {
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'supply-site-reference-kinds-'));
+  t.after(() => fs.rmSync(tempRoot, { recursive: true, force: true }));
+  const cases = [
+    { file: 'index.html', content: '\n<img srcset="./missing-srcset.png 1x">\n', missing: 'missing-srcset.png' },
+    { file: 'index.html', content: '\n<style>.probe{background:url("./missing-style.png")}</style>\n', missing: 'missing-style.png' },
+    { file: 'product-data.js', content: '\nimport "./missing-module.js";\n', missing: 'missing-module.js' },
+  ];
+
+  for (const [index, fixture] of cases.entries()) {
+    const dist = path.join(tempRoot, `dist-${index}`);
+    const build = runNode(buildScript, ['--out', dist, '--revision', 'test-revision']);
+    assert.equal(build.status, 0, build.stderr || build.stdout);
+    fs.appendFileSync(path.join(dist, fixture.file), fixture.content);
+    updateManifestHash(dist, fixture.file);
+
+    const verified = runNode(verifyScript, ['--dir', dist, '--revision', 'test-revision']);
+    assert.notEqual(verified.status, 0, `${fixture.missing} should be rejected`);
+    assert.match(verified.stderr, new RegExp(`Missing local reference in .*: ${fixture.missing.replace('.', '\\.')}`));
+  }
+});
+
 test('artifact verifier requires every runtime file to be covered by the manifest', t => {
   const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'supply-site-manifest-'));
   t.after(() => fs.rmSync(tempRoot, { recursive: true, force: true }));
@@ -148,6 +177,40 @@ test('artifact verifier requires every runtime file to be covered by the manifes
   const verified = runNode(verifyScript, ['--dir', dist, '--revision', 'test-revision']);
   assert.notEqual(verified.status, 0);
   assert.match(verified.stderr, /Release manifest files must exactly match the runtime allowlist/);
+});
+
+test('artifact verifier requires an exact release manifest schema', t => {
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'supply-site-manifest-schema-'));
+  t.after(() => fs.rmSync(tempRoot, { recursive: true, force: true }));
+  const dist = path.join(tempRoot, 'dist');
+  const build = runNode(buildScript, ['--out', dist, '--revision', 'test-revision']);
+  assert.equal(build.status, 0, build.stderr || build.stdout);
+
+  const manifestPath = path.join(dist, 'release.json');
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  manifest.privateUserInput = 'must not be accepted';
+  fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+
+  const verified = runNode(verifyScript, ['--dir', dist, '--revision', 'test-revision']);
+  assert.notEqual(verified.status, 0);
+  assert.match(verified.stderr, /Release manifest keys must exactly match the schema/);
+});
+
+test('artifact verifier credential-scans release metadata', t => {
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'supply-site-manifest-secret-'));
+  t.after(() => fs.rmSync(tempRoot, { recursive: true, force: true }));
+  const dist = path.join(tempRoot, 'dist');
+  const build = runNode(buildScript, ['--out', dist, '--revision', 'test-revision']);
+  assert.equal(build.status, 0, build.stderr || build.stdout);
+
+  const manifestPath = path.join(dist, 'release.json');
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  manifest.revision = '-----BEGIN PRIVATE KEY-----';
+  fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+
+  const verified = runNode(verifyScript, ['--dir', dist]);
+  assert.notEqual(verified.status, 0);
+  assert.match(verified.stderr, /Potential credential material in release\.json: private key/);
 });
 
 test('artifact verifier rejects symlinks even when the allowed filename and hash match', t => {
