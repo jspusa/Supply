@@ -62,9 +62,9 @@ function createFakeBrowserType({ failures = [] } = {}) {
                   }
                   currentUrl = url.endsWith('#decisionDashboard')
                     ? url.replace(/#decisionDashboard$/, '#recommendations')
-                    : url.endsWith('#today') && !/\/Boss\//.test(url)
+                    : url.endsWith('#today')
                       ? url.replace(/#today$/, '#recommendations')
-                    : url;
+                      : url;
                   if (failure?.phase === 'mutation' && /\/Boss\//.test(url)) {
                     requestListeners.forEach(listener => listener({
                       method:() => failure.method || 'POST',
@@ -109,6 +109,7 @@ test('URL contract keeps the live revision cache buster and separates legacy, ca
     legacyCanonicalUrl:`${BASE_URL}?supply-release=${REVISION}-3#recommendations`,
     canonicalPublicUrl:`${BASE_URL}?supply-release=${REVISION}-3#recommendations`,
     bossUrl:`${BASE_URL}Boss/?supply-release=${REVISION}-3#today`,
+    bossCanonicalUrl:`${BASE_URL}Boss/?supply-release=${REVISION}-3#recommendations`,
   });
 });
 

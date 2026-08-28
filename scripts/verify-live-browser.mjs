@@ -51,6 +51,7 @@ export function buildLiveBrowserUrls({ baseUrl, expectedRevision, attempt = 1 } 
     legacyCanonicalUrl:cacheBustedUrl(resolvedBaseUrl, './', revision, boundedAttempt, '#recommendations'),
     canonicalPublicUrl:cacheBustedUrl(resolvedBaseUrl, './', revision, boundedAttempt, '#recommendations'),
     bossUrl:cacheBustedUrl(resolvedBaseUrl, 'Boss/', revision, boundedAttempt, '#today'),
+    bossCanonicalUrl:cacheBustedUrl(resolvedBaseUrl, 'Boss/', revision, boundedAttempt, '#recommendations'),
   });
 }
 
@@ -156,7 +157,7 @@ async function verifyBrowserAttempt({ browserType, urls, expectedRevision, navig
         waitUntil:'domcontentloaded',
         timeout:navigationTimeoutMs,
       });
-      requireExactUrl(bossPage, urls.bossUrl, 'Boss entrypoint');
+      requireExactUrl(bossPage, urls.bossCanonicalUrl, 'Boss entrypoint');
       await requireVisible(bossPage, '#bossAuthGate:not([hidden])', 'Boss authentication gate', assertionTimeoutMs);
       await requireVisible(bossPage, '#bossLoginForm', 'Boss login form', assertionTimeoutMs);
 
