@@ -18,7 +18,8 @@
     "verify:dist": "node scripts/verify-dist.mjs",
     "verify:live": "node scripts/verify-live.mjs",
     "verify:live:browser": "node scripts/verify-live-browser.mjs",
-    "verify": "npm test && npm run build && npm run verify:dist && npm run test:browser"
+    "verify": "npm test && npm run build && npm run verify:dist && npm run test:browser",
+    "prototype:fba-visual": "python3 -m http.server 4173 --bind 127.0.0.1"
   },
   "devDependencies": {
     "@playwright/test": "1.62.1",
