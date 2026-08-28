@@ -68,6 +68,13 @@ function runStage({ name, command, args, cwd, env = {} }) {
   };
 }
 
+export function withCatalogSeamEnvironment(stage, fbaRepo) {
+  return {
+    ...stage,
+    env:{ ...stage.env, FBA_REPO:path.resolve(fbaRepo) },
+  };
+}
+
 export function verifyCatalogSeams({
   fbaRepo,
   includeBrowser = true,
@@ -152,7 +159,7 @@ export function verifyCatalogSeams({
     );
   }
 
-  const results = stages.map(runStage);
+  const results = stages.map(stage => runStage(withCatalogSeamEnvironment(stage, resolvedFbaRepo)));
   const report = {
     schemaVersion:1,
     status:'passed',

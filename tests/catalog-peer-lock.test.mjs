@@ -7,6 +7,7 @@ import {
   readCatalogPeerLock,
   validateCatalogPeerLock,
 } from '../scripts/catalog-peer-lock.mjs';
+import { withCatalogSeamEnvironment } from '../scripts/verify-catalog-seams.mjs';
 
 const revision = '0123456789abcdef0123456789abcdef01234567';
 const publicContentHash = 'a'.repeat(64);
@@ -54,4 +55,13 @@ test('peer lock rejects an untrusted repository, branch name, stale version, has
 test('checked-out FBA revision must equal the pinned immutable commit', () => {
   assert.equal(assertCatalogPeerRevision(validLock, revision), revision);
   assert.throws(() => assertCatalogPeerRevision(validLock, 'f'.repeat(40)), /does not match pinned/);
+});
+
+test('every catalog seam stage receives the exact checked-out FBA repository', () => {
+  const stage = withCatalogSeamEnvironment({
+    name:'Supply seam',
+    env:{ KEEP:'yes', FBA_REPO:'/wrong/peer' },
+  }, '/tmp/exact-fba-peer');
+  assert.equal(stage.env.KEEP, 'yes');
+  assert.equal(stage.env.FBA_REPO, '/tmp/exact-fba-peer');
 });
