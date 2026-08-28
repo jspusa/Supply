@@ -26,7 +26,10 @@ function sha256(file) {
 }
 
 function runNode(script, args) {
-  return spawnSync(process.execPath, [script, ...args], {
+  const deterministicArgs = script === buildScript && !args.includes('--update-count')
+    ? [...args, '--update-count', '15']
+    : args;
+  return spawnSync(process.execPath, [script, ...deterministicArgs], {
     cwd: repoRoot,
     encoding: 'utf8',
   });
@@ -58,6 +61,7 @@ test('site build emits the exact deterministic deployment artifact', t => {
     'release.json',
     'shared/coverage-indicator.css',
     'shared/coverage-indicator.js',
+    'shared/discontinuation-suggestions.js',
     'shared/legacy-planning-adapter.js',
     'shared/order-draft-quantity.js',
     'shared/order-draft-state.js',
@@ -82,6 +86,7 @@ test('site build emits the exact deterministic deployment artifact', t => {
     'product-data.js',
     'shared/coverage-indicator.css',
     'shared/coverage-indicator.js',
+    'shared/discontinuation-suggestions.js',
     'shared/legacy-planning-adapter.js',
     'shared/order-draft-quantity.js',
     'shared/order-draft-state.js',
@@ -94,7 +99,7 @@ test('site build emits the exact deterministic deployment artifact', t => {
     'vendor/LICENSE.sheetjs.txt',
     'vendor/xlsx.full.min.js',
   ]);
-  assert.equal(Object.keys(manifest.files).length, 16);
+  assert.equal(Object.keys(manifest.files).length, 17);
   for (const relativePath of Object.keys(manifest.files)) {
     assert.match(manifest.files[relativePath], /^[a-f0-9]{64}$/);
     assert.equal(manifest.files[relativePath], sha256(path.join(firstDist, relativePath)));
@@ -107,6 +112,14 @@ test('site build emits the exact deterministic deployment artifact', t => {
       `${relativePath} should be reproducible`,
     );
   }
+
+  for (const relativePath of ['index.html', 'Boss/index.html']) {
+    const html = fs.readFileSync(path.join(firstDist, relativePath), 'utf8');
+    assert.match(html, /<title>[^<]*V1\.5[^<]*<\/title>/, `${relativePath} title should show the release version`);
+    assert.match(html, /<h1>[^<]*V1\.5[^<]*<\/h1>/, `${relativePath} heading should show the release version`);
+    assert.doesNotMatch(html, /__SUPPLY_APP_VERSION__/, `${relativePath} should not retain a version token`);
+    assert.doesNotMatch(html, /訂單分析器\s*V2/, `${relativePath} should not retain the stale V2 label`);
+  }
 });
 
 test('artifact verifier accepts a complete unmodified site build', t => {
@@ -118,7 +131,7 @@ test('artifact verifier accepts a complete unmodified site build', t => {
 
   const verified = runNode(verifyScript, ['--dir', dist, '--revision', 'verified-revision']);
   assert.equal(verified.status, 0, verified.stderr || verified.stdout);
-  assert.match(verified.stdout, /Verified 16 hashed site files for verified-revision/);
+  assert.match(verified.stdout, /Verified 17 hashed site files for verified-revision/);
 });
 
 test('artifact verifier rejects repository-only or unexpected files', t => {

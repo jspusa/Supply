@@ -4,6 +4,11 @@ import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
+import {
+  countFirstParentUpdates,
+  formatAppVersion,
+  replaceAppVersionToken,
+} from './release-version.mjs';
 import { runtimeFiles, sha256File } from './site-contract.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -36,7 +41,15 @@ function currentRevision() {
   return execFileSync('git', ['rev-parse', 'HEAD'], { cwd: repoRoot, encoding: 'utf8' }).trim();
 }
 
+function currentUpdateCount(revision) {
+  const explicit = readOption('--update-count') || process.env.SUPPLY_UPDATE_COUNT;
+  return explicit ? Number(explicit) : countFirstParentUpdates({ repoRoot, revision });
+}
+
 const output = path.resolve(readOption('--out') || defaultOutput);
+const revision = currentRevision();
+const updateCount = currentUpdateCount(revision);
+const appVersion = formatAppVersion(updateCount);
 assertSafeOutput(output);
 fs.rmSync(output, { recursive: true, force: true });
 fs.mkdirSync(output, { recursive: true });
@@ -49,14 +62,20 @@ for (const relativePath of runtimeFiles) {
   fs.copyFileSync(source, destination);
 }
 
+for (const relativePath of ['index.html', 'Boss/index.html']) {
+  const destination = path.join(output, relativePath);
+  const source = fs.readFileSync(destination, 'utf8');
+  fs.writeFileSync(destination, replaceAppVersionToken(source, appVersion, relativePath));
+}
+
 fs.writeFileSync(path.join(output, '.nojekyll'), '');
 const manifest = {
   schemaVersion: 1,
-  revision: currentRevision(),
+  revision,
   files: Object.fromEntries(runtimeFiles.map(relativePath => [
     relativePath,
     sha256File(path.join(output, relativePath)),
   ])),
 };
 fs.writeFileSync(path.join(output, 'release.json'), `${JSON.stringify(manifest, null, 2)}\n`);
-console.log(`Built ${runtimeFiles.length} site files for ${manifest.revision} in ${output}`);
+console.log(`Built ${runtimeFiles.length} site files for ${manifest.revision} as ${appVersion} (${updateCount} first-parent updates) in ${output}`);

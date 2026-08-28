@@ -14,6 +14,7 @@ test('Pages workflow verifies pull requests and gates deployment to verified mai
 
   const verifyJob = workflow.match(/jobs:\n  verify:\n(?<body>[\s\S]+?)\n  deploy:/)?.groups.body;
   assert.ok(verifyJob, 'verify job must run before deploy');
+  assert.match(verifyJob, /uses: actions\/checkout@v4\n\s+with:\n\s+fetch-depth: 0/);
   assert.match(verifyJob, /uses: actions\/setup-node@v4/);
   assert.match(verifyJob, /node-version-file: \.node-version/);
   assert.match(verifyJob, /cache: npm/);

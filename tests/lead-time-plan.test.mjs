@@ -28,7 +28,7 @@ function extractFunctionSource(html, name) {
 }
 
 for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
-  test(`${entrypoint}: Order Draft exposes exactly Taiwan, Vietnam, and Subcontract groups`, () => {
+  test(`${entrypoint}: Order Draft exposes Vietnam, Taiwan, and outsourced groups in display order`, () => {
     const generatorStart = html.indexOf('class="order-generator"');
     const generatorEnd = html.indexOf('</section>', generatorStart);
     assert.notEqual(generatorStart, -1);
@@ -37,9 +37,9 @@ for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
     const tabs = Array.from(generatorMarkup.matchAll(/<input type="radio" name="orderGroupSelect" value="([^"]+)"[^>]*>\s*<span>([^<]+)<\/span>/g))
       .map(match => [match[1], match[2].trim()]);
     assert.deepEqual(tabs, [
-      ['taiwan', '台灣'],
       ['vietnam', '越南'],
-      ['subcontract', '代工'],
+      ['taiwan', '台灣'],
+      ['subcontract', '委外'],
     ]);
     assert.doesNotMatch(generatorMarkup, /name="countrySelect"|value="VN"|value="TW"|value="Others"|越南廠|台灣廠|其他/);
   });
@@ -123,12 +123,13 @@ for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
     assert.doesNotMatch(loadDraftSource, /\(result\.issues \|\| \[\]\)\.length \+ \(generatorDraft\.repairOrder \|\| \[\]\)\.length/);
     assert.match(restoreDraftSource, /setActiveOrderGroup/);
     assert.match(restoreDraftSource, /renderActiveOrderGroup/);
-    assert.match(equivalentToggleSource, /class="miniBtn"/);
+    assert.match(equivalentToggleSource, /class="miniBtn equivalentOrderToggle"/);
     assert.match(equivalentToggleSource, /aria-label="切換下單品號為 \$\{safeNextCode\}"/);
     assert.match(equivalentToggleSource, /title="切換為 \$\{safeNextCode\}"/);
     assert.match(equivalentToggleSource, /data-next-order-sku="\$\{safeNextCode\}"/);
     assert.match(equivalentToggleSource, /fa-repeat/);
-    assert.doesNotMatch(equivalentToggleSource, />切換下單：/);
+    assert.match(equivalentToggleSource, /<span>\$\{safeNextCode\}<\/span>/);
+    assert.match(html, /\.order-generator \.equivalentOrderToggle \{[^}]*inline-size:auto;[^}]*white-space:nowrap;/);
     assert.match(hydrateRowSource, /syncGeneratorLockButton\(row\)/);
     assert.match(syncLockSource, /locked \? '解除鎖定這列' : '鎖定這列'/);
     assert.match(syncLockSource, /setAttribute\('aria-label', label\)/);

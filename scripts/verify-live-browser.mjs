@@ -60,6 +60,13 @@ async function requireCount(locator, expected, label) {
   if (actual !== expected) throw new Error(`${label} count mismatch: expected ${expected}, received ${actual}`);
 }
 
+async function requireExactTextList(locator, expected, label) {
+  const actual = (await locator.allTextContents()).map(value => value.trim());
+  if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+    throw new Error(`${label} mismatch: expected ${JSON.stringify(expected)}, received ${JSON.stringify(actual)}`);
+  }
+}
+
 async function requireVisible(page, selector, label, timeout) {
   const locator = page.locator(selector);
   await requireCount(locator, 1, label);
@@ -83,7 +90,19 @@ function requireExactUrl(page, expectedUrl, label) {
 async function assertRecommendationsWorkspace(page, expectedUrl, assertionTimeoutMs) {
   await requireWorkspaceReady(page, assertionTimeoutMs);
   requireExactUrl(page, expectedUrl, 'Recommendations workspace');
-  await requireCount(page.locator('.workspaceNavTab'), 4, 'workspace navigation tabs');
+  const workspaceTabs = page.locator('.workspaceNavTab');
+  await requireCount(workspaceTabs, 5, 'workspace navigation tabs');
+  await requireExactTextList(
+    workspaceTabs,
+    ['資料', '今日建議', '訂單', 'SKU 決策樹', '資料分析'],
+    'workspace navigation labels',
+  );
+  await requireVisible(
+    page,
+    '.workspaceNavTab[data-workspace="sku-tree"]',
+    'SKU Decision Tree navigation tab',
+    assertionTimeoutMs,
+  );
   await requireVisible(
     page,
     '.workspaceNavTab[data-workspace="recommendations"][aria-selected="true"]',

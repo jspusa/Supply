@@ -11,6 +11,8 @@ export const WORKSPACE_SNAPSHOT_DATABASE = 'supply-workspace-v1';
 export const WORKSPACE_SNAPSHOT_OBJECT_STORE = 'workspace-snapshots';
 export const WORKSPACE_SNAPSHOT_RECORD_KEY = 'public-workspace';
 export const WORKSPACE_PREFERENCES_KEY = 'supply-workspace-preferences-v1';
+export const WORKSPACE_H10_DRAFT_SCHEMA_VERSION = 1;
+export const WORKSPACE_H10_DRAFT_KEY = 'supply-workspace-h10-draft-v1';
 
 const MANUAL_INPUT_ROLES = Object.freeze(['jam', 'amz', 'jsp', 'sales']);
 const SNAPSHOT_KEYS = Object.freeze([
@@ -46,6 +48,13 @@ const PREFERENCE_KEYS = Object.freeze([
   'schemaVersion',
   'updatedAt',
 ]);
+const H10_DRAFT_KEYS = Object.freeze([
+  'h10ObservedOn',
+  'h10Paste',
+  'h10SelectedAt',
+  'schemaVersion',
+  'updatedAt',
+]);
 const MAX_PREFERENCES_BYTES = 64 * 1024;
 const SENSITIVE_PREFERENCE_KEY = /token|password|secret|credential|authorization|cookie/i;
 
@@ -66,6 +75,7 @@ export const WORKSPACE_EXTERNAL_MODEL_REFERENCES = deepFreeze({
 // the Boss session key (`supply-boss-session`) and callers never need clear().
 export const WORKSPACE_CLEAR_LOCAL_STORAGE_KEYS = Object.freeze([
   WORKSPACE_PREFERENCES_KEY,
+  WORKSPACE_H10_DRAFT_KEY,
   ORDER_DRAFT_STORAGE_KEY,
   LEGACY_ORDER_DRAFT_STORAGE_KEY,
   PLANNING_VELOCITY_HISTORY_KEY,
@@ -205,6 +215,53 @@ function normalizeInputs(input = {}, selectedAt = null) {
       : (h10Paste && selectedAt ? asTimestamp(selectedAt, 'inputs.h10SelectedAt') : null),
     manualText: normalizeManualMap(source.manualText, value => String(value ?? '')),
     overrideMarker: normalizeManualMap(source.overrideMarker, Boolean),
+  };
+}
+
+function normalizeH10Draft(input = {}, updatedAt) {
+  const source = isPlainObject(input) ? input : {};
+  const h10Paste = String(source.h10Paste ?? '');
+  return {
+    schemaVersion: WORKSPACE_H10_DRAFT_SCHEMA_VERSION,
+    updatedAt,
+    h10Paste,
+    h10ObservedOn: asObservedOn(source.h10ObservedOn),
+    // This is the raw-text field revision time, including for an empty value.
+    // A deletion must be orderable against a stale save from another tab.
+    h10SelectedAt: asTimestamp(source.h10SelectedAt ?? updatedAt, 'h10Draft.h10SelectedAt'),
+  };
+}
+
+function validateH10Draft(record) {
+  if (!isPlainObject(record)) return { status: 'corrupt', message: 'H10 draft must be an object' };
+  if (typeof record.schemaVersion !== 'number' || !Number.isSafeInteger(record.schemaVersion)) {
+    return { status: 'corrupt', message: 'H10 draft schemaVersion must be an integer' };
+  }
+  if (record.schemaVersion !== WORKSPACE_H10_DRAFT_SCHEMA_VERSION) {
+    return {
+      status: 'unsupported-version',
+      version: record.schemaVersion,
+      message: `Unsupported H10 draft schema ${String(record.schemaVersion)}`,
+    };
+  }
+  if (!exactKeys(record, H10_DRAFT_KEYS)) return { status: 'corrupt', message: 'H10 draft keys do not match schema v1' };
+  if (typeof record.h10Paste !== 'string') return { status: 'corrupt', message: 'H10 draft text must be a string' };
+  try {
+    asTimestamp(record.updatedAt, 'h10Draft.updatedAt');
+    asObservedOn(record.h10ObservedOn);
+    if (record.h10SelectedAt !== null) asTimestamp(record.h10SelectedAt, 'h10Draft.h10SelectedAt');
+  } catch (error) {
+    return { status: 'corrupt', message: error.message };
+  }
+  return null;
+}
+
+function inputsWithH10Draft(inputs, draft) {
+  return {
+    ...normalizeInputs(inputs),
+    h10Paste:draft.h10Paste,
+    h10ObservedOn:draft.h10ObservedOn,
+    h10SelectedAt:draft.h10SelectedAt,
   };
 }
 
@@ -525,6 +582,71 @@ export function createWorkspaceSnapshotStore({
   const adapter = persistence || createIndexedDbWorkspaceAdapter({ indexedDB });
   let requiredSourceRoles = new Set();
   let unresolvedRestoreIssues = [];
+  let latestIssuedTimestampMs = Number.NEGATIVE_INFINITY;
+  let latestFailedH10Draft = null;
+
+  function observeTimestamp(value) {
+    const milliseconds = Date.parse(String(value ?? ''));
+    if (Number.isFinite(milliseconds)) latestIssuedTimestampMs = Math.max(latestIssuedTimestampMs, milliseconds);
+  }
+
+  function nextWriteTimestamp(...knownTimestamps) {
+    const requested = Date.parse(nowTimestamp(now));
+    const known = knownTimestamps
+      .map(value => Date.parse(String(value ?? '')))
+      .filter(Number.isFinite);
+    const floor = Math.max(latestIssuedTimestampMs, ...known, Number.NEGATIVE_INFINITY);
+    const milliseconds = requested > floor ? requested : floor + 1;
+    latestIssuedTimestampMs = milliseconds;
+    return new Date(milliseconds).toISOString();
+  }
+
+  function nextSnapshotTimestamp(reservedUpdatedAt, previousSnapshotUpdatedAt, capturedDraftUpdatedAt) {
+    const reserved = Date.parse(String(reservedUpdatedAt ?? ''));
+    const previous = Date.parse(String(previousSnapshotUpdatedAt ?? ''));
+    const captured = Date.parse(String(capturedDraftUpdatedAt ?? ''));
+    const milliseconds = Math.max(
+      reserved,
+      Number.isFinite(previous) ? previous + 1 : Number.NEGATIVE_INFINITY,
+      Number.isFinite(captured) ? captured : Number.NEGATIVE_INFINITY,
+    );
+    latestIssuedTimestampMs = Math.max(latestIssuedTimestampMs, milliseconds);
+    return new Date(milliseconds).toISOString();
+  }
+
+  function h10DraftRepresentsPayload(draft, input = {}) {
+    if (!draft) return false;
+    const source = isPlainObject(input?.inputs) ? input.inputs : input;
+    const h10Paste = String(source?.h10Paste ?? '');
+    const h10ObservedOn = source?.h10ObservedOn ?? null;
+    const h10SelectedAt = source?.h10SelectedAt ?? null;
+    return (
+      draft.h10Paste === h10Paste
+      && draft.h10ObservedOn === h10ObservedOn
+      && (
+        draft.h10SelectedAt === h10SelectedAt
+        || !h10SelectedAt
+      )
+    );
+  }
+
+  function h10DraftSupersedesPayload(draft, input = {}) {
+    if (!draft || h10DraftRepresentsPayload(draft, input)) return false;
+    if (
+      latestFailedH10Draft
+      && h10DraftRepresentsPayload(latestFailedH10Draft, input)
+      && Date.parse(latestFailedH10Draft.updatedAt) > Date.parse(draft.updatedAt)
+    ) return false;
+    const source = isPlainObject(input?.inputs) ? input.inputs : input;
+    const draftSelectedAt = Date.parse(String(draft.h10SelectedAt ?? ''));
+    const payloadSelectedAt = Date.parse(String(source?.h10SelectedAt ?? ''));
+    if (Number.isFinite(draftSelectedAt) && Number.isFinite(payloadSelectedAt)) {
+      return draftSelectedAt > payloadSelectedAt;
+    }
+    // Without comparable revisions, prefer the synchronously persisted draft.
+    // This prevents a stale save from resurrecting text a newer action deleted.
+    return true;
+  }
 
   function normalizedRoleSet(roles = []) {
     return new Set(Array.from(roles || [], value => String(value ?? '').trim()).filter(Boolean));
@@ -582,7 +704,9 @@ export function createWorkspaceSnapshotStore({
       return failure('unavailable', makeNamedError('StorageUnavailableError', 'Workspace persistence must provide read()'));
     }
     try {
-      return { ok: true, status: 'read', snapshot: await adapter.read() ?? null };
+      const snapshot = await adapter.read() ?? null;
+      observeTimestamp(snapshot?.updatedAt);
+      return { ok: true, status: 'read', snapshot };
     } catch (error) {
       return failure(classifyStorageError(error), error);
     }
@@ -649,7 +773,90 @@ export function createWorkspaceSnapshotStore({
     }
   }
 
+  function readH10Draft() {
+    if (!keyValueStorage || typeof keyValueStorage.getItem !== 'function') {
+      return failure('unavailable', makeNamedError('StorageUnavailableError', 'H10 draft storage must provide getItem(key)'));
+    }
+    let serialized;
+    try {
+      serialized = keyValueStorage.getItem(WORKSPACE_H10_DRAFT_KEY);
+    } catch (error) {
+      return failure(classifyStorageError(error), error);
+    }
+    if (serialized === null) return { ok:true, status:'missing', draft:null };
+    let draft;
+    try {
+      draft = JSON.parse(serialized);
+    } catch (error) {
+      return failure('corrupt', error, { preserved:true });
+    }
+    const issue = validateH10Draft(draft);
+    if (issue) {
+      return failure(issue.status, new TypeError(issue.message), {
+        version:issue.version,
+        preserved:true,
+      });
+    }
+    observeTimestamp(draft.updatedAt);
+    return { ok:true, status:'loaded', draft:clone(draft) };
+  }
+
+  function stageH10Draft(input = {}) {
+    if (!keyValueStorage || typeof keyValueStorage.setItem !== 'function') {
+      return failure('unavailable', makeNamedError('StorageUnavailableError', 'H10 draft storage must provide setItem(key, value)'));
+    }
+    const previous = readH10Draft();
+    if (!previous.ok) return previous;
+    let draft;
+    try {
+      draft = normalizeH10Draft(input, nextWriteTimestamp(previous.draft?.updatedAt));
+      keyValueStorage.setItem(WORKSPACE_H10_DRAFT_KEY, JSON.stringify(draft));
+    } catch (error) {
+      if (draft) latestFailedH10Draft = clone(draft);
+      return failure(classifyStorageError(error), error);
+    }
+    latestFailedH10Draft = null;
+    return { ok:true, status:'staged', draft:clone(draft) };
+  }
+
+  function sameH10Draft(left, right) {
+    return Boolean(left && right && H10_DRAFT_KEYS.every(key => left[key] === right[key]));
+  }
+
+  function clearCapturedH10Draft(inputs, captured) {
+    const current = readH10Draft();
+    if (!current.ok || current.status === 'missing') return current;
+    if (captured?.status !== 'loaded' || !sameH10Draft(current.draft, captured.draft)) {
+      return { ok:true, status:'newer-draft-preserved', draft:current.draft };
+    }
+    // Time alone cannot prove that a mismatched draft is stale: a queued older
+    // payload can receive the same timestamp as a newer draft. Delete only the
+    // exact H10 state captured by the committed snapshot.
+    if (!h10DraftRepresentsPayload(current.draft, { inputs })) {
+      return { ok:true, status:'newer-draft-preserved', draft:current.draft };
+    }
+    try {
+      keyValueStorage.removeItem(WORKSPACE_H10_DRAFT_KEY);
+      return { ok:true, status:'cleared', draft:null };
+    } catch (error) {
+      return failure(classifyStorageError(error), error, { preserved:true });
+    }
+  }
+
   async function save(input = {}) {
+    // Capture synchronously at the save boundary. A newer draft staged while
+    // IndexedDB is being read must not be treated as part of this payload.
+    const capturedH10Draft = readH10Draft();
+    if (capturedH10Draft.status === 'loaded' && h10DraftSupersedesPayload(capturedH10Draft.draft, input)) {
+      return failure('superseded', makeNamedError('SupersededSaveError', 'A newer H10 draft supersedes this save payload'), {
+        currentSessionPreserved:true,
+      });
+    }
+    const reservedUpdatedAt = nextWriteTimestamp(
+      capturedH10Draft.status === 'loaded' && h10DraftRepresentsPayload(capturedH10Draft.draft, input)
+        ? capturedH10Draft.draft.updatedAt
+        : null,
+    );
     const previousSnapshotResult = await readSnapshot();
     if (!previousSnapshotResult.ok) return previousSnapshotResult;
     const previousSnapshot = previousSnapshotResult.snapshot;
@@ -669,7 +876,11 @@ export function createWorkspaceSnapshotStore({
     let snapshot;
     let preferences;
     try {
-      updatedAt = nowTimestamp(now);
+      const capturedDraftUpdatedAt = capturedH10Draft.status === 'loaded'
+        && h10DraftRepresentsPayload(capturedH10Draft.draft, input)
+        ? capturedH10Draft.draft.updatedAt
+        : null;
+      updatedAt = nextSnapshotTimestamp(reservedUpdatedAt, previousSnapshot?.updatedAt, capturedDraftUpdatedAt);
       incomingSnapshot = createSnapshot(input, updatedAt);
       snapshot = mergeSnapshotSources(previousSnapshot, incomingSnapshot);
       preferences = normalizePreferences(input.preferences, updatedAt);
@@ -685,7 +896,22 @@ export function createWorkspaceSnapshotStore({
       return { ...snapshotWrite, preferencesRolledBack: !rollbackError, rollbackError };
     }
     const replacedRoles = normalizedRoleSet(incomingSnapshot.sources.map(source => source.role));
-    return savedResult(snapshot, exposedPreferences(preferences.record), replacedRoles);
+    const result = savedResult(snapshot, exposedPreferences(preferences.record), replacedRoles);
+    const h10Draft = clearCapturedH10Draft(snapshot.inputs, capturedH10Draft);
+    if (h10Draft.ok) return { ...result, h10DraftStatus:h10Draft.status };
+    const h10DraftIssue = {
+      status:h10Draft.status,
+      kind:'h10-draft',
+      error:h10Draft.error,
+      version:h10Draft.version,
+    };
+    return {
+      ...result,
+      status:'partial',
+      issues:[...result.issues, h10DraftIssue],
+      h10DraftStatus:'cleanup-failed',
+      h10DraftError:h10Draft.error,
+    };
   }
 
   async function replaceSource(role, sources) {
@@ -694,7 +920,7 @@ export function createWorkspaceSnapshotStore({
     const current = await readSnapshot();
     if (!current.ok) return current;
     if (current.snapshot === null) {
-      const updatedAt = nowTimestamp(now);
+      const updatedAt = nextWriteTimestamp();
       let snapshot;
       try {
         snapshot = createSnapshot({ sources: [], inputs: normalizeInputs() }, updatedAt);
@@ -716,7 +942,7 @@ export function createWorkspaceSnapshotStore({
         preserved: true,
       });
     }
-    const updatedAt = nowTimestamp(now);
+    const updatedAt = nextWriteTimestamp(current.snapshot.updatedAt);
     let replacements;
     try {
       replacements = Array.from(sources || [], (source, index) => (
@@ -747,13 +973,68 @@ export function createWorkspaceSnapshotStore({
     const preferences = preferencesResult.ok
       ? exposedPreferences(preferencesResult.record)
       : emptyPreferences();
+    const h10DraftResult = readH10Draft();
+    const loadedH10Draft = h10DraftResult.ok && h10DraftResult.status === 'loaded'
+      ? h10DraftResult.draft
+      : null;
+    const h10DraftIssue = h10DraftResult.ok ? null : {
+      status:h10DraftResult.status,
+      kind:'h10-draft',
+      error:h10DraftResult.error,
+      version:h10DraftResult.version,
+    };
     if (stored.snapshot === null) {
       unresolvedRestoreIssues = [];
+      if (loadedH10Draft) {
+        const plan = createEmptyPlan(preferences);
+        plan.createdAt = loadedH10Draft.updatedAt;
+        plan.updatedAt = loadedH10Draft.updatedAt;
+        plan.inputs = inputsWithH10Draft(plan.inputs, loadedH10Draft);
+        const fallbackRoles = new Set(getWorkspaceInputFallbackRoles(plan.inputs));
+        const issues = Array.from(requiredSourceRoles)
+          .filter(role => !fallbackRoles.has(role))
+          .map(role => ({ status:'missing', kind:'source', role }));
+        if (!preferencesResult.ok) {
+          issues.push({
+            status:preferencesResult.status,
+            kind:'preferences',
+            error:preferencesResult.error,
+            version:preferencesResult.version,
+          });
+        }
+        unresolvedRestoreIssues = clone(issues);
+        return {
+          ok:true,
+          status:issues.length ? 'partial' : 'restored',
+          plan,
+          issues,
+          recoveredH10Draft:true,
+        };
+      }
       if (!preferencesResult.ok) {
         return {
           ...preferencesResult,
           plan: createEmptyPlan(),
           currentSessionPreserved: true,
+          issues:[
+            ...(h10DraftIssue ? [h10DraftIssue] : []),
+            {
+              status:preferencesResult.status,
+              kind:'preferences',
+              error:preferencesResult.error,
+              version:preferencesResult.version,
+            },
+          ],
+        };
+      }
+      if (h10DraftIssue) {
+        return {
+          ok:true,
+          status:'partial',
+          plan:createEmptyPlan(preferences),
+          issues:[h10DraftIssue],
+          currentSessionPreserved:true,
+          recoveredH10Draft:false,
         };
       }
       return { ok: true, status: 'missing', plan: createEmptyPlan(preferences), issues: [] };
@@ -769,8 +1050,13 @@ export function createWorkspaceSnapshotStore({
       });
     }
 
+    const h10Draft = loadedH10Draft && Date.parse(loadedH10Draft.updatedAt) > Date.parse(stored.snapshot.updatedAt)
+      ? loadedH10Draft
+      : null;
+
     const restoredSources = [];
     const issues = [];
+    if (h10DraftIssue) issues.push(h10DraftIssue);
     const presentRoles = new Set();
     for (const [index, source] of stored.snapshot.sources.entries()) {
       if (typeof source?.role === 'string' && source.role.trim()) presentRoles.add(source.role.trim());
@@ -809,7 +1095,10 @@ export function createWorkspaceSnapshotStore({
       }
     }
 
-    const inputFallbackRoles = new Set(getWorkspaceInputFallbackRoles(stored.snapshot.inputs));
+    const restoredInputs = h10Draft
+      ? inputsWithH10Draft(stored.snapshot.inputs, h10Draft)
+      : clone(stored.snapshot.inputs);
+    const inputFallbackRoles = new Set(getWorkspaceInputFallbackRoles(restoredInputs));
     for (const role of requiredSourceRoles) {
       if (!presentRoles.has(role) && !inputFallbackRoles.has(role)) {
         issues.push({ status: 'missing', kind: 'source', role });
@@ -830,10 +1119,10 @@ export function createWorkspaceSnapshotStore({
     }
     const plan = {
       createdAt: stored.snapshot.createdAt,
-      updatedAt: stored.snapshot.updatedAt,
+      updatedAt: h10Draft?.updatedAt || stored.snapshot.updatedAt,
       sources: restoredSources,
       filesByRole,
-      inputs: clone(stored.snapshot.inputs),
+      inputs: restoredInputs,
       preferences,
       models: clone(stored.snapshot.models),
     };
@@ -843,6 +1132,7 @@ export function createWorkspaceSnapshotStore({
       status: issues.length ? 'partial' : 'restored',
       plan,
       issues,
+      recoveredH10Draft:Boolean(h10Draft),
     };
   }
 
@@ -893,13 +1183,15 @@ export function createWorkspaceSnapshotStore({
     return { ok: true, status: 'cleared', snapshotRemoved, removedKeys };
   }
 
-  return Object.freeze({ save, replaceSource, restore, clear });
+  return Object.freeze({ save, replaceSource, restore, clear, stageH10Draft, readH10Draft });
 }
 
 const browserInterface = Object.freeze({
   WORKSPACE_SNAPSHOT_SCHEMA_VERSION,
   WORKSPACE_PREFERENCES_SCHEMA_VERSION,
   WORKSPACE_PREFERENCES_KEY,
+  WORKSPACE_H10_DRAFT_SCHEMA_VERSION,
+  WORKSPACE_H10_DRAFT_KEY,
   WORKSPACE_CLEAR_LOCAL_STORAGE_KEYS,
   WORKSPACE_EXTERNAL_MODEL_REFERENCES,
   getWorkspaceInputFallbackRoles,

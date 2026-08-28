@@ -1,7 +1,7 @@
 export const ORDER_DRAFT_SCHEMA_VERSION = 2;
 export const ORDER_DRAFT_STORAGE_KEY = 'supply-order-draft-v2';
 export const LEGACY_ORDER_DRAFT_STORAGE_KEY = 'supply-generator-drafts-v1';
-export const ORDER_GROUP_IDS = Object.freeze(['taiwan', 'vietnam', 'subcontract']);
+export const ORDER_GROUP_IDS = Object.freeze(['vietnam', 'taiwan', 'subcontract']);
 export const ORDER_EXPORT_HEADERS = Object.freeze([
   '序號', '品號', '名稱', '每箱', '包裝類型', '箱數', '單位', '棧板數', '單位', '紙箱尺寸(cm)',
 ]);
@@ -23,7 +23,7 @@ function timestamp(value) {
 }
 
 function emptyGroupOrder() {
-  return { taiwan:[], vietnam:[], subcontract:[] };
+  return { vietnam:[], taiwan:[], subcontract:[] };
 }
 
 function clone(value) {

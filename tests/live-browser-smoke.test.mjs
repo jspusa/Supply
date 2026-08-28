@@ -79,7 +79,10 @@ function createFakeBrowserType({ failures = [] } = {}) {
                   const isSidebar = selector === '.appSidebar';
                   const isWorkspaceTabs = selector === '.workspaceNavTab';
                   return {
-                    async count() { return isSidebar ? 0 : isWorkspaceTabs ? 4 : 1; },
+                    async count() { return isSidebar ? 0 : isWorkspaceTabs ? 5 : 1; },
+                    async allTextContents() {
+                      return isWorkspaceTabs ? ['資料', '今日建議', '訂單', 'SKU 決策樹', '資料分析'] : [];
+                    },
                     async waitFor(options) { log.waits.push({ selector, ...options }); },
                     async isVisible() { return true; },
                   };
@@ -161,6 +164,7 @@ test('browser smoke proves legacy canonicalization, canonical public UI, absent 
     assert.deepEqual(publicPage.selectors, [
       'html[data-workspace-ui-ready="true"]',
       '.workspaceNavTab',
+      '.workspaceNavTab[data-workspace="sku-tree"]',
       '.workspaceNavTab[data-workspace="recommendations"][aria-selected="true"]',
       '#decisionDashboard[data-workspace-panel="recommendations"]',
       '#todayWorkspaceSummary[data-workspace-panel="recommendations"]',

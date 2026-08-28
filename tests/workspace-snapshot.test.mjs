@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
   WORKSPACE_CLEAR_LOCAL_STORAGE_KEYS,
   WORKSPACE_EXTERNAL_MODEL_REFERENCES,
+  WORKSPACE_H10_DRAFT_KEY,
   WORKSPACE_PREFERENCES_KEY,
   WORKSPACE_SNAPSHOT_DATABASE,
   WORKSPACE_SNAPSHOT_OBJECT_STORE,
@@ -32,14 +33,34 @@ function createMemoryPersistence(initial = null) {
 
 function createMemoryKeyValue(initial = {}) {
   const values = new Map(Object.entries(initial));
+  const nextSetFailures = new Map();
+  const nextRemoveFailures = new Map();
   let clearCalls = 0;
   let setCalls = 0;
   let removeCalls = 0;
   return {
     getItem(key) { return values.has(key) ? values.get(key) : null; },
-    setItem(key, value) { setCalls += 1; values.set(key, String(value)); },
-    removeItem(key) { removeCalls += 1; values.delete(key); },
+    setItem(key, value) {
+      setCalls += 1;
+      if (nextSetFailures.has(key)) {
+        const error = nextSetFailures.get(key);
+        nextSetFailures.delete(key);
+        throw error;
+      }
+      values.set(key, String(value));
+    },
+    removeItem(key) {
+      removeCalls += 1;
+      if (nextRemoveFailures.has(key)) {
+        const error = nextRemoveFailures.get(key);
+        nextRemoveFailures.delete(key);
+        throw error;
+      }
+      values.delete(key);
+    },
     clear() { clearCalls += 1; throw new Error('clear() must never be called'); },
+    failNextSet(key, error) { nextSetFailures.set(key, error); },
+    failNextRemove(key, error) { nextRemoveFailures.set(key, error); },
     has(key) { return values.has(key); },
     value(key) { return values.get(key); },
     keys() { return [...values.keys()]; },
@@ -95,6 +116,541 @@ test('manual Workspace inputs satisfy only the exact source roles backed by pers
     manualText:{ jam:'text without marker', amz:'AFA12AM\t5', jsp:'', sales:'AFA12AM\t99' },
     overrideMarker:{ jam:false, amz:true, jsp:true, sales:true },
   }), ['amazonInventory', 'salesReport']);
+});
+
+test('synchronous H10 draft restores after an immediate refresh and clears only after the snapshot captures it', async () => {
+  const persistence = createMemoryPersistence();
+  const keyValueStorage = createMemoryKeyValue();
+  const store = createWorkspaceSnapshotStore({ persistence, keyValueStorage, now:NOW });
+  const draftInput = {
+    h10Paste:'B000000001 AFA12AM 18.39',
+    h10ObservedOn:'2026-08-27',
+    h10SelectedAt:'2026-08-28T01:30:00.000Z',
+  };
+
+  const staged = store.stageH10Draft(draftInput);
+  assert.equal(staged.status, 'staged');
+  assert.equal(keyValueStorage.has(WORKSPACE_H10_DRAFT_KEY), true);
+
+  const restored = await store.restore({
+    requiredRoles:['openOrders', 'amazonInventory', 'jspInventory'],
+  });
+  assert.equal(restored.ok, true);
+  assert.equal(restored.status, 'partial');
+  assert.equal(restored.recoveredH10Draft, true);
+  assert.equal(restored.plan.inputs.h10Paste, draftInput.h10Paste);
+  assert.deepEqual(restored.issues.map(issue => issue.role), ['openOrders', 'jspInventory']);
+
+  const saved = await store.save({
+    sources:[],
+    inputs:{
+      ...draftInput,
+      manualText:{ jam:'', amz:'', jsp:'', sales:'' },
+      overrideMarker:{ jam:false, amz:false, jsp:false, sales:false },
+    },
+    preferences:{ activeWorkspace:'data' },
+  });
+  assert.equal(saved.ok, true);
+  assert.equal(saved.h10DraftStatus, 'cleared');
+  assert.equal(keyValueStorage.has(WORKSPACE_H10_DRAFT_KEY), false);
+  assert.equal(persistence.inspect().inputs.h10Paste, draftInput.h10Paste);
+});
+
+test('an empty H10 draft acts as a deletion tombstone until the cleared value is safely saved', async () => {
+  const persistence = createMemoryPersistence();
+  const keyValueStorage = createMemoryKeyValue();
+  const store = createWorkspaceSnapshotStore({ persistence, keyValueStorage, now:NOW });
+  const previousInputs = completeInputs();
+  await store.save({ sources:[], inputs:previousInputs, preferences:{} });
+
+  assert.equal(store.stageH10Draft({ h10Paste:'', h10ObservedOn:null, h10SelectedAt:null }).ok, true);
+  assert.ok(Date.parse(store.readH10Draft().draft.h10SelectedAt));
+  const restored = await store.restore();
+  assert.equal(restored.recoveredH10Draft, true);
+  assert.equal(restored.plan.inputs.h10Paste, '');
+  assert.equal(keyValueStorage.has(WORKSPACE_H10_DRAFT_KEY), true);
+
+  const saved = await store.save({
+    sources:[],
+    inputs:{ ...previousInputs, h10Paste:'', h10ObservedOn:null, h10SelectedAt:null },
+    preferences:{},
+  });
+  assert.equal(saved.h10DraftStatus, 'cleared');
+  assert.equal(keyValueStorage.has(WORKSPACE_H10_DRAFT_KEY), false);
+  assert.equal(persistence.inspect().inputs.h10Paste, '');
+});
+
+test('a newer empty tombstone rejects a stale non-empty save from another tab', async () => {
+  const persistence = createMemoryPersistence();
+  const keyValueStorage = createMemoryKeyValue();
+  const firstTab = createWorkspaceSnapshotStore({ persistence, keyValueStorage, now:NOW });
+  const oldInputs = completeInputs();
+  await firstTab.save({ sources:[], inputs:oldInputs, preferences:{} });
+
+  const secondTab = createWorkspaceSnapshotStore({
+    persistence,
+    keyValueStorage,
+    now:'2026-08-28T03:04:06.000Z',
+  });
+  const staged = secondTab.stageH10Draft({
+    h10Paste:'',
+    h10ObservedOn:null,
+    h10SelectedAt:'2026-08-28T03:04:06.000Z',
+  });
+  assert.equal(staged.ok, true);
+
+  const staleSave = await firstTab.save({ sources:[], inputs:oldInputs, preferences:{} });
+  assert.equal(staleSave.ok, false);
+  assert.equal(staleSave.status, 'superseded');
+  assert.equal(persistence.inspect().inputs.h10Paste, oldInputs.h10Paste);
+
+  const restored = await createWorkspaceSnapshotStore({ persistence, keyValueStorage, now:NOW }).restore();
+  assert.equal(restored.recoveredH10Draft, true);
+  assert.equal(restored.plan.inputs.h10Paste, '');
+});
+
+test('a newer H10 draft is not deleted when an older asynchronous snapshot save finishes later', async () => {
+  let stored = null;
+  let releaseWrite;
+  let signalWriteStarted;
+  const writeStarted = new Promise(resolve => { signalWriteStarted = resolve; });
+  const persistence = {
+    async read() { return stored; },
+    async write(next) {
+      signalWriteStarted();
+      await new Promise(resolve => { releaseWrite = resolve; });
+      stored = next;
+    },
+    async remove() { stored = null; },
+  };
+  const keyValueStorage = createMemoryKeyValue();
+  const store = createWorkspaceSnapshotStore({ persistence, keyValueStorage, now:NOW });
+  const older = {
+    h10Paste:'OLDER H10 TEXT',
+    h10ObservedOn:'2026-08-27',
+    h10SelectedAt:'2026-08-28T01:30:00.000Z',
+  };
+  const newer = {
+    h10Paste:'NEWER H10 TEXT',
+    h10ObservedOn:'2026-08-28',
+    h10SelectedAt:'2026-08-28T02:30:00.000Z',
+  };
+
+  store.stageH10Draft(older);
+  const savePromise = store.save({
+    sources:[],
+    inputs:{
+      ...older,
+      manualText:{ jam:'', amz:'', jsp:'', sales:'' },
+      overrideMarker:{ jam:false, amz:false, jsp:false, sales:false },
+    },
+    preferences:{},
+  });
+  await writeStarted;
+  store.stageH10Draft(newer);
+  releaseWrite();
+
+  const saved = await savePromise;
+  assert.equal(saved.h10DraftStatus, 'newer-draft-preserved');
+  assert.equal(store.readH10Draft().draft.h10Paste, newer.h10Paste);
+  assert.equal(stored.inputs.h10Paste, older.h10Paste);
+});
+
+test('a draft staged while an older save is still reading remains newer than that snapshot', async () => {
+  let stored = null;
+  let releaseRead;
+  let signalReadStarted;
+  let shouldDelayRead = true;
+  const readStarted = new Promise(resolve => { signalReadStarted = resolve; });
+  const persistence = {
+    async read() {
+      if (shouldDelayRead) {
+        shouldDelayRead = false;
+        signalReadStarted();
+        await new Promise(resolve => { releaseRead = resolve; });
+      }
+      return stored;
+    },
+    async write(next) { stored = next; },
+    async remove() { stored = null; },
+  };
+  const keyValueStorage = createMemoryKeyValue();
+  const store = createWorkspaceSnapshotStore({ persistence, keyValueStorage, now:NOW });
+  const older = {
+    h10Paste:'OLDER H10 TEXT',
+    h10ObservedOn:'2026-08-27',
+    h10SelectedAt:'2026-08-28T01:30:00.000Z',
+  };
+  const newer = {
+    h10Paste:'NEWER H10 TEXT',
+    h10ObservedOn:'2026-08-28',
+    h10SelectedAt:'2026-08-28T02:30:00.000Z',
+  };
+
+  store.stageH10Draft(older);
+  const savePromise = store.save({
+    sources:[],
+    inputs:{
+      ...older,
+      manualText:{ jam:'', amz:'', jsp:'', sales:'' },
+      overrideMarker:{ jam:false, amz:false, jsp:false, sales:false },
+    },
+    preferences:{},
+  });
+  await readStarted;
+  store.stageH10Draft(newer);
+  releaseRead();
+
+  const saved = await savePromise;
+  assert.equal(saved.h10DraftStatus, 'newer-draft-preserved');
+  assert.equal(stored.inputs.h10Paste, older.h10Paste);
+  assert.equal(store.readH10Draft().draft.h10Paste, newer.h10Paste);
+  assert.ok(Date.parse(store.readH10Draft().draft.updatedAt) > Date.parse(stored.updatedAt));
+
+  const restored = await createWorkspaceSnapshotStore({ persistence, keyValueStorage, now:NOW }).restore();
+  assert.equal(restored.recoveredH10Draft, true);
+  assert.equal(restored.plan.inputs.h10Paste, newer.h10Paste);
+});
+
+test('a queued older payload cannot capture and clear a newer draft staged before the save call', async () => {
+  const persistence = createMemoryPersistence();
+  const keyValueStorage = createMemoryKeyValue();
+  const store = createWorkspaceSnapshotStore({ persistence, keyValueStorage, now:NOW });
+  const older = {
+    h10Paste:'QUEUED OLD TEXT',
+    h10ObservedOn:'2026-08-27',
+    h10SelectedAt:'2026-08-28T01:30:00.000Z',
+  };
+  const newer = {
+    h10Paste:'LIVE NEW TEXT',
+    h10ObservedOn:'2026-08-28',
+    h10SelectedAt:'2026-08-28T02:30:00.000Z',
+  };
+  store.stageH10Draft(older);
+  store.stageH10Draft(newer);
+
+  const saved = await store.save({
+    sources:[],
+    inputs:{
+      ...older,
+      manualText:{ jam:'', amz:'', jsp:'', sales:'' },
+      overrideMarker:{ jam:false, amz:false, jsp:false, sales:false },
+    },
+    preferences:{},
+  });
+  assert.equal(saved.ok, false);
+  assert.equal(saved.status, 'superseded');
+  assert.equal(store.readH10Draft().draft.h10Paste, newer.h10Paste);
+  assert.equal(persistence.inspect(), null);
+
+  const restored = await createWorkspaceSnapshotStore({ persistence, keyValueStorage, now:NOW }).restore();
+  assert.equal(restored.recoveredH10Draft, true);
+  assert.equal(restored.plan.inputs.h10Paste, newer.h10Paste);
+});
+
+test('an existing snapshot timestamp cannot make a queued old payload clear the next draft', async () => {
+  const persistence = createMemoryPersistence();
+  const keyValueStorage = createMemoryKeyValue();
+  const store = createWorkspaceSnapshotStore({ persistence, keyValueStorage, now:NOW });
+  const older = {
+    h10Paste:'SAVED OLD TEXT',
+    h10ObservedOn:'2026-08-27',
+    h10SelectedAt:'2026-08-28T01:30:00.000Z',
+  };
+  const newer = {
+    h10Paste:'NEXT LIVE TEXT',
+    h10ObservedOn:'2026-08-28',
+    h10SelectedAt:'2026-08-28T02:30:00.000Z',
+  };
+  await store.save({
+    sources:[],
+    inputs:{
+      ...older,
+      manualText:{ jam:'', amz:'', jsp:'', sales:'' },
+      overrideMarker:{ jam:false, amz:false, jsp:false, sales:false },
+    },
+    preferences:{},
+  });
+  const previousUpdatedAt = persistence.inspect().updatedAt;
+  store.stageH10Draft(newer);
+
+  const saved = await store.save({
+    sources:[],
+    inputs:{
+      ...older,
+      manualText:{ jam:'', amz:'', jsp:'', sales:'' },
+      overrideMarker:{ jam:false, amz:false, jsp:false, sales:false },
+    },
+    preferences:{},
+  });
+  assert.equal(saved.ok, false);
+  assert.equal(saved.status, 'superseded');
+  assert.equal(store.readH10Draft().draft.h10Paste, newer.h10Paste);
+  assert.equal(persistence.inspect().updatedAt, previousUpdatedAt);
+
+  const restored = await createWorkspaceSnapshotStore({ persistence, keyValueStorage, now:NOW }).restore();
+  assert.equal(restored.recoveredH10Draft, true);
+  assert.equal(restored.plan.inputs.h10Paste, newer.h10Paste);
+});
+
+test('a draft first staged during an existing snapshot read stays strictly newer than that save', async () => {
+  let stored = null;
+  let delayNextRead = false;
+  let releaseRead;
+  let signalReadStarted;
+  const readStarted = new Promise(resolve => { signalReadStarted = resolve; });
+  const persistence = {
+    async read() {
+      if (delayNextRead) {
+        delayNextRead = false;
+        signalReadStarted();
+        await new Promise(resolve => { releaseRead = resolve; });
+      }
+      return stored;
+    },
+    async write(next) { stored = next; },
+    async remove() { stored = null; },
+  };
+  const keyValueStorage = createMemoryKeyValue();
+  const store = createWorkspaceSnapshotStore({ persistence, keyValueStorage, now:NOW });
+  const older = {
+    h10Paste:'EXISTING SNAPSHOT TEXT',
+    h10ObservedOn:'2026-08-27',
+    h10SelectedAt:'2026-08-28T01:30:00.000Z',
+  };
+  const newer = {
+    h10Paste:'FIRST NEW DRAFT',
+    h10ObservedOn:'2026-08-28',
+    h10SelectedAt:'2026-08-28T02:30:00.000Z',
+  };
+  await store.save({
+    inputs:{
+      ...older,
+      manualText:{ jam:'', amz:'', jsp:'', sales:'' },
+      overrideMarker:{ jam:false, amz:false, jsp:false, sales:false },
+    },
+    preferences:{},
+  });
+  delayNextRead = true;
+  const savePromise = store.save({
+    inputs:{
+      ...older,
+      manualText:{ jam:'', amz:'', jsp:'', sales:'' },
+      overrideMarker:{ jam:false, amz:false, jsp:false, sales:false },
+    },
+    preferences:{},
+  });
+  await readStarted;
+  store.stageH10Draft(newer);
+  releaseRead();
+
+  const saved = await savePromise;
+  assert.equal(saved.ok, true);
+  assert.equal(saved.h10DraftStatus, 'newer-draft-preserved');
+  const draft = store.readH10Draft().draft;
+  assert.ok(Date.parse(draft.updatedAt) > Date.parse(stored.updatedAt));
+
+  const restored = await createWorkspaceSnapshotStore({ persistence, keyValueStorage, now:NOW }).restore();
+  assert.equal(restored.recoveredH10Draft, true);
+  assert.equal(restored.plan.inputs.h10Paste, newer.h10Paste);
+});
+
+test('a failed newer draft write cannot make an older draft override the newer snapshot', async () => {
+  const timestamps = [
+    '2026-08-28T03:04:05.000Z',
+    '2026-08-28T03:04:06.000Z',
+    '2026-08-28T03:04:07.000Z',
+  ];
+  const persistence = createMemoryPersistence();
+  const keyValueStorage = createMemoryKeyValue();
+  const store = createWorkspaceSnapshotStore({
+    persistence,
+    keyValueStorage,
+    now:() => timestamps.shift(),
+  });
+  const older = {
+    h10Paste:'OLDER H10 TEXT',
+    h10ObservedOn:'2026-08-27',
+    h10SelectedAt:'2026-08-28T01:30:00.000Z',
+  };
+  const newer = {
+    h10Paste:'NEWER H10 TEXT',
+    h10ObservedOn:'2026-08-28',
+    h10SelectedAt:'2026-08-28T02:30:00.000Z',
+  };
+
+  assert.equal(store.stageH10Draft(older).status, 'staged');
+  keyValueStorage.failNextSet(WORKSPACE_H10_DRAFT_KEY, new DOMException('full', 'QuotaExceededError'));
+  const failedStage = store.stageH10Draft(newer);
+  assert.equal(failedStage.ok, false);
+  assert.equal(failedStage.status, 'quota');
+  assert.equal(store.readH10Draft().draft.h10Paste, older.h10Paste);
+
+  const saved = await store.save({
+    sources:[],
+    inputs:{
+      ...newer,
+      manualText:{ jam:'', amz:'', jsp:'', sales:'' },
+      overrideMarker:{ jam:false, amz:false, jsp:false, sales:false },
+    },
+    preferences:{},
+  });
+  assert.equal(saved.ok, true);
+  assert.equal(saved.h10DraftStatus, 'newer-draft-preserved');
+  assert.equal(keyValueStorage.has(WORKSPACE_H10_DRAFT_KEY), true);
+
+  const restored = await createWorkspaceSnapshotStore({ persistence, keyValueStorage, now:NOW }).restore();
+  assert.equal(restored.recoveredH10Draft, false);
+  assert.equal(restored.plan.inputs.h10Paste, newer.h10Paste);
+});
+
+test('a failed empty tombstone stage still saves the deletion in the full snapshot', async () => {
+  const timestamps = [
+    '2026-08-28T03:04:05.000Z',
+    '2026-08-28T03:04:06.000Z',
+    '2026-08-28T03:04:07.000Z',
+  ];
+  const persistence = createMemoryPersistence();
+  const keyValueStorage = createMemoryKeyValue();
+  const store = createWorkspaceSnapshotStore({
+    persistence,
+    keyValueStorage,
+    now:() => timestamps.shift(),
+  });
+  const older = {
+    h10Paste:'OLD TEXT TO DELETE',
+    h10ObservedOn:'2026-08-27',
+    h10SelectedAt:'2026-08-28T01:30:00.000Z',
+  };
+  store.stageH10Draft(older);
+  keyValueStorage.failNextSet(WORKSPACE_H10_DRAFT_KEY, new DOMException('full', 'QuotaExceededError'));
+  const failedStage = store.stageH10Draft({ h10Paste:'', h10ObservedOn:null, h10SelectedAt:null });
+  assert.equal(failedStage.ok, false);
+  assert.equal(failedStage.status, 'quota');
+
+  const saved = await store.save({
+    inputs:{
+      h10Paste:'',
+      h10ObservedOn:null,
+      h10SelectedAt:null,
+      manualText:{ jam:'', amz:'', jsp:'', sales:'' },
+      overrideMarker:{ jam:false, amz:false, jsp:false, sales:false },
+    },
+    preferences:{},
+  });
+  assert.equal(saved.ok, true);
+  assert.equal(saved.h10DraftStatus, 'newer-draft-preserved');
+  assert.equal(persistence.inspect().inputs.h10Paste, '');
+  assert.equal(store.readH10Draft().draft.h10Paste, older.h10Paste);
+
+  const restored = await createWorkspaceSnapshotStore({ persistence, keyValueStorage, now:NOW }).restore();
+  assert.equal(restored.recoveredH10Draft, false);
+  assert.equal(restored.plan.inputs.h10Paste, '');
+});
+
+test('a stale draft left behind by cleanup failure is ignored when the snapshot is equally new or newer', async () => {
+  const persistence = createMemoryPersistence();
+  const keyValueStorage = createMemoryKeyValue();
+  const store = createWorkspaceSnapshotStore({ persistence, keyValueStorage, now:NOW });
+  const newer = {
+    h10Paste:'NEW FILE TEXT',
+    h10ObservedOn:'2026-08-28',
+    h10SelectedAt:'2026-08-28T02:30:00.000Z',
+  };
+  store.stageH10Draft(newer);
+  keyValueStorage.failNextRemove(WORKSPACE_H10_DRAFT_KEY, new DOMException('blocked', 'SecurityError'));
+
+  const saved = await store.save({
+    sources:[],
+    inputs:{
+      ...newer,
+      manualText:{ jam:'', amz:'', jsp:'', sales:'' },
+      overrideMarker:{ jam:false, amz:false, jsp:false, sales:false },
+    },
+    preferences:{},
+  });
+  assert.equal(saved.h10DraftStatus, 'cleanup-failed');
+  assert.equal(keyValueStorage.has(WORKSPACE_H10_DRAFT_KEY), true);
+
+  const restored = await createWorkspaceSnapshotStore({ persistence, keyValueStorage, now:NOW }).restore();
+  assert.equal(restored.recoveredH10Draft, false);
+  assert.equal(restored.plan.inputs.h10Paste, newer.h10Paste);
+});
+
+test('staging never overwrites an unsupported future H10 draft schema and restore reports it', async () => {
+  const futureDraft = JSON.stringify({
+    schemaVersion:2,
+    updatedAt:'2026-08-28T03:04:05.000Z',
+    payload:{ h10Paste:'FUTURE DATA' },
+  });
+  const keyValueStorage = createMemoryKeyValue({ [WORKSPACE_H10_DRAFT_KEY]:futureDraft });
+  const store = createWorkspaceSnapshotStore({ persistence:createMemoryPersistence(), keyValueStorage, now:NOW });
+
+  const result = store.stageH10Draft({ h10Paste:'CURRENT DATA' });
+  assert.equal(result.ok, false);
+  assert.equal(result.status, 'unsupported-version');
+  assert.equal(result.preserved, true);
+  assert.equal(keyValueStorage.value(WORKSPACE_H10_DRAFT_KEY), futureDraft);
+
+  const restored = await store.restore();
+  assert.equal(restored.ok, true);
+  assert.equal(restored.status, 'partial');
+  assert.equal(restored.recoveredH10Draft, false);
+  assert.deepEqual(restored.issues.map(issue => [issue.kind, issue.status, issue.version]), [
+    ['h10-draft', 'unsupported-version', 2],
+  ]);
+  assert.equal(keyValueStorage.value(WORKSPACE_H10_DRAFT_KEY), futureDraft);
+
+  const saved = await store.save({ inputs:{ h10Paste:'CURRENT DATA' }, preferences:{} });
+  assert.equal(saved.ok, true);
+  assert.equal(saved.status, 'partial');
+  assert.equal(saved.h10DraftStatus, 'cleanup-failed');
+  assert.deepEqual(saved.issues.map(issue => [issue.kind, issue.status, issue.version]), [
+    ['h10-draft', 'unsupported-version', 2],
+  ]);
+  assert.equal(keyValueStorage.value(WORKSPACE_H10_DRAFT_KEY), futureDraft);
+});
+
+test('a corrupt H10 draft is preserved and reported without hiding a readable snapshot', async () => {
+  const persistence = createMemoryPersistence();
+  const keyValueStorage = createMemoryKeyValue();
+  const writer = createWorkspaceSnapshotStore({ persistence, keyValueStorage, now:NOW });
+  await writer.save({
+    inputs:{
+      ...completeInputs(),
+      h10Paste:'READABLE SNAPSHOT TEXT',
+    },
+    preferences:{ activeWorkspace:'data' },
+  });
+  keyValueStorage.setItem(WORKSPACE_H10_DRAFT_KEY, '{broken-json');
+
+  const restored = await createWorkspaceSnapshotStore({ persistence, keyValueStorage, now:NOW }).restore();
+  assert.equal(restored.ok, true);
+  assert.equal(restored.status, 'partial');
+  assert.equal(restored.recoveredH10Draft, false);
+  assert.equal(restored.plan.inputs.h10Paste, 'READABLE SNAPSHOT TEXT');
+  assert.deepEqual(restored.issues.map(issue => [issue.kind, issue.status]), [
+    ['h10-draft', 'corrupt'],
+  ]);
+  assert.equal(keyValueStorage.value(WORKSPACE_H10_DRAFT_KEY), '{broken-json');
+});
+
+test('a valid H10 draft still restores when unrelated workspace preferences are corrupt', async () => {
+  const persistence = createMemoryPersistence();
+  const keyValueStorage = createMemoryKeyValue({ [WORKSPACE_PREFERENCES_KEY]:'{broken-json' });
+  const store = createWorkspaceSnapshotStore({ persistence, keyValueStorage, now:NOW });
+  store.stageH10Draft({
+    h10Paste:'RECOVER ME',
+    h10ObservedOn:'2026-08-28',
+    h10SelectedAt:'2026-08-28T02:30:00.000Z',
+  });
+
+  const restored = await store.restore({ requiredRoles:['amazonInventory'] });
+  assert.equal(restored.ok, true);
+  assert.equal(restored.status, 'partial');
+  assert.equal(restored.recoveredH10Draft, true);
+  assert.equal(restored.plan.inputs.h10Paste, 'RECOVER ME');
+  assert.equal(restored.issues.some(issue => issue.kind === 'preferences' && issue.status === 'corrupt'), true);
 });
 
 test('manual-only required sources restore ready and a later manual edit remains autosaveable', async () => {

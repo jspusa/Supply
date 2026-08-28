@@ -108,3 +108,52 @@ test('manual-only JAM, H10, and JSP restore ready and continue autosaving after 
   expect(unexpectedRequests).toEqual([]);
   expect(browserErrors).toEqual([]);
 });
+
+test('pasted H10 text survives an immediate refresh before the debounced snapshot save', async ({ page, context }) => {
+  await freezeBrowserTime(page);
+  const unexpectedRequests = [];
+  await installOfflineAssetRoutes(context, unexpectedRequests);
+  const browserErrors = monitorBrowserErrors(page);
+
+  await page.goto('/#data');
+  await waitForSupplyApp(page);
+  await page.locator('#inputH10').fill(SANITIZED_H10_TEXT);
+  await page.reload();
+  await waitForSupplyApp(page);
+
+  await expect(page.locator('#inputH10')).toHaveValue(SANITIZED_H10_TEXT);
+
+  await page.locator('#inputH10').fill('');
+  await waitForSnapshot(page, snapshot => snapshot.inputs.h10Paste === '');
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('supply-workspace-h10-draft-v1'))).toBeNull();
+  await page.reload();
+  await waitForSupplyApp(page);
+  await expect(page.locator('#inputH10')).toHaveValue('');
+
+  expect(unexpectedRequests).toEqual([]);
+  expect(browserErrors).toEqual([]);
+});
+
+test('a newly imported H10 text file replaces an older pasted draft even across an immediate refresh', async ({ page, context }) => {
+  await freezeBrowserTime(page);
+  const unexpectedRequests = [];
+  await installOfflineAssetRoutes(context, unexpectedRequests);
+  const browserErrors = monitorBrowserErrors(page);
+  const importedH10Text = 'B000000099 AFA12AM 19.25';
+
+  await page.goto('/#data');
+  await waitForSupplyApp(page);
+  await page.locator('#inputH10').fill(SANITIZED_H10_TEXT);
+  await page.locator('#masterFileInput').setInputFiles({
+    name:'new-helium10.txt',
+    mimeType:'text/plain',
+    buffer:Buffer.from(importedH10Text, 'utf8'),
+  });
+  await expect(page.locator('#inputH10')).toHaveValue(importedH10Text);
+  await page.reload();
+  await waitForSupplyApp(page);
+
+  await expect(page.locator('#inputH10')).toHaveValue(importedH10Text);
+  expect(unexpectedRequests).toEqual([]);
+  expect(browserErrors).toEqual([]);
+});

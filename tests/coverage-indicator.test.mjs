@@ -1,10 +1,13 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import test from 'node:test';
 
 import {
   buildCoverageMeterModel,
   renderCoverageMeter,
 } from '../shared/coverage-indicator.js';
+
+const coverageCss = fs.readFileSync(new URL('../shared/coverage-indicator.css', import.meta.url), 'utf8');
 
 test('coverage meter owns the fixed 180 and 365 day health bands', () => {
   assert.equal(buildCoverageMeterModel({ coverageDays:179.9 }).band, 'low');
@@ -33,6 +36,18 @@ test('coverage meter fill is proportional to days over the 365 day track', () =>
   assert.equal(model.targetDays, 180);
   assert.equal(model.maximumDays, 365);
   assert.equal(Object.isFrozen(model), true);
+});
+
+test('yellow, green, and red bands share one translucent finish without special patterns', () => {
+  for (const band of ['low', 'healthy', 'excess']) {
+    assert.match(coverageCss, new RegExp(`\\.coverageMeter--${band} \\{[^}]*--coverage-accent-rgb:[^}]*--coverage-status-color:`, 's'));
+  }
+
+  const sharedFill = coverageCss.match(/\.coverageMeter--low \.coverageMeter__fill,\s*\.coverageMeter--healthy \.coverageMeter__fill,\s*\.coverageMeter--excess \.coverageMeter__fill \{([^}]*)\}/s);
+  assert.ok(sharedFill, 'all three colored bands should use one shared fill rule');
+  assert.match(sharedFill[1], /linear-gradient\(\s*180deg,\s*rgba\(var\(--coverage-accent-rgb\), 0\.56\) 0%,\s*rgba\(var\(--coverage-accent-rgb\), 0\.74\) 100%\s*\)/s);
+  assert.match(sharedFill[1], /box-shadow:/);
+  assert.doesNotMatch(coverageCss, /repeating-linear-gradient|repeating-radial-gradient/);
 });
 
 test('unavailable assessment is neutral while retaining its finite value', () => {
