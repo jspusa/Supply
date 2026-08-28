@@ -10,7 +10,11 @@ import {
   ORDER_SKU_PACKAGING_SHEET,
   PRODUCT_MASTER_SHEET,
 } from '../catalog/product-master-workbook.js';
-import { overlayRawProductCatalog } from '../catalog/raw-product-catalog-overlay.js';
+import { assertCatalogHistoryPreserved } from '../catalog/product-catalog.js';
+import {
+  applyExplicitRawClears,
+  overlayRawProductCatalog,
+} from '../catalog/raw-product-catalog-overlay.js';
 import '../shared/shared-product-catalog.js';
 
 function options(argv) {
@@ -29,9 +33,10 @@ function options(argv) {
   return values;
 }
 
-export function compileProductCatalogWorkbook({ inputPath, outputPath, basePath = outputPath, version, check = false }) {
+export function compileProductCatalogWorkbook({ inputPath, outputPath, basePath = outputPath, version, explicitClears = [], check = false }) {
   const resolvedInput = path.resolve(inputPath);
   const resolvedOutput = path.resolve(outputPath);
+  const resolvedBase = path.resolve(basePath);
   const workbook = XLSX.read(fs.readFileSync(resolvedInput), { type:'buffer', cellDates:true });
   const sheet = workbook.Sheets[PRODUCT_MASTER_SHEET];
   const orderSkuSheet = workbook.Sheets[ORDER_SKU_PACKAGING_SHEET];
@@ -42,17 +47,21 @@ export function compileProductCatalogWorkbook({ inputPath, outputPath, basePath 
     const rows = XLSX.utils.sheet_to_json(sheet, { header:1, defval:null, raw:true });
     const orderSkuRows = XLSX.utils.sheet_to_json(orderSkuSheet, { header:1, defval:null, raw:true });
     catalog = catalogFromProductMasterRows(rows, orderSkuRows);
+    if (fs.existsSync(resolvedBase)) {
+      const baseCatalog = JSON.parse(fs.readFileSync(resolvedBase, 'utf8'));
+      assertCatalogHistoryPreserved(baseCatalog, catalog);
+    }
     summary = `${catalog.products.length} products and ${catalog.orderSkuAliases.length} Order SKU aliases`;
   } else {
     const rawApi = globalThis.JSPSharedProductCatalog;
     if (!rawApi?.isRawWorkbook(workbook)) {
       throw new Error(`Workbook must contain either ${PRODUCT_MASTER_SHEET}/${ORDER_SKU_PACKAGING_SHEET} or AMZ 所有SKU/2026/罐頭`);
     }
-    const resolvedBase = path.resolve(basePath);
     if (!fs.existsSync(resolvedBase)) throw new Error('Raw workbook import requires an existing canonical catalog via --base or --output');
     if (!version) throw new Error('Raw workbook import requires --version YYYY-MM-DD.N');
     const baseCatalog = JSON.parse(fs.readFileSync(resolvedBase, 'utf8'));
-    const payload = rawApi.createPayload(workbook, XLSX, { sourceFile:path.basename(resolvedInput), baseCatalogVersion:baseCatalog.catalogVersion });
+    const parsedPayload = rawApi.createPayload(workbook, XLSX, { sourceFile:path.basename(resolvedInput), baseCatalogVersion:baseCatalog.catalogVersion });
+    const payload = applyExplicitRawClears(parsedPayload, explicitClears);
     const result = overlayRawProductCatalog(baseCatalog, payload, { catalogVersion:version });
     catalog = result.catalog;
     importStats = {
@@ -60,6 +69,12 @@ export function compileProductCatalogWorkbook({ inputPath, outputPath, basePath 
       rawRecords:payload.records.length,
       skippedRawRecords:payload.stats.skipped,
       duplicateConflicts:payload.stats.duplicateConflicts,
+      sourceConflicts:payload.conflicts,
+      sourceRecords:payload.records.map(record => ({
+        sku:record.sku,
+        sourceSheet:record.sourceSheet,
+        sourceRow:record.sourceRow,
+      })),
       matchedSheets:payload.matchedSheets.map(name => name.trim()),
     };
     summary = `${catalog.products.length} products and ${catalog.orderSkuAliases.length} Order SKU aliases from raw sheets; ${JSON.stringify(result.stats)}`;

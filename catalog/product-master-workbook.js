@@ -1,10 +1,10 @@
-import { validateCatalog } from './product-catalog.js';
+import { migrateCatalog, validateCatalog } from './product-catalog.js';
 
 export const PRODUCT_MASTER_SHEET = '產品主檔';
 export const PRODUCT_MASTER_TABLE = 'ProductMasterTable';
 export const PRODUCT_MASTER_HEADERS = Object.freeze([
   'Product SKU', '品名', '實際產地', '標準下單廠別', '核准替代下單品號',
-  '包裝版本', '生效日期', '失效日期', '現行版本', '包裝模式',
+  '包裝版本', '生效日期', '失效日期', '新訂單預設', '包裝模式',
   '箱入數', '每包單位數', '每盒單位數', '箱／棧板',
   '箱長(cm)', '箱寬(cm)', '箱高(cm)', '箱毛重(kg)', '箱毛重(lb)',
   '產品狀態', '資料來源工作表', '來源列', '備註', '發布檢查',
@@ -13,7 +13,7 @@ export const ORDER_SKU_PACKAGING_SHEET = '下單品號箱規';
 export const ORDER_SKU_PACKAGING_TABLE = 'OrderSkuPackagingTable';
 export const ORDER_SKU_PACKAGING_HEADERS = Object.freeze([
   'Order SKU', '對應 Product SKU', 'Alias 狀態',
-  '包裝版本', '生效日期', '失效日期', '現行版本', '包裝模式',
+  '包裝版本', '生效日期', '失效日期', '新訂單預設', '包裝模式',
   '箱入數', '每包單位數', '每盒單位數', '箱／棧板',
   '箱長(cm)', '箱寬(cm)', '箱高(cm)', '箱毛重(kg)', '箱毛重(lb)',
   '資料來源工作表', '來源列', '備註', '發布檢查',
@@ -38,6 +38,8 @@ const ORDER_SKU_ALIAS_LIFECYCLES = new Map([
   ['核准', 'approved'], ['APPROVED', 'approved'],
   ['未映射舊品號', 'unmapped-legacy'], ['UNMAPPED-LEGACY', 'unmapped-legacy'],
 ]);
+const LEGACY_PRODUCT_MASTER_HEADERS = Object.freeze(PRODUCT_MASTER_HEADERS.map((header, index) => index === 8 ? '現行版本' : header));
+const LEGACY_ORDER_SKU_PACKAGING_HEADERS = Object.freeze(ORDER_SKU_PACKAGING_HEADERS.map((header, index) => index === 6 ? '現行版本' : header));
 
 function text(value) {
   return value === null || value === undefined ? '' : String(value).trim();
@@ -86,11 +88,11 @@ function stableProductFields(row, rowNumber) {
   return { productSku, productName, origin, standardFactory, alternateOrderSkus, lifecycle };
 }
 
-function packagingFromRow(row, rowNumber) {
-  const current = text(row[8]);
-  if (current !== '是' && current !== '否') throw new Error(`row ${rowNumber} current version must be 是 or 否`);
+function packagingFromRow(row, rowNumber, schemaVersion) {
+  const isDefault = text(row[8]);
+  if (isDefault !== '是' && isDefault !== '否') throw new Error(`row ${rowNumber} new-order default must be 是 or 否`);
   const effectiveTo = isoDate(row[7], `row ${rowNumber} effective date end`);
-  if ((current === '是') !== (effectiveTo === null)) {
+  if (schemaVersion === 2 && (isDefault === '是') !== (effectiveTo === null)) {
     throw new Error(`row ${rowNumber} current version and effective date end disagree`);
   }
   const kind = mapped(row[9], ORDER_UNITS, `row ${rowNumber} order unit`);
@@ -126,7 +128,7 @@ function packagingFromRow(row, rowNumber) {
     }
     packaging.source = { sheet:sourceSheet, row:sourceRow };
   }
-  return packaging;
+  return { packaging, isDefault:isDefault === '是' };
 }
 
 function stableSignature(fields) {
@@ -139,11 +141,11 @@ function stableSignature(fields) {
   ]);
 }
 
-function orderSkuPackagingFromRow(row, rowNumber) {
-  const current = text(row[6]);
-  if (current !== '是' && current !== '否') throw new Error(`row ${rowNumber} current version must be 是 or 否`);
+function orderSkuPackagingFromRow(row, rowNumber, schemaVersion) {
+  const isDefault = text(row[6]);
+  if (isDefault !== '是' && isDefault !== '否') throw new Error(`row ${rowNumber} new-order default must be 是 or 否`);
   const effectiveTo = isoDate(row[5], `row ${rowNumber} effective date end`);
-  if ((current === '是') !== (effectiveTo === null)) {
+  if (schemaVersion === 2 && (isDefault === '是') !== (effectiveTo === null)) {
     throw new Error(`row ${rowNumber} current version and effective date end disagree`);
   }
   const kind = mapped(row[7], ORDER_UNITS, `row ${rowNumber} order unit`);
@@ -178,7 +180,7 @@ function orderSkuPackagingFromRow(row, rowNumber) {
     }
     packaging.source = { sheet:sourceSheet, row:sourceRow };
   }
-  return packaging;
+  return { packaging, isDefault:isDefault === '是' };
 }
 
 function workbookMetadata(rows, sheetName) {
@@ -196,7 +198,10 @@ function orderSkuAliasesFromRows(rows, expectedMetadata) {
   }
   const headers = (rows[4] || []).map(text);
   while (headers.at(-1) === '') headers.pop();
-  if (JSON.stringify(headers) !== JSON.stringify(ORDER_SKU_PACKAGING_HEADERS)) {
+  const expectedHeaders = metadata.schemaVersion === 2
+    ? LEGACY_ORDER_SKU_PACKAGING_HEADERS
+    : ORDER_SKU_PACKAGING_HEADERS;
+  if (JSON.stringify(headers) !== JSON.stringify(expectedHeaders)) {
     throw new Error(`${ORDER_SKU_PACKAGING_SHEET} row 5 headers do not match the release contract`);
   }
   const aliases = [];
@@ -213,22 +218,30 @@ function orderSkuAliasesFromRows(rows, expectedMetadata) {
     let alias = byOrderSku.get(orderSku);
     if (!alias) {
       alias = { orderSku, canonicalProductSku, lifecycle, packagingVersions:[] };
+      if (metadata.schemaVersion === 3) alias.newOrderPackagingDefaultVersion = null;
       Object.defineProperty(alias, '__stable', { value:stable });
       byOrderSku.set(orderSku, alias);
       aliases.push(alias);
     } else if (alias.__stable !== stable) {
       throw new Error(`row ${rowNumber} changes stable fields for Order SKU ${orderSku}`);
     }
-    alias.packagingVersions.push(orderSkuPackagingFromRow(row, rowNumber));
+    const parsed = orderSkuPackagingFromRow(row, rowNumber, metadata.schemaVersion);
+    alias.packagingVersions.push(parsed.packaging);
+    if (metadata.schemaVersion === 3 && parsed.isDefault) {
+      if (alias.newOrderPackagingDefaultVersion) throw new Error(`row ${rowNumber} gives ${orderSku} more than one new-order default`);
+      alias.newOrderPackagingDefaultVersion = parsed.packaging.version;
+    }
   }
   return aliases;
 }
 
 export function catalogFromProductMasterRows(rows, orderSkuRows) {
   const metadata = workbookMetadata(rows, PRODUCT_MASTER_SHEET);
+  if (![2, 3].includes(metadata.schemaVersion)) throw new Error(`${PRODUCT_MASTER_SHEET} schemaVersion must be 2 or 3`);
   const headers = (rows[4] || []).map(text);
   while (headers.at(-1) === '') headers.pop();
-  if (JSON.stringify(headers) !== JSON.stringify(PRODUCT_MASTER_HEADERS)) {
+  const expectedHeaders = metadata.schemaVersion === 2 ? LEGACY_PRODUCT_MASTER_HEADERS : PRODUCT_MASTER_HEADERS;
+  if (JSON.stringify(headers) !== JSON.stringify(expectedHeaders)) {
     throw new Error('產品主檔 row 5 headers do not match the release contract');
   }
   const { schemaVersion, catalogVersion } = metadata;
@@ -252,17 +265,24 @@ export function catalogFromProductMasterRows(rows, orderSkuRows) {
         approvedOrderSkus:[fields.productSku, ...fields.alternateOrderSkus],
         packagingVersions:[],
       };
+      if (schemaVersion === 3) product.newOrderPackagingDefaultVersion = null;
       Object.defineProperty(product, '__stable', { value:stableSignature(fields) });
       bySku.set(fields.productSku, product);
       products.push(product);
     } else if (product.__stable !== stableSignature(fields)) {
       throw new Error(`row ${rowNumber} changes stable fields for Product SKU ${fields.productSku}`);
     }
-    product.packagingVersions.push(packagingFromRow(row, rowNumber));
+    const parsed = packagingFromRow(row, rowNumber, schemaVersion);
+    product.packagingVersions.push(parsed.packaging);
+    if (schemaVersion === 3 && parsed.isDefault) {
+      if (product.newOrderPackagingDefaultVersion) throw new Error(`row ${rowNumber} gives ${fields.productSku} more than one new-order default`);
+      product.newOrderPackagingDefaultVersion = parsed.packaging.version;
+    }
   }
 
   const orderSkuAliases = orderSkuAliasesFromRows(orderSkuRows, metadata);
   const catalog = { schemaVersion, catalogVersion, products, orderSkuAliases };
+  const migrated = migrateCatalog(catalog);
   validateCatalog(catalog);
-  return catalog;
+  return migrated;
 }

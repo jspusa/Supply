@@ -20,4 +20,6 @@ Supply and FBA normally use product data compiled into each site. Jasper maintai
 
 The browser upload remains available only as a temporary pre-release override and is invalidated when a newer built-in catalog ships. See [docs/product-catalog.md](docs/product-catalog.md).
 
-Use `npm run catalog:release -- --input <raw.xlsx> --fba-repo ../FBA --report <report.json>` to create a no-write release plan. Add `--apply --verify` only after reviewing that plan. The installed `release-supply-fba-product-catalog` skill wraps the GitHub pull requests, deployments, and live checks when Jasper asks to publish.
+Use `npm run catalog:release -- --input <raw.xlsx> --fba-repo ../FBA --report <plan.json>` to create a signed, no-write Catalog Change Plan. After reviewing that exact file, apply the safe defaults with `--apply --reviewed-plan <plan.json> --verify`; add `--select <entry-id>` only for each reviewed high-risk entry. The installed `release-supply-fba-product-catalog` skill wraps the GitHub pull requests, deployments, and live checks when Jasper asks to publish.
+
+Each release also generates one compact Catalog Alignment manifest per site. The sites compare only version and expected public-content hashes—never the peer catalog. A failed side stays visibly unaligned, blocks the next catalog release, and can be resumed independently with `npm run alignment:evidence`; see [docs/product-catalog.md](docs/product-catalog.md#catalog-alignment-失敗續跑).

@@ -10,6 +10,7 @@ import {
   replaceAppVersionToken,
 } from './release-version.mjs';
 import { compileSupplyProductData } from './compile-product-catalog.mjs';
+import { verifyLocalVisualSystem } from './fba-visual-system-contract.mjs';
 import { runtimeFiles, sha256File } from './site-contract.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -51,6 +52,7 @@ const output = path.resolve(readOption('--out') || defaultOutput);
 const revision = currentRevision();
 const updateCount = currentUpdateCount(revision);
 const appVersion = formatAppVersion(updateCount);
+verifyLocalVisualSystem();
 assertSafeOutput(output);
 fs.rmSync(output, { recursive: true, force: true });
 fs.mkdirSync(output, { recursive: true });

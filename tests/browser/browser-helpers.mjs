@@ -42,6 +42,18 @@ export async function installOfflineAssetRoutes(context, unexpectedRequests = []
     unexpectedRequests.push(`${route.request().method()} ${url}`);
     await route.abort('blockedbyclient');
   });
+  await context.route(`${TEST_ORIGIN}/FBA/catalog-alignment.json`, async route => {
+    const local = JSON.parse(fs.readFileSync(new URL('../../catalog-alignment.json', import.meta.url), 'utf8'));
+    await route.fulfill({
+      status:200,
+      contentType:'application/json; charset=utf-8',
+      body:JSON.stringify({
+        ...local,
+        site:'fba',
+        publicContentHash:local.expectedPublicContentHashes.fba,
+      }),
+    });
+  });
   await context.route('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/**', route => route.fulfill({
     status:200,
     contentType:'text/css; charset=utf-8',
@@ -248,7 +260,10 @@ export async function expectFixturePlanning(page, { replacementJsp = false } = {
 }
 
 export async function readOrderDraft(page) {
-  return page.evaluate(() => JSON.parse(localStorage.getItem('supply-order-draft-v2') || 'null'));
+  return page.evaluate(() => {
+    const key = window.SupplyOrderDraftState?.ORDER_DRAFT_STORAGE_KEY || 'supply-order-draft-v3';
+    return JSON.parse(localStorage.getItem(key) || 'null');
+  });
 }
 
 export async function readWorkspaceSnapshot(page) {
@@ -287,7 +302,17 @@ export async function switchToSubcontract(page, productSku, expectedOrderSku, { 
   if (lock) await row.locator('.lock-button').click();
   const toggle = row.locator('.equivalentOrderToggle');
   await expect(toggle).toContainText(expectedOrderSku);
+  let previewMessage = '';
+  page.once('dialog', async dialog => {
+    previewMessage = dialog.message();
+    await dialog.accept();
+  });
   await toggle.click();
+  expect(previewMessage).toContain('包裝調整預覽');
+  expect(previewMessage).toContain('箱數');
+  expect(previewMessage).toContain('棧板');
+  expect(previewMessage).toContain('到港覆蓋');
+  expect(previewMessage).toContain('訂單群組');
   await expect(page.locator('input[name="orderGroupSelect"][value="subcontract"]')).toBeChecked();
   const moved = page.locator(`#productTable tbody tr[data-product="${productSku}"]`);
   await expect(moved.locator('.order-code-label')).toHaveText(expectedOrderSku);
@@ -449,14 +474,15 @@ async function expectCoverageMeter(cell, {
     return { backgroundColor:style.backgroundColor, backgroundImage:style.backgroundImage };
   });
   const expectedAccent = {
-    yellow:'rgba(255, 204, 0, 0.88)',
-    green:'rgba(0, 190, 75, 0.88)',
-    red:'rgba(255, 45, 45, 0.88)',
+    yellow:'rgba(255, 204, 0, 0.68)',
+    green:'rgba(0, 190, 75, 0.68)',
+    red:'rgba(255, 45, 45, 0.68)',
   }[fillColor];
   expect(expectedAccent).toBeTruthy();
   expect(fillStyle.backgroundColor).toBe('rgba(0, 0, 0, 0)');
   expect(fillStyle.backgroundImage).toContain(expectedAccent);
-  expect(fillStyle.backgroundImage).toContain('0.74');
+  expect(fillStyle.backgroundImage).toContain('0.54');
+  expect(fillStyle.backgroundImage).toContain('0.64');
   expect(fillStyle.backgroundImage).not.toContain('repeating');
 }
 
@@ -496,29 +522,27 @@ export async function buildThreeGroupOrderScenario(page) {
       return { left:box.left, top:box.top, right:box.right, bottom:box.bottom, width:box.width, height:box.height };
     };
     const palletControl = row.querySelector('.palletStepControl');
-    const stepButtons = Array.from(row.querySelectorAll('.palletStepButton'));
+    const palletInput = row.querySelector('.edit-pallets-input');
     const actionGroup = row.querySelector('.generatorActionGroup');
     const actions = Array.from(actionGroup.querySelectorAll(':scope > button'));
     const controlBox = rect(palletControl);
-    const stepBoxes = stepButtons.map(rect);
     return {
       palletControl:controlBox,
-      stepLabels:stepButtons.map(button => button.textContent.trim()),
-      stepsInsideControl:stepBoxes.every(box => box.left >= controlBox.left - 0.5
-        && box.top >= controlBox.top - 0.5
-        && box.right <= controlBox.right + 0.5
-        && box.bottom <= controlBox.bottom + 0.5),
-      stepsStackVertically:stepBoxes.length === 2 && stepBoxes[0].bottom <= stepBoxes[1].top + 0.5,
+      nativeStep:palletInput.step,
+      nativeAppearance:getComputedStyle(palletInput).appearance,
+      customStepButtons:row.querySelectorAll('.palletStepButton').length,
+      inlineKeyHandler:palletInput.getAttribute('onkeydown'),
       actionGroup:rect(actionGroup),
       actionLabels:actions.map(button => button.getAttribute('aria-label')),
       actions:actions.map(rect),
     };
   });
-  expect(compactControls.palletControl.width).toBeLessThanOrEqual(90);
-  expect(compactControls.palletControl.height).toBeLessThanOrEqual(36);
-  expect(compactControls.stepLabels).toEqual(['▲', '▼']);
-  expect(compactControls.stepsInsideControl).toBe(true);
-  expect(compactControls.stepsStackVertically).toBe(true);
+  expect(compactControls.palletControl.width).toBeLessThanOrEqual(84);
+  expect(compactControls.palletControl.height).toBeLessThanOrEqual(34);
+  expect(compactControls.nativeStep).toBe('0.5');
+  expect(compactControls.nativeAppearance).not.toBe('textfield');
+  expect(compactControls.customStepButtons).toBe(0);
+  expect(compactControls.inlineKeyHandler).toBeNull();
   expect(compactControls.actionLabels).toEqual(['按住拖曳排序', '鎖定這列', '刪除這列']);
   expect(compactControls.actions).toHaveLength(3);
   for (const action of compactControls.actions) {
@@ -530,9 +554,9 @@ export async function buildThreeGroupOrderScenario(page) {
   const palletInput = palletRow.locator('.edit-pallets-input');
   await palletInput.fill('0.5');
   const palletBeforeStep = Number(await palletInput.inputValue());
-  await palletRow.locator('.palletStepButton[aria-label="增加 1 棧板"]').click();
+  await palletInput.press('ArrowUp');
   const palletAfterStep = Number(await palletInput.inputValue());
-  expect(palletAfterStep - palletBeforeStep).toBeCloseTo(1, 10);
+  expect(palletAfterStep - palletBeforeStep).toBeCloseTo(0.5, 10);
   await expect.poll(async () => {
     const row = (await readOrderDraft(page)).rowsByProductSku.GTSL01;
     return { mode:row.pallet.mode, authoritativeField:row.pallet.authoritativeField };
@@ -608,12 +632,13 @@ function sheetRows(workbook, name) {
 
 export async function downloadAndAssertOrderWorkbook(page) {
   const exportExpectations = await page.evaluate(() => {
-    const draft = JSON.parse(localStorage.getItem('supply-order-draft-v2'));
+    const key = window.SupplyOrderDraftState?.ORDER_DRAFT_STORAGE_KEY || 'supply-order-draft-v3';
+    const draft = JSON.parse(localStorage.getItem(key));
     return Object.fromEntries(Object.values(draft.rowsByProductSku).map(row => {
-      const product = window.allProductsData.find(item => item.productCode === row.productSku);
-      const perPack = Number(product.perPack) > 1 ? Number(product.perPack) : 1;
-      const orderUnitsPerPallet = (Number(product.perCarton) * Number(product.perPallet)) / perPack;
-      const cartons = (Number(row.quantities.orderDraft) * perPack) / Number(product.perCarton);
+      const packaging = row.packagingAssignment || (window.SUPPLY_ORDER_SKU_PACKAGING || []).find(item => item.orderSku === row.orderSku);
+      const perPack = Number(packaging.perPack) > 1 ? Number(packaging.perPack) : 1;
+      const orderUnitsPerPallet = (Number(packaging.perCarton) * Number(packaging.perPallet)) / perPack;
+      const cartons = (Number(row.quantities.orderDraft) * perPack) / Number(packaging.perCarton);
       return [row.orderSku, { cartons, pallets:Number(row.quantities.orderDraft) / orderUnitsPerPallet }];
     }));
   });
@@ -638,5 +663,10 @@ export async function downloadAndAssertOrderWorkbook(page) {
   expect([vietnamRow[3], vietnamRow[4], vietnamRow[9]]).toEqual([8, '盒裝', '50*40*30']);
   const packedSubcontractRow = sheetRows(workbook, '代工')[1];
   expect([packedSubcontractRow[3], packedSubcontractRow[4], packedSubcontractRow[9]]).toEqual([90, '袋裝', '50*40*30']);
+  const exportedDraft = await readOrderDraft(page);
+  for (const row of Object.values(exportedDraft.rowsByProductSku)) {
+    expect(row.packagingAssignment?.state).toBe('pinned');
+    expect(row.packagingAssignment?.packagingVersion).toBeTruthy();
+  }
   return workbook;
 }

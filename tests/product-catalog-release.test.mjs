@@ -69,6 +69,24 @@ test('release report shows product and Order SKU packaging old to new in FBA uni
   assert.match(renderCatalogReleaseReport(report), /ABC01 \[updated\].*unitsPerCarton: 24 → 30/);
 });
 
+test('release report uses the explicit new-order default even when historical versions remain open', () => {
+  const before = catalog('2026-08-28.4');
+  const after = catalog('2026-08-28.5');
+  after.schemaVersion = 3;
+  for (const owner of [...after.products, ...after.orderSkuAliases]) {
+    owner.newOrderPackagingDefaultVersion = '2026-08-28.5';
+    owner.packagingVersions.push(packaging({
+      version:'2026-08-28.5',
+      unitsPerCarton:owner === after.products[0] ? 30 : 26,
+    }));
+  }
+  const report = createCatalogReleaseReport(before, after, { generatedAt:'2026-08-28T00:00:00.000Z' });
+
+  assert.equal(report.changes.find(change => change.sku === 'ABC01').after.packagingVersion, '2026-08-28.5');
+  assert.equal(report.changes.find(change => change.sku === 'ABC01').after.unitsPerCarton, 30);
+  assert.equal(report.changes.find(change => change.sku === '7ABCD013AB').after.unitsPerCarton, 26);
+});
+
 test('release blockers stop removals, alias owner changes, and packaging data loss', () => {
   const report = {
     changes:[

@@ -1,3 +1,5 @@
 /dist/
 /node_modules/
+.playwright-cli/
+/output/
 .DS_Store

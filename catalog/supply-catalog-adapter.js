@@ -1,8 +1,9 @@
 function publicProduct(product) {
-  const packaging = product.currentPackaging;
+  const packaging = product.newOrderPackaging;
   const orderUnit = packaging.orderUnit;
   return {
     productCode:product.productSku,
+    packagingVersion:product.newOrderPackagingDefaultVersion,
     productName:product.productName,
     boxSize:packaging.cartonDimensionsCm.join('*'),
     perCarton:packaging.unitsPerCarton,
@@ -15,21 +16,79 @@ function publicProduct(product) {
   };
 }
 
+function eligibleProduct(product) {
+  const packaging = product.newOrderPackaging;
+  return product.lifecycle === 'active'
+    && product.standardFactory !== null
+    && Number.isInteger(packaging?.unitsPerCarton)
+    && packaging.unitsPerCarton > 0
+    && Number.isInteger(packaging.cartonsPerPallet)
+    && packaging.cartonsPerPallet > 0
+    && Array.isArray(packaging.cartonDimensionsCm)
+    && packaging.cartonDimensionsCm.length === 3
+    && packaging.cartonDimensionsCm.every(value => Number.isFinite(value) && value > 0)
+    && Boolean(packaging.orderUnit);
+}
+
+function eligibleAlias(alias) {
+  const packaging = alias.newOrderPackaging;
+  return Number.isInteger(packaging?.unitsPerCarton)
+    && packaging.unitsPerCarton > 0
+    && Number.isInteger(packaging.cartonsPerPallet)
+    && packaging.cartonsPerPallet > 0
+    && Array.isArray(packaging.cartonDimensionsCm)
+    && packaging.cartonDimensionsCm.length === 3
+    && packaging.cartonDimensionsCm.every(value => Number.isFinite(value) && value > 0)
+    && Boolean(packaging.orderUnit);
+}
+
+function publicOrderSkuPackaging({ orderSku, canonicalProductSku, owner }) {
+  const packaging = owner.newOrderPackaging;
+  const orderUnit = packaging.orderUnit;
+  return {
+    orderSku,
+    canonicalProductSku,
+    packagingVersion:owner.newOrderPackagingDefaultVersion,
+    perCarton:packaging.unitsPerCarton,
+    perPack:orderUnit.kind === 'pack' ? orderUnit.units : null,
+    perBox:orderUnit.kind === 'box' ? orderUnit.units : null,
+    perPallet:packaging.cartonsPerPallet,
+    boxSize:Array.isArray(packaging.cartonDimensionsCm) ? packaging.cartonDimensionsCm.join('*') : null,
+  };
+}
+
 export const supplyCatalogAdapter = Object.freeze({
   name:'supply',
   project(snapshot) {
-    const equivalentSkuPairs = snapshot.products.flatMap(product => product.approvedOrderSkus
-      .filter(orderSku => orderSku !== product.productSku)
-      .map(orderSku => [product.productSku, orderSku]));
+    const productsBySku = new Map(snapshot.products.map(product => [product.productSku, product]));
+    const approvedAliases = snapshot.orderSkuAliases.filter(alias => alias.lifecycle === 'approved'
+      && productsBySku.get(alias.canonicalProductSku)?.lifecycle !== 'retired'
+      && eligibleAlias(alias));
+    const approvedAliasSkus = new Set(approvedAliases.map(alias => alias.orderSku));
+    const equivalentSkuPairs = snapshot.products
+      .filter(product => product.lifecycle !== 'retired')
+      .flatMap(product => product.approvedOrderSkus
+        .filter(orderSku => orderSku !== product.productSku && approvedAliasSkus.has(orderSku))
+        .map(orderSku => [product.productSku, orderSku]));
+    const projectedProducts = snapshot.products.filter(eligibleProduct);
     return {
       meta:{ schemaVersion:snapshot.schemaVersion, catalogVersion:snapshot.catalogVersion },
       equivalentSkuPairs,
-      products:snapshot.products
-        .filter(product => product.lifecycle !== 'retired'
-          && product.standardFactory !== null
-          && Number.isInteger(product.currentPackaging.cartonsPerPallet)
-          && product.currentPackaging.cartonsPerPallet > 0)
-        .map(publicProduct),
+      orderSkuPackaging:[
+        ...projectedProducts.map(product => publicOrderSkuPackaging({
+          orderSku:product.productSku,
+          canonicalProductSku:product.productSku,
+          owner:product,
+        })),
+        ...approvedAliases
+          .filter(alias => eligibleProduct(productsBySku.get(alias.canonicalProductSku)))
+          .map(alias => publicOrderSkuPackaging({
+            orderSku:alias.orderSku,
+            canonicalProductSku:alias.canonicalProductSku,
+            owner:alias,
+          })),
+      ],
+      products:projectedProducts.map(publicProduct),
     };
   },
 });
@@ -42,6 +101,7 @@ export function renderSupplyProductData(projection) {
   return `// Generated from catalog/product-catalog.json. Do not edit by hand.\n`+
 `window.SUPPLY_PRODUCT_CATALOG_META = Object.freeze(${json(projection.meta)});\n`+
 `window.SUPPLY_EQUIVALENT_SKU_PAIRS = Object.freeze(${json(projection.equivalentSkuPairs)}.map(pair => Object.freeze(pair)));\n`+
+`window.SUPPLY_ORDER_SKU_PACKAGING = Object.freeze(${json(projection.orderSkuPackaging)}.map(item => Object.freeze(item)));\n`+
 `window.allProductsData = ${json(projection.products)};\n`+
 `\n`+
 `// Turkey / Non-Turkey classification remains synchronous for legacy callers.\n`+

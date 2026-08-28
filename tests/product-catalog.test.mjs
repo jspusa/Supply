@@ -5,9 +5,12 @@ import test from 'node:test';
 import vm from 'node:vm';
 
 import {
+  assertCatalogHistoryPreserved,
   CatalogValidationError,
   compileCatalog,
+  migrateCatalog,
   orderGroupForOrderSku,
+  resolvePackagingVersion,
   validateCatalog,
 } from '../catalog/product-catalog.js';
 import {
@@ -26,7 +29,7 @@ function workbookRows(dataRows) {
   return [
     ['JAM 美國產品共用主檔'],
     [],
-    ['Schema Version', 2, 'Catalog Version', '2026-08-25'],
+    ['Schema Version', 3, 'Catalog Version', '2026-08-25'],
     [],
     PRODUCT_MASTER_HEADERS,
     ...dataRows,
@@ -37,7 +40,7 @@ function workbookAliasRows(dataRows = [workbookAliasRow()]) {
   return [
     ['JAM Order SKU 專屬箱規'],
     [],
-    ['Schema Version', 2, 'Catalog Version', '2026-08-25'],
+    ['Schema Version', 3, 'Catalog Version', '2026-08-25'],
     [],
     ORDER_SKU_PACKAGING_HEADERS,
     ...dataRows,
@@ -82,7 +85,7 @@ function workbookProductRow(overrides = {}) {
 
 function fixture(overrides = {}) {
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
     catalogVersion: '2026-08-25',
     products: [
       {
@@ -92,6 +95,7 @@ function fixture(overrides = {}) {
         standardFactory: 'VN',
         lifecycle: 'active',
         approvedOrderSkus: ['GTP01', '7GTPD013AB'],
+        newOrderPackagingDefaultVersion:'2026-08-25',
         packagingVersions: [
           {
             version: '2026-08-25',
@@ -112,6 +116,7 @@ function fixture(overrides = {}) {
         standardFactory: 'TW',
         lifecycle: 'active',
         approvedOrderSkus: ['EZD011AM'],
+        newOrderPackagingDefaultVersion:'2026-08-25',
         packagingVersions: [
           {
             version: '2026-08-25',
@@ -131,13 +136,14 @@ function fixture(overrides = {}) {
         orderSku:'7GTPD013AB',
         canonicalProductSku:'GTP01',
         lifecycle:'approved',
+        newOrderPackagingDefaultVersion:'fba-2026-08-25',
         packagingVersions:[
           {
             version:'fba-2026-08-25',
             effectiveFrom:'2026-08-25',
             effectiveTo:null,
             unitsPerCarton:90,
-            cartonsPerPallet:null,
+            cartonsPerPallet:42,
             cartonDimensionsCm:[50.8, 40.64, 30.48],
             grossWeightKg:null,
             grossWeightLb:21,
@@ -153,10 +159,21 @@ function fixture(overrides = {}) {
 test('compiler validates once and projects the synchronous Supply compatibility interface', () => {
   const projected = compileCatalog(fixture(), supplyCatalogAdapter);
 
-  assert.deepEqual(projected.meta, { schemaVersion:2, catalogVersion:'2026-08-25' });
+  assert.deepEqual(projected.meta, { schemaVersion:3, catalogVersion:'2026-08-25' });
   assert.deepEqual(projected.equivalentSkuPairs, [['GTP01', '7GTPD013AB']]);
+  assert.deepEqual(projected.orderSkuPackaging.find(item => item.orderSku === '7GTPD013AB'), {
+    orderSku:'7GTPD013AB',
+    canonicalProductSku:'GTP01',
+    packagingVersion:'fba-2026-08-25',
+    perCarton:90,
+    perPack:null,
+    perBox:null,
+    perPallet:42,
+    boxSize:'50.8*40.64*30.48',
+  });
   assert.deepEqual(projected.products[0], {
     productCode:'GTP01',
+    packagingVersion:'2026-08-25',
     productName:'Gootoe Turkey Tendon Rope',
     boxSize:'50*40*30',
     perCarton:100,
@@ -171,7 +188,7 @@ test('compiler validates once and projects the synchronous Supply compatibility 
   vm.runInContext(renderSupplyProductData(projected), context);
   assert.deepEqual(
     JSON.parse(JSON.stringify(context.window.SUPPLY_PRODUCT_CATALOG_META)),
-    { schemaVersion:2, catalogVersion:'2026-08-25' },
+    { schemaVersion:3, catalogVersion:'2026-08-25' },
   );
   assert.equal(context.window.allProductsData[0].productCode, 'GTP01');
   assert.equal(context.window.SUPPLY_EQUIVALENT_SKU_PAIRS[0][1], '7GTPD013AB');
@@ -194,31 +211,93 @@ test('origin and standard factory are independent while 7-prefixed Order SKUs ro
   assert.equal(validateCatalog(catalog).products[0].origin, null);
 });
 
-test('packaging versions require effective dates, do not overlap, and expose exactly one current version', () => {
+test('schema v3 declares one default explicitly while retaining overlapping immutable history', () => {
   const catalog = fixture();
   catalog.products[0].packagingVersions = [
     {
       ...catalog.products[0].packagingVersions[0],
       version:'2025-01-01',
       effectiveFrom:'2025-01-01',
-      effectiveTo:'2026-08-24',
+      effectiveTo:null,
       unitsPerCarton:90,
     },
     catalog.products[0].packagingVersions[0],
   ];
-  assert.equal(validateCatalog(catalog).products[0].currentPackaging.unitsPerCarton, 100);
+  const validated = validateCatalog(catalog);
+  assert.equal(validated.products[0].newOrderPackaging.unitsPerCarton, 100);
+  assert.equal(validated.products[0].currentPackaging, validated.products[0].newOrderPackaging);
 
-  catalog.products[0].packagingVersions[0].effectiveTo = null;
+  catalog.products[0].newOrderPackagingDefaultVersion = 'missing-version';
   assert.throws(
     () => validateCatalog(catalog),
-    error => error instanceof CatalogValidationError && /exactly one current packaging version/.test(error.message),
+    error => error instanceof CatalogValidationError && /newOrderPackagingDefaultVersion does not exist/.test(error.message),
   );
 
-  catalog.products[0].packagingVersions[0].effectiveTo = '2026-08-30';
+  catalog.products[0].newOrderPackagingDefaultVersion = '2026-08-25';
+  catalog.products[0].packagingVersions[0].version = '2026-08-25';
   assert.throws(
     () => validateCatalog(catalog),
-    error => error instanceof CatalogValidationError && /packaging date ranges overlap/.test(error.message),
+    error => error instanceof CatalogValidationError && /duplicates version/.test(error.message),
   );
+});
+
+test('schema v2 migrates to explicit defaults without losing identities or packaging facts', () => {
+  const legacy = fixture({ schemaVersion:2 });
+  for (const product of legacy.products) delete product.newOrderPackagingDefaultVersion;
+  for (const alias of legacy.orderSkuAliases) delete alias.newOrderPackagingDefaultVersion;
+  const before = structuredClone(legacy);
+
+  const migrated = migrateCatalog(legacy);
+  const validated = validateCatalog(legacy);
+
+  assert.equal(migrated.schemaVersion, 3);
+  assert.deepEqual(legacy, before, 'migration must not mutate the released input');
+  assert.deepEqual(migrated.products[0].packagingVersions, before.products[0].packagingVersions);
+  assert.deepEqual(migrated.orderSkuAliases[0].packagingVersions, before.orderSkuAliases[0].packagingVersions);
+  assert.equal(migrated.products[0].newOrderPackagingDefaultVersion, '2026-08-25');
+  assert.equal(migrated.orderSkuAliases[0].newOrderPackagingDefaultVersion, 'fba-2026-08-25');
+  assert.equal(validated.schemaVersion, 3);
+});
+
+test('released packaging history is immutable while a correction may append and become default', () => {
+  const before = fixture();
+  const after = structuredClone(before);
+  after.catalogVersion = '2026-08-25.2';
+  after.products[0].packagingVersions.push({
+    ...structuredClone(after.products[0].packagingVersions[0]),
+    version:'2026-08-25.2',
+    unitsPerCarton:96,
+  });
+  after.products[0].newOrderPackagingDefaultVersion = '2026-08-25.2';
+  assert.equal(assertCatalogHistoryPreserved(before, after), true);
+  assert.equal(resolvePackagingVersion(after, 'GTP01').unitsPerCarton, 96);
+  assert.equal(resolvePackagingVersion(after, 'GTP01', '2026-08-25').unitsPerCarton, 100);
+
+  const rewritten = structuredClone(after);
+  rewritten.products[0].packagingVersions[0].unitsPerCarton = 95;
+  assert.throws(
+    () => assertCatalogHistoryPreserved(before, rewritten),
+    error => error instanceof CatalogValidationError && /is immutable; create another version/.test(error.message),
+  );
+
+  const removed = structuredClone(after);
+  removed.products = removed.products.filter(product => product.productSku !== 'GTP01');
+  removed.orderSkuAliases = [];
+  assert.throws(
+    () => assertCatalogHistoryPreserved(before, removed),
+    error => error instanceof CatalogValidationError && /must be retired instead of removed/.test(error.message),
+  );
+});
+
+test('retirement excludes an identity from new Supply work but preserves historical resolution', () => {
+  const catalog = fixture();
+  catalog.products[0].lifecycle = 'retired';
+  const projection = compileCatalog(catalog, supplyCatalogAdapter);
+
+  assert.equal(projection.products.some(product => product.productCode === 'GTP01'), false);
+  assert.equal(projection.equivalentSkuPairs.some(pair => pair.includes('GTP01')), false);
+  assert.equal(projection.orderSkuPackaging.some(item => item.canonicalProductSku === 'GTP01'), false);
+  assert.equal(resolvePackagingVersion(catalog, 'GTP01', '2026-08-25').unitsPerCarton, 100);
 });
 
 test('Order SKU Alias owns its packaging while approved ownership stays on the canonical Product SKU', () => {
@@ -233,7 +312,50 @@ test('Order SKU Alias owns its packaging while approved ownership stays on the c
   assert.equal(validated.products[0].currentPackaging.unitsPerCarton, 100);
 });
 
-test('Order SKU Alias validation rejects invalid owners, duplicate aliases, and ambiguous current packaging', () => {
+test('an incomplete alias default is excluded from new Supply work while immutable history remains readable', () => {
+  const catalog = fixture();
+  const alias = catalog.orderSkuAliases[0];
+  alias.packagingVersions.push({
+    ...structuredClone(alias.packagingVersions[0]),
+    version:'2026-08-29',
+    effectiveFrom:'2026-08-29',
+    unitsPerCarton:null,
+    cartonDimensionsCm:null,
+  });
+  alias.newOrderPackagingDefaultVersion = '2026-08-29';
+
+  const projection = compileCatalog(catalog, supplyCatalogAdapter);
+  assert.equal(projection.equivalentSkuPairs.some(pair => pair.includes(alias.orderSku)), false);
+  assert.equal(projection.orderSkuPackaging.some(item => item.orderSku === alias.orderSku), false);
+  assert.equal(resolvePackagingVersion(catalog, alias.orderSku, 'fba-2026-08-25').unitsPerCarton, 90);
+  assert.deepEqual(resolvePackagingVersion(catalog, alias.orderSku, 'fba-2026-08-25').cartonDimensionsCm, [50.8, 40.64, 30.48]);
+});
+
+test('schema v3 permits unknown order unit only for incomplete work while schema v2 stays strict', () => {
+  const incomplete = fixture();
+  incomplete.products[0].lifecycle = 'incomplete';
+  incomplete.products[0].packagingVersions[0].orderUnit = null;
+  assert.doesNotThrow(() => validateCatalog(incomplete));
+  assert.equal(compileCatalog(incomplete, supplyCatalogAdapter).products.some(item => item.productCode === 'GTP01'), false);
+
+  const active = structuredClone(incomplete);
+  active.products[0].lifecycle = 'active';
+  assert.throws(
+    () => validateCatalog(active),
+    error => error instanceof CatalogValidationError && /active default packaging must know orderUnit/.test(error.message),
+  );
+
+  const legacy = structuredClone(incomplete);
+  legacy.schemaVersion = 2;
+  delete legacy.products[0].newOrderPackagingDefaultVersion;
+  for (const alias of legacy.orderSkuAliases) delete alias.newOrderPackagingDefaultVersion;
+  assert.throws(
+    () => validateCatalog(legacy),
+    error => error instanceof CatalogValidationError && /orderUnit must be known in schemaVersion 2/.test(error.message),
+  );
+});
+
+test('Order SKU Alias validation rejects invalid owners, duplicates, and missing declared defaults', () => {
   const missingApproval = fixture();
   missingApproval.products[0].approvedOrderSkus = ['GTP01'];
   assert.throws(
@@ -248,15 +370,11 @@ test('Order SKU Alias validation rejects invalid owners, duplicate aliases, and 
     error => error instanceof CatalogValidationError && /orderSku duplicates 7GTPD013AB/.test(error.message),
   );
 
-  const twoCurrent = fixture();
-  twoCurrent.orderSkuAliases[0].packagingVersions.push({
-    ...structuredClone(twoCurrent.orderSkuAliases[0].packagingVersions[0]),
-    version:'duplicate-current',
-    effectiveFrom:'2026-08-26',
-  });
+  const missingDefault = fixture();
+  missingDefault.orderSkuAliases[0].newOrderPackagingDefaultVersion = 'missing';
   assert.throws(
-    () => validateCatalog(twoCurrent),
-    error => error instanceof CatalogValidationError && /exactly one current packaging version/.test(error.message),
+    () => validateCatalog(missingDefault),
+    error => error instanceof CatalogValidationError && /newOrderPackagingDefaultVersion does not exist/.test(error.message),
   );
 });
 
@@ -266,6 +384,7 @@ test('unmapped legacy aliases have no guessed owner and 7-prefixed Product SKUs 
     orderSku:'7VTSD913AB',
     canonicalProductSku:null,
     lifecycle:'unmapped-legacy',
+    newOrderPackagingDefaultVersion:'fba-2026-08-25',
     packagingVersions:[{
       version:'fba-2026-08-25',
       effectiveFrom:'2026-08-25',
@@ -345,10 +464,28 @@ test('ProductMasterTable rows compile into the canonical catalog without relying
   assert.equal(catalog.products.length, 1);
   assert.deepEqual(catalog.products[0].approvedOrderSkus, ['GTP01', '7GTPD013AB']);
   assert.deepEqual(catalog.products[0].packagingVersions.map(item => item.unitsPerCarton), [90, 100]);
+  assert.equal(catalog.products[0].newOrderPackagingDefaultVersion, '2026-08-25');
   assert.equal(catalog.products[0].origin, 'VN');
   assert.equal(catalog.products[0].standardFactory, 'VN');
   assert.equal(catalog.orderSkuAliases[0].orderSku, '7GTPD013AB');
   assert.equal(catalog.orderSkuAliases[0].packagingVersions[0].unitsPerCarton, 100);
+  assert.equal(catalog.orderSkuAliases[0].newOrderPackagingDefaultVersion, 'fba-2026-08-25');
+});
+
+test('legacy schema v2 workbook headers migrate to schema v3 defaults', () => {
+  const productRows = workbookRows([workbookProductRow()]);
+  const aliasRows = workbookAliasRows();
+  productRows[2][1] = 2;
+  aliasRows[2][1] = 2;
+  productRows[4] = [...PRODUCT_MASTER_HEADERS];
+  productRows[4][8] = '現行版本';
+  aliasRows[4] = [...ORDER_SKU_PACKAGING_HEADERS];
+  aliasRows[4][6] = '現行版本';
+
+  const catalog = catalogFromProductMasterRows(productRows, aliasRows);
+  assert.equal(catalog.schemaVersion, 3);
+  assert.equal(catalog.products[0].newOrderPackagingDefaultVersion, '2026-08-25');
+  assert.equal(catalog.orderSkuAliases[0].newOrderPackagingDefaultVersion, 'fba-2026-08-25');
 });
 
 test('OrderSkuPackagingTable supports approved and unmapped legacy rows without changing product ownership', () => {
@@ -373,7 +510,7 @@ test('OrderSkuPackagingTable supports approved and unmapped legacy rows without 
   );
 });
 
-test('workbook compiler rejects inconsistent product facts, invalid current markers, and shared aliases', () => {
+test('workbook compiler rejects inconsistent product facts, missing defaults, and shared aliases', () => {
   assert.throws(
     () => catalogFromProductMasterRows(workbookRows([
       workbookProductRow({ effectiveTo:'2026-08-24', current:'否' }),
@@ -383,7 +520,7 @@ test('workbook compiler rejects inconsistent product facts, invalid current mark
   );
   assert.throws(
     () => catalogFromProductMasterRows(workbookRows([workbookProductRow({ current:'否' })]), workbookAliasRows()),
-    /current version and effective date end disagree/,
+    /newOrderPackagingDefaultVersion must name one Packaging Specification Version/,
   );
   assert.throws(
     () => catalogFromProductMasterRows(workbookRows([
@@ -426,7 +563,7 @@ test('workbook compiler keeps unknown origin separate and requires a factory onl
     () => catalogFromProductMasterRows(workbookRows([
       workbookProductRow({ cartonsPerPallet:null }),
     ]), workbookAliasRows()),
-    /cartonsPerPallet must be known unless the product is incomplete/,
+    /active default packaging must know cartonsPerPallet/,
   );
 });
 
@@ -436,7 +573,7 @@ test('checked canonical catalog and generated Supply snapshot stay in sync', () 
   const actual = fs.readFileSync(path.join(repoRoot, 'product-data.js'), 'utf8');
 
   assert.equal(actual, expected);
-  assert.equal(canonical.schemaVersion, 2);
+  assert.equal(canonical.schemaVersion, 3);
   assert.equal(canonical.catalogVersion, '2026-08-28.4');
   assert.match(canonical.catalogVersion, /^\d{4}-\d{2}-\d{2}(?:\.\d+)?$/);
 });
@@ -466,7 +603,7 @@ test('raw release preserves the 15 legacy Supply packages and makes 2026-08-28.4
   for (const [productSku, expected] of expectedUnits) {
     const product = canonical.products.find(item => item.productSku === productSku);
     const historical = product.packagingVersions[0];
-    const current = product.packagingVersions.at(-1);
+    const current = product.packagingVersions.find(packaging => packaging.version === product.newOrderPackagingDefaultVersion);
     assert.deepEqual(
       [historical.unitsPerCarton, current.unitsPerCarton],
       expected,
@@ -536,11 +673,11 @@ test('raw release promotes 14 complete products while 11 incomplete rows stay ou
   assert.equal(aliasLikeProduct.grossWeightLb, null);
 });
 
-test('FBA HEAD positive-weight baseline remains complete in canonical current packaging', () => {
+test('FBA HEAD positive-weight baseline remains complete in canonical new-order defaults', () => {
   const canonical = JSON.parse(fs.readFileSync(path.join(repoRoot, 'catalog', 'product-catalog.json'), 'utf8'));
   const currentPackaging = new Map(canonical.products.map(product => [
     product.productSku,
-    product.packagingVersions.find(packaging => packaging.effectiveTo === null),
+    product.packagingVersions.find(packaging => packaging.version === product.newOrderPackagingDefaultVersion),
   ]));
   const positiveWeights = [...currentPackaging.values()]
     .filter(packaging => typeof packaging.grossWeightLb === 'number' && packaging.grossWeightLb > 0);
@@ -552,7 +689,7 @@ test('FBA HEAD positive-weight baseline remains complete in canonical current pa
   assert.equal(currentPackaging.get('GTB03').grossWeightLb, 26);
 });
 
-test('schema v2 retains the 27 FBA legacy 7-SKU packages plus the initialized ATS01 alias', () => {
+test('schema v3 retains the 27 FBA legacy 7-SKU packages plus the initialized ATS01 alias', () => {
   const canonical = JSON.parse(fs.readFileSync(path.join(repoRoot, 'catalog', 'product-catalog.json'), 'utf8'));
   const validated = validateCatalog(canonical);
   const expectedFba = {
@@ -567,7 +704,7 @@ test('schema v2 retains the 27 FBA legacy 7-SKU packages plus the initialized AT
   const aliases = new Map(validated.orderSkuAliases.map(alias => [alias.orderSku, alias]));
   const products = new Map(validated.products.map(product => [product.productSku, product]));
 
-  assert.equal(canonical.schemaVersion, 2);
+  assert.equal(canonical.schemaVersion, 3);
   assert.equal(canonical.catalogVersion, '2026-08-28.4');
   assert.equal(aliases.size, 28);
   assert.equal(validated.orderSkuAliases.filter(alias => alias.lifecycle === 'approved').length, 22);

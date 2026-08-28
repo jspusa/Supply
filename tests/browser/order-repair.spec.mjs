@@ -46,7 +46,7 @@ test('unknown draft rows stay visible and removable while fractional pallet disp
 
   await page.goto('/#orders');
   await waitForSupplyApp(page);
-  await expect(page.locator('#generatorDraftStatus')).toHaveText('已還原 2 個品項；另有 1 筆資料需要修復。');
+  await expect(page.locator('#generatorDraftStatus')).toHaveText('已還原 2 個品項；另有 2 筆資料需要修復。');
   const repair = page.locator('#generatorRepairRows [data-repair-product="UNKNOWN-REPAIR"]');
   await expect(repair).toBeVisible();
   await expect(repair).toContainText('Product SKU：UNKNOWN-REPAIR');
@@ -64,6 +64,17 @@ test('unknown draft rows stay visible and removable while fractional pallet disp
   await expect(page.locator('#generatorRepairRows')).toBeHidden();
   await expect.poll(async () => (await readOrderDraft(page)).repairOrder).toEqual([]);
   expect((await readOrderDraft(page)).rowsByProductSku.GTSL01.pallet.value).toBe(1 / 3);
+
+  const packagingReview = page.locator('#productTable tbody tr[data-product="GTSL01"] .packagingReassignButton');
+  await expect(packagingReview).toContainText('待確認');
+  let previewMessage = '';
+  page.once('dialog', async dialog => {
+    previewMessage = dialog.message();
+    await dialog.accept();
+  });
+  await packagingReview.click();
+  expect(previewMessage).toContain('包裝調整預覽');
+  await expect.poll(async () => (await readOrderDraft(page)).rowsByProductSku.GTSL01.packagingAssignment.state).toBe('pinned');
 
   const downloadPromise = page.waitForEvent('download', { timeout:8_000 });
   await page.getByRole('button', { name:'匯出訂單 Excel' }).click();

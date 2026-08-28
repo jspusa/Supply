@@ -46,8 +46,8 @@ test('yellow, green, and red bands share one Apple-style translucent finish with
   const sharedFill = coverageCss.match(/\.coverageMeter--low \.coverageMeter__fill,\s*\.coverageMeter--healthy \.coverageMeter__fill,\s*\.coverageMeter--excess \.coverageMeter__fill \{([^}]*)\}/s);
   assert.ok(sharedFill, 'all three colored bands should use one shared fill rule');
   assert.match(sharedFill[1], /linear-gradient\(\s*180deg,/s);
-  assert.match(sharedFill[1], /rgba\(var\(--coverage-accent-rgb\), 0\.88\)/);
-  assert.match(sharedFill[1], /rgba\(var\(--coverage-accent-rgb\), 0\.74\)/);
+  assert.match(sharedFill[1], /rgba\(var\(--coverage-accent-rgb\), 0\.68\)/);
+  assert.match(sharedFill[1], /rgba\(var\(--coverage-accent-rgb\), 0\.54\)/);
   assert.match(sharedFill[1], /box-shadow:/);
   assert.doesNotMatch(coverageCss, /repeating-linear-gradient|repeating-radial-gradient/);
 });

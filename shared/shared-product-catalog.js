@@ -126,6 +126,44 @@
     ]);
   }
 
+  const CONFLICT_FIELDS = [
+    'origin',
+    'unitsPerCarton',
+    'cartonsPerPallet',
+    'cartonDimensionsCm',
+    'grossWeightLb',
+  ];
+
+  function comparableValue(value) {
+    return JSON.stringify(value);
+  }
+
+  function sourceConflicts(recordsBySku) {
+    const conflicts = [];
+    for (const [sku, records] of recordsBySku) {
+      if (records.length < 2) continue;
+      const fields = [];
+      for (const field of CONFLICT_FIELDS) {
+        const distinct = new Map();
+        for (const record of records) {
+          const value = record[field];
+          if (value === null || value === undefined || value === '') continue;
+          const key = comparableValue(value);
+          if (!distinct.has(key)) {
+            distinct.set(key, {
+              value,
+              sourceSheet:record.sourceSheet,
+              sourceRow:record.sourceRow,
+            });
+          }
+        }
+        if (distinct.size > 1) fields.push({ field, values:[...distinct.values()] });
+      }
+      if (fields.length) conflicts.push({ sku, fields });
+    }
+    return conflicts;
+  }
+
   function isRawWorkbook(workbook) {
     return Boolean(workbook?.SheetNames?.some(name => WANTED_SHEETS.has(normalizeSheet(name))));
   }
@@ -135,8 +173,8 @@
     const matchedSheets = (workbook?.SheetNames || []).filter(name => WANTED_SHEETS.has(normalizeSheet(name)));
     if (!matchedSheets.length) throw new Error('找不到「AMZ 所有SKU」、「2026」或「罐頭」工作表');
     const bySku = new Map();
+    const recordsBySku = new Map();
     let skipped = 0;
-    let duplicateConflicts = 0;
 
     for (const name of matchedSheets) {
       const rows = xlsx.utils.sheet_to_json(workbook.Sheets[name], { header:1, defval:'', raw:true });
@@ -148,25 +186,29 @@
         if (!/^[0-9A-Z][0-9A-Z-]{2,19}$/.test(sku)) continue;
         const weightLb = positiveNumber(row[layout.weightLb]);
         const weightKg = positiveNumber(row[layout.weightKg]);
+        const normalizedWeightLb = weightLb || (weightKg ? weightKg * 2.2046226218 : null);
         const record = {
           sku,
           origin:layout.origin >= 0 ? originCode(row[layout.origin]) : null,
           unitsPerCarton:positiveNumber(row[layout.quantity]),
           cartonsPerPallet:layout.pallet >= 0 ? positiveNumber(row[layout.pallet]) : null,
           cartonDimensionsCm:parseDimensionsCm(row[layout.dimensions]),
-          grossWeightLb:weightLb || (weightKg ? weightKg * 2.2046226218 : null),
+          grossWeightLb:normalizedWeightLb ? Math.round(normalizedWeightLb * 100) / 100 : null,
           sourceSheet:text(name),
           sourceRow:rowIndex + 1,
         };
+        if (!recordsBySku.has(sku)) recordsBySku.set(sku, []);
+        recordsBySku.get(sku).push(record);
         if (!coreComplete(record)) skipped += 1;
         const existing = bySku.get(sku);
         if (!existing) { bySku.set(sku, record); continue; }
-        if (comparableRecord(existing) !== comparableRecord(record)) duplicateConflicts += 1;
         if ((!coreComplete(existing) && coreComplete(record)) || (!coreComplete(existing) && recordScore(record) > recordScore(existing))) {
           bySku.set(sku, record);
         }
       }
     }
+
+    const conflicts = sourceConflicts(recordsBySku);
 
     return validatePayload({
       schemaVersion:SCHEMA_VERSION,
@@ -174,7 +216,8 @@
       sourceFile:text(options.sourceFile || '產品資訊 Excel').slice(0, 200),
       updatedAt:options.updatedAt || new Date().toISOString(),
       matchedSheets:matchedSheets.map(text),
-      stats:{ skipped, duplicateConflicts },
+      stats:{ skipped, duplicateConflicts:conflicts.length },
+      conflicts,
       records:[...bySku.values()],
     });
   }
@@ -210,6 +253,17 @@
         sourceRow:Number.isInteger(Number(item.sourceRow)) && Number(item.sourceRow) > 0 ? Number(item.sourceRow) : null,
       };
     });
+    const conflicts = Array.isArray(payload.conflicts) ? payload.conflicts.slice(0, 5000).map(conflict => ({
+      sku:normalizeSku(conflict?.sku),
+      fields:Array.isArray(conflict?.fields) ? conflict.fields.slice(0, 20).map(field => ({
+        field:text(field?.field).slice(0, 100),
+        values:Array.isArray(field?.values) ? field.values.slice(0, 20).map(value => ({
+          value:value?.value === undefined ? null : JSON.parse(JSON.stringify(value.value)),
+          sourceSheet:text(value?.sourceSheet).slice(0, 100),
+          sourceRow:Number.isInteger(Number(value?.sourceRow)) && Number(value.sourceRow) > 0 ? Number(value.sourceRow) : null,
+        })) : [],
+      })) : [],
+    })) : [];
     return {
       schemaVersion:SCHEMA_VERSION,
       baseCatalogVersion:text(payload.baseCatalogVersion).slice(0, 40),
@@ -218,8 +272,9 @@
       matchedSheets:Array.isArray(payload.matchedSheets) ? payload.matchedSheets.map(name => text(name).slice(0, 100)) : [],
       stats:{
         skipped:Math.max(0, Number(payload.stats?.skipped) || 0),
-        duplicateConflicts:Math.max(0, Number(payload.stats?.duplicateConflicts) || 0),
+        duplicateConflicts:Math.max(conflicts.length, Math.max(0, Number(payload.stats?.duplicateConflicts) || 0)),
       },
+      conflicts,
       records,
     };
   }

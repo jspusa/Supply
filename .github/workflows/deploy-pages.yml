@@ -31,6 +31,18 @@ jobs:
           node-version-file: .node-version
           cache: npm
 
+      - name: Read exact paired FBA revision
+        id: catalog-peer
+        run: node scripts/catalog-peer-lock.mjs --github-output
+
+      - name: Checkout FBA catalog consumer
+        uses: actions/checkout@v4
+        with:
+          repository: jspusa/FBA
+          ref: ${{ steps.catalog-peer.outputs.revision }}
+          path: .catalog-peer/FBA
+          persist-credentials: false
+
       - name: Install dependencies
         run: npm ci --ignore-scripts --no-audit --no-fund
 
@@ -38,7 +50,12 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Verify tests, exact site artifact, and browser behavior
+        env:
+          FBA_REPO: .catalog-peer/FBA
         run: npm run verify
+
+      - name: Verify raw Excel and existing-work seams across Supply and FBA
+        run: node scripts/verify-catalog-seams.mjs --fba-repo .catalog-peer/FBA --require-pinned-peer --reuse-verified-dist
 
       - name: Upload verified Pages artifact
         if: github.ref == 'refs/heads/main'

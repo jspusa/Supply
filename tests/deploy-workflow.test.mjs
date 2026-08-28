@@ -23,11 +23,14 @@ test('Pages workflow verifies pull requests and gates deployment to verified mai
   assert.equal((verifyJob.match(/run: npm ci --ignore-scripts --no-audit --no-fund/g) || []).length, 1);
   assert.equal((verifyJob.match(/run: npx playwright install --with-deps chromium/g) || []).length, 1);
   assert.match(verifyJob, /run: npm run verify/);
+  assert.match(verifyJob, /run: node scripts\/verify-catalog-seams\.mjs --fba-repo \.catalog-peer\/FBA --require-pinned-peer --reuse-verified-dist/);
   assert.ok(verifyJob.indexOf('run: npm ci --ignore-scripts --no-audit --no-fund')
     < verifyJob.indexOf('run: npx playwright install --with-deps chromium'));
   assert.ok(verifyJob.indexOf('run: npx playwright install --with-deps chromium')
     < verifyJob.indexOf('run: npm run verify'));
   assert.ok(verifyJob.indexOf('run: npm run verify')
+    < verifyJob.indexOf('run: node scripts/verify-catalog-seams.mjs'));
+  assert.ok(verifyJob.indexOf('run: node scripts/verify-catalog-seams.mjs')
     < verifyJob.indexOf('uses: actions/upload-pages-artifact@v3'));
   assert.match(verifyJob, /uses: actions\/upload-pages-artifact@v3/);
   assert.match(verifyJob, /if: github\.ref == 'refs\/heads\/main'/);
