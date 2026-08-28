@@ -104,8 +104,9 @@ test('Boss matches the public scenario while mocked auth/cloud persists exact mu
   for (const input of await page.locator('input[type="file"]').all()) await expect(input).toHaveValue('');
 
   await exerciseWorkspaceNavigationAndLayout(page);
-  const scenarioDraft = await buildThreeGroupOrderScenario(page);
+  await buildThreeGroupOrderScenario(page);
   await downloadAndAssertOrderWorkbook(page);
+  const scenarioDraft = await readOrderDraft(page);
   expect(scenarioDraft.rowsByProductSku.GTSL01.pallet).toMatchObject({ mode:'manual', authoritativeField:'pallets' });
   expect(scenarioDraft.rowsByProductSku['TTS05AM-1'].pallet).toMatchObject({ mode:'derived', authoritativeField:'quantity' });
 
@@ -169,7 +170,7 @@ test('Boss matches the public scenario while mocked auth/cloud persists exact mu
   await expect(page).toHaveURL(/#data$/);
   await expectOnlyWorkspace(page, 'data');
   expectNoFixtureSourceState(await readBossSourceState(page));
-  for (const key of ['supply-order-draft-v2', 'supply-generator-drafts-v1', 'supply-velocity-history-v1', 'supply-workspace-preferences-v1']) {
+  for (const key of ['supply-order-draft-v3', 'supply-order-draft-v2', 'supply-generator-drafts-v1', 'supply-velocity-history-v1', 'supply-workspace-preferences-v1']) {
     expect(await page.evaluate(storageKey => localStorage.getItem(storageKey), key)).toBeNull();
   }
   for (const input of await page.locator('input[type="file"]').all()) await expect(input).toHaveValue('');
@@ -184,7 +185,7 @@ test('Boss matches the public scenario while mocked auth/cloud persists exact mu
   await expectOnlyWorkspace(page, 'data');
   await expect(page.locator('#bossSaveState')).toContainText('雲端目前沒有資料');
   expectNoFixtureSourceState(await readBossSourceState(page));
-  for (const key of ['supply-order-draft-v2', 'supply-generator-drafts-v1', 'supply-velocity-history-v1', 'supply-workspace-preferences-v1']) {
+  for (const key of ['supply-order-draft-v3', 'supply-order-draft-v2', 'supply-generator-drafts-v1', 'supply-velocity-history-v1', 'supply-workspace-preferences-v1']) {
     expect(await page.evaluate(storageKey => localStorage.getItem(storageKey), key)).toBeNull();
   }
   for (const input of await page.locator('input[type="file"]').all()) await expect(input).toHaveValue('');

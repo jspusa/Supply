@@ -16,11 +16,20 @@ const WORKSPACE_LABELS = Object.freeze({
 const NAV_ITEMS = Object.freeze(WORKSPACE_IDS.map(id => Object.freeze({ id, label:WORKSPACE_LABELS[id] })));
 
 function navigationMarkup() {
-  return `<nav class="workspaceTopNav" aria-label="主要工作區">
-    <div class="workspaceNavTabs" role="tablist" aria-label="Supply 工作區">
-      ${NAV_ITEMS.map(({ id, label }, index) => `<button type="button" class="workspaceNavTab" role="tab" data-workspace="${id}" aria-selected="${index === 0 ? 'true' : 'false'}" tabindex="${index === 0 ? '0' : '-1'}">${label}</button>`).join('')}
+  return `<header class="app-header supplyWorkspaceHeader">
+    <div class="header-inner">
+      <div class="brand" aria-label="補貨工作台">
+        <div class="brand-mark" aria-hidden="true">J</div>
+        <div class="brand-copy"><strong>補貨工作台</strong><span>Jasper Pet Care Products, Inc.</span></div>
+      </div>
+      <nav class="workspaceTopNav top-tabs" aria-label="主要工作區">
+        <div class="workspaceNavTabs" role="tablist" aria-label="Supply 工作區">
+          ${NAV_ITEMS.map(({ id, label }, index) => `<button type="button" class="workspaceNavTab top-tab" role="tab" data-workspace="${id}" aria-selected="${index === 0 ? 'true' : 'false'}" tabindex="${index === 0 ? '0' : '-1'}">${label}</button>`).join('')}
+        </div>
+      </nav>
+      <span class="header-meta">Supply</span>
     </div>
-  </nav>`;
+  </header>`;
 }
 
 function todayMarkup() {

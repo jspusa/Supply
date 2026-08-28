@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "canonicalOwner": "jspusa/Supply",
+  "catalogVersion": "2026-08-28.4",
+  "catalogSha256": "41893fd83e87dd91051b65351058756d2f0e57843b2994620ccaba1f18a0f48d",
+  "files": {
+    "catalog-update-baseline.js": "faee919d1ee4af130cb7a91a520a4332ace2e2c7f50dbaa36a304c51c62c59b9",
+    "catalog-update-planner.mjs": "169d63e87489e71b4ac86e2b98307381c8db40448839ef1aaa27207a7141e9f1",
+    "catalog-update-product-catalog.mjs": "3841d8678b1fb8315e5f011692546f3b1cddcce9ab930b97f4dab012feca1a83",
+    "catalog-update-release.mjs": "169f457b8dcf3cea3b2e251df3416e29f34457b8c3a4e2dc139d6781725e921f",
+    "catalog-update-overlay.mjs": "b59a552b7529f0ce851b70fb3aac41576371b96155ec763ab615da5368862e90",
+    "catalog-update-change-plan.mjs": "04a16a173d66f6fa8dd7b973de82be944ffe2ce8ce4233649f5261d335ea1b6b"
+  }
+}

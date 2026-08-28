@@ -16,11 +16,11 @@ XLSX.set_fs(fs);
 
 const NOW = '2026-08-28T05:00:00.000Z';
 const catalog = new Map([
-  ['TW-STD', { productCode:'TW-STD', productName:'Taiwan standard', country:'TW', perCarton:10, perPack:null, perBox:null, perPallet:40, boxSize:'40*30*20' }],
-  ['VN-STD', { productCode:'VN-STD', productName:'Vietnam standard', country:'VN', perCarton:8, perPack:null, perBox:6, perPallet:42, boxSize:'50*40*30' }],
-  ['VN-AT', { productCode:'VN-AT', productName:'AT subcontract product', country:'VN', perCarton:10, perPack:2, perBox:null, perPallet:30, boxSize:'31*21*11' }],
-  ['TW-GT', { productCode:'TW-GT', productName:'GT subcontract product', country:'TW', perCarton:12, perPack:null, perBox:null, perPallet:25, boxSize:'32*22*12' }],
-  ['VN-VT', { productCode:'VN-VT', productName:'VT subcontract product', country:'VN', perCarton:8, perPack:4, perBox:null, perPallet:20, boxSize:'33*23*13' }],
+  ['TW-STD', { productCode:'TW-STD', productName:'Taiwan standard', country:'TW', packagingVersion:'fixture-v1', perCarton:10, perPack:null, perBox:null, perPallet:40, boxSize:'40*30*20' }],
+  ['VN-STD', { productCode:'VN-STD', productName:'Vietnam standard', country:'VN', packagingVersion:'fixture-v1', perCarton:8, perPack:null, perBox:6, perPallet:42, boxSize:'50*40*30' }],
+  ['VN-AT', { productCode:'VN-AT', productName:'AT subcontract product', country:'VN', packagingVersion:'fixture-v1', perCarton:10, perPack:2, perBox:null, perPallet:30, boxSize:'31*21*11' }],
+  ['TW-GT', { productCode:'TW-GT', productName:'GT subcontract product', country:'TW', packagingVersion:'fixture-v1', perCarton:12, perPack:null, perBox:null, perPallet:25, boxSize:'32*22*12' }],
+  ['VN-VT', { productCode:'VN-VT', productName:'VT subcontract product', country:'VN', packagingVersion:'fixture-v1', perCarton:8, perPack:4, perBox:null, perPallet:20, boxSize:'33*23*13' }],
 ]);
 const approved = new Map([
   ['VN-AT', ['7AT-ORDER']],
@@ -98,4 +98,65 @@ test('actual XLSX round-trip preserves three sheets, routing, product packaging 
     [2, '7AT-ORDER', 'AT subcontract product', 10, '袋裝', 30, '箱', 1, '棧板', '31*21*11'],
     [3, '7GT-ORDER', 'GT subcontract product', 12, '單包', 25, '箱', 1, '棧板', '32*22*12'],
   ]);
+});
+
+test('actual XLSX keeps a pinned alias Packaging Assignment after the alias default changes', t => {
+  const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'supply-order-alias-packaging-'));
+  t.after(() => fs.rmSync(temporary, { recursive:true, force:true }));
+  const filename = path.join(temporary, 'Supply-alias-order.xlsx');
+  let aliasPackaging = {
+    orderSku:'7AT-ORDER',
+    canonicalProductSku:'VN-AT',
+    packagingVersion:'alias-v1',
+    perCarton:25,
+    perPack:2,
+    perBox:null,
+    perPallet:10,
+    boxSize:'60*50*40',
+  };
+  const aliasContext = {
+    ...context,
+    getOrderSkuPackaging(orderSku) {
+      if (orderSku === '7AT-ORDER') return aliasPackaging;
+      const product = catalog.get(orderSku);
+      return product ? {
+        orderSku,
+        canonicalProductSku:orderSku,
+        packagingVersion:'product-v1',
+        perCarton:product.perCarton,
+        perPack:product.perPack,
+        perBox:product.perBox,
+        perPallet:product.perPallet,
+        boxSize:product.boxSize,
+      } : null;
+    },
+  };
+  let draft = applyOrderDraftCommand(createOrderDraft({ now:NOW }), {
+    type:'upsert-row',
+    row:{ productSku:'VN-AT', quantities:{ orderDraft:100 }, pallet:{ value:0.5, mode:'manual' } },
+  }, aliasContext).draft;
+  draft = applyOrderDraftCommand(draft, {
+    type:'switch-order-sku', productSku:'VN-AT', orderSku:'7AT-ORDER',
+  }, aliasContext).draft;
+  assert.equal(draft.rowsByProductSku['VN-AT'].packagingAssignment.packagingVersion, 'alias-v1');
+
+  aliasPackaging = {
+    ...aliasPackaging,
+    packagingVersion:'alias-v2',
+    perCarton:50,
+    perPallet:20,
+    boxSize:'70*60*50',
+  };
+  const projection = projectOrderWorkbook(structuredClone(draft), aliasContext);
+  assert.equal(projection.ok, true, JSON.stringify(projection.issues));
+  const workbook = XLSX.utils.book_new();
+  for (const sheet of projection.sheets) {
+    XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet([sheet.headers, ...sheet.rows]), sheet.name);
+  }
+  XLSX.writeFile(workbook, filename, { bookType:'xlsx', compression:true });
+  const reopened = XLSX.readFile(filename, { cellDates:false, raw:true });
+  assert.deepEqual(sheetRows(reopened, '代工')[1], [
+    1, '7AT-ORDER', 'AT subcontract product', 25, '袋裝', 8, '箱', 0.8, '棧板', '60*50*40',
+  ]);
+  assert.equal(projection.draft.rowsByProductSku['VN-AT'].packagingAssignment.packagingVersion, 'alias-v1');
 });

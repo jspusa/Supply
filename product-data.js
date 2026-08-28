@@ -1,6 +1,6 @@
 // Generated from catalog/product-catalog.json. Do not edit by hand.
 window.SUPPLY_PRODUCT_CATALOG_META = Object.freeze({
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "catalogVersion": "2026-08-28.4"
 });
 window.SUPPLY_EQUIVALENT_SKU_PAIRS = Object.freeze([
@@ -93,9 +93,3722 @@ window.SUPPLY_EQUIVALENT_SKU_PAIRS = Object.freeze([
     "7ATRD013AB"
   ]
 ].map(pair => Object.freeze(pair)));
+window.SUPPLY_ORDER_SKU_PACKAGING = Object.freeze([
+  {
+    "orderSku": "1GBRD019A0",
+    "canonicalProductSku": "1GBRD019A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 9,
+    "perPack": 3,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1GBRD029A0",
+    "canonicalProductSku": "1GBRD029A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 8,
+    "perPack": 3,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1AWDD010A0",
+    "canonicalProductSku": "1AWDD010A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 250,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1AWDD170A0",
+    "canonicalProductSku": "1AWDD170A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 250,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1AWDD073A0",
+    "canonicalProductSku": "1AWDD073A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 38,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1AWDD075A0",
+    "canonicalProductSku": "1AWDD075A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 20,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1AWDD070A0",
+    "canonicalProductSku": "1AWDD070A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 250,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1AWDD063A0",
+    "canonicalProductSku": "1AWDD063A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 38,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1AWDD065A0",
+    "canonicalProductSku": "1AWDD065A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 20,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1AWDD060A0",
+    "canonicalProductSku": "1AWDD060A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 250,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1AWDD473A0",
+    "canonicalProductSku": "1AWDD473A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 38,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1AWDD475A0",
+    "canonicalProductSku": "1AWDD475A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 20,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1AWDD470A0",
+    "canonicalProductSku": "1AWDD470A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 250,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1AWDD463A0",
+    "canonicalProductSku": "1AWDD463A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 38,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1AWDD465A0",
+    "canonicalProductSku": "1AWDD465A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 20,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1AWDD460A0",
+    "canonicalProductSku": "1AWDD460A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 250,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1VADD063A0",
+    "canonicalProductSku": "1VADD063A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 38,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1VADD073A0",
+    "canonicalProductSku": "1VADD073A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 38,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1GCRD017A0",
+    "canonicalProductSku": "1GCRD017A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 9,
+    "perPack": 3,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1GCRD027A0",
+    "canonicalProductSku": "1GCRD027A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 11,
+    "perPack": 3,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1GCRD037A0",
+    "canonicalProductSku": "1GCRD037A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 9,
+    "perPack": 3,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1GQRD017A0",
+    "canonicalProductSku": "1GQRD017A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 10,
+    "perPack": 3,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1GQRD027A0",
+    "canonicalProductSku": "1GQRD027A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 11,
+    "perPack": 3,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1GSDD011A0",
+    "canonicalProductSku": "1GSDD011A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1GSDD015A0",
+    "canonicalProductSku": "1GSDD015A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 28,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1GCRD005A0",
+    "canonicalProductSku": "1GCRD005A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1GCRD004A0",
+    "canonicalProductSku": "1GCRD004A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 28,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1ABRD001A0",
+    "canonicalProductSku": "1ABRD001A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1ABRD002A0",
+    "canonicalProductSku": "1ABRD002A0",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 42,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1ABRD003A0",
+    "canonicalProductSku": "1ABRD003A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 120,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1ABRD004A0",
+    "canonicalProductSku": "1ABRD004A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 48,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1MHTD011A0",
+    "canonicalProductSku": "1MHTD011A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 8,
+    "perPack": null,
+    "perBox": 6,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1MHTD021A0",
+    "canonicalProductSku": "1MHTD021A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 8,
+    "perPack": null,
+    "perBox": 6,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1MHTD031A0",
+    "canonicalProductSku": "1MHTD031A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 8,
+    "perPack": null,
+    "perBox": 6,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1MHTD041A0",
+    "canonicalProductSku": "1MHTD041A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 8,
+    "perPack": null,
+    "perBox": 6,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1MHTD051A0",
+    "canonicalProductSku": "1MHTD051A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 8,
+    "perPack": null,
+    "perBox": 6,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1MHTD017A0",
+    "canonicalProductSku": "1MHTD017A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 8,
+    "perPack": null,
+    "perBox": 6,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1MHTD027A0",
+    "canonicalProductSku": "1MHTD027A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 8,
+    "perPack": null,
+    "perBox": 6,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1MHTD037A0",
+    "canonicalProductSku": "1MHTD037A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 8,
+    "perPack": null,
+    "perBox": 6,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1MHTD047A0",
+    "canonicalProductSku": "1MHTD047A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 8,
+    "perPack": null,
+    "perBox": 6,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1MHTD057A0",
+    "canonicalProductSku": "1MHTD057A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 8,
+    "perPack": null,
+    "perBox": 6,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "AFA11AM",
+    "canonicalProductSku": "AFA11AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 120,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "AFA12AM",
+    "canonicalProductSku": "AFA12AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 120,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "AFA13AM",
+    "canonicalProductSku": "AFA13AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "AFA14AM",
+    "canonicalProductSku": "AFA14AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 80,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "AFA21AM",
+    "canonicalProductSku": "AFA21AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 120,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "AFA22AM",
+    "canonicalProductSku": "AFA22AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 120,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "AFA31AM",
+    "canonicalProductSku": "AFA31AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "AFA32AM",
+    "canonicalProductSku": "AFA32AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "AFA25AM",
+    "canonicalProductSku": "AFA25AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 70,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "AFA135AM",
+    "canonicalProductSku": "AFA135AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 70,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GTS01",
+    "canonicalProductSku": "GTS01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GTR01",
+    "canonicalProductSku": "GTR01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GTB01",
+    "canonicalProductSku": "GTB01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GTP01",
+    "canonicalProductSku": "GTP01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GTZ01",
+    "canonicalProductSku": "GTZ01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GTA01",
+    "canonicalProductSku": "GTA01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 120,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 36,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "GTC01",
+    "canonicalProductSku": "GTC01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 120,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 36,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "GTR03",
+    "canonicalProductSku": "GTR03",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GTB03",
+    "canonicalProductSku": "GTB03",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GTP03",
+    "canonicalProductSku": "GTP03",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 36,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "GTS03",
+    "canonicalProductSku": "GTS03",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GTZ03",
+    "canonicalProductSku": "GTZ03",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 120,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 36,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "GTB05",
+    "canonicalProductSku": "GTB05",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 36,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "GTP05",
+    "canonicalProductSku": "GTP05",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 36,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "GTB07",
+    "canonicalProductSku": "GTB07",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GSF01",
+    "canonicalProductSku": "GSF01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 150,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GSF02",
+    "canonicalProductSku": "GSF02",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 150,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GTSL01",
+    "canonicalProductSku": "GTSL01",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 30,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 30,
+    "boxSize": "50*40*40"
+  },
+  {
+    "orderSku": "GTRL01",
+    "canonicalProductSku": "GTRL01",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 30,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 30,
+    "boxSize": "50*40*40"
+  },
+  {
+    "orderSku": "GTPL01",
+    "canonicalProductSku": "GTPL01",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 30,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 30,
+    "boxSize": "50*40*40"
+  },
+  {
+    "orderSku": "GTBL01",
+    "canonicalProductSku": "GTBL01",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 30,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 30,
+    "boxSize": "50*40*40"
+  },
+  {
+    "orderSku": "GTAL01",
+    "canonicalProductSku": "GTAL01",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 38,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 30,
+    "boxSize": "50*40*40"
+  },
+  {
+    "orderSku": "GTCL01",
+    "canonicalProductSku": "GTCL01",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 30,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 30,
+    "boxSize": "50*40*40"
+  },
+  {
+    "orderSku": "GTRL03",
+    "canonicalProductSku": "GTRL03",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 30,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 30,
+    "boxSize": "50*40*40"
+  },
+  {
+    "orderSku": "GTPL03",
+    "canonicalProductSku": "GTPL03",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 30,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 30,
+    "boxSize": "50*40*40"
+  },
+  {
+    "orderSku": "GTBL03",
+    "canonicalProductSku": "GTBL03",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 30,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 30,
+    "boxSize": "50*40*40"
+  },
+  {
+    "orderSku": "GTZL03",
+    "canonicalProductSku": "GTZL03",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 30,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 30,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GTPL05",
+    "canonicalProductSku": "GTPL05",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 30,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 30,
+    "boxSize": "50*40*40"
+  },
+  {
+    "orderSku": "GTBL05",
+    "canonicalProductSku": "GTBL05",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 30,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 30,
+    "boxSize": "50*40*40"
+  },
+  {
+    "orderSku": "GSFL01",
+    "canonicalProductSku": "GSFL01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 38,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GSFL02",
+    "canonicalProductSku": "GSFL02",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 38,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ATS01",
+    "canonicalProductSku": "ATS01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 90,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ATB01",
+    "canonicalProductSku": "ATB01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ATR01AM",
+    "canonicalProductSku": "ATR01AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ATP01",
+    "canonicalProductSku": "ATP01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ATZ01",
+    "canonicalProductSku": "ATZ01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ATA01",
+    "canonicalProductSku": "ATA01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ATB03",
+    "canonicalProductSku": "ATB03",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ATR03",
+    "canonicalProductSku": "ATR03",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ATP03",
+    "canonicalProductSku": "ATP03",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 90,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ATZ03",
+    "canonicalProductSku": "ATZ03",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ATB05",
+    "canonicalProductSku": "ATB05",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 90,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ATP05",
+    "canonicalProductSku": "ATP05",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 90,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ATAL01",
+    "canonicalProductSku": "ATAL01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 42,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "KTB01AM",
+    "canonicalProductSku": "KTB01AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 8,
+    "perPack": null,
+    "perBox": 40,
+    "perPallet": 36,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "TRP01AM",
+    "canonicalProductSku": "TRP01AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 8,
+    "perPack": null,
+    "perBox": 40,
+    "perPallet": 36,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "TTR01AM",
+    "canonicalProductSku": "TTR01AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 8,
+    "perPack": null,
+    "perBox": 40,
+    "perPallet": 36,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "TPZ01AM",
+    "canonicalProductSku": "TPZ01AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 8,
+    "perPack": null,
+    "perBox": 40,
+    "perPallet": 36,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "KTB03AM",
+    "canonicalProductSku": "KTB03AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 8,
+    "perPack": null,
+    "perBox": 20,
+    "perPallet": 36,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "TRP03AM",
+    "canonicalProductSku": "TRP03AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 8,
+    "perPack": null,
+    "perBox": 20,
+    "perPallet": 36,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "TTR03AM",
+    "canonicalProductSku": "TTR03AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 8,
+    "perPack": null,
+    "perBox": 20,
+    "perPallet": 36,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "TPZ03AM",
+    "canonicalProductSku": "TPZ03AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 8,
+    "perPack": null,
+    "perBox": 20,
+    "perPallet": 36,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "TRP05AM",
+    "canonicalProductSku": "TRP05AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 8,
+    "perPack": null,
+    "perBox": 10,
+    "perPallet": 36,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "KTB05AM",
+    "canonicalProductSku": "KTB05AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 8,
+    "perPack": null,
+    "perBox": 10,
+    "perPallet": 36,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "TTR05AM",
+    "canonicalProductSku": "TTR05AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 8,
+    "perPack": null,
+    "perBox": 10,
+    "perPallet": 36,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "TPZ05AM",
+    "canonicalProductSku": "TPZ05AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 8,
+    "perPack": null,
+    "perBox": 10,
+    "perPallet": 36,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "TTS05AM",
+    "canonicalProductSku": "TTS05AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 8,
+    "perPack": null,
+    "perBox": 10,
+    "perPallet": 36,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "KTB06AM",
+    "canonicalProductSku": "KTB06AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 8,
+    "perPack": null,
+    "perBox": 40,
+    "perPallet": 36,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "KTB01AM-4",
+    "canonicalProductSku": "KTB01AM-4",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 90,
+    "perPack": 4,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "TTR01AM-4",
+    "canonicalProductSku": "TTR01AM-4",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 90,
+    "perPack": 4,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "TRP01AM-4",
+    "canonicalProductSku": "TRP01AM-4",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 90,
+    "perPack": 4,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "TPZ01AM-4",
+    "canonicalProductSku": "TPZ01AM-4",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 90,
+    "perPack": 4,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "KTB03AM-2",
+    "canonicalProductSku": "KTB03AM-2",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 80,
+    "perPack": 2,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "TRP03AM-2",
+    "canonicalProductSku": "TRP03AM-2",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 90,
+    "perPack": 2,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "TTR03AM-2",
+    "canonicalProductSku": "TTR03AM-2",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 80,
+    "perPack": 2,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "TPZ03AM-2",
+    "canonicalProductSku": "TPZ03AM-2",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 90,
+    "perPack": 2,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "KTB05AM-1",
+    "canonicalProductSku": "KTB05AM-1",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 90,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "TRP05AM-1",
+    "canonicalProductSku": "TRP05AM-1",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 90,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "TTR05AM-1",
+    "canonicalProductSku": "TTR05AM-1",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 120,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "TPZ05AM-1",
+    "canonicalProductSku": "TPZ05AM-1",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 120,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "TTS05AM-1",
+    "canonicalProductSku": "TTS05AM-1",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "KTB06AM-4",
+    "canonicalProductSku": "KTB06AM-4",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 90,
+    "perPack": 4,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "KTBL01",
+    "canonicalProductSku": "KTBL01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 36,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "TTRL01",
+    "canonicalProductSku": "TTRL01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 36,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "TPZL01",
+    "canonicalProductSku": "TPZL01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 36,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "TRPL01",
+    "canonicalProductSku": "TRPL01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 36,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "KTBL03",
+    "canonicalProductSku": "KTBL03",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 36,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "TTRL03",
+    "canonicalProductSku": "TTRL03",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 36,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "TPZL03",
+    "canonicalProductSku": "TPZL03",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 36,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "TRPL03",
+    "canonicalProductSku": "TRPL03",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 36,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "TTRL05",
+    "canonicalProductSku": "TTRL05",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 36,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "TRPL05",
+    "canonicalProductSku": "TRPL05",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 36,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "TPZL05",
+    "canonicalProductSku": "TPZL05",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 36,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "KTBL05",
+    "canonicalProductSku": "KTBL05",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 30,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "TTSL05",
+    "canonicalProductSku": "TTSL05",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 30,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "AFML01",
+    "canonicalProductSku": "AFML01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 36,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "AFML03",
+    "canonicalProductSku": "AFML03",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 36,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "AFML05",
+    "canonicalProductSku": "AFML05",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 36,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ASF01",
+    "canonicalProductSku": "ASF01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ABM01",
+    "canonicalProductSku": "ABM01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 110,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ATN01",
+    "canonicalProductSku": "ATN01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 80,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ASA01",
+    "canonicalProductSku": "ASA01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 80,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ADT03",
+    "canonicalProductSku": "ADT03",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 20,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ATJ01",
+    "canonicalProductSku": "ATJ01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 110,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GTT01",
+    "canonicalProductSku": "GTT01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 120,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 36,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "GTT03",
+    "canonicalProductSku": "GTT03",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 120,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 36,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "ASFL01",
+    "canonicalProductSku": "ASFL01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 36,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ABML01",
+    "canonicalProductSku": "ABML01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 42,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ATNL01",
+    "canonicalProductSku": "ATNL01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 42,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ASAL01",
+    "canonicalProductSku": "ASAL01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 36,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ATJL01",
+    "canonicalProductSku": "ATJL01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 42,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GCBL01",
+    "canonicalProductSku": "GCBL01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 30,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GCBL02",
+    "canonicalProductSku": "GCBL02",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 36,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GCBL03",
+    "canonicalProductSku": "GCBL03",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 28,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GSCL01",
+    "canonicalProductSku": "GSCL01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 36,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GSCL02",
+    "canonicalProductSku": "GSCL02",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 36,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GSCL03",
+    "canonicalProductSku": "GSCL03",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 28,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GSCL04",
+    "canonicalProductSku": "GSCL04",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 30,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GSCL05",
+    "canonicalProductSku": "GSCL05",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 36,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GCTL01",
+    "canonicalProductSku": "GCTL01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 28,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GCTL02",
+    "canonicalProductSku": "GCTL02",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 28,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GCTL03",
+    "canonicalProductSku": "GCTL03",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 28,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GCTL04",
+    "canonicalProductSku": "GCTL04",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 22,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GCTL05",
+    "canonicalProductSku": "GCTL05",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GCTL06",
+    "canonicalProductSku": "GCTL06",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 28,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GBS01",
+    "canonicalProductSku": "GBS01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 70,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GBS03",
+    "canonicalProductSku": "GBS03",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 70,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GBB01",
+    "canonicalProductSku": "GBB01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 60,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GBSL01",
+    "canonicalProductSku": "GBSL01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 28,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GBSL03",
+    "canonicalProductSku": "GBSL03",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 28,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "GBBL01",
+    "canonicalProductSku": "GBBL01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 28,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "AWD010",
+    "canonicalProductSku": "AWD010",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 38,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "AWD011",
+    "canonicalProductSku": "AWD011",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 20,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "AWD070",
+    "canonicalProductSku": "AWD070",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 38,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "AWD071",
+    "canonicalProductSku": "AWD071",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 20,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "VTS01-1",
+    "canonicalProductSku": "VTS01-1",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "VTB01-4",
+    "canonicalProductSku": "VTB01-4",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 90,
+    "perPack": 4,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "VTR01-4",
+    "canonicalProductSku": "VTR01-4",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 90,
+    "perPack": 4,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "VTB05-1",
+    "canonicalProductSku": "VTB05-1",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 120,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "VTB06-4",
+    "canonicalProductSku": "VTB06-4",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 90,
+    "perPack": 4,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "HDR01AM",
+    "canonicalProductSku": "HDR01AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 120,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "HDP01AM",
+    "canonicalProductSku": "HDP01AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 120,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "HDS03AM",
+    "canonicalProductSku": "HDS03AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 120,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ACBL01",
+    "canonicalProductSku": "ACBL01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 30,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ACBL02",
+    "canonicalProductSku": "ACBL02",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 36,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ACBL03",
+    "canonicalProductSku": "ACBL03",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 28,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ASCL01",
+    "canonicalProductSku": "ASCL01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 36,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ASCL02",
+    "canonicalProductSku": "ASCL02",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 36,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ASCL03",
+    "canonicalProductSku": "ASCL03",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 28,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ASCL04",
+    "canonicalProductSku": "ASCL04",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 30,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ASCL05",
+    "canonicalProductSku": "ASCL05",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 36,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ACTL01",
+    "canonicalProductSku": "ACTL01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 28,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ACTL02",
+    "canonicalProductSku": "ACTL02",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 28,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ACTL03",
+    "canonicalProductSku": "ACTL03",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 28,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ACTL04",
+    "canonicalProductSku": "ACTL04",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 22,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ACTL05",
+    "canonicalProductSku": "ACTL05",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ACTL06",
+    "canonicalProductSku": "ACTL06",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 28,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ACTL07",
+    "canonicalProductSku": "ACTL07",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 28,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ACTL08",
+    "canonicalProductSku": "ACTL08",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 28,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ACTL09",
+    "canonicalProductSku": "ACTL09",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 36,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ACTL10",
+    "canonicalProductSku": "ACTL10",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 28,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ACA01",
+    "canonicalProductSku": "ACA01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ACA02",
+    "canonicalProductSku": "ACA02",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ACA03",
+    "canonicalProductSku": "ACA03",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "VBS01",
+    "canonicalProductSku": "VBS01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 70,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "VBS03",
+    "canonicalProductSku": "VBS03",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 70,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "VBB01",
+    "canonicalProductSku": "VBB01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 60,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "VBW01",
+    "canonicalProductSku": "VBW01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 80,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "EZD011AM",
+    "canonicalProductSku": "EZD011AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 18,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 36,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EZD021AM",
+    "canonicalProductSku": "EZD021AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 18,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 36,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EZD041AM",
+    "canonicalProductSku": "EZD041AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 18,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 36,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EZD051AM",
+    "canonicalProductSku": "EZD051AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 18,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 36,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EZD061AM",
+    "canonicalProductSku": "EZD061AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 18,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 36,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EZD010AM",
+    "canonicalProductSku": "EZD010AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 36,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EZD020AM",
+    "canonicalProductSku": "EZD020AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 36,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EZD040AM",
+    "canonicalProductSku": "EZD040AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 36,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EZD050AM",
+    "canonicalProductSku": "EZD050AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 36,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EZD060AM",
+    "canonicalProductSku": "EZD060AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 36,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EZD010AM-3",
+    "canonicalProductSku": "EZD010AM-3",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 90,
+    "perPack": 3,
+    "perBox": null,
+    "perPallet": 36,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EZD020AM-3",
+    "canonicalProductSku": "EZD020AM-3",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 90,
+    "perPack": 3,
+    "perBox": null,
+    "perPallet": 36,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EZD040AM-3",
+    "canonicalProductSku": "EZD040AM-3",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 90,
+    "perPack": 3,
+    "perBox": null,
+    "perPallet": 36,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EZD050AM-3",
+    "canonicalProductSku": "EZD050AM-3",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 90,
+    "perPack": 3,
+    "perBox": null,
+    "perPallet": 36,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EZD060AM-3",
+    "canonicalProductSku": "EZD060AM-3",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 90,
+    "perPack": 3,
+    "perBox": null,
+    "perPallet": 36,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EPD011J",
+    "canonicalProductSku": "EPD011J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 18,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 21,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EPD021J",
+    "canonicalProductSku": "EPD021J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 18,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 21,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EPD041J",
+    "canonicalProductSku": "EPD041J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 18,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 21,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EPD061J",
+    "canonicalProductSku": "EPD061J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 18,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 21,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EPD010J",
+    "canonicalProductSku": "EPD010J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 30,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 21,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EPD020J",
+    "canonicalProductSku": "EPD020J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 30,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 21,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EPD040J",
+    "canonicalProductSku": "EPD040J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 30,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 21,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EPD060J",
+    "canonicalProductSku": "EPD060J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 30,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 21,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "GTSL01J",
+    "canonicalProductSku": "GTSL01J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "GTRL05J",
+    "canonicalProductSku": "GTRL05J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "GTPL05J",
+    "canonicalProductSku": "GTPL05J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "GTBL05J",
+    "canonicalProductSku": "GTBL05J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "GTRL01J",
+    "canonicalProductSku": "GTRL01J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "GTPL01J",
+    "canonicalProductSku": "GTPL01J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "GTBL01J",
+    "canonicalProductSku": "GTBL01J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "GSF01J",
+    "canonicalProductSku": "GSF01J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 150,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "GTR01J",
+    "canonicalProductSku": "GTR01J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "GTR03J",
+    "canonicalProductSku": "GTR03J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "GTB01J",
+    "canonicalProductSku": "GTB01J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "GTB03J",
+    "canonicalProductSku": "GTB03J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "GTB05J",
+    "canonicalProductSku": "GTB05J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "GTP01J",
+    "canonicalProductSku": "GTP01J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "GTP03J",
+    "canonicalProductSku": "GTP03J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "GTP05J",
+    "canonicalProductSku": "GTP05J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "GTS01J",
+    "canonicalProductSku": "GTS01J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "GTS03J",
+    "canonicalProductSku": "GTS03J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "GTZ01J",
+    "canonicalProductSku": "GTZ01J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "GTZ03J",
+    "canonicalProductSku": "GTZ03J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "GTA01J",
+    "canonicalProductSku": "GTA01J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "KTB01J",
+    "canonicalProductSku": "KTB01J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 320,
+    "perPack": null,
+    "perBox": 40,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "KTB03J",
+    "canonicalProductSku": "KTB03J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 160,
+    "perPack": null,
+    "perBox": 20,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "KTB05J",
+    "canonicalProductSku": "KTB05J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 80,
+    "perPack": null,
+    "perBox": 10,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "KTB06J",
+    "canonicalProductSku": "KTB06J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 320,
+    "perPack": null,
+    "perBox": 40,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "TTR01J",
+    "canonicalProductSku": "TTR01J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 320,
+    "perPack": null,
+    "perBox": 40,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "TTR03J",
+    "canonicalProductSku": "TTR03J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 160,
+    "perPack": null,
+    "perBox": 20,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "TTR05J",
+    "canonicalProductSku": "TTR05J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 80,
+    "perPack": null,
+    "perBox": 10,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "TRP01J",
+    "canonicalProductSku": "TRP01J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 320,
+    "perPack": null,
+    "perBox": 40,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "TRP03J",
+    "canonicalProductSku": "TRP03J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 160,
+    "perPack": null,
+    "perBox": 20,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "TRP05J",
+    "canonicalProductSku": "TRP05J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 80,
+    "perPack": null,
+    "perBox": 10,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "TTS05J",
+    "canonicalProductSku": "TTS05J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 80,
+    "perPack": null,
+    "perBox": 10,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "TTA01J",
+    "canonicalProductSku": "TTA01J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 160,
+    "perPack": null,
+    "perBox": 20,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "TTA02J",
+    "canonicalProductSku": "TTA02J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 160,
+    "perPack": null,
+    "perBox": 20,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "TTA03J",
+    "canonicalProductSku": "TTA03J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 160,
+    "perPack": null,
+    "perBox": 20,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "TTA04J",
+    "canonicalProductSku": "TTA04J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 160,
+    "perPack": null,
+    "perBox": 20,
+    "perPallet": 12,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "GRB01AM",
+    "canonicalProductSku": "GRB01AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 130,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 36,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "GRB01J",
+    "canonicalProductSku": "GRB01J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 130,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 21,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "ART01AM",
+    "canonicalProductSku": "ART01AM",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 130,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 36,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "ART01J",
+    "canonicalProductSku": "ART01J",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 130,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 21,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "1VFAD053A0",
+    "canonicalProductSku": "1VFAD053A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 110,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1VFBD053A0",
+    "canonicalProductSku": "1VFBD053A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 80,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1VFBD015A0",
+    "canonicalProductSku": "1VFBD015A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 70,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1VFCD017A0",
+    "canonicalProductSku": "1VFCD017A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 36,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1VFRD055A0",
+    "canonicalProductSku": "1VFRD055A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 60,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1VFRD015A0",
+    "canonicalProductSku": "1VFRD015A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 50,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1VFSD013A0",
+    "canonicalProductSku": "1VFSD013A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 70,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1GFTD033A0",
+    "canonicalProductSku": "1GFTD033A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 70,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1GFTD035A0",
+    "canonicalProductSku": "1GFTD035A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 28,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1GFTD043A0",
+    "canonicalProductSku": "1GFTD043A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 70,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1GFTD045A0",
+    "canonicalProductSku": "1GFTD045A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 28,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1GFTD061A0",
+    "canonicalProductSku": "1GFTD061A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 60,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1GSDD023A0",
+    "canonicalProductSku": "1GSDD023A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 80,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1GSDD033A0",
+    "canonicalProductSku": "1GSDD033A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 90,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1VDFD011A0",
+    "canonicalProductSku": "1VDFD011A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 70,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1GBRD027A0",
+    "canonicalProductSku": "1GBRD027A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 12,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1ABRD016A0",
+    "canonicalProductSku": "1ABRD016A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 14,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1VFRD058A0",
+    "canonicalProductSku": "1VFRD058A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 16,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1VFBD018A0",
+    "canonicalProductSku": "1VFBD018A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 20,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1VFRD018A0",
+    "canonicalProductSku": "1VFRD018A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 16,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1VFAD058A0",
+    "canonicalProductSku": "1VFAD058A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1GCRD026A0",
+    "canonicalProductSku": "1GCRD026A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 18,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1GCRD041A0",
+    "canonicalProductSku": "1GCRD041A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 70,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1GCRD045A0",
+    "canonicalProductSku": "1GCRD045A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 30,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1GBRD041A0",
+    "canonicalProductSku": "1GBRD041A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1GBRD045A0",
+    "canonicalProductSku": "1GBRD045A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 28,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1GQRD016A0",
+    "canonicalProductSku": "1GQRD016A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 18,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1GCRD036A0",
+    "canonicalProductSku": "1GCRD036A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 18,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "ATR01",
+    "canonicalProductSku": "ATR01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "EPD021",
+    "canonicalProductSku": "EPD021",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 18,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 30,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EPD040",
+    "canonicalProductSku": "EPD040",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 30,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 30,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EPD051",
+    "canonicalProductSku": "EPD051",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 18,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 30,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EPD060",
+    "canonicalProductSku": "EPD060",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 30,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 30,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EPD011",
+    "canonicalProductSku": "EPD011",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 18,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 30,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EPD050",
+    "canonicalProductSku": "EPD050",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 30,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 30,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EPD020",
+    "canonicalProductSku": "EPD020",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 30,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 30,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EPD010",
+    "canonicalProductSku": "EPD010",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 30,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 30,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EPD041",
+    "canonicalProductSku": "EPD041",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 18,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 30,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EPD061",
+    "canonicalProductSku": "EPD061",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 18,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 30,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EZD051",
+    "canonicalProductSku": "EZD051",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 18,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 30,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EZD041",
+    "canonicalProductSku": "EZD041",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 18,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 30,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EZD021",
+    "canonicalProductSku": "EZD021",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 18,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 30,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EZD011",
+    "canonicalProductSku": "EZD011",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 18,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 30,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "EZD061",
+    "canonicalProductSku": "EZD061",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 18,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 30,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "1HGCC015A0",
+    "canonicalProductSku": "1HGCC015A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 100,
+    "boxSize": "32.5*23*6.1"
+  },
+  {
+    "orderSku": "1HGCC025A0",
+    "canonicalProductSku": "1HGCC025A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 100,
+    "boxSize": "32.5*23*6.1"
+  },
+  {
+    "orderSku": "1HGCC035A0",
+    "canonicalProductSku": "1HGCC035A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 100,
+    "boxSize": "32.5*23*6.1"
+  },
+  {
+    "orderSku": "1HGCC045A0",
+    "canonicalProductSku": "1HGCC045A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 100,
+    "boxSize": "32.5*23*6.1"
+  },
+  {
+    "orderSku": "1HGRD015A0",
+    "canonicalProductSku": "1HGRD015A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 100,
+    "boxSize": "32.5*23*6.1"
+  },
+  {
+    "orderSku": "1MGRC015A0",
+    "canonicalProductSku": "1MGRC015A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 100,
+    "boxSize": "32.5*23*6.1"
+  },
+  {
+    "orderSku": "1MGRC025A0",
+    "canonicalProductSku": "1MGRC025A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 100,
+    "boxSize": "32.5*23*6.1"
+  },
+  {
+    "orderSku": "1MGRC035A0",
+    "canonicalProductSku": "1MGRC035A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 100,
+    "boxSize": "32.5*23*6.1"
+  },
+  {
+    "orderSku": "1MGRC045A0",
+    "canonicalProductSku": "1MGRC045A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 100,
+    "boxSize": "32.5*23*6.1"
+  },
+  {
+    "orderSku": "1MGRC055A0",
+    "canonicalProductSku": "1MGRC055A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 100,
+    "boxSize": "32.5*23*6.1"
+  },
+  {
+    "orderSku": "1MGRD015A0",
+    "canonicalProductSku": "1MGRD015A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 100,
+    "boxSize": "32.5*23*6.1"
+  },
+  {
+    "orderSku": "1MGRD025A0",
+    "canonicalProductSku": "1MGRD025A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 100,
+    "boxSize": "32.5*23*6.1"
+  },
+  {
+    "orderSku": "1MGRD035A0",
+    "canonicalProductSku": "1MGRD035A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 100,
+    "boxSize": "32.5*23*6.1"
+  },
+  {
+    "orderSku": "1MGRD045A0",
+    "canonicalProductSku": "1MGRD045A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 100,
+    "boxSize": "32.5*23*6.1"
+  },
+  {
+    "orderSku": "1MGRD055A0",
+    "canonicalProductSku": "1MGRD055A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 100,
+    "boxSize": "32.5*23*6.1"
+  },
+  {
+    "orderSku": "1AGHC015A0",
+    "canonicalProductSku": "1AGHC015A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 100,
+    "boxSize": "28.5*19.65*8.2"
+  },
+  {
+    "orderSku": "1AGHC025A0",
+    "canonicalProductSku": "1AGHC025A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 100,
+    "boxSize": "28.5*19.65*8.2"
+  },
+  {
+    "orderSku": "1AGHC035A0",
+    "canonicalProductSku": "1AGHC035A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 100,
+    "boxSize": "28.5*19.65*8.2"
+  },
+  {
+    "orderSku": "1AGHC045A0",
+    "canonicalProductSku": "1AGHC045A0",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 100,
+    "boxSize": "28.5*19.65*8.2"
+  },
+  {
+    "orderSku": "1AWDD773A0",
+    "canonicalProductSku": "1AWDD773A0",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 38,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1AWDD775A0",
+    "canonicalProductSku": "1AWDD775A0",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 20,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1AXXD001A0",
+    "canonicalProductSku": "1AXXD001A0",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 30,
+    "boxSize": "58.5*34.5*35"
+  },
+  {
+    "orderSku": "1AXXD002A0",
+    "canonicalProductSku": "1AXXD002A0",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 8,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1GLTD011A0",
+    "canonicalProductSku": "1GLTD011A0",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 8,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1GXXD001A0",
+    "canonicalProductSku": "1GXXD001A0",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 30,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "1GXXD002A0",
+    "canonicalProductSku": "1GXXD002A0",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 8,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 30,
+    "boxSize": "48*38*28"
+  },
+  {
+    "orderSku": "1VFPD010A0",
+    "canonicalProductSku": "1VFPD010A0",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 90,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1VFPD018A0",
+    "canonicalProductSku": "1VFPD018A0",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 16,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1VFPD050A0",
+    "canonicalProductSku": "1VFPD050A0",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1VFPD058A0",
+    "canonicalProductSku": "1VFPD058A0",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 12,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1VFRD010A0",
+    "canonicalProductSku": "1VFRD010A0",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1VFSD010A0",
+    "canonicalProductSku": "1VFSD010A0",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "1VFSD018A0",
+    "canonicalProductSku": "1VFSD018A0",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 18,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "7ATRD013AB",
+    "canonicalProductSku": "ATR01",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "7ATSD010AB",
+    "canonicalProductSku": "TTS05AM-1",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "7ATSD011AB",
+    "canonicalProductSku": "ATS01",
+    "packagingVersion": "2026-08-25",
+    "perCarton": 90,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "7ATSD017AB",
+    "canonicalProductSku": "TTSL05",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 30,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "7ATSD019AB",
+    "canonicalProductSku": "TTS05AM",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 8,
+    "perPack": null,
+    "perBox": 10,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "7GTBD013AB",
+    "canonicalProductSku": "GTB01",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "7GTBD017AB",
+    "canonicalProductSku": "GTBL01",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 26,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "7GTBD037AB",
+    "canonicalProductSku": "GTBL03",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 28,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "7GTBD053AB",
+    "canonicalProductSku": "GTB05",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 90,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "7GTBD057AB",
+    "canonicalProductSku": "GTBL05",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "7GTPD013AB",
+    "canonicalProductSku": "GTP01",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "7GTPD017AB",
+    "canonicalProductSku": "GTPL01",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "7GTPD037AB",
+    "canonicalProductSku": "GTPL03",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "7GTPD053AB",
+    "canonicalProductSku": "GTP05",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 90,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "7GTPD057AB",
+    "canonicalProductSku": "GTPL05",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "7GTRD013AB",
+    "canonicalProductSku": "GTR01",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "7GTRD017AB",
+    "canonicalProductSku": "GTRL01",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 22,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "7GTRD037AB",
+    "canonicalProductSku": "GTRL03",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 28,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "7GTSD013AB",
+    "canonicalProductSku": "GTS01",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "7GTSD017AB",
+    "canonicalProductSku": "GTSL01",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "7VTBD410AB",
+    "canonicalProductSku": "VTB01-4",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 90,
+    "perPack": 4,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  },
+  {
+    "orderSku": "7VTSD013AB",
+    "canonicalProductSku": "VTS01-1",
+    "packagingVersion": "2026-08-28.4",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "boxSize": "50*40*30"
+  }
+].map(item => Object.freeze(item)));
 window.allProductsData = [
   {
     "productCode": "1GBRD019A0",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Buffalo Bites Bone Shaped - 1.5lb (Pack of 3)",
     "boxSize": "50*40*30",
     "perCarton": 9,
@@ -106,6 +3819,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GBRD029A0",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Buffalo Bites Stick (Large) - 1.5lb (Pack of 3)",
     "boxSize": "50*40*30",
     "perCarton": 8,
@@ -116,6 +3830,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1AWDD010A0",
+    "packagingVersion": "2026-08-25",
     "productName": "A freschi Air-Dried Dog Food-Turkey Recipe , 0.9oz",
     "boxSize": "50*40*30",
     "perCarton": 250,
@@ -126,6 +3841,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1AWDD170A0",
+    "packagingVersion": "2026-08-25",
     "productName": "A freschi Air-Dried Dog Food-Turkey & Salmon Recipe , 0.9oz",
     "boxSize": "50*40*30",
     "perCarton": 250,
@@ -136,6 +3852,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1AWDD073A0",
+    "packagingVersion": "2026-08-25",
     "productName": "A Freschi  Air-dried Dog Food-Chicken & Salmon Recipe , 1lb",
     "boxSize": "50*40*30",
     "perCarton": 38,
@@ -146,6 +3863,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1AWDD075A0",
+    "packagingVersion": "2026-08-25",
     "productName": "A Freschi Air-dried Dog Food-Chicken & Salmon Recipe , 2.2lb",
     "boxSize": "50*40*30",
     "perCarton": 20,
@@ -156,6 +3874,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1AWDD070A0",
+    "packagingVersion": "2026-08-25",
     "productName": "A Freschi  Air-dried Dog Food-Chicken & Salmon Recipe , 0.9oz",
     "boxSize": "50*40*30",
     "perCarton": 250,
@@ -166,6 +3885,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1AWDD063A0",
+    "packagingVersion": "2026-08-25",
     "productName": "A Freschi  Air-dried Dog Food-Chicken Recipe , 1lb",
     "boxSize": "50*40*30",
     "perCarton": 38,
@@ -176,6 +3896,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1AWDD065A0",
+    "packagingVersion": "2026-08-25",
     "productName": "A Freschi  Air-dried Dog Food-Chicken Recipe , 2.2lb",
     "boxSize": "50*40*30",
     "perCarton": 20,
@@ -186,6 +3907,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1AWDD060A0",
+    "packagingVersion": "2026-08-25",
     "productName": "A Freschi  Air-dried Dog Food-Chicken Recipe , 0.9oz",
     "boxSize": "50*40*30",
     "perCarton": 250,
@@ -196,6 +3918,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1AWDD473A0",
+    "packagingVersion": "2026-08-25",
     "productName": "A Freschi srl Air-dried Dog Food - Buffalo & Salmon Recipe , 1lb",
     "boxSize": "50*40*30",
     "perCarton": 38,
@@ -206,6 +3929,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1AWDD475A0",
+    "packagingVersion": "2026-08-25",
     "productName": "A Freschi srl Air-dried Dog Food - Buffalo & Salmon Recipe , 2.2lb",
     "boxSize": "50*40*30",
     "perCarton": 20,
@@ -216,6 +3940,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1AWDD470A0",
+    "packagingVersion": "2026-08-25",
     "productName": "A Freschi srl Air-dried Dog Food - Buffalo & Salmon Recipe , 0.9oz",
     "boxSize": "50*40*30",
     "perCarton": 250,
@@ -226,6 +3951,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1AWDD463A0",
+    "packagingVersion": "2026-08-25",
     "productName": "A Freschi srl  Air-dried Dog Food - Buffalo & Chicken Recipe , 1lb",
     "boxSize": "50*40*30",
     "perCarton": 38,
@@ -236,6 +3962,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1AWDD465A0",
+    "packagingVersion": "2026-08-25",
     "productName": "A Freschi srl  Air-dried Dog Food - Buffalo & Chicken Recipe , 2.2lb",
     "boxSize": "50*40*30",
     "perCarton": 20,
@@ -246,6 +3973,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1AWDD460A0",
+    "packagingVersion": "2026-08-25",
     "productName": "A Freschi srl  Air-dried Dog Food - Buffalo & Chicken Recipe , 0.9oz",
     "boxSize": "50*40*30",
     "perCarton": 250,
@@ -256,6 +3984,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1VADD063A0",
+    "packagingVersion": "2026-08-25",
     "productName": "VITADAY - Air-Dried Dog Food - Chicken Recipe - Stomach Support Formula - 454g",
     "boxSize": "50*40*30",
     "perCarton": 38,
@@ -266,6 +3995,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1VADD073A0",
+    "packagingVersion": "2026-08-25",
     "productName": "VITADAY - Air-Dried Dog Food - Chicken & Mackerels Recipe - Joint Support Formula - 454g",
     "boxSize": "50*40*30",
     "perCarton": 38,
@@ -276,6 +4006,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GCRD017A0",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Chicken Fillet Jerky - 1lb (Pack of 3)",
     "boxSize": "50*40*30",
     "perCarton": 9,
@@ -286,6 +4017,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GCRD027A0",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Chicken Breast Jerky - 1lb (Pack of 3)",
     "boxSize": "50*40*30",
     "perCarton": 11,
@@ -296,6 +4028,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GCRD037A0",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Chicken Chips - 1lb (Pack of 3)",
     "boxSize": "50*40*30",
     "perCarton": 9,
@@ -306,6 +4039,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GQRD017A0",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Soft Chicken Breast Strips - 1lb (Pack of 3)",
     "boxSize": "50*40*30",
     "perCarton": 10,
@@ -316,6 +4050,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GQRD027A0",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Soft Chicken Sticks - 1lb (Pack of 3)",
     "boxSize": "50*40*30",
     "perCarton": 11,
@@ -326,6 +4061,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GSDD011A0",
+    "packagingVersion": "2026-08-25",
     "productName": "GooToE Chicken Breast Wrapped Salmon Sticks , 6oz",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -336,6 +4072,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GSDD015A0",
+    "packagingVersion": "2026-08-25",
     "productName": "GooToE Chicken Breast Wrapped Salmon Sticks , 1.5lb",
     "boxSize": "50*40*30",
     "perCarton": 28,
@@ -346,6 +4083,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GCRD005A0",
+    "packagingVersion": "2026-08-25",
     "productName": "GooToE Chicken Breast Wrapped Sticks , 6oz",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -356,6 +4094,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GCRD004A0",
+    "packagingVersion": "2026-08-25",
     "productName": "GooToE Chicken Breast Wrapped Sticks , 1.5lb",
     "boxSize": "50*40*30",
     "perCarton": 28,
@@ -366,6 +4105,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1ABRD001A0",
+    "packagingVersion": "2026-08-25",
     "productName": "A Freschi  Buffalo Jerky Dog Treats , 4oz",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -376,6 +4116,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1ABRD002A0",
+    "packagingVersion": "2026-08-28.4",
     "productName": "A Freschi  Buffalo Jerky Dog Treats , 12oz",
     "boxSize": "50*40*30",
     "perCarton": 42,
@@ -386,6 +4127,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1ABRD003A0",
+    "packagingVersion": "2026-08-25",
     "productName": "A Freschi  Buffalo Strips , 4oz",
     "boxSize": "50*40*30",
     "perCarton": 120,
@@ -396,6 +4138,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1ABRD004A0",
+    "packagingVersion": "2026-08-25",
     "productName": "A Freschi  Buffalo Strips , 12oz",
     "boxSize": "50*40*30",
     "perCarton": 48,
@@ -406,6 +4149,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1MHTD011A0",
+    "packagingVersion": "2026-08-25",
     "productName": "Healthy Moment - Functional Dog Treat - Skin & Coat Care - 150g",
     "boxSize": "50*40*30",
     "perCarton": 8,
@@ -416,6 +4160,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1MHTD021A0",
+    "packagingVersion": "2026-08-25",
     "productName": "Healthy Moment - Functional Dog Treat- Gastrointestinal Care - 150g",
     "boxSize": "50*40*30",
     "perCarton": 8,
@@ -426,6 +4171,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1MHTD031A0",
+    "packagingVersion": "2026-08-25",
     "productName": "Healthy Moment - Functional Dog Treat-Joint Care - 150g",
     "boxSize": "50*40*30",
     "perCarton": 8,
@@ -436,6 +4182,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1MHTD041A0",
+    "packagingVersion": "2026-08-25",
     "productName": "Healthy Moment - Functional Dog Treat - Eyes Care - 150g",
     "boxSize": "50*40*30",
     "perCarton": 8,
@@ -446,6 +4193,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1MHTD051A0",
+    "packagingVersion": "2026-08-25",
     "productName": "Healthy Moment - Functional Dog Treat-Heart Health Care - 150g",
     "boxSize": "50*40*30",
     "perCarton": 8,
@@ -456,6 +4204,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1MHTD017A0",
+    "packagingVersion": "2026-08-25",
     "productName": "Healthy Moment - Functional Dog Treat - Skin & Coat Care - Box",
     "boxSize": "50*40*30",
     "perCarton": 8,
@@ -466,6 +4215,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1MHTD027A0",
+    "packagingVersion": "2026-08-25",
     "productName": "Healthy Moment - Functional Dog Treat- Gastrointestinal Care - Box",
     "boxSize": "50*40*30",
     "perCarton": 8,
@@ -476,6 +4226,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1MHTD037A0",
+    "packagingVersion": "2026-08-25",
     "productName": "Healthy Moment - Functional Dog Treat - Joint Care - Box",
     "boxSize": "50*40*30",
     "perCarton": 8,
@@ -486,6 +4237,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1MHTD047A0",
+    "packagingVersion": "2026-08-25",
     "productName": "Healthy Moment - Functional Dog Treat - Eyes Care - Box",
     "boxSize": "50*40*30",
     "perCarton": 8,
@@ -496,6 +4248,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1MHTD057A0",
+    "packagingVersion": "2026-08-25",
     "productName": "Healthy Moment - Functional Dog Treat - Heart Health Care - Box",
     "boxSize": "50*40*30",
     "perCarton": 8,
@@ -506,6 +4259,7 @@ window.allProductsData = [
   },
   {
     "productCode": "AFA11AM",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi-Classic Turkey Tendon Thin Stick (100g /pk)；AFK package (120 units /CTN)",
     "boxSize": "50*40*30",
     "perCarton": 120,
@@ -516,6 +4270,7 @@ window.allProductsData = [
   },
   {
     "productCode": "AFA12AM",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi-Classic Turkey Tendon Braided Stick(100g /pk)；AFK package (120 units /CTN)",
     "boxSize": "50*40*30",
     "perCarton": 120,
@@ -526,6 +4281,7 @@ window.allProductsData = [
   },
   {
     "productCode": "AFA13AM",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi-Classic Turkey Tendon Slice (100g /pk)；AFK package (100 units /CTN)",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -536,6 +4292,7 @@ window.allProductsData = [
   },
   {
     "productCode": "AFA14AM",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi-Classic Turkey Tendon Flake(100g /pk)；AFK package (80 units /CTN)",
     "boxSize": "50*40*30",
     "perCarton": 80,
@@ -546,6 +4303,7 @@ window.allProductsData = [
   },
   {
     "productCode": "AFA21AM",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi-Soft Turkey Tendon & Pumpkin strip (100g /pk)；AFK package (120 units /CTN)",
     "boxSize": "50*40*30",
     "perCarton": 120,
@@ -556,6 +4314,7 @@ window.allProductsData = [
   },
   {
     "productCode": "AFA22AM",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi-Soft Turkey Tendon Strip (100g /pk)；AFK package (120 units /CTN)",
     "boxSize": "50*40*30",
     "perCarton": 120,
@@ -566,6 +4325,7 @@ window.allProductsData = [
   },
   {
     "productCode": "AFA31AM",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi-Wrapped Turkey Tendon with Chicken Stick (100g /pk)；AFK package (100 units /CTN)",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -576,6 +4336,7 @@ window.allProductsData = [
   },
   {
     "productCode": "AFA32AM",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi-Wrapped Turkey Tendon with Brown Rice Stick(100g /pk)；AFK package (100 units /CTN)",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -586,6 +4347,7 @@ window.allProductsData = [
   },
   {
     "productCode": "AFA25AM",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi-Classic Turkey Tendon Coil-L(85g /pk)；AFK package (70 units /CTN)",
     "boxSize": "50*40*30",
     "perCarton": 70,
@@ -596,6 +4358,7 @@ window.allProductsData = [
   },
   {
     "productCode": "AFA135AM",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi-Classic Turkey Tendon Coil-S(85g /pk)；AFK package (70 units /CTN)",
     "boxSize": "50*40*30",
     "perCarton": 70,
@@ -606,6 +4369,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTS01",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Turkey Tendon Strip (85g x 100)",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -616,6 +4380,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTR01",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Turkey Tendon Ring_S(72g x 100)",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -626,6 +4391,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTB01",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Turkey Tendon Bone_S(72g x 100)",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -636,6 +4402,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTP01",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Turkey Tendon Rope_S(72g x 100)",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -646,6 +4413,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTZ01",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Turkey Tendon Pretzel_S(72g x 100)",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -656,6 +4424,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTA01",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Turkey Tendon Braid_S(90g x 120)",
     "boxSize": "58.5*34.5*35",
     "perCarton": 120,
@@ -666,6 +4435,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTC01",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Sliced Turkey Tendon (85g x 120)",
     "boxSize": "58.5*34.5*35",
     "perCarton": 120,
@@ -676,6 +4446,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTR03",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Turkey Tendon Ring_M(90g x 100)",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -686,6 +4457,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTB03",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Turkey Tendon Bone_M(90g x 100)",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -696,6 +4468,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTP03",
+    "packagingVersion": "2026-08-28.4",
     "productName": "Gootoe - Turkey Tendon Rope_M(90g x 100)",
     "boxSize": "58.5*34.5*35",
     "perCarton": 100,
@@ -706,6 +4479,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTS03",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Turkey Tendon Stick_M(90g x 100)",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -716,6 +4490,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTZ03",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Turkey Tendon Pretzel_M(90g x 120)",
     "boxSize": "58.5*34.5*35",
     "perCarton": 120,
@@ -726,6 +4501,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTB05",
+    "packagingVersion": "2026-08-28.4",
     "productName": "Gootoe - Turkey Tendon Bone_L(100g x 100)",
     "boxSize": "58.5*34.5*35",
     "perCarton": 100,
@@ -736,6 +4512,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTP05",
+    "packagingVersion": "2026-08-28.4",
     "productName": "Gootoe - Turkey Tendon Rope_L(100g x 100)",
     "boxSize": "58.5*34.5*35",
     "perCarton": 100,
@@ -746,6 +4523,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTB07",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Turkey tendon lolipop 15g x 5pcs (75g x 100)",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -756,6 +4534,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GSF01",
+    "packagingVersion": "2026-08-25",
     "productName": "Soft Turkey Tendon Strip with Pumpkin (85g x 150)",
     "boxSize": "50*40*30",
     "perCarton": 150,
@@ -766,6 +4545,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GSF02",
+    "packagingVersion": "2026-08-25",
     "productName": "Soft Turkey Tendon Strip (85g x 150)",
     "boxSize": "50*40*30",
     "perCarton": 150,
@@ -776,6 +4556,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTSL01",
+    "packagingVersion": "2026-08-28.4",
     "productName": "Gootoe - Turkey Tendon Strip (454g x 30)",
     "boxSize": "50*40*40",
     "perCarton": 30,
@@ -786,6 +4567,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTRL01",
+    "packagingVersion": "2026-08-28.4",
     "productName": "Gootoe - Turkey Tendon Ring_S (454g x 30)",
     "boxSize": "50*40*40",
     "perCarton": 30,
@@ -796,6 +4578,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTPL01",
+    "packagingVersion": "2026-08-28.4",
     "productName": "Gootoe - Turkey Tendon Rope_S (454g x 30)",
     "boxSize": "50*40*40",
     "perCarton": 30,
@@ -806,6 +4589,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTBL01",
+    "packagingVersion": "2026-08-28.4",
     "productName": "Gootoe - Turkey Tendon Bone_S (454g x 30)",
     "boxSize": "50*40*40",
     "perCarton": 30,
@@ -816,6 +4600,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTAL01",
+    "packagingVersion": "2026-08-28.4",
     "productName": "Gootoe - Turkey Tendon Braid_S (454g x 38)",
     "boxSize": "50*40*40",
     "perCarton": 38,
@@ -826,6 +4611,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTCL01",
+    "packagingVersion": "2026-08-28.4",
     "productName": "Gootoe - Turkey Tendon Sliced (454g x 30)",
     "boxSize": "50*40*40",
     "perCarton": 30,
@@ -836,6 +4622,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTRL03",
+    "packagingVersion": "2026-08-28.4",
     "productName": "Gootoe - Turkey Tendon Ring_M (454g x 30)",
     "boxSize": "50*40*40",
     "perCarton": 30,
@@ -846,6 +4633,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTPL03",
+    "packagingVersion": "2026-08-28.4",
     "productName": "Gootoe - Turkey Tendon Rope_M (454g x 30)",
     "boxSize": "50*40*40",
     "perCarton": 30,
@@ -856,6 +4644,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTBL03",
+    "packagingVersion": "2026-08-28.4",
     "productName": "Gootoe - Turkey Tendon Bone_M (454g x 30)",
     "boxSize": "50*40*40",
     "perCarton": 30,
@@ -866,6 +4655,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTZL03",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Turkey Tendon Pretzel_M (454g x 30)",
     "boxSize": "50*40*30",
     "perCarton": 30,
@@ -876,6 +4666,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTPL05",
+    "packagingVersion": "2026-08-28.4",
     "productName": "Gootoe - Turkey Tendon Rope_L (454g x 30)",
     "boxSize": "50*40*40",
     "perCarton": 30,
@@ -886,6 +4677,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTBL05",
+    "packagingVersion": "2026-08-28.4",
     "productName": "Gootoe - Turkey Tendon Bone_L(454g x 30)",
     "boxSize": "50*40*40",
     "perCarton": 30,
@@ -896,6 +4688,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GSFL01",
+    "packagingVersion": "2026-08-25",
     "productName": "Soft Turkey Tendon Strip with Pumpkin (454g x 38)",
     "boxSize": "50*40*30",
     "perCarton": 38,
@@ -906,6 +4699,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GSFL02",
+    "packagingVersion": "2026-08-25",
     "productName": "Soft Turkey Tendon Strip (454g x 38)",
     "boxSize": "50*40*30",
     "perCarton": 38,
@@ -916,6 +4710,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ATS01",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Strip (100g)",
     "boxSize": "50*40*30",
     "perCarton": 90,
@@ -926,6 +4721,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ATB01",
+    "packagingVersion": "2026-08-25",
     "productName": "Afreschi srl - Natural Turkey Tendon Bone_S(72g)",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -936,6 +4732,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ATR01AM",
+    "packagingVersion": "2026-08-25",
     "productName": "Afreschi srl - Natural Turkey Tendon Ring_S(72g)",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -946,6 +4743,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ATP01",
+    "packagingVersion": "2026-08-25",
     "productName": "Afreschi srl - Natural Turkey Tendon Rope_S(72g)",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -956,6 +4754,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ATZ01",
+    "packagingVersion": "2026-08-25",
     "productName": "Afreschi srl - Natural Turkey Tendon Pretzel_S(72g)",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -966,6 +4765,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ATA01",
+    "packagingVersion": "2026-08-25",
     "productName": "Afreschi srl - Natural Turkey Tendon Braid(90g)",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -976,6 +4776,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ATB03",
+    "packagingVersion": "2026-08-25",
     "productName": "Afreschi srl - Natural Turkey Tendon Bone_M(90g)",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -986,6 +4787,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ATR03",
+    "packagingVersion": "2026-08-25",
     "productName": "Afreschi srl - Natural Turkey Tendon Ring_M(90g)",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -996,6 +4798,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ATP03",
+    "packagingVersion": "2026-08-25",
     "productName": "Afreschi srl - Natural Turkey Tendon Rope_M(90g)",
     "boxSize": "50*40*30",
     "perCarton": 90,
@@ -1006,6 +4809,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ATZ03",
+    "packagingVersion": "2026-08-25",
     "productName": "Afreschi srl - Natural Turkey Tendon Pretzel_M(90g)",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -1016,6 +4820,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ATB05",
+    "packagingVersion": "2026-08-25",
     "productName": "Afreschi srl - Natural Turkey Tendon Bone_L(100g)",
     "boxSize": "50*40*30",
     "perCarton": 90,
@@ -1026,6 +4831,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ATP05",
+    "packagingVersion": "2026-08-25",
     "productName": "Afreschi srl- Natural Turkey Tendon Rope_L(100g)",
     "boxSize": "50*40*30",
     "perCarton": 90,
@@ -1036,6 +4842,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ATAL01",
+    "packagingVersion": "2026-08-25",
     "productName": "Afreschi Natural Turkey Tendon Braid 8oz (GTA01:227g x 42)",
     "boxSize": "50*40*30",
     "perCarton": 42,
@@ -1046,6 +4853,7 @@ window.allProductsData = [
   },
   {
     "productCode": "KTB01AM",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Bone_S (40 units；8 boxes /CTN)",
     "boxSize": "58.5*34.5*35",
     "perCarton": 8,
@@ -1056,6 +4864,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TRP01AM",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Rope_S (40 units；8 boxes /CTN)",
     "boxSize": "58.5*34.5*35",
     "perCarton": 8,
@@ -1066,6 +4875,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TTR01AM",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Ring_S (40 units /box ; 8 boxes /CTN)",
     "boxSize": "58.5*34.5*35",
     "perCarton": 8,
@@ -1076,6 +4886,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TPZ01AM",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Pretzel_S (40 units /box ; 8 boxes /CTN)",
     "boxSize": "58.5*34.5*35",
     "perCarton": 8,
@@ -1086,6 +4897,7 @@ window.allProductsData = [
   },
   {
     "productCode": "KTB03AM",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Bone_M (20 units /box ; 8 boxes /CTN)",
     "boxSize": "58.5*34.5*35",
     "perCarton": 8,
@@ -1096,6 +4908,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TRP03AM",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Rope_M (20 units /box ; 8 boxes /CTN)",
     "boxSize": "58.5*34.5*35",
     "perCarton": 8,
@@ -1106,6 +4919,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TTR03AM",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Ring_M (20 units；8 boxes /CTN)",
     "boxSize": "58.5*34.5*35",
     "perCarton": 8,
@@ -1116,6 +4930,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TPZ03AM",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Pretzel-M (20 units /box ; 8 boxes /CTN)",
     "boxSize": "58.5*34.5*35",
     "perCarton": 8,
@@ -1126,6 +4941,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TRP05AM",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Rope_L (10 units /box ; 8 boxes /CTN)",
     "boxSize": "58.5*34.5*35",
     "perCarton": 8,
@@ -1136,6 +4952,7 @@ window.allProductsData = [
   },
   {
     "productCode": "KTB05AM",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Bone_L (10 units；8 boxes /CTN)",
     "boxSize": "58.5*34.5*35",
     "perCarton": 8,
@@ -1146,6 +4963,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TTR05AM",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Ring_L (10 units；8 boxes /CTN)",
     "boxSize": "58.5*34.5*35",
     "perCarton": 8,
@@ -1156,6 +4974,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TPZ05AM",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Pretzel_L (10 units；8 boxes /CTN)",
     "boxSize": "58.5*34.5*35",
     "perCarton": 8,
@@ -1166,6 +4985,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TTS05AM",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Strip (10 units /box ; 8 boxes /CTN)",
     "boxSize": "58.5*34.5*35",
     "perCarton": 8,
@@ -1176,6 +4996,7 @@ window.allProductsData = [
   },
   {
     "productCode": "KTB06AM",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Lollipop (40 units；8 boxes /CTN)",
     "boxSize": "58.5*34.5*35",
     "perCarton": 8,
@@ -1186,6 +5007,7 @@ window.allProductsData = [
   },
   {
     "productCode": "KTB01AM-4",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Bone_S (90 units /CTN)",
     "boxSize": "50*40*30",
     "perCarton": 90,
@@ -1196,6 +5018,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TTR01AM-4",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Ring_S (90 units /CTN)",
     "boxSize": "50*40*30",
     "perCarton": 90,
@@ -1206,6 +5029,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TRP01AM-4",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Rope_S (90 units /CTN)",
     "boxSize": "50*40*30",
     "perCarton": 90,
@@ -1216,6 +5040,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TPZ01AM-4",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Pretzel_S (90 units /CTN)",
     "boxSize": "50*40*30",
     "perCarton": 90,
@@ -1226,6 +5051,7 @@ window.allProductsData = [
   },
   {
     "productCode": "KTB03AM-2",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Bone_M (80 units /CTN)",
     "boxSize": "50*40*30",
     "perCarton": 80,
@@ -1236,6 +5062,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TRP03AM-2",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Rope_M (90 units /CTN)",
     "boxSize": "50*40*30",
     "perCarton": 90,
@@ -1246,6 +5073,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TTR03AM-2",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Ring_M (80 units /CTN)",
     "boxSize": "50*40*30",
     "perCarton": 80,
@@ -1256,6 +5084,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TPZ03AM-2",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Pretzel_M (90 units /CTN)",
     "boxSize": "50*40*30",
     "perCarton": 90,
@@ -1266,6 +5095,7 @@ window.allProductsData = [
   },
   {
     "productCode": "KTB05AM-1",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Bone_L (90 units /CTN)",
     "boxSize": "50*40*30",
     "perCarton": 90,
@@ -1276,6 +5106,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TRP05AM-1",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Rope_L (90 units /CTN)",
     "boxSize": "50*40*30",
     "perCarton": 90,
@@ -1286,6 +5117,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TTR05AM-1",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Ring_L (120 units /CTN)",
     "boxSize": "50*40*30",
     "perCarton": 120,
@@ -1296,6 +5128,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TPZ05AM-1",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Pretzel_L (120 units /CTN)",
     "boxSize": "50*40*30",
     "perCarton": 120,
@@ -1306,6 +5139,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TTS05AM-1",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Strip (100 units /CTN)",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -1316,6 +5150,7 @@ window.allProductsData = [
   },
   {
     "productCode": "KTB06AM-4",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Lollipop (90 units /CTN)",
     "boxSize": "50*40*30",
     "perCarton": 90,
@@ -1326,6 +5161,7 @@ window.allProductsData = [
   },
   {
     "productCode": "KTBL01",
+    "packagingVersion": "2026-08-25",
     "productName": "Afreschi Natural Turkey Tendon Bone 8oz_S-15g (227g x 36)",
     "boxSize": "50*40*30",
     "perCarton": 36,
@@ -1336,6 +5172,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TTRL01",
+    "packagingVersion": "2026-08-25",
     "productName": "Afreschi Natural Turkey Tendon Ring 8oz_S-12g (227g x 36)",
     "boxSize": "50*40*30",
     "perCarton": 36,
@@ -1346,6 +5183,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TPZL01",
+    "packagingVersion": "2026-08-25",
     "productName": "Afreschi Natural Turkey Tendon Pretzel 8oz_S-12g (227g x 36)",
     "boxSize": "50*40*30",
     "perCarton": 36,
@@ -1356,6 +5194,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TRPL01",
+    "packagingVersion": "2026-08-25",
     "productName": "Afreschi Natural Turkey Tendon Rope 8oz_S-12g (227g x 36)",
     "boxSize": "50*40*30",
     "perCarton": 36,
@@ -1366,6 +5205,7 @@ window.allProductsData = [
   },
   {
     "productCode": "KTBL03",
+    "packagingVersion": "2026-08-25",
     "productName": "Afreschi Natural Turkey Tendon Bone 10oz_M-36g (285g x 36)",
     "boxSize": "50*40*30",
     "perCarton": 36,
@@ -1376,6 +5216,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TTRL03",
+    "packagingVersion": "2026-08-25",
     "productName": "Afreschi Natural Turkey Tendon Ring 10oz_M-36g (285g x 36)",
     "boxSize": "50*40*30",
     "perCarton": 36,
@@ -1386,6 +5227,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TPZL03",
+    "packagingVersion": "2026-08-25",
     "productName": "Afreschi Natural Turkey Tendon Pretzel 10oz_M-36g (285g x 36)",
     "boxSize": "50*40*30",
     "perCarton": 36,
@@ -1396,6 +5238,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TRPL03",
+    "packagingVersion": "2026-08-25",
     "productName": "Afreschi Natural Turkey Tendon Rope 10oz_M-36g (285g x 36)",
     "boxSize": "50*40*30",
     "perCarton": 36,
@@ -1406,6 +5249,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TTRL05",
+    "packagingVersion": "2026-08-25",
     "productName": "Afreschi Natural Turkey Tendon Ring 10oz_L-72g (285g x 36)",
     "boxSize": "50*40*30",
     "perCarton": 36,
@@ -1416,6 +5260,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TRPL05",
+    "packagingVersion": "2026-08-25",
     "productName": "Afreschi Natural Turkey Tendon Rope 10oz_L-72g (285g x 36)",
     "boxSize": "50*40*30",
     "perCarton": 36,
@@ -1426,6 +5271,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TPZL05",
+    "packagingVersion": "2026-08-25",
     "productName": "Afreschi Natural Turkey Tendon Pretzel 10oz_L-72g (285g x 36)",
     "boxSize": "50*40*30",
     "perCarton": 36,
@@ -1436,6 +5282,7 @@ window.allProductsData = [
   },
   {
     "productCode": "KTBL05",
+    "packagingVersion": "2026-08-25",
     "productName": "Afreschi Natural Turkey Tendon Bone 10oz_L-72g (285g x 30)",
     "boxSize": "50*40*30",
     "perCarton": 30,
@@ -1446,6 +5293,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TTSL05",
+    "packagingVersion": "2026-08-25",
     "productName": "Afreschi Natural Turkey Tendon Strip 10oz (285g x 30)",
     "boxSize": "50*40*30",
     "perCarton": 30,
@@ -1456,6 +5304,7 @@ window.allProductsData = [
   },
   {
     "productCode": "AFML01",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi Turkey Tendon Variety Pack 8oz_Small (227gx36)",
     "boxSize": "50*40*30",
     "perCarton": 36,
@@ -1466,6 +5315,7 @@ window.allProductsData = [
   },
   {
     "productCode": "AFML03",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi Turkey Tendon Variety Pack 10oz_Medium (285gx36)",
     "boxSize": "50*40*30",
     "perCarton": 36,
@@ -1476,6 +5326,7 @@ window.allProductsData = [
   },
   {
     "productCode": "AFML05",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi Turkey Tendon Variety Pack 10oz_Large (285gx36)",
     "boxSize": "50*40*30",
     "perCarton": 36,
@@ -1486,6 +5337,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ASF01",
+    "packagingVersion": "2026-08-25",
     "productName": "A Freschi Srl – Natural Turkey Treats Soft Sticks (170g x 100)",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -1496,6 +5348,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ABM01",
+    "packagingVersion": "2026-08-25",
     "productName": "A Freschi Srl – Natural Turkey Treats Sticks_β-Carotene added (170g x 110)",
     "boxSize": "50*40*30",
     "perCarton": 110,
@@ -1506,6 +5359,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ATN01",
+    "packagingVersion": "2026-08-25",
     "productName": "A Freschi Srl – Natural Turkey Treats Star Bites (170g x 80)",
     "boxSize": "50*40*30",
     "perCarton": 80,
@@ -1516,6 +5370,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ASA01",
+    "packagingVersion": "2026-08-25",
     "productName": "A Freschi Srl – Natural Turkey Treats Mini Bars (170g x 80)",
     "boxSize": "50*40*30",
     "perCarton": 80,
@@ -1526,6 +5381,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ADT03",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Dental Treats-Real Turkey Meat (1kg x20 units /CTN)",
     "boxSize": "50*40*30",
     "perCarton": 20,
@@ -1536,6 +5392,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ATJ01",
+    "packagingVersion": "2026-08-25",
     "productName": "Afreschi - Natural Turkey Jerky 4oz (113gx110)",
     "boxSize": "50*40*30",
     "perCarton": 110,
@@ -1546,6 +5403,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTT01",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe Turkey Tendon Twists 5oz_Small (142g*120)",
     "boxSize": "58.5*34.5*35",
     "perCarton": 120,
@@ -1556,6 +5414,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTT03",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe Turkey Tendon Twists 5oz_Medium (142g*120)",
     "boxSize": "58.5*34.5*35",
     "perCarton": 120,
@@ -1566,6 +5425,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ASFL01",
+    "packagingVersion": "2026-08-25",
     "productName": "A Freschi Srl – Natural Turkey Treats Soft Sticks (454g)",
     "boxSize": "50*40*30",
     "perCarton": 36,
@@ -1576,6 +5436,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ABML01",
+    "packagingVersion": "2026-08-25",
     "productName": "A Freschi Srl – Natural Turkey Treats Sticks_β-Carotene added (454g)",
     "boxSize": "50*40*30",
     "perCarton": 42,
@@ -1586,6 +5447,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ATNL01",
+    "packagingVersion": "2026-08-25",
     "productName": "A Freschi Srl – Natural Turkey Treats Star Bites (454g)",
     "boxSize": "50*40*30",
     "perCarton": 42,
@@ -1596,6 +5458,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ASAL01",
+    "packagingVersion": "2026-08-25",
     "productName": "A Freschi Srl – Natural Turkey Treats Mini Bars (454g)",
     "boxSize": "50*40*30",
     "perCarton": 36,
@@ -1606,6 +5469,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ATJL01",
+    "packagingVersion": "2026-08-25",
     "productName": "A Freschi Srl – Natural Turkey Jerky (12oz-340g)",
     "boxSize": "50*40*30",
     "perCarton": 42,
@@ -1616,6 +5480,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GCBL01",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Chicken Fillet Jerky 454gx30",
     "boxSize": "50*40*30",
     "perCarton": 30,
@@ -1626,6 +5491,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GCBL02",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Chicken Jerky Breast 454gx36",
     "boxSize": "50*40*30",
     "perCarton": 36,
@@ -1636,6 +5502,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GCBL03",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Chicken Chips 454gx28",
     "boxSize": "50*40*30",
     "perCarton": 28,
@@ -1646,6 +5513,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GSCL01",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Soft Chicken Breast Strips 454gx36",
     "boxSize": "50*40*30",
     "perCarton": 36,
@@ -1656,6 +5524,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GSCL02",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Soft Chicken Sticks 454gx36",
     "boxSize": "50*40*30",
     "perCarton": 36,
@@ -1666,6 +5535,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GSCL03",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Soft Chicken Dental Chews with Chlorophyll, 1.5lb (681gx28)",
     "boxSize": "50*40*30",
     "perCarton": 28,
@@ -1676,6 +5546,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GSCL04",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Soft Chicken Knots 454gx30",
     "boxSize": "50*40*30",
     "perCarton": 30,
@@ -1686,6 +5557,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GSCL05",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Soft Chicken Jerky Cuts 454gx36",
     "boxSize": "50*40*30",
     "perCarton": 36,
@@ -1696,6 +5568,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GCTL01",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Chicken Sticks 1.5lb-681gx28",
     "boxSize": "50*40*30",
     "perCarton": 28,
@@ -1706,6 +5579,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GCTL02",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Chicken Sticks With Chicken Liver 1.5lb-681gx28",
     "boxSize": "50*40*30",
     "perCarton": 28,
@@ -1716,6 +5590,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GCTL03",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Chicken Sticks With Sweet Potato 1.5lb-681gx28",
     "boxSize": "50*40*30",
     "perCarton": 28,
@@ -1726,6 +5601,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GCTL04",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Chicken Mini Sticks 1.5lb-681gx22",
     "boxSize": "50*40*30",
     "perCarton": 22,
@@ -1736,6 +5612,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GCTL05",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Chicken Roll 12oz-340gx24",
     "boxSize": "50*40*30",
     "perCarton": 24,
@@ -1746,6 +5623,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GCTL06",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Chicken Dipped Sticks 1.5lb-681gx28",
     "boxSize": "50*40*30",
     "perCarton": 28,
@@ -1756,6 +5634,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GBS01",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Buffalo Bites Stick _S (70units /CTN)",
     "boxSize": "50*40*30",
     "perCarton": 70,
@@ -1766,6 +5645,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GBS03",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Buffalo Bites Stick _L (70 units /CTN)",
     "boxSize": "50*40*30",
     "perCarton": 70,
@@ -1776,6 +5656,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GBB01",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Buffalo Bites Bone Shaped (60 units /CTN)",
     "boxSize": "50*40*30",
     "perCarton": 60,
@@ -1786,6 +5667,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GBSL01",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Buffalo Bites Stick (small) (S) 1.5lb-681g",
     "boxSize": "50*40*30",
     "perCarton": 28,
@@ -1796,6 +5678,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GBSL03",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Buffalo Bites Stick (Large) (L) 1.5lb-681g",
     "boxSize": "50*40*30",
     "perCarton": 28,
@@ -1806,6 +5689,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GBBL01",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Buffalo Bites Bone Shaped 1.5lb-681g",
     "boxSize": "50*40*30",
     "perCarton": 28,
@@ -1816,6 +5700,7 @@ window.allProductsData = [
   },
   {
     "productCode": "AWD010",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi Air-Dried Dog Food - USA Turkey Recipe(W-shaped)-454g",
     "boxSize": "50*40*30",
     "perCarton": 38,
@@ -1826,6 +5711,7 @@ window.allProductsData = [
   },
   {
     "productCode": "AWD011",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi Air-Dried Dog Food - USA Turkey Recipe(W-shaped)-1kg",
     "boxSize": "50*40*30",
     "perCarton": 20,
@@ -1836,6 +5722,7 @@ window.allProductsData = [
   },
   {
     "productCode": "AWD070",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi Air - Dried Dog Food - Turkey & Salmon Recipe(W-shaped)-454g",
     "boxSize": "50*40*30",
     "perCarton": 38,
@@ -1846,6 +5733,7 @@ window.allProductsData = [
   },
   {
     "productCode": "AWD071",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi Air - Dried Dog Food - Turkey & Salmon Recipe(W-shaped)-1kg",
     "boxSize": "50*40*30",
     "perCarton": 20,
@@ -1856,6 +5744,7 @@ window.allProductsData = [
   },
   {
     "productCode": "VTS01-1",
+    "packagingVersion": "2026-08-25",
     "productName": "Turkey Tendon Strip (100 units /CTN)",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -1866,6 +5755,7 @@ window.allProductsData = [
   },
   {
     "productCode": "VTB01-4",
+    "packagingVersion": "2026-08-25",
     "productName": "Turkey Tendon Bone_S (90 units /CTN)",
     "boxSize": "50*40*30",
     "perCarton": 90,
@@ -1876,6 +5766,7 @@ window.allProductsData = [
   },
   {
     "productCode": "VTR01-4",
+    "packagingVersion": "2026-08-25",
     "productName": "Turkey Tendon Ring_S (90 units /CTN)",
     "boxSize": "50*40*30",
     "perCarton": 90,
@@ -1886,6 +5777,7 @@ window.allProductsData = [
   },
   {
     "productCode": "VTB05-1",
+    "packagingVersion": "2026-08-25",
     "productName": "Turkey Tendon Bone_L (120 units /CTN)",
     "boxSize": "50*40*30",
     "perCarton": 120,
@@ -1896,6 +5788,7 @@ window.allProductsData = [
   },
   {
     "productCode": "VTB06-4",
+    "packagingVersion": "2026-08-25",
     "productName": "Turkey Tendon Lollipop (90 units /CTN)",
     "boxSize": "50*40*30",
     "perCarton": 90,
@@ -1906,6 +5799,7 @@ window.allProductsData = [
   },
   {
     "productCode": "HDR01AM",
+    "packagingVersion": "2026-08-25",
     "productName": "Herz_ Turkey Tendon_Duo-Protein_Ring (S) (85g)",
     "boxSize": "50*40*30",
     "perCarton": 120,
@@ -1916,6 +5810,7 @@ window.allProductsData = [
   },
   {
     "productCode": "HDP01AM",
+    "packagingVersion": "2026-08-25",
     "productName": "Herz_ Turkey Tendon_Duo-Protein_Rope(S)(85g)",
     "boxSize": "50*40*30",
     "perCarton": 120,
@@ -1926,6 +5821,7 @@ window.allProductsData = [
   },
   {
     "productCode": "HDS03AM",
+    "packagingVersion": "2026-08-25",
     "productName": "Herz_ Turkey Tendon_Duo-Protein_Strip(85g)",
     "boxSize": "50*40*30",
     "perCarton": 120,
@@ -1936,6 +5832,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ACBL01",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi - Natural Chicken Fillet Jerky 454g*30",
     "boxSize": "50*40*30",
     "perCarton": 30,
@@ -1946,6 +5843,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ACBL02",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi - Natural Chicken Breast Jerky 454g*36",
     "boxSize": "50*40*30",
     "perCarton": 36,
@@ -1956,6 +5854,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ACBL03",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi - Natural Chicken Chips 454g*28",
     "boxSize": "50*40*30",
     "perCarton": 28,
@@ -1966,6 +5865,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ASCL01",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi - Natural Soft Chicken Breast Strips 454g*36",
     "boxSize": "50*40*30",
     "perCarton": 36,
@@ -1976,6 +5876,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ASCL02",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi - Natural Soft Chicken Sticks 454g*36",
     "boxSize": "50*40*30",
     "perCarton": 36,
@@ -1986,6 +5887,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ASCL03",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi - Natural Soft Chicken Dental Chews with Chlorophyll 681g*28",
     "boxSize": "50*40*30",
     "perCarton": 28,
@@ -1996,6 +5898,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ASCL04",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi - Natural Soft Chicken Knots 454g*30",
     "boxSize": "50*40*30",
     "perCarton": 30,
@@ -2006,6 +5909,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ASCL05",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi - Natural Soft Chicken Jerky Cuts 454g*36",
     "boxSize": "50*40*30",
     "perCarton": 36,
@@ -2016,6 +5920,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ACTL01",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi - Natural Chicken Sticks 681g*28",
     "boxSize": "50*40*30",
     "perCarton": 28,
@@ -2026,6 +5931,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ACTL02",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi - Natural Chicken Sticks with Chicken Liver 681g*28",
     "boxSize": "50*40*30",
     "perCarton": 28,
@@ -2036,6 +5942,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ACTL03",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi - Natural Chicken Sticks with Sweet Potato 681g*28",
     "boxSize": "50*40*30",
     "perCarton": 28,
@@ -2046,6 +5953,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ACTL04",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi - Natural Chicken Sticks (Mini) 681g*22",
     "boxSize": "50*40*30",
     "perCarton": 22,
@@ -2056,6 +5964,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ACTL05",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi - Natural Chicken Roll 340g*24",
     "boxSize": "50*40*30",
     "perCarton": 24,
@@ -2066,6 +5975,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ACTL06",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi - Natural Chicken Dipped Sticks 681g*28",
     "boxSize": "50*40*30",
     "perCarton": 28,
@@ -2076,6 +5986,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ACTL07",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi - Natural Chicken Dipped Rice Sticks 681g*28",
     "boxSize": "50*40*30",
     "perCarton": 28,
@@ -2086,6 +5997,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ACTL08",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi - Natural Chicken Sliced 681g*24",
     "boxSize": "50*40*30",
     "perCarton": 28,
@@ -2096,6 +6008,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ACTL09",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi - Natural Chicken Dipped Rice Bone 454g*28",
     "boxSize": "50*40*30",
     "perCarton": 36,
@@ -2106,6 +6019,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ACTL10",
+    "packagingVersion": "2026-08-25",
     "productName": "AFreschi - Natural Chicken Sticks with Pumpkin 681g*28",
     "boxSize": "50*40*30",
     "perCarton": 28,
@@ -2116,6 +6030,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ACA01",
+    "packagingVersion": "2026-08-25",
     "productName": "Afreschi - Natural Cat Treats (Chicken & Mackerel) -6oz-170gx100",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -2126,6 +6041,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ACA02",
+    "packagingVersion": "2026-08-25",
     "productName": "Afreschi - Natural Cat Treats (Buffalo& Chicken & Fish) -6oz-170gx100",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -2136,6 +6052,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ACA03",
+    "packagingVersion": "2026-08-25",
     "productName": "Afreschi - Natural Cat Treats (Turkey & Chicken & Mackerel) -6oz-170gx100",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -2146,6 +6063,7 @@ window.allProductsData = [
   },
   {
     "productCode": "VBS01",
+    "packagingVersion": "2026-08-25",
     "productName": "Vitaday - Buffalo Treats Stick (Small) 227g*70",
     "boxSize": "50*40*30",
     "perCarton": 70,
@@ -2156,6 +6074,7 @@ window.allProductsData = [
   },
   {
     "productCode": "VBS03",
+    "packagingVersion": "2026-08-25",
     "productName": "Vitaday - Buffalo Treats Stick (Medium) 227g*70",
     "boxSize": "50*40*30",
     "perCarton": 70,
@@ -2166,6 +6085,7 @@ window.allProductsData = [
   },
   {
     "productCode": "VBB01",
+    "packagingVersion": "2026-08-25",
     "productName": "Vitaday - Buffalo Treats Bone Shaped 227g*60",
     "boxSize": "50*40*30",
     "perCarton": 60,
@@ -2176,6 +6096,7 @@ window.allProductsData = [
   },
   {
     "productCode": "VBW01",
+    "packagingVersion": "2026-08-25",
     "productName": "Vitaday - Buffalo Treats W Shaped 227g*80",
     "boxSize": "50*40*30",
     "perCarton": 80,
@@ -2186,6 +6107,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EZD011AM",
+    "packagingVersion": "2026-08-25",
     "productName": "Herz Grain-Free U.S.A. Turkey Breast Recipe (908g/Pk)",
     "boxSize": "48*38*28",
     "perCarton": 18,
@@ -2196,6 +6118,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EZD021AM",
+    "packagingVersion": "2026-08-25",
     "productName": "Herz Grain-Free Australian Lamb Recipe (908g/Pk)",
     "boxSize": "48*38*28",
     "perCarton": 18,
@@ -2206,6 +6129,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EZD041AM",
+    "packagingVersion": "2026-08-25",
     "productName": "Herz Grain-Free New Zealand Grass-Fed Beef Recipe (908g/Pk)",
     "boxSize": "48*38*28",
     "perCarton": 18,
@@ -2216,6 +6140,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EZD051AM",
+    "packagingVersion": "2026-08-25",
     "productName": "Herz Grain-Free New Zealand Venison Recipe (908g/Pk)",
     "boxSize": "48*38*28",
     "perCarton": 18,
@@ -2226,6 +6151,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EZD061AM",
+    "packagingVersion": "2026-08-25",
     "productName": "Herz Grain-Free U.S.A. Chicken Recipe (908g/Pk)",
     "boxSize": "48*38*28",
     "perCarton": 18,
@@ -2236,6 +6162,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EZD010AM",
+    "packagingVersion": "2026-08-25",
     "productName": "Herz Grain-Free U.S.A. Turkey Breast Recipe (100g/Pk)",
     "boxSize": "48*38*28",
     "perCarton": 100,
@@ -2246,6 +6173,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EZD020AM",
+    "packagingVersion": "2026-08-25",
     "productName": "Herz Grain-Free Australian Lamb Recipe (100g/Pk)",
     "boxSize": "48*38*28",
     "perCarton": 100,
@@ -2256,6 +6184,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EZD040AM",
+    "packagingVersion": "2026-08-25",
     "productName": "Herz Grain-Free New Zealand Grass-Fed Beef Recipe (100g/Pk)",
     "boxSize": "48*38*28",
     "perCarton": 100,
@@ -2266,6 +6195,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EZD050AM",
+    "packagingVersion": "2026-08-25",
     "productName": "Herz Grain-Free New Zealand Venison Recipe (100g/Pk)",
     "boxSize": "48*38*28",
     "perCarton": 100,
@@ -2276,6 +6206,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EZD060AM",
+    "packagingVersion": "2026-08-25",
     "productName": "Herz Grain-Free U.S.A. Chicken Recipe (100g/Pk)",
     "boxSize": "48*38*28",
     "perCarton": 100,
@@ -2286,6 +6217,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EZD010AM-3",
+    "packagingVersion": "2026-08-25",
     "productName": "Herz Grain-Free U.S.A. Turkey Breast Recipe (100g/Pk)",
     "boxSize": "48*38*28",
     "perCarton": 90,
@@ -2296,6 +6228,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EZD020AM-3",
+    "packagingVersion": "2026-08-25",
     "productName": "Herz Grain-Free Australian Lamb Recipe (100g/Pk)",
     "boxSize": "48*38*28",
     "perCarton": 90,
@@ -2306,6 +6239,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EZD040AM-3",
+    "packagingVersion": "2026-08-25",
     "productName": "Herz Grain-Free New Zealand Grass-Fed Beef Recipe (100g/Pk)",
     "boxSize": "48*38*28",
     "perCarton": 90,
@@ -2316,6 +6250,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EZD050AM-3",
+    "packagingVersion": "2026-08-25",
     "productName": "Herz Grain-Free New Zealand Venison Recipe (100g/Pk)",
     "boxSize": "48*38*28",
     "perCarton": 90,
@@ -2326,6 +6261,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EZD060AM-3",
+    "packagingVersion": "2026-08-25",
     "productName": "Herz Grain-Free U.S.A. Chicken Recipe (100g/Pk)",
     "boxSize": "48*38*28",
     "perCarton": 90,
@@ -2336,6 +6272,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EPD011J",
+    "packagingVersion": "2026-08-25",
     "productName": "Herz Premium Canine Cuisine – Turkey with Duck Liver Recipe, 1kg",
     "boxSize": "48*38*28",
     "perCarton": 18,
@@ -2346,6 +6283,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EPD021J",
+    "packagingVersion": "2026-08-25",
     "productName": "Premium Canine Cuisine-Lamb with Duck Liver Ricipe-1kg",
     "boxSize": "48*38*28",
     "perCarton": 18,
@@ -2356,6 +6294,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EPD041J",
+    "packagingVersion": "2026-08-25",
     "productName": "Premium Canine Cuisine-Beef with Duck Liver Ricipe-1kg",
     "boxSize": "48*38*28",
     "perCarton": 18,
@@ -2366,6 +6305,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EPD061J",
+    "packagingVersion": "2026-08-25",
     "productName": "Premium Canine Cuisine-Chicken with Duck Liver Ricipe-1kg",
     "boxSize": "48*38*28",
     "perCarton": 18,
@@ -2376,6 +6316,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EPD010J",
+    "packagingVersion": "2026-08-25",
     "productName": "Premium Canine Cuisine – Turkey with Duck Liver Recipe-454g",
     "boxSize": "48*38*28",
     "perCarton": 30,
@@ -2386,6 +6327,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EPD020J",
+    "packagingVersion": "2026-08-25",
     "productName": "Premium Canine Cuisine-Lamb with Duck Liver Ricipe-454g",
     "boxSize": "48*38*28",
     "perCarton": 30,
@@ -2396,6 +6338,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EPD040J",
+    "packagingVersion": "2026-08-25",
     "productName": "Premium Canine Cuisine-Beef with Duck Liver Ricipe-454g",
     "boxSize": "48*38*28",
     "perCarton": 30,
@@ -2406,6 +6349,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EPD060J",
+    "packagingVersion": "2026-08-25",
     "productName": "Premium Canine Cuisine-Chicken with Duck Liver Ricipe-454g",
     "boxSize": "48*38*28",
     "perCarton": 30,
@@ -2416,6 +6360,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTSL01J",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Turkey Tendon Strip",
     "boxSize": "58.5*34.5*35",
     "perCarton": 24,
@@ -2426,6 +6371,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTRL05J",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Turkey Tendon Ring_L",
     "boxSize": "58.5*34.5*35",
     "perCarton": 24,
@@ -2436,6 +6382,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTPL05J",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Turkey Tendon Rope_L",
     "boxSize": "58.5*34.5*35",
     "perCarton": 24,
@@ -2446,6 +6393,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTBL05J",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Turkey Tendon Bone_L",
     "boxSize": "58.5*34.5*35",
     "perCarton": 24,
@@ -2456,6 +6404,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTRL01J",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Turkey Tendon Ring_S",
     "boxSize": "58.5*34.5*35",
     "perCarton": 24,
@@ -2466,6 +6415,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTPL01J",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Turkey Tendon Rope_S",
     "boxSize": "58.5*34.5*35",
     "perCarton": 24,
@@ -2476,6 +6426,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTBL01J",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Turkey Tendon Bone_S",
     "boxSize": "58.5*34.5*35",
     "perCarton": 24,
@@ -2486,6 +6437,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GSF01J",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe -Turkey Tendon Pumpkin Strip",
     "boxSize": "58.5*34.5*35",
     "perCarton": 150,
@@ -2496,6 +6448,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTR01J",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Turkey Tendon Ring_S",
     "boxSize": "58.5*34.5*35",
     "perCarton": 100,
@@ -2506,6 +6459,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTR03J",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Turkey Tendon Ring_M",
     "boxSize": "58.5*34.5*35",
     "perCarton": 100,
@@ -2516,6 +6470,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTB01J",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Turkey Tendon Bone_S",
     "boxSize": "58.5*34.5*35",
     "perCarton": 100,
@@ -2526,6 +6481,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTB03J",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Turkey Tendon Bone_M",
     "boxSize": "58.5*34.5*35",
     "perCarton": 100,
@@ -2536,6 +6492,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTB05J",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Turkey Tendon Bone_L",
     "boxSize": "58.5*34.5*35",
     "perCarton": 100,
@@ -2546,6 +6503,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTP01J",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Turkey Tendon Rope_S",
     "boxSize": "58.5*34.5*35",
     "perCarton": 100,
@@ -2556,6 +6514,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTP03J",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Turkey Tendon Rope _M",
     "boxSize": "58.5*34.5*35",
     "perCarton": 100,
@@ -2566,6 +6525,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTP05J",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Turkey Tendon Rope _L",
     "boxSize": "58.5*34.5*35",
     "perCarton": 100,
@@ -2576,6 +6536,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTS01J",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Turkey Tendon Strip",
     "boxSize": "58.5*34.5*35",
     "perCarton": 100,
@@ -2586,6 +6547,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTS03J",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Turkey Tendon Stick_M",
     "boxSize": "58.5*34.5*35",
     "perCarton": 100,
@@ -2596,6 +6558,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTZ01J",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Turkey Tendon Pretzel_S",
     "boxSize": "58.5*34.5*35",
     "perCarton": 100,
@@ -2606,6 +6569,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTZ03J",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Turkey Tendon Pretzel_M",
     "boxSize": "58.5*34.5*35",
     "perCarton": 100,
@@ -2616,6 +6580,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GTA01J",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Turkey Tendon Braid",
     "boxSize": "58.5*34.5*35",
     "perCarton": 100,
@@ -2626,6 +6591,7 @@ window.allProductsData = [
   },
   {
     "productCode": "KTB01J",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Bone_S",
     "boxSize": "58.5*34.5*35",
     "perCarton": 320,
@@ -2636,6 +6602,7 @@ window.allProductsData = [
   },
   {
     "productCode": "KTB03J",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Bone_ M",
     "boxSize": "58.5*34.5*35",
     "perCarton": 160,
@@ -2646,6 +6613,7 @@ window.allProductsData = [
   },
   {
     "productCode": "KTB05J",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Bone_L",
     "boxSize": "58.5*34.5*35",
     "perCarton": 80,
@@ -2656,6 +6624,7 @@ window.allProductsData = [
   },
   {
     "productCode": "KTB06J",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Lollipop",
     "boxSize": "58.5*34.5*35",
     "perCarton": 320,
@@ -2666,6 +6635,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TTR01J",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Ring_ S",
     "boxSize": "58.5*34.5*35",
     "perCarton": 320,
@@ -2676,6 +6646,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TTR03J",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Ring_ M",
     "boxSize": "58.5*34.5*35",
     "perCarton": 160,
@@ -2686,6 +6657,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TTR05J",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Ring_ L",
     "boxSize": "58.5*34.5*35",
     "perCarton": 80,
@@ -2696,6 +6668,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TRP01J",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Rope_ S",
     "boxSize": "58.5*34.5*35",
     "perCarton": 320,
@@ -2706,6 +6679,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TRP03J",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Rope_ M",
     "boxSize": "58.5*34.5*35",
     "perCarton": 160,
@@ -2716,6 +6690,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TRP05J",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Rope_ L",
     "boxSize": "58.5*34.5*35",
     "perCarton": 80,
@@ -2726,6 +6701,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TTS05J",
+    "packagingVersion": "2026-08-25",
     "productName": "Natural Turkey Tendon Strip",
     "boxSize": "58.5*34.5*35",
     "perCarton": 80,
@@ -2736,6 +6712,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TTA01J",
+    "packagingVersion": "2026-08-25",
     "productName": "Turkey Tendon Rice Stick",
     "boxSize": "58.5*34.5*35",
     "perCarton": 160,
@@ -2746,6 +6723,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TTA02J",
+    "packagingVersion": "2026-08-25",
     "productName": "Turkey Tendon Chicken Stick",
     "boxSize": "58.5*34.5*35",
     "perCarton": 160,
@@ -2756,6 +6734,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TTA03J",
+    "packagingVersion": "2026-08-25",
     "productName": "Turkey Tendon Thin Stick",
     "boxSize": "58.5*34.5*35",
     "perCarton": 160,
@@ -2766,6 +6745,7 @@ window.allProductsData = [
   },
   {
     "productCode": "TTA04J",
+    "packagingVersion": "2026-08-25",
     "productName": "Turkey Tendon Pumpkin Strip",
     "boxSize": "58.5*34.5*35",
     "perCarton": 160,
@@ -2776,6 +6756,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GRB01AM",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Veal Rib Bone, 85g",
     "boxSize": "48*38*28",
     "perCarton": 130,
@@ -2786,6 +6767,7 @@ window.allProductsData = [
   },
   {
     "productCode": "GRB01J",
+    "packagingVersion": "2026-08-25",
     "productName": "Gootoe - Veal Rib Bone, 85g",
     "boxSize": "48*38*28",
     "perCarton": 130,
@@ -2796,6 +6778,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ART01AM",
+    "packagingVersion": "2026-08-25",
     "productName": "Afreschi - Turkey Tendon Wrapped Veal Rib Bone, 85g",
     "boxSize": "48*38*28",
     "perCarton": 130,
@@ -2806,6 +6789,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ART01J",
+    "packagingVersion": "2026-08-25",
     "productName": "Afreschi - Turkey Tendon Wrapped Veal Rib Bone, 85g",
     "boxSize": "48*38*28",
     "perCarton": 130,
@@ -2816,6 +6800,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1VFAD053A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1VFAD053A0",
     "boxSize": "50*40*30",
     "perCarton": 110,
@@ -2826,6 +6811,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1VFBD053A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1VFBD053A0",
     "boxSize": "50*40*30",
     "perCarton": 80,
@@ -2836,6 +6822,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1VFBD015A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1VFBD015A0",
     "boxSize": "50*40*30",
     "perCarton": 70,
@@ -2846,6 +6833,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1VFCD017A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1VFCD017A0",
     "boxSize": "50*40*30",
     "perCarton": 36,
@@ -2856,6 +6844,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1VFRD055A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1VFRD055A0",
     "boxSize": "50*40*30",
     "perCarton": 60,
@@ -2866,6 +6855,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1VFRD015A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1VFRD015A0",
     "boxSize": "50*40*30",
     "perCarton": 50,
@@ -2876,6 +6866,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1VFSD013A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1VFSD013A0",
     "boxSize": "50*40*30",
     "perCarton": 70,
@@ -2886,6 +6877,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GFTD033A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1GFTD033A0",
     "boxSize": "50*40*30",
     "perCarton": 70,
@@ -2896,6 +6888,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GFTD035A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1GFTD035A0",
     "boxSize": "50*40*30",
     "perCarton": 28,
@@ -2906,6 +6899,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GFTD043A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1GFTD043A0",
     "boxSize": "50*40*30",
     "perCarton": 70,
@@ -2916,6 +6910,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GFTD045A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1GFTD045A0",
     "boxSize": "50*40*30",
     "perCarton": 28,
@@ -2926,6 +6921,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GFTD061A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1GFTD061A0",
     "boxSize": "50*40*30",
     "perCarton": 60,
@@ -2936,6 +6932,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GSDD023A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1GSDD023A0",
     "boxSize": "50*40*30",
     "perCarton": 80,
@@ -2946,6 +6943,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GSDD033A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1GSDD033A0",
     "boxSize": "50*40*30",
     "perCarton": 90,
@@ -2956,6 +6954,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1VDFD011A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1VDFD011A0",
     "boxSize": "50*40*30",
     "perCarton": 70,
@@ -2966,6 +6965,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GBRD027A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1GBRD027A0",
     "boxSize": "50*40*30",
     "perCarton": 12,
@@ -2976,6 +6976,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1ABRD016A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1ABRD016A0",
     "boxSize": "50*40*30",
     "perCarton": 14,
@@ -2986,6 +6987,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1VFRD058A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1VFRD058A0",
     "boxSize": "50*40*30",
     "perCarton": 16,
@@ -2996,6 +6998,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1VFBD018A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1VFBD018A0",
     "boxSize": "50*40*30",
     "perCarton": 20,
@@ -3006,6 +7009,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1VFRD018A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1VFRD018A0",
     "boxSize": "50*40*30",
     "perCarton": 16,
@@ -3016,6 +7020,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1VFAD058A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1VFAD058A0",
     "boxSize": "50*40*30",
     "perCarton": 24,
@@ -3026,6 +7031,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GCRD026A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1GCRD026A0",
     "boxSize": "50*40*30",
     "perCarton": 18,
@@ -3036,6 +7042,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GCRD041A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1GCRD041A0",
     "boxSize": "50*40*30",
     "perCarton": 70,
@@ -3046,6 +7053,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GCRD045A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1GCRD045A0",
     "boxSize": "50*40*30",
     "perCarton": 30,
@@ -3056,6 +7064,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GBRD041A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1GBRD041A0",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -3066,6 +7075,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GBRD045A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1GBRD045A0",
     "boxSize": "50*40*30",
     "perCarton": 28,
@@ -3076,6 +7086,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GQRD016A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1GQRD016A0",
     "boxSize": "50*40*30",
     "perCarton": 18,
@@ -3086,6 +7097,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GCRD036A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1GCRD036A0",
     "boxSize": "50*40*30",
     "perCarton": 18,
@@ -3096,6 +7108,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ATR01",
+    "packagingVersion": "2026-08-25",
     "productName": "ATR01",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -3106,6 +7119,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EPD021",
+    "packagingVersion": "2026-08-28.4",
     "productName": "EPD021",
     "boxSize": "48*38*28",
     "perCarton": 18,
@@ -3116,6 +7130,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EPD040",
+    "packagingVersion": "2026-08-28.4",
     "productName": "EPD040",
     "boxSize": "48*38*28",
     "perCarton": 30,
@@ -3126,6 +7141,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EPD051",
+    "packagingVersion": "2026-08-28.4",
     "productName": "EPD051",
     "boxSize": "48*38*28",
     "perCarton": 18,
@@ -3136,6 +7152,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EPD060",
+    "packagingVersion": "2026-08-28.4",
     "productName": "EPD060",
     "boxSize": "48*38*28",
     "perCarton": 30,
@@ -3146,6 +7163,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EPD011",
+    "packagingVersion": "2026-08-28.4",
     "productName": "EPD011",
     "boxSize": "48*38*28",
     "perCarton": 18,
@@ -3156,6 +7174,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EPD050",
+    "packagingVersion": "2026-08-28.4",
     "productName": "EPD050",
     "boxSize": "48*38*28",
     "perCarton": 30,
@@ -3166,6 +7185,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EPD020",
+    "packagingVersion": "2026-08-28.4",
     "productName": "EPD020",
     "boxSize": "48*38*28",
     "perCarton": 30,
@@ -3176,6 +7196,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EPD010",
+    "packagingVersion": "2026-08-28.4",
     "productName": "EPD010",
     "boxSize": "48*38*28",
     "perCarton": 30,
@@ -3186,6 +7207,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EPD041",
+    "packagingVersion": "2026-08-28.4",
     "productName": "EPD041",
     "boxSize": "48*38*28",
     "perCarton": 18,
@@ -3196,6 +7218,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EPD061",
+    "packagingVersion": "2026-08-28.4",
     "productName": "EPD061",
     "boxSize": "48*38*28",
     "perCarton": 18,
@@ -3206,6 +7229,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EZD051",
+    "packagingVersion": "2026-08-28.4",
     "productName": "EZD051",
     "boxSize": "48*38*28",
     "perCarton": 18,
@@ -3216,6 +7240,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EZD041",
+    "packagingVersion": "2026-08-28.4",
     "productName": "EZD041",
     "boxSize": "48*38*28",
     "perCarton": 18,
@@ -3226,6 +7251,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EZD021",
+    "packagingVersion": "2026-08-28.4",
     "productName": "EZD021",
     "boxSize": "48*38*28",
     "perCarton": 18,
@@ -3236,6 +7262,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EZD011",
+    "packagingVersion": "2026-08-28.4",
     "productName": "EZD011",
     "boxSize": "48*38*28",
     "perCarton": 18,
@@ -3246,6 +7273,7 @@ window.allProductsData = [
   },
   {
     "productCode": "EZD061",
+    "packagingVersion": "2026-08-28.4",
     "productName": "EZD061",
     "boxSize": "48*38*28",
     "perCarton": 18,
@@ -3256,6 +7284,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1HGCC015A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1HGCC015A0",
     "boxSize": "32.5*23*6.1",
     "perCarton": 24,
@@ -3266,6 +7295,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1HGCC025A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1HGCC025A0",
     "boxSize": "32.5*23*6.1",
     "perCarton": 24,
@@ -3276,6 +7306,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1HGCC035A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1HGCC035A0",
     "boxSize": "32.5*23*6.1",
     "perCarton": 24,
@@ -3286,6 +7317,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1HGCC045A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1HGCC045A0",
     "boxSize": "32.5*23*6.1",
     "perCarton": 24,
@@ -3296,6 +7328,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1HGRD015A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1HGRD015A0",
     "boxSize": "32.5*23*6.1",
     "perCarton": 24,
@@ -3306,6 +7339,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1MGRC015A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1MGRC015A0",
     "boxSize": "32.5*23*6.1",
     "perCarton": 24,
@@ -3316,6 +7350,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1MGRC025A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1MGRC025A0",
     "boxSize": "32.5*23*6.1",
     "perCarton": 24,
@@ -3326,6 +7361,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1MGRC035A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1MGRC035A0",
     "boxSize": "32.5*23*6.1",
     "perCarton": 24,
@@ -3336,6 +7372,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1MGRC045A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1MGRC045A0",
     "boxSize": "32.5*23*6.1",
     "perCarton": 24,
@@ -3346,6 +7383,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1MGRC055A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1MGRC055A0",
     "boxSize": "32.5*23*6.1",
     "perCarton": 24,
@@ -3356,6 +7394,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1MGRD015A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1MGRD015A0",
     "boxSize": "32.5*23*6.1",
     "perCarton": 24,
@@ -3366,6 +7405,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1MGRD025A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1MGRD025A0",
     "boxSize": "32.5*23*6.1",
     "perCarton": 24,
@@ -3376,6 +7416,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1MGRD035A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1MGRD035A0",
     "boxSize": "32.5*23*6.1",
     "perCarton": 24,
@@ -3386,6 +7427,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1MGRD045A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1MGRD045A0",
     "boxSize": "32.5*23*6.1",
     "perCarton": 24,
@@ -3396,6 +7438,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1MGRD055A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1MGRD055A0",
     "boxSize": "32.5*23*6.1",
     "perCarton": 24,
@@ -3406,6 +7449,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1AGHC015A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1AGHC015A0",
     "boxSize": "28.5*19.65*8.2",
     "perCarton": 24,
@@ -3416,6 +7460,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1AGHC025A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1AGHC025A0",
     "boxSize": "28.5*19.65*8.2",
     "perCarton": 24,
@@ -3426,6 +7471,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1AGHC035A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1AGHC035A0",
     "boxSize": "28.5*19.65*8.2",
     "perCarton": 24,
@@ -3436,6 +7482,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1AGHC045A0",
+    "packagingVersion": "2026-08-25",
     "productName": "1AGHC045A0",
     "boxSize": "28.5*19.65*8.2",
     "perCarton": 24,
@@ -3446,6 +7493,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1AWDD773A0",
+    "packagingVersion": "2026-08-28.4",
     "productName": "1AWDD773A0",
     "boxSize": "50*40*30",
     "perCarton": 38,
@@ -3456,6 +7504,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1AWDD775A0",
+    "packagingVersion": "2026-08-28.4",
     "productName": "1AWDD775A0",
     "boxSize": "50*40*30",
     "perCarton": 20,
@@ -3466,6 +7515,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1AXXD001A0",
+    "packagingVersion": "2026-08-28.4",
     "productName": "1AXXD001A0",
     "boxSize": "58.5*34.5*35",
     "perCarton": 100,
@@ -3476,6 +7526,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1AXXD002A0",
+    "packagingVersion": "2026-08-28.4",
     "productName": "1AXXD002A0",
     "boxSize": "50*40*30",
     "perCarton": 8,
@@ -3486,6 +7537,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GLTD011A0",
+    "packagingVersion": "2026-08-28.4",
     "productName": "1GLTD011A0",
     "boxSize": "50*40*30",
     "perCarton": 8,
@@ -3496,6 +7548,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GXXD001A0",
+    "packagingVersion": "2026-08-28.4",
     "productName": "1GXXD001A0",
     "boxSize": "48*38*28",
     "perCarton": 24,
@@ -3506,6 +7559,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GXXD002A0",
+    "packagingVersion": "2026-08-28.4",
     "productName": "1GXXD002A0",
     "boxSize": "48*38*28",
     "perCarton": 8,
@@ -3516,6 +7570,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1VFPD010A0",
+    "packagingVersion": "2026-08-28.4",
     "productName": "1VFPD010A0",
     "boxSize": "50*40*30",
     "perCarton": 90,
@@ -3526,6 +7581,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1VFPD018A0",
+    "packagingVersion": "2026-08-28.4",
     "productName": "1VFPD018A0",
     "boxSize": "50*40*30",
     "perCarton": 16,
@@ -3536,6 +7592,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1VFPD050A0",
+    "packagingVersion": "2026-08-28.4",
     "productName": "1VFPD050A0",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -3546,6 +7603,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1VFPD058A0",
+    "packagingVersion": "2026-08-28.4",
     "productName": "1VFPD058A0",
     "boxSize": "50*40*30",
     "perCarton": 12,
@@ -3556,6 +7614,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1VFRD010A0",
+    "packagingVersion": "2026-08-28.4",
     "productName": "1VFRD010A0",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -3566,6 +7625,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1VFSD010A0",
+    "packagingVersion": "2026-08-28.4",
     "productName": "1VFSD010A0",
     "boxSize": "50*40*30",
     "perCarton": 100,
@@ -3576,6 +7636,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1VFSD018A0",
+    "packagingVersion": "2026-08-28.4",
     "productName": "1VFSD018A0",
     "boxSize": "50*40*30",
     "perCarton": 18,

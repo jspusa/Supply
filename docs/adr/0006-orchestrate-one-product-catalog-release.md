@@ -8,5 +8,5 @@ Supply remains the canonical source repository and FBA remains an independently 
 
 - The raw workbook remains local and is never staged; only allowlisted generated product fields enter either repository.
 - Planning must precede applying. Product or Order SKU removal, confirmed alias-owner changes, incomplete regressions, dirty worktrees, stale branches, or unrelated diffs stop the release.
-- Both repository checks must pass before either pull request is merged. Completion requires both deployed sites to expose the same catalog version and their checked-in artifacts.
+- Both repository checks must pass before either pull request is merged. Supply's pull-request check reads a tracked peer lock and checks out the exact immutable FBA pull-request commit, validates its repository, catalog version, and expected public-content hash, then runs the cross-repository seams against that commit instead of FBA's possibly stale default branch. Completion requires both deployed sites to expose the same catalog version and their checked-in artifacts.
 - The operation is not atomic across two repositories. A partial remote failure is reported as a version mismatch and repaired explicitly; it is never hidden or called complete.

@@ -60,8 +60,9 @@ test('public sanitized data flows through planning, shared navigation, three gro
   await expect(page.locator('#suggestedDiscontinuedWrap')).not.toContainText('EZD011AM');
 
   await exerciseWorkspaceNavigationAndLayout(page);
-  const draftBeforeRefresh = await buildThreeGroupOrderScenario(page);
+  await buildThreeGroupOrderScenario(page);
   await downloadAndAssertOrderWorkbook(page);
+  const draftBeforeRefresh = await readOrderDraft(page);
   const historyBeforeRefresh = await page.evaluate(() => localStorage.getItem('supply-velocity-history-v1'));
   await expect.poll(() => page.evaluate(() => {
     const value = localStorage.getItem('supply-workspace-preferences-v1');

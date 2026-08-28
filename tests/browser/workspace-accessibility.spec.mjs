@@ -77,6 +77,14 @@ test('keyboard alone reaches and operates five-workspace navigation and the Toda
   await page.keyboard.press('ArrowRight');
   await expect(recommendationsTab).toBeFocused();
   await page.keyboard.press('Tab');
+  const productUpdate = page.locator('.product-update-trigger');
+  await expect(productUpdate).toBeFocused();
+  await expectKeyboardFocusRing(productUpdate);
+  await page.keyboard.press('Tab');
+  const alignmentStatus = page.locator('.catalog-alignment-toggle');
+  await expect(alignmentStatus).toBeFocused();
+  await expectKeyboardFocusRing(alignmentStatus);
+  await page.keyboard.press('Tab');
   const todayAction = page.locator('#todayNextAction');
   await expect(todayAction).toBeFocused();
   await expectKeyboardFocusRing(todayAction);
@@ -86,6 +94,10 @@ test('keyboard alone reaches and operates five-workspace navigation and the Toda
 
   await page.keyboard.press('ArrowRight');
   await expect(recommendationsTab).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(productUpdate).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(alignmentStatus).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(todayAction).toBeFocused();
   await page.keyboard.press('Space');
@@ -130,18 +142,19 @@ test('keyboard alone operates Order groups and exact pallet stepping', async ({ 
   await page.keyboard.press('ArrowLeft');
   await expect(vietnam).toBeChecked();
 
+  await pallet.fill('0.5');
   await pallet.focus();
   await expect(pallet).toBeFocused();
-  await expect(pallet).toHaveValue('0.33');
+  await expect(pallet).toHaveValue('0.5');
   await page.keyboard.press('ArrowUp');
-  await expect(pallet).toHaveValue('1.37');
-  await expect.poll(async () => (await readOrderDraft(page)).rowsByProductSku.GTSL01.quantities.orderDraft).toBe(1236);
+  await expect(pallet).toHaveValue('1');
+  await expect.poll(async () => (await readOrderDraft(page)).rowsByProductSku.GTSL01.quantities.orderDraft).toBe(900);
   await page.keyboard.press('ArrowDown');
-  await expect(pallet).toHaveValue('0.37');
+  await expect(pallet).toHaveValue('0.5');
   await expect.poll(async () => {
     const row = (await readOrderDraft(page)).rowsByProductSku.GTSL01;
     return { quantity:row.quantities.orderDraft, mode:row.pallet.mode, authoritativeField:row.pallet.authoritativeField };
-  }).toEqual({ quantity:336, mode:'manual', authoritativeField:'pallets' });
+  }).toEqual({ quantity:450, mode:'manual', authoritativeField:'pallets' });
 
   expect(unexpectedRequests).toEqual([]);
 });

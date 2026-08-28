@@ -1,0 +1,445 @@
+/* Supply production composition of the generated FBA Visual System. */
+.fba-visual-system{
+  --supply-card-border:rgba(0,0,0,.06);
+  --supply-card-shadow:0 18px 55px rgba(0,0,0,.07);
+  --supply-soft-shadow:0 8px 28px rgba(0,0,0,.045);
+  --supply-control-border:rgba(0,0,0,.14);
+  color:var(--workspace-text);
+}
+
+.fba-visual-system h1,
+.fba-visual-system h2,
+.fba-visual-system h3,
+.fba-visual-system p{letter-spacing:-.01em}
+.fba-visual-system h1,
+.fba-visual-system h2,
+.fba-visual-system h3{color:var(--workspace-text)}
+.fba-visual-system .hint,
+.fba-visual-system .footer,
+.fba-visual-system .heroSubtitle,
+.fba-visual-system .decisionNote{color:var(--workspace-muted)}
+.fba-visual-system .eyebrow{
+  color:var(--workspace-muted);
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.08em;
+}
+
+/* FBA control language without changing application behavior. */
+.fba-visual-system button{
+  border:0;
+  border-radius:999px;
+  background:var(--workspace-blue);
+  color:#fff;
+  box-shadow:0 6px 18px rgba(0,113,227,.18);
+  font-weight:650;
+  transition:background-color .18s ease,box-shadow .18s ease,transform .18s ease;
+}
+.fba-visual-system button:hover{
+  background:var(--workspace-blue-hover);
+  box-shadow:0 8px 22px rgba(0,113,227,.22);
+  transform:translateY(-1px);
+}
+.fba-visual-system button:active{transform:translateY(0)}
+.fba-visual-system button.secondary,
+.fba-visual-system .miniBtn,
+.fba-visual-system .decisionTab,
+.fba-visual-system .treeNextButton{
+  border:1px solid rgba(0,0,0,.06);
+  background:#ececf0;
+  color:var(--workspace-text);
+  box-shadow:none;
+}
+.fba-visual-system button.secondary:hover,
+.fba-visual-system .miniBtn:hover,
+.fba-visual-system .decisionTab:hover,
+.fba-visual-system .treeNextButton:hover{
+  background:#e4e4e9;
+  color:#000;
+  box-shadow:none;
+}
+.fba-visual-system button:disabled{opacity:.38;box-shadow:none;transform:none}
+.fba-visual-system textarea,
+.fba-visual-system select,
+.fba-visual-system input[type="number"],
+.fba-visual-system input[type="text"],
+.fba-visual-system input[type="password"],
+.fba-visual-system input[type="search"],
+.fba-visual-system input[type="file"]{
+  border:1px solid var(--supply-control-border);
+  border-radius:12px;
+  background:rgba(255,255,255,.96);
+  color:var(--workspace-text);
+  box-shadow:inset 0 1px 1px rgba(0,0,0,.025);
+}
+.fba-visual-system textarea:hover,
+.fba-visual-system select:hover,
+.fba-visual-system input:hover{border-color:rgba(0,0,0,.22)}
+.fba-visual-system .pill{
+  border:1px solid rgba(0,0,0,.06);
+  background:#f2f2f4;
+  color:#4b4b50;
+}
+.fba-visual-system .summaryLink,
+.fba-visual-system .sourceLinkButton,
+.fba-visual-system .salesDaySkuLink{color:var(--workspace-blue)}
+
+/* Remove the old blue-purple hero while retaining its actions and version. */
+.fba-visual-system .appHero{
+  margin:0 0 18px;
+  padding:26px 28px;
+  border:1px solid var(--supply-card-border);
+  border-radius:var(--workspace-radius-xl);
+  background:var(--workspace-surface);
+  box-shadow:var(--supply-card-shadow);
+}
+.fba-visual-system .appHero::before,
+.fba-visual-system .appHero::after{display:none}
+.fba-visual-system .appHero h1{
+  color:var(--workspace-text);
+  font-size:clamp(25px,3vw,34px);
+  letter-spacing:-.035em;
+  line-height:1.1;
+}
+.fba-visual-system .heroSubtitle{margin-top:8px;font-size:14px}
+.fba-visual-system .heroActions{align-items:center}
+
+/* White-card system used by all five workspaces. */
+.fba-visual-system .grid{gap:18px}
+.fba-visual-system .card,
+.fba-visual-system .todayWorkspaceSummary,
+.fba-visual-system .controlDock,
+.fba-visual-system .bossStatusBar{
+  border:1px solid var(--supply-card-border);
+  background:var(--workspace-surface);
+  box-shadow:var(--supply-card-shadow);
+}
+.fba-visual-system .card{
+  margin-bottom:18px;
+  border-radius:var(--workspace-radius-xl);
+  overflow:hidden;
+}
+.fba-visual-system .card>summary{
+  min-height:68px;
+  padding:18px 22px;
+  border:0;
+  background:var(--workspace-surface-soft);
+}
+.fba-visual-system .card[open]>summary{
+  border-bottom:1px solid var(--workspace-line);
+  background:var(--workspace-surface-soft);
+}
+.fba-visual-system .card>summary h2{
+  color:var(--workspace-text);
+  font-size:19px;
+  letter-spacing:-.025em;
+}
+.fba-visual-system .cardContent{padding:20px 22px 24px}
+.fba-visual-system .priority,
+.fba-visual-system .autoDecisionCard{border-color:var(--supply-card-border);box-shadow:var(--supply-card-shadow)}
+.fba-visual-system .autoDecisionCard[open]>summary{background:var(--workspace-surface-soft)}
+
+.fba-visual-system .todayWorkspaceSummary{
+  padding:22px;
+  border-radius:var(--workspace-radius-xl);
+}
+.fba-visual-system .todaySummaryHeader h2{font-size:22px;letter-spacing:-.03em}
+.fba-visual-system .todayMetric,
+.fba-visual-system .healthItem,
+.fba-visual-system .decisionKpi{
+  border:1px solid var(--workspace-line);
+  border-radius:16px;
+  background:var(--workspace-surface-soft);
+  box-shadow:none;
+}
+.fba-visual-system .todayMetricValue,
+.fba-visual-system .decisionKpi .kpiValue{color:var(--workspace-text)}
+.fba-visual-system .todayRiskExplanation,
+.fba-visual-system .leadTimeInsight,
+.fba-visual-system .newLaunchSummary{
+  border-color:rgba(255,159,10,.22);
+  background:#fff8e8;
+  color:#7a4b00;
+}
+.fba-visual-system .todayRiskExplanation[data-state="empty"]{
+  border-color:var(--workspace-line);
+  background:#f2f2f4;
+  color:var(--workspace-muted);
+}
+
+.fba-visual-system .controlDock{
+  top:84px;
+  padding:13px 16px;
+  border-radius:18px;
+  background:rgba(255,255,255,.88);
+  -webkit-backdrop-filter:saturate(160%) blur(18px);
+  backdrop-filter:saturate(160%) blur(18px);
+}
+.fba-visual-system .workflowHealth{gap:10px;margin-bottom:18px}
+.fba-visual-system .healthItem{background:rgba(255,255,255,.9)}
+
+/* Data workspace. */
+.fba-visual-system .uploadWorkspace{gap:16px}
+.fba-visual-system .uploadPrimaryPanel,
+.fba-visual-system .subCard,
+.fba-visual-system .uploadAdvancedDetails{
+  border:1px solid var(--workspace-line);
+  border-radius:20px;
+  background:var(--workspace-surface-soft);
+  box-shadow:none;
+}
+.fba-visual-system .uploadPanelTitle h3{color:var(--workspace-text)}
+.fba-visual-system .fileDropZone{
+  border:1.5px dashed rgba(0,0,0,.18);
+  border-radius:18px;
+  background:#fff;
+  color:#3a3a3c;
+}
+.fba-visual-system .fileDropZone:hover,
+.fba-visual-system .fileDropZone.dragOver{
+  border-color:var(--workspace-blue);
+  background:#f5faff;
+  box-shadow:0 0 0 4px rgba(0,113,227,.08);
+}
+.fba-visual-system .fileDropZone .dropIcon{color:var(--workspace-blue)}
+.fba-visual-system .fileDropZone .dropSub{color:var(--workspace-muted)}
+.fba-visual-system .masterUploadZone{border-color:rgba(0,113,227,.38);background:#f7fbff}
+.fba-visual-system .uploadStatus{background:#ededf0;color:var(--workspace-muted)}
+.fba-visual-system .uploadStatus.ready{background:var(--workspace-green-soft);color:#176d31}
+.fba-visual-system .uploadAdvancedDetails>summary,
+.fba-visual-system .subCardHeader{
+  border-color:var(--workspace-line);
+  background:#f2f2f4;
+  color:#3a3a3c;
+}
+
+/* Recommendations and decision tree. */
+.fba-visual-system .decisionGrid{gap:12px}
+.fba-visual-system .decisionKpi{padding:15px}
+.fba-visual-system .decisionTab{padding:8px 13px}
+.fba-visual-system .decisionTab.active{
+  border-color:#1d1d1f;
+  background:#1d1d1f;
+  color:#fff;
+}
+.fba-visual-system .mainTableTools,
+.fba-visual-system .generatorColumnBar{
+  border:1px solid var(--workspace-line);
+  border-radius:16px;
+  background:#f2f2f4;
+}
+.fba-visual-system .leadTimeInsight{background:#f5faff;color:#174e83;border-color:rgba(0,113,227,.16)}
+.fba-visual-system .leadTimeStep{border-color:var(--workspace-line);background:#fff}
+.fba-visual-system .treeBox{
+  border:1px solid var(--workspace-line);
+  border-radius:20px;
+  background:var(--workspace-surface-soft);
+  box-shadow:none;
+}
+.fba-visual-system .treeNode{
+  border-color:var(--workspace-line);
+  border-radius:16px;
+  background:#fff;
+  box-shadow:var(--supply-soft-shadow);
+}
+.fba-visual-system .treeNode.neutralNode{border-color:rgba(0,113,227,.16);background:#f5faff}
+.fba-visual-system .treeNode.okNode{border-color:rgba(36,138,61,.2);background:#f3fbf5}
+.fba-visual-system .treeNode.warnNode{border-color:rgba(255,159,10,.24);background:#fff8e8}
+.fba-visual-system .treeNode.badNode{border-color:rgba(215,0,21,.18);background:var(--workspace-red-soft)}
+
+/* Dense Workflow Variant: retain every column and action, reduce chrome. */
+.fba-visual-system .tableWrap,
+.fba-visual-system .order-generator .table-responsive,
+.fba-visual-system .private-value-table{
+  max-width:100%;
+  overflow:auto;
+  border:1px solid var(--workspace-line);
+  border-radius:16px;
+  background:#fff;
+  box-shadow:none;
+  -webkit-overflow-scrolling:touch;
+}
+.fba-visual-system table{
+  border-collapse:separate;
+  border-spacing:0;
+  background:#fff;
+}
+.fba-visual-system th,
+.fba-visual-system td{
+  padding:8px 9px;
+  border:0;
+  border-bottom:1px solid #ececf0;
+  color:#3a3a3c;
+  font-size:12px;
+  line-height:1.42;
+}
+.fba-visual-system th{
+  background:#f7f7f9;
+  color:#5d5d62;
+  font-size:11px;
+  font-weight:700;
+}
+.fba-visual-system tbody tr:last-child td{border-bottom:0}
+.fba-visual-system tbody tr:hover td{background:#fafafa}
+.fba-visual-system .bad{background:var(--workspace-red-soft)}
+.fba-visual-system .ok{background:#f3fbf5}
+.fba-visual-system .warn{background:#fff8e8}
+
+/* Orders. */
+.fba-visual-system .order-generator{margin:0;color:var(--workspace-text);font-family:var(--workspace-font)}
+.fba-visual-system .order-generator .container{
+  max-width:none;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+.fba-visual-system .order-generator .header-bar{margin-bottom:15px}
+.fba-visual-system .order-generator .factory-switch,
+.fba-visual-system .orderGroupSegmented{
+  border:0;
+  border-radius:12px!important;
+  background:rgba(118,118,128,.12);
+  box-shadow:none;
+}
+.fba-visual-system .orderGroupSegmented span{border-radius:9px;color:#3a3a3c}
+.fba-visual-system .orderGroupSegmented input:checked+span{
+  background:#fff;
+  color:#000;
+  box-shadow:0 1px 4px rgba(0,0,0,.1);
+}
+.fba-visual-system .order-generator .search-input{border:1px solid var(--supply-control-border);border-radius:14px}
+.fba-visual-system .order-generator .search-results{
+  border:1px solid var(--workspace-line);
+  border-radius:14px;
+  box-shadow:0 18px 45px rgba(0,0,0,.12);
+}
+.fba-visual-system .order-generator table{
+  min-width:1120px;
+  margin:0;
+  border-radius:0;
+  background:#fff;
+  box-shadow:none;
+}
+.fba-visual-system .order-generator th,
+.fba-visual-system .order-generator td{padding:8px 7px;border-bottom:1px solid #ececf0;font-size:12px}
+.fba-visual-system .order-generator th{border-bottom:1px solid #d8d8dd;background:#f7f7f9;color:#5d5d62}
+.fba-visual-system .order-generator tr:hover td{background:#fafafa}
+.fba-visual-system .order-generator input[type="number"]{min-height:32px;padding:5px 7px;border-radius:9px}
+.fba-visual-system .generatorQuantityGroup,
+.fba-visual-system .generatorQuantityGroup.single{min-width:82px;max-width:108px;gap:5px}
+.fba-visual-system .palletStepControl{width:82px;min-width:82px;height:32px}
+.fba-visual-system .edit-pallets-input{
+  width:100%;
+  height:100%;
+  padding:5px 4px 5px 7px;
+  border-radius:9px;
+  appearance:auto;
+  -moz-appearance:auto;
+}
+.fba-visual-system .edit-pallets-input::-webkit-inner-spin-button,
+.fba-visual-system .edit-pallets-input::-webkit-outer-spin-button{
+  margin:0;
+  opacity:.62;
+  appearance:auto;
+}
+.fba-visual-system .palletStepButtons{display:none}
+.fba-visual-system .order-generator .action-button,
+.fba-visual-system .order-generator .remove-button,
+.fba-visual-system .order-generator .lock-button,
+.fba-visual-system .order-generator .drag-handle,
+.fba-visual-system .order-generator .miniBtn{
+  inline-size:27px;
+  block-size:27px;
+  border-radius:8px;
+  background:transparent;
+  box-shadow:none;
+}
+.fba-visual-system .generatorActionGroup{inline-size:87px}
+.fba-visual-system .order-generator .equivalentOrderToggle{inline-size:auto;max-inline-size:128px;background:#ececf0}
+.fba-visual-system .order-generator tr.locked td,
+.fba-visual-system .order-generator tr.locked:hover td{border-bottom-color:rgba(36,138,61,.22);background:#f3fbf5!important;color:#176d31}
+.fba-visual-system .order-generator .progress-container{height:12px;border-radius:999px;background:#e8e8ed}
+.fba-visual-system .order-generator .progress-bar{
+  height:12px;
+  border-radius:999px;
+  background:var(--workspace-blue);
+  font-size:0;
+  line-height:12px;
+}
+
+/* Analysis surfaces and modals. */
+.fba-visual-system .salesChartCard,
+.fba-visual-system .ganttCard,
+.fba-visual-system .salesCalendarMonth{
+  border:1px solid var(--workspace-line);
+  border-radius:18px;
+  background:var(--workspace-surface-soft);
+  box-shadow:none;
+}
+.fba-visual-system .salesCalendarTitle,
+.fba-visual-system .salesCalendarWeek{border-color:var(--workspace-line);background:#f2f2f4;color:#3a3a3c}
+.fba-visual-system .salesDayCell{border-color:#ececf0;background:#fff}
+.fba-visual-system .salesDayCell.empty{background:#fafafa}
+.fba-visual-system .modal{background:rgba(0,0,0,.26);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.fba-visual-system .modal-content{
+  border:1px solid rgba(255,255,255,.7);
+  border-radius:var(--workspace-radius-xl);
+  background:#fff;
+  box-shadow:0 24px 80px rgba(0,0,0,.18);
+}
+
+/* Boss shares all production components; only its authentication boundary differs. */
+.fba-visual-system .bossStatusBar{border-radius:20px;background:#fff}
+.fba-visual-system .bossStatusIcon{background:#f2f2f4;color:var(--workspace-blue)}
+.fba-visual-system .bossSavePanel{border-color:var(--workspace-line);background:var(--workspace-surface-soft)}
+.fba-visual-system .bossAuthGate{background:var(--workspace-page)}
+.fba-visual-system .bossAuthCard{
+  border:1px solid var(--supply-card-border);
+  border-radius:var(--workspace-radius-xl);
+  background:rgba(255,255,255,.92);
+  box-shadow:0 24px 80px rgba(0,0,0,.12);
+  -webkit-backdrop-filter:saturate(160%) blur(22px);
+  backdrop-filter:saturate(160%) blur(22px);
+}
+.fba-visual-system .bossAuthMark{
+  border-radius:15px;
+  background:linear-gradient(145deg,#111,#454545);
+  color:#fff;
+}
+.fba-visual-system .bossAuthEyebrow{color:var(--workspace-muted)}
+.fba-visual-system .bossAuthField span{color:#3a3a3c}
+
+@media(max-width:760px){
+  .fba-visual-system .page{padding:22px 12px 48px}
+  .fba-visual-system .appHero{padding:20px;border-radius:22px}
+  .fba-visual-system .appHero h1{font-size:25px}
+  .fba-visual-system .card,
+  .fba-visual-system .todayWorkspaceSummary{border-radius:22px}
+  .fba-visual-system .card>summary{min-height:62px;padding:16px 17px}
+  .fba-visual-system .cardContent{padding:17px}
+  .fba-visual-system .todayWorkspaceSummary{padding:18px}
+  .fba-visual-system .todaySummaryGrid{grid-template-columns:1fr 1fr}
+  .fba-visual-system .controlDock{position:static;padding:12px;border-radius:18px}
+  .fba-visual-system .uploadWorkspace{grid-template-columns:1fr}
+  .fba-visual-system .uploadStatusRow{grid-template-columns:1fr}
+  .fba-visual-system .decisionGrid,
+  .fba-visual-system .salesChartGrid{grid-template-columns:1fr}
+  .fba-visual-system .tableWrap table{min-width:720px}
+  .fba-visual-system .order-generator .container{padding:0}
+  .fba-visual-system .order-generator .header-bar{gap:12px}
+  .fba-visual-system .order-generator .table-responsive{border-radius:14px}
+  .fba-visual-system .bossAuthCard{padding:25px;border-radius:24px}
+}
+
+@media(pointer:coarse){
+  .fba-visual-system .palletStepControl{width:88px;min-width:88px;height:42px}
+  .fba-visual-system .order-generator .generatorActionGroup{inline-size:126px}
+  .fba-visual-system .order-generator .generatorActionGroup>button,
+  .fba-visual-system .order-generator .miniBtn{inline-size:40px;block-size:40px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .fba-visual-system .sectionFlash{animation:none}
+}

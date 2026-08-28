@@ -7,17 +7,27 @@
     "node": ">=22"
   },
   "scripts": {
+    "visual:sync": "node scripts/fba-visual-system-contract.mjs --apply",
+    "visual:check": "node scripts/fba-visual-system-contract.mjs --check",
+    "visual:check-source": "node scripts/fba-visual-system-contract.mjs --check-source",
+    "alignment:build": "node scripts/generate-catalog-alignment.mjs",
+    "alignment:check": "node scripts/generate-catalog-alignment.mjs --check",
+    "alignment:evidence": "node scripts/update-catalog-alignment-evidence.mjs",
     "catalog:build": "node scripts/compile-product-catalog.mjs",
     "catalog:check": "node scripts/compile-product-catalog.mjs --check",
+    "catalog:update-runtime": "node scripts/generate-catalog-update-runtime.mjs",
+    "catalog:update-runtime:check": "node scripts/generate-catalog-update-runtime.mjs --check",
     "catalog:import": "node scripts/compile-product-master-workbook.mjs",
+    "catalog:migrate": "node scripts/migrate-product-catalog.mjs",
     "catalog:release": "node scripts/release-product-catalog.mjs",
     "check": "npm ci --ignore-scripts --no-audit --no-fund && npm run verify",
-    "test": "node --test tests/*.test.mjs",
+    "test": "npm run visual:check && npm run catalog:update-runtime:check && node --test tests/*.test.mjs",
     "test:browser": "playwright test --config tests/browser/playwright.config.mjs",
     "build": "node scripts/build-site.mjs",
     "verify:dist": "node scripts/verify-dist.mjs",
     "verify:live": "node scripts/verify-live.mjs",
     "verify:live:browser": "node scripts/verify-live-browser.mjs",
+    "verify:catalog-seams": "node scripts/verify-catalog-seams.mjs --fba-repo ../FBA",
     "verify": "npm test && npm run build && npm run verify:dist && npm run test:browser"
   },
   "devDependencies": {

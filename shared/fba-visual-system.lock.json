@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "repository": "jspusa/FBA",
+    "path": "workspace-shell.css"
+  },
+  "version": "1.0.0",
+  "mode": "normal-light",
+  "contentHash": "e755830c76260aa35a9361657180c74373c58461fd464c158be7917b9543b3ce"
+}

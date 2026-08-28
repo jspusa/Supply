@@ -79,26 +79,30 @@ for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
     const lockSource = extractFunctionSource(html, 'toggleLock');
     const palletStepSource = extractFunctionSource(html, 'stepGeneratorPallets');
     const palletKeySource = extractFunctionSource(html, 'handleGeneratorPalletKey');
+    const nativePalletSource = extractFunctionSource(html, 'useNativePalletStepper');
     const exportSource = extractFunctionSource(html, 'exportGeneratorToExcel');
+    const draftContextSource = extractFunctionSource(html, 'getGeneratorDraftContext');
+    const syncRowsSource = extractFunctionSource(html, 'syncVisibleGeneratorRowsToDraft');
+    const switchOrderSkuSource = extractFunctionSource(html, 'toggleEquivalentOrderCode');
+    const confirmPackagingSource = extractFunctionSource(html, 'confirmPackagingReassignment');
+    const reassignPackagingSource = extractFunctionSource(html, 'reassignGeneratorPackaging');
+    const assignmentStatusSource = extractFunctionSource(html, 'renderPackagingAssignmentStatus');
     assert.match(addProductSource, /generatorQuantityGroup/);
     assert.match(addProductSource, /class="palletStepControl"/);
-    assert.match(addProductSource, /class="edit-pallets-input"[^>]*step="any"[^>]*min="0"/);
-    assert.match(addProductSource, /stepGeneratorPallets\(this,-1\)/);
-    assert.match(addProductSource, /stepGeneratorPallets\(this,1\)/);
-    assert.match(addProductSource, /handleGeneratorPalletKey\(event\)/);
+    assert.match(addProductSource, /useNativePalletStepper\(row\)/);
+    assert.match(nativePalletSource, /input\.step = '0\.5'/);
+    assert.match(nativePalletSource, /removeAttribute\('onkeydown'\)/);
+    assert.match(nativePalletSource, /querySelector\('\.palletStepButtons'\)\?\.remove\(\)/);
     assert.match(addProductSource, /normalizeGeneratorPallets\(this,/);
     assert.match(addProductSource, /class="box-size-cell"/);
     assert.match(addProductSource, /class="generatorActionGroup"/);
     assert.match(addProductSource, /class="drag-handle"[^>]*aria-label="按住拖曳排序"/);
     assert.match(addProductSource, /class="lock-button"[^>]*aria-label="鎖定這列"[^>]*aria-pressed="false"[^>]*title="鎖定這列"/);
     assert.match(addProductSource, /class="remove-button"[^>]*aria-label="刪除這列"[^>]*title="刪除這列"/);
-    assert.match(addProductSource, /aria-label="增加 1 棧板" title="增加 1 棧板"/);
-    assert.match(addProductSource, /aria-label="減少 1 棧板" title="減少 1 棧板"/);
     assert.match(totalsSource, /querySelector\('\.box-size-cell'\)/);
     assert.doesNotMatch(totalsSource, /row\.cells\[7\]/);
     assert.match(html, /\.generatorQuantityGroup \{[^}]*display:flex;[^}]*flex-direction:column/);
     assert.match(html, /\.palletStepControl \{[^}]*width:88px;[^}]*height:34px;/);
-    assert.match(html, /\.palletStepButtons \{[^}]*position:absolute;[^}]*width:20px;/);
     assert.match(html, /\.order-generator \.action-button,[^{]+\{[^}]*inline-size:28px;[^}]*block-size:28px;/);
     assert.match(html, /\.generatorActionGroup \{[^}]*inline-size:90px;/);
     assert.match(html, /@media \(pointer:coarse\) \{[\s\S]*?\.order-generator \.generatorActionGroup > button, \.order-generator \.miniBtn \{[^}]*inline-size:40px;[^}]*block-size:40px;/);
@@ -113,8 +117,23 @@ for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
     assert.match(serializeDraftSource, /warningCode:/);
     assert.match(serializeDraftSource, /orderDraft:/);
     assert.match(serializeDraftSource, /authoritativeField:/);
-    assert.match(saveDraftSource, /syncVisibleGeneratorRowsToDraft\(\)/);
+    assert.match(saveDraftSource, /syncVisibleGeneratorRowsToDraft\(options\)/);
     assert.match(saveDraftSource, /persistGeneratorDraft\(\)/);
+    assert.match(draftContextSource, /getOrderSkuPackaging:getOrderSkuPackagingForDraft/);
+    assert.match(draftContextSource, /catalogVersion:window\.SUPPLY_PRODUCT_CATALOG_META/);
+    assert.match(draftContextSource, /getCoverageDays:\(productSku, orderDraftQuantity\)/);
+    assert.match(syncRowsSource, /pinProductSku/);
+    assert.match(syncRowsSource, /pinPackaging/);
+    assert.match(switchOrderSkuSource, /previewPackagingReassignment/);
+    assert.match(switchOrderSkuSource, /confirmPackagingReassignment/);
+    assert.match(switchOrderSkuSource, /expectedPackagingVersion/);
+    assert.match(confirmPackagingSource, /箱數/);
+    assert.match(confirmPackagingSource, /棧板/);
+    assert.match(confirmPackagingSource, /到港覆蓋/);
+    assert.match(confirmPackagingSource, /訂單群組/);
+    assert.match(reassignPackagingSource, /type:'reassign-packaging'/);
+    assert.match(assignmentStatusSource, /newerAvailable/);
+    assert.match(assignmentStatusSource, /reviewRequired/);
     assert.match(persistDraftSource, /saveOrderDraft/);
     assert.match(loadDraftSource, /loadOrderDraft/);
     assert.match(loadDraftSource, /result\.needsSave/);
@@ -144,6 +163,8 @@ for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
     assert.match(palletStepSource, /delta,/);
     assert.match(palletKeySource, /event\.key === 'ArrowUp' \? 1 : -1/);
     assert.match(exportSource, /projectOrderWorkbook/);
+    assert.match(exportSource, /generatorDraft = projection\.draft/);
+    assert.match(exportSource, /persistGeneratorDraft\(\{ announce:false \}\)/);
     assert.doesNotMatch(exportSource, /getRowExactMetrics/);
     assert.doesNotMatch(extractFunctionSource(html, 'updateFields'), /perPallet\s*\|\|\s*1/);
     assert.match(extractFunctionSource(html, 'updateFields'), /changedField === 'pallets' && catalogIssue/);
@@ -425,6 +446,7 @@ test('pallet arrow adapter calls the shared one-pallet step without snapping fra
     const context = {
       window: { SupplyOrderDraft: { stepPalletDraft: ({ currentOrderDraftQuantity, delta, unitsPerPallet }) => ({ pallets:3.35, orderDraftQuantity:currentOrderDraftQuantity + delta * unitsPerPallet }) } },
       getProductSpecByCode: () => ({ productCode: 'PLAN' }),
+      getGeneratorProductSpecForRowElement: () => ({ productCode: 'PLAN' }),
       getProductPalletCatalogIssue: () => catalogIssue,
       getUnitsPerPallet: () => 400,
       updateFields(value, _productCode, state) { updatedInput = value; updatedState = state; },

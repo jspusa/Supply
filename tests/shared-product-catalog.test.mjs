@@ -36,6 +36,27 @@ test('raw workbook parser keeps the first complete duplicate and reads origin an
 
   assert.equal(payload.records.length, 3);
   assert.equal(payload.stats.duplicateConflicts, 1);
+  assert.deepEqual(payload.conflicts, [{
+    sku:'GTP03',
+    fields:[
+      { field:'unitsPerCarton', values:[
+        { value:100, sourceSheet:'AMZ 所有SKU', sourceRow:3 },
+        { value:90, sourceSheet:'AMZ 所有SKU', sourceRow:4 },
+      ] },
+      { field:'cartonsPerPallet', values:[
+        { value:36, sourceSheet:'AMZ 所有SKU', sourceRow:3 },
+        { value:42, sourceSheet:'AMZ 所有SKU', sourceRow:4 },
+      ] },
+      { field:'cartonDimensionsCm', values:[
+        { value:[58.5, 34.5, 35], sourceSheet:'AMZ 所有SKU', sourceRow:3 },
+        { value:[50, 40, 30], sourceSheet:'AMZ 所有SKU', sourceRow:4 },
+      ] },
+      { field:'grossWeightLb', values:[
+        { value:26.46, sourceSheet:'AMZ 所有SKU', sourceRow:3 },
+        { value:24, sourceSheet:'AMZ 所有SKU', sourceRow:4 },
+      ] },
+    ],
+  }]);
   assert.deepEqual(gtp03, {
     sku:'GTP03', origin:'VN', unitsPerCarton:100, cartonsPerPallet:36,
     cartonDimensionsCm:[58.5, 34.5, 35], grossWeightLb:26.46,

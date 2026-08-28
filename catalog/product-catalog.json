@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "catalogVersion": "2026-08-28.4",
   "products": [
     {
@@ -30,7 +30,8 @@
             "units": 3
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1GBRD029A0",
@@ -60,7 +61,8 @@
             "units": 3
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1AWDD010A0",
@@ -90,7 +92,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1AWDD170A0",
@@ -120,7 +123,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1AWDD073A0",
@@ -150,7 +154,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1AWDD075A0",
@@ -180,7 +185,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1AWDD070A0",
@@ -210,7 +216,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1AWDD063A0",
@@ -240,7 +247,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1AWDD065A0",
@@ -270,7 +278,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1AWDD060A0",
@@ -300,7 +309,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1AWDD473A0",
@@ -330,7 +340,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1AWDD475A0",
@@ -360,7 +371,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1AWDD470A0",
@@ -390,7 +402,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1AWDD463A0",
@@ -420,7 +433,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1AWDD465A0",
@@ -450,7 +464,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1AWDD460A0",
@@ -480,7 +495,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1VADD063A0",
@@ -510,7 +526,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1VADD073A0",
@@ -540,7 +557,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1GCRD017A0",
@@ -570,7 +588,8 @@
             "units": 3
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1GCRD027A0",
@@ -600,7 +619,8 @@
             "units": 3
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1GCRD037A0",
@@ -630,7 +650,8 @@
             "units": 3
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1GQRD017A0",
@@ -660,7 +681,8 @@
             "units": 3
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1GQRD027A0",
@@ -690,7 +712,8 @@
             "units": 3
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1GSDD011A0",
@@ -720,7 +743,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1GSDD015A0",
@@ -750,7 +774,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1GCRD005A0",
@@ -780,7 +805,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1GCRD004A0",
@@ -810,7 +836,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1ABRD001A0",
@@ -840,7 +867,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1ABRD002A0",
@@ -914,7 +942,8 @@
             "row": 209
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "1ABRD003A0",
@@ -944,7 +973,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1ABRD004A0",
@@ -974,7 +1004,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1MHTD011A0",
@@ -1004,7 +1035,8 @@
             "units": 6
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1MHTD021A0",
@@ -1034,7 +1066,8 @@
             "units": 6
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1MHTD031A0",
@@ -1064,7 +1097,8 @@
             "units": 6
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1MHTD041A0",
@@ -1094,7 +1128,8 @@
             "units": 6
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1MHTD051A0",
@@ -1124,7 +1159,8 @@
             "units": 6
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1MHTD017A0",
@@ -1154,7 +1190,8 @@
             "units": 6
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1MHTD027A0",
@@ -1184,7 +1221,8 @@
             "units": 6
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1MHTD037A0",
@@ -1214,7 +1252,8 @@
             "units": 6
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1MHTD047A0",
@@ -1244,7 +1283,8 @@
             "units": 6
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1MHTD057A0",
@@ -1274,7 +1314,8 @@
             "units": 6
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "AFA11AM",
@@ -1304,7 +1345,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "AFA12AM",
@@ -1334,7 +1376,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "AFA13AM",
@@ -1364,7 +1407,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "AFA14AM",
@@ -1394,7 +1438,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "AFA21AM",
@@ -1424,7 +1469,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "AFA22AM",
@@ -1454,7 +1500,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "AFA31AM",
@@ -1484,7 +1531,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "AFA32AM",
@@ -1514,7 +1562,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "AFA25AM",
@@ -1544,7 +1593,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "AFA135AM",
@@ -1574,7 +1624,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTS01",
@@ -1605,7 +1656,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTR01",
@@ -1636,7 +1688,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTB01",
@@ -1667,7 +1720,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTP01",
@@ -1698,7 +1752,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTZ01",
@@ -1728,7 +1783,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTA01",
@@ -1758,7 +1814,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTC01",
@@ -1788,7 +1845,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTR03",
@@ -1818,7 +1876,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTB03",
@@ -1848,7 +1907,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTP03",
@@ -1922,7 +1982,8 @@
             "row": 6
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "GTS03",
@@ -1952,7 +2013,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTZ03",
@@ -1982,7 +2044,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTB05",
@@ -2057,7 +2120,8 @@
             "row": 28
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "GTP05",
@@ -2132,7 +2196,8 @@
             "row": 24
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "GTB07",
@@ -2162,7 +2227,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GSF01",
@@ -2192,7 +2258,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GSF02",
@@ -2222,7 +2289,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTSL01",
@@ -2297,7 +2365,8 @@
             "row": 39
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "GTRL01",
@@ -2372,7 +2441,8 @@
             "row": 46
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "GTPL01",
@@ -2447,7 +2517,8 @@
             "row": 41
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "GTBL01",
@@ -2522,7 +2593,8 @@
             "row": 44
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "GTAL01",
@@ -2596,7 +2668,8 @@
             "row": 21
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "GTCL01",
@@ -2670,7 +2743,8 @@
             "row": 19
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "GTRL03",
@@ -2745,7 +2819,8 @@
             "row": 16
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "GTPL03",
@@ -2820,7 +2895,8 @@
             "row": 12
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "GTBL03",
@@ -2895,7 +2971,8 @@
             "row": 14
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "GTZL03",
@@ -2925,7 +3002,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTPL05",
@@ -3000,7 +3078,8 @@
             "row": 26
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "GTBL05",
@@ -3075,7 +3154,8 @@
             "row": 30
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "GSFL01",
@@ -3105,7 +3185,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GSFL02",
@@ -3135,7 +3216,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ATS01",
@@ -3166,7 +3248,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ATB01",
@@ -3196,7 +3279,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ATR01AM",
@@ -3226,7 +3310,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ATP01",
@@ -3256,7 +3341,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ATZ01",
@@ -3286,7 +3372,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ATA01",
@@ -3316,7 +3403,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ATB03",
@@ -3346,7 +3434,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ATR03",
@@ -3376,7 +3465,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ATP03",
@@ -3406,7 +3496,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ATZ03",
@@ -3436,7 +3527,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ATB05",
@@ -3466,7 +3558,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ATP05",
@@ -3496,7 +3589,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ATAL01",
@@ -3526,7 +3620,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "KTB01AM",
@@ -3556,7 +3651,8 @@
             "units": 40
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TRP01AM",
@@ -3586,7 +3682,8 @@
             "units": 40
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TTR01AM",
@@ -3616,7 +3713,8 @@
             "units": 40
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TPZ01AM",
@@ -3646,7 +3744,8 @@
             "units": 40
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "KTB03AM",
@@ -3676,7 +3775,8 @@
             "units": 20
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TRP03AM",
@@ -3706,7 +3806,8 @@
             "units": 20
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TTR03AM",
@@ -3736,7 +3837,8 @@
             "units": 20
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TPZ03AM",
@@ -3766,7 +3868,8 @@
             "units": 20
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TRP05AM",
@@ -3796,7 +3899,8 @@
             "units": 10
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "KTB05AM",
@@ -3826,7 +3930,8 @@
             "units": 10
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TTR05AM",
@@ -3856,7 +3961,8 @@
             "units": 10
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TPZ05AM",
@@ -3886,7 +3992,8 @@
             "units": 10
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TTS05AM",
@@ -3917,7 +4024,8 @@
             "units": 10
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "KTB06AM",
@@ -3947,7 +4055,8 @@
             "units": 40
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "KTB01AM-4",
@@ -3977,7 +4086,8 @@
             "units": 4
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TTR01AM-4",
@@ -4007,7 +4117,8 @@
             "units": 4
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TRP01AM-4",
@@ -4037,7 +4148,8 @@
             "units": 4
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TPZ01AM-4",
@@ -4067,7 +4179,8 @@
             "units": 4
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "KTB03AM-2",
@@ -4097,7 +4210,8 @@
             "units": 2
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TRP03AM-2",
@@ -4127,7 +4241,8 @@
             "units": 2
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TTR03AM-2",
@@ -4157,7 +4272,8 @@
             "units": 2
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TPZ03AM-2",
@@ -4187,7 +4303,8 @@
             "units": 2
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "KTB05AM-1",
@@ -4217,7 +4334,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TRP05AM-1",
@@ -4247,7 +4365,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TTR05AM-1",
@@ -4277,7 +4396,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TPZ05AM-1",
@@ -4307,7 +4427,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TTS05AM-1",
@@ -4338,7 +4459,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "KTB06AM-4",
@@ -4368,7 +4490,8 @@
             "units": 4
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "KTBL01",
@@ -4398,7 +4521,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TTRL01",
@@ -4428,7 +4552,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TPZL01",
@@ -4458,7 +4583,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TRPL01",
@@ -4488,7 +4614,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "KTBL03",
@@ -4518,7 +4645,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TTRL03",
@@ -4548,7 +4676,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TPZL03",
@@ -4578,7 +4707,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TRPL03",
@@ -4608,7 +4738,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TTRL05",
@@ -4638,7 +4769,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TRPL05",
@@ -4668,7 +4800,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TPZL05",
@@ -4698,7 +4831,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "KTBL05",
@@ -4728,7 +4862,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TTSL05",
@@ -4759,7 +4894,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "AFML01",
@@ -4789,7 +4925,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "AFML03",
@@ -4819,7 +4956,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "AFML05",
@@ -4849,7 +4987,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ASF01",
@@ -4879,7 +5018,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ABM01",
@@ -4909,7 +5049,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ATN01",
@@ -4939,7 +5080,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ASA01",
@@ -4969,7 +5111,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ADT03",
@@ -4999,7 +5142,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ATJ01",
@@ -5029,7 +5173,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTT01",
@@ -5059,7 +5204,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTT03",
@@ -5089,7 +5235,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ASFL01",
@@ -5119,7 +5266,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ABML01",
@@ -5149,7 +5297,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ATNL01",
@@ -5179,7 +5328,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ASAL01",
@@ -5209,7 +5359,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ATJL01",
@@ -5239,7 +5390,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GCBL01",
@@ -5269,7 +5421,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GCBL02",
@@ -5299,7 +5452,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GCBL03",
@@ -5329,7 +5483,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GSCL01",
@@ -5359,7 +5514,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GSCL02",
@@ -5389,7 +5545,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GSCL03",
@@ -5419,7 +5576,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GSCL04",
@@ -5449,7 +5607,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GSCL05",
@@ -5479,7 +5638,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GCTL01",
@@ -5509,7 +5669,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GCTL02",
@@ -5539,7 +5700,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GCTL03",
@@ -5569,7 +5731,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GCTL04",
@@ -5599,7 +5762,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GCTL05",
@@ -5629,7 +5793,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GCTL06",
@@ -5659,7 +5824,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GBS01",
@@ -5689,7 +5855,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GBS03",
@@ -5719,7 +5886,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GBB01",
@@ -5749,7 +5917,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GBSL01",
@@ -5779,7 +5948,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GBSL03",
@@ -5809,7 +5979,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GBBL01",
@@ -5839,7 +6010,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "AWD010",
@@ -5869,7 +6041,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "AWD011",
@@ -5899,7 +6072,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "AWD070",
@@ -5929,7 +6103,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "AWD071",
@@ -5959,7 +6134,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "VTS01-1",
@@ -5990,7 +6166,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "VTB01-4",
@@ -6021,7 +6198,8 @@
             "units": 4
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "VTR01-4",
@@ -6051,7 +6229,8 @@
             "units": 4
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "VTB05-1",
@@ -6081,7 +6260,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "VTB06-4",
@@ -6111,7 +6291,8 @@
             "units": 4
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "HDR01AM",
@@ -6141,7 +6322,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "HDP01AM",
@@ -6171,7 +6353,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "HDS03AM",
@@ -6201,7 +6384,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ACBL01",
@@ -6231,7 +6415,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ACBL02",
@@ -6261,7 +6446,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ACBL03",
@@ -6291,7 +6477,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ASCL01",
@@ -6321,7 +6508,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ASCL02",
@@ -6351,7 +6539,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ASCL03",
@@ -6381,7 +6570,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ASCL04",
@@ -6411,7 +6601,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ASCL05",
@@ -6441,7 +6632,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ACTL01",
@@ -6471,7 +6663,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ACTL02",
@@ -6501,7 +6694,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ACTL03",
@@ -6531,7 +6725,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ACTL04",
@@ -6561,7 +6756,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ACTL05",
@@ -6591,7 +6787,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ACTL06",
@@ -6621,7 +6818,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ACTL07",
@@ -6651,7 +6849,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ACTL08",
@@ -6681,7 +6880,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ACTL09",
@@ -6711,7 +6911,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ACTL10",
@@ -6741,7 +6942,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ACA01",
@@ -6771,7 +6973,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ACA02",
@@ -6801,7 +7004,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ACA03",
@@ -6831,7 +7035,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "VBS01",
@@ -6861,7 +7066,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "VBS03",
@@ -6891,7 +7097,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "VBB01",
@@ -6921,7 +7128,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "VBW01",
@@ -6951,7 +7159,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EZD011AM",
@@ -6981,7 +7190,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EZD021AM",
@@ -7011,7 +7221,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EZD041AM",
@@ -7041,7 +7252,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EZD051AM",
@@ -7071,7 +7283,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EZD061AM",
@@ -7101,7 +7314,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EZD010AM",
@@ -7131,7 +7345,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EZD020AM",
@@ -7161,7 +7376,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EZD040AM",
@@ -7191,7 +7407,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EZD050AM",
@@ -7221,7 +7438,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EZD060AM",
@@ -7251,7 +7469,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EZD010AM-3",
@@ -7281,7 +7500,8 @@
             "units": 3
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EZD020AM-3",
@@ -7311,7 +7531,8 @@
             "units": 3
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EZD040AM-3",
@@ -7341,7 +7562,8 @@
             "units": 3
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EZD050AM-3",
@@ -7371,7 +7593,8 @@
             "units": 3
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EZD060AM-3",
@@ -7401,7 +7624,8 @@
             "units": 3
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EPD011J",
@@ -7431,7 +7655,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EPD021J",
@@ -7461,7 +7686,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EPD041J",
@@ -7491,7 +7717,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EPD061J",
@@ -7521,7 +7748,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EPD010J",
@@ -7551,7 +7779,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EPD020J",
@@ -7581,7 +7810,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EPD040J",
@@ -7611,7 +7841,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EPD060J",
@@ -7641,7 +7872,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTSL01J",
@@ -7671,7 +7903,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTRL05J",
@@ -7701,7 +7934,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTPL05J",
@@ -7731,7 +7965,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTBL05J",
@@ -7761,7 +7996,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTRL01J",
@@ -7791,7 +8027,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTPL01J",
@@ -7821,7 +8058,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTBL01J",
@@ -7851,7 +8089,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GSF01J",
@@ -7881,7 +8120,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTR01J",
@@ -7911,7 +8151,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTR03J",
@@ -7941,7 +8182,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTB01J",
@@ -7971,7 +8213,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTB03J",
@@ -8001,7 +8244,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTB05J",
@@ -8031,7 +8275,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTP01J",
@@ -8061,7 +8306,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTP03J",
@@ -8091,7 +8337,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTP05J",
@@ -8121,7 +8368,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTS01J",
@@ -8151,7 +8399,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTS03J",
@@ -8181,7 +8430,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTZ01J",
@@ -8211,7 +8461,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTZ03J",
@@ -8241,7 +8492,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GTA01J",
@@ -8271,7 +8523,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "KTB01J",
@@ -8301,7 +8554,8 @@
             "units": 40
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "KTB03J",
@@ -8331,7 +8585,8 @@
             "units": 20
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "KTB05J",
@@ -8361,7 +8616,8 @@
             "units": 10
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "KTB06J",
@@ -8391,7 +8647,8 @@
             "units": 40
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TTR01J",
@@ -8421,7 +8678,8 @@
             "units": 40
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TTR03J",
@@ -8451,7 +8709,8 @@
             "units": 20
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TTR05J",
@@ -8481,7 +8740,8 @@
             "units": 10
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TRP01J",
@@ -8511,7 +8771,8 @@
             "units": 40
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TRP03J",
@@ -8541,7 +8802,8 @@
             "units": 20
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TRP05J",
@@ -8571,7 +8833,8 @@
             "units": 10
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TTS05J",
@@ -8601,7 +8864,8 @@
             "units": 10
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TTA01J",
@@ -8631,7 +8895,8 @@
             "units": 20
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TTA02J",
@@ -8661,7 +8926,8 @@
             "units": 20
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TTA03J",
@@ -8691,7 +8957,8 @@
             "units": 20
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "TTA04J",
@@ -8721,7 +8988,8 @@
             "units": 20
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GRB01AM",
@@ -8751,7 +9019,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "GRB01J",
@@ -8781,7 +9050,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ART01AM",
@@ -8811,7 +9081,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ART01J",
@@ -8841,7 +9112,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1VFAD053A0",
@@ -8871,7 +9143,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1VFBD053A0",
@@ -8901,7 +9174,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1VFBD015A0",
@@ -8931,7 +9205,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1VFCD017A0",
@@ -8961,7 +9236,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1VFRD055A0",
@@ -8991,7 +9267,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1VFRD015A0",
@@ -9021,7 +9298,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1VFSD013A0",
@@ -9051,7 +9329,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1GFTD033A0",
@@ -9081,7 +9360,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1GFTD035A0",
@@ -9111,7 +9391,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1GFTD043A0",
@@ -9141,7 +9422,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1GFTD045A0",
@@ -9171,7 +9453,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1GFTD061A0",
@@ -9201,7 +9484,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1GSDD023A0",
@@ -9231,7 +9515,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1GSDD033A0",
@@ -9261,7 +9546,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1VDFD011A0",
@@ -9291,7 +9577,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1GBRD027A0",
@@ -9321,7 +9608,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1ABRD016A0",
@@ -9351,7 +9639,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1VFRD058A0",
@@ -9381,7 +9670,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1VFBD018A0",
@@ -9411,7 +9701,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1VFRD018A0",
@@ -9441,7 +9732,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1VFAD058A0",
@@ -9471,7 +9763,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1GCRD026A0",
@@ -9501,7 +9794,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1GCRD041A0",
@@ -9531,7 +9825,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1GCRD045A0",
@@ -9561,7 +9856,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1GBRD041A0",
@@ -9591,7 +9887,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1GBRD045A0",
@@ -9621,7 +9918,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1GQRD016A0",
@@ -9651,7 +9949,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1GCRD036A0",
@@ -9681,7 +9980,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "ATR01",
@@ -9712,7 +10012,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EPD021",
@@ -9764,7 +10065,8 @@
             "row": 153
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "EPD040",
@@ -9816,7 +10118,8 @@
             "row": 154
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "EPD051",
@@ -9868,7 +10171,8 @@
             "row": 155
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "EPD060",
@@ -9920,7 +10224,8 @@
             "row": 156
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "EPD011",
@@ -9972,7 +10277,8 @@
             "row": 157
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "EPD050",
@@ -10024,7 +10330,8 @@
             "row": 158
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "EPD020",
@@ -10076,7 +10383,8 @@
             "row": 159
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "EPD010",
@@ -10128,7 +10436,8 @@
             "row": 160
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "EPD041",
@@ -10180,7 +10489,8 @@
             "row": 161
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "EPD061",
@@ -10232,7 +10542,8 @@
             "row": 162
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "EZD051",
@@ -10284,7 +10595,8 @@
             "row": 169
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "EZD041",
@@ -10336,7 +10648,8 @@
             "row": 170
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "EZD021",
@@ -10388,7 +10701,8 @@
             "row": 171
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "EZD011",
@@ -10440,7 +10754,8 @@
             "row": 172
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "EZD061",
@@ -10492,7 +10807,8 @@
             "row": 173
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "1HGCC015A0",
@@ -10522,7 +10838,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1HGCC025A0",
@@ -10552,7 +10869,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1HGCC035A0",
@@ -10582,7 +10900,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1HGCC045A0",
@@ -10612,7 +10931,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1HGRD015A0",
@@ -10642,7 +10962,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1MGRC015A0",
@@ -10672,7 +10993,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1MGRC025A0",
@@ -10702,7 +11024,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1MGRC035A0",
@@ -10732,7 +11055,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1MGRC045A0",
@@ -10762,7 +11086,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1MGRC055A0",
@@ -10792,7 +11117,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1MGRD015A0",
@@ -10822,7 +11148,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1MGRD025A0",
@@ -10852,7 +11179,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1MGRD035A0",
@@ -10882,7 +11210,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1MGRD045A0",
@@ -10912,7 +11241,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1MGRD055A0",
@@ -10942,7 +11272,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1AGHC015A0",
@@ -10972,7 +11303,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1AGHC025A0",
@@ -11002,7 +11334,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1AGHC035A0",
@@ -11032,7 +11365,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1AGHC045A0",
@@ -11062,7 +11396,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "1AWDD773A0",
@@ -11096,7 +11431,8 @@
             "row": 53
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "1AWDD775A0",
@@ -11130,7 +11466,8 @@
             "row": 54
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "1AXXD001A0",
@@ -11164,7 +11501,8 @@
             "row": 5
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "1AXXD002A0",
@@ -11198,7 +11536,8 @@
             "row": 61
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "1GLTD011A0",
@@ -11232,7 +11571,8 @@
             "row": 60
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "1GXXD001A0",
@@ -11266,7 +11606,8 @@
             "row": 3
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "1GXXD002A0",
@@ -11300,7 +11641,8 @@
             "row": 4
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "1VFPD010A0",
@@ -11334,7 +11676,8 @@
             "row": 64
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "1VFPD018A0",
@@ -11368,7 +11711,8 @@
             "row": 67
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "1VFPD050A0",
@@ -11402,7 +11746,8 @@
             "row": 65
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "1VFPD058A0",
@@ -11436,7 +11781,8 @@
             "row": 68
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "1VFRD010A0",
@@ -11470,7 +11816,8 @@
             "row": 63
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "1VFSD010A0",
@@ -11504,7 +11851,8 @@
             "row": 62
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "1VFSD018A0",
@@ -11538,7 +11886,8 @@
             "row": 66
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "productSku": "ED011AM",
@@ -11564,7 +11913,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EZD010",
@@ -11590,7 +11940,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EZD010-3",
@@ -11616,7 +11967,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EZD020",
@@ -11642,7 +11994,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EZD020-3",
@@ -11668,7 +12021,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EZD040",
@@ -11694,7 +12048,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EZD040-3",
@@ -11720,7 +12075,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EZD050",
@@ -11746,7 +12102,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EZD050-3",
@@ -11772,7 +12129,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EZD060",
@@ -11798,7 +12156,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "productSku": "EZD060-3",
@@ -11824,7 +12183,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     }
   ],
   "orderSkuAliases": [
@@ -11873,7 +12233,8 @@
             "row": 88
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "orderSku": "7ATSD010AB",
@@ -11920,7 +12281,8 @@
             "row": 84
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "orderSku": "7ATSD011AB",
@@ -11945,7 +12307,8 @@
             "units": 1
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-25"
     },
     {
       "orderSku": "7ATSD017AB",
@@ -11992,7 +12355,8 @@
             "row": 86
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "orderSku": "7ATSD019AB",
@@ -12039,7 +12403,8 @@
             "row": 85
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "orderSku": "7GTBD013AB",
@@ -12086,7 +12451,8 @@
             "row": 76
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "orderSku": "7GTBD017AB",
@@ -12133,7 +12499,8 @@
             "row": 77
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "orderSku": "7GTBD037AB",
@@ -12180,7 +12547,8 @@
             "row": 71
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "orderSku": "7GTBD053AB",
@@ -12227,7 +12595,8 @@
             "row": 78
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "orderSku": "7GTBD057AB",
@@ -12274,7 +12643,8 @@
             "row": 72
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "orderSku": "7GTPD013AB",
@@ -12321,7 +12691,8 @@
             "row": 80
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "orderSku": "7GTPD017AB",
@@ -12368,7 +12739,8 @@
             "row": 75
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "orderSku": "7GTPD037AB",
@@ -12415,7 +12787,8 @@
             "row": 83
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "orderSku": "7GTPD053AB",
@@ -12462,7 +12835,8 @@
             "row": 79
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "orderSku": "7GTPD057AB",
@@ -12509,7 +12883,8 @@
             "row": 74
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "orderSku": "7GTRD013AB",
@@ -12556,7 +12931,8 @@
             "row": 81
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "orderSku": "7GTRD017AB",
@@ -12603,7 +12979,8 @@
             "row": 73
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "orderSku": "7GTRD037AB",
@@ -12650,7 +13027,8 @@
             "row": 82
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "orderSku": "7GTSD013AB",
@@ -12697,7 +13075,8 @@
             "row": 69
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "orderSku": "7GTSD017AB",
@@ -12744,7 +13123,8 @@
             "row": 70
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "orderSku": "7VTBD015AB",
@@ -12791,7 +13171,8 @@
             "row": 32
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "orderSku": "7VTBD410AB",
@@ -12838,7 +13219,8 @@
             "row": 33
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "orderSku": "7VTRD015AB",
@@ -12885,7 +13267,8 @@
             "row": 34
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "orderSku": "7VTRD215AB",
@@ -12932,7 +13315,8 @@
             "row": 35
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "orderSku": "7VTSD013AB",
@@ -12979,7 +13363,8 @@
             "row": 36
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "orderSku": "7VTSD017AB",
@@ -13026,7 +13411,8 @@
             "row": 39
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "orderSku": "7VTSD513AB",
@@ -13073,7 +13459,8 @@
             "row": 37
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     },
     {
       "orderSku": "7VTSD913AB",
@@ -13120,7 +13507,8 @@
             "row": 38
           }
         }
-      ]
+      ],
+      "newOrderPackagingDefaultVersion": "2026-08-28.4"
     }
   ]
 }

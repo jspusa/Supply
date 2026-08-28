@@ -56,18 +56,35 @@ test('site build emits the exact deterministic deployment artifact', t => {
   const expectedFiles = [
     '.nojekyll',
     'Boss/index.html',
+    'catalog-alignment.json',
     'index.html',
     'product-data.js',
     'release.json',
+    'shared/catalog-affected-work.mjs',
+    'shared/catalog-alignment-status.css',
+    'shared/catalog-alignment-status.js',
+    'shared/catalog-alignment-ui.js',
+    'shared/catalog-update-baseline.js',
+    'shared/catalog-update-change-plan.mjs',
+    'shared/catalog-update-handoff.mjs',
+    'shared/catalog-update-overlay.mjs',
+    'shared/catalog-update-planner.mjs',
+    'shared/catalog-update-product-catalog.mjs',
+    'shared/catalog-update-release.mjs',
+    'shared/catalog-update-runtime-lock.json',
     'shared/coverage-indicator.css',
     'shared/coverage-indicator.js',
     'shared/discontinuation-suggestions.js',
+    'shared/fba-visual-system.css',
     'shared/legacy-planning-adapter.js',
     'shared/order-draft-quantity.js',
     'shared/order-draft-state.js',
     'shared/planning-velocity-history.js',
     'shared/planning-velocity.js',
+    'shared/product-update-entry.css',
+    'shared/product-update-entry.mjs',
     'shared/shared-product-catalog.js',
+    'shared/supply-fba-theme.css',
     'shared/supply-planner.js',
     'shared/workspace-navigation.js',
     'shared/workspace-snapshot.js',
@@ -83,17 +100,34 @@ test('site build emits the exact deterministic deployment artifact', t => {
   assert.equal(manifest.revision, 'test-revision');
   assert.deepEqual(Object.keys(manifest.files).sort(), [
     'Boss/index.html',
+    'catalog-alignment.json',
     'index.html',
     'product-data.js',
+    'shared/catalog-affected-work.mjs',
+    'shared/catalog-alignment-status.css',
+    'shared/catalog-alignment-status.js',
+    'shared/catalog-alignment-ui.js',
+    'shared/catalog-update-baseline.js',
+    'shared/catalog-update-change-plan.mjs',
+    'shared/catalog-update-handoff.mjs',
+    'shared/catalog-update-overlay.mjs',
+    'shared/catalog-update-planner.mjs',
+    'shared/catalog-update-product-catalog.mjs',
+    'shared/catalog-update-release.mjs',
+    'shared/catalog-update-runtime-lock.json',
     'shared/coverage-indicator.css',
     'shared/coverage-indicator.js',
     'shared/discontinuation-suggestions.js',
+    'shared/fba-visual-system.css',
     'shared/legacy-planning-adapter.js',
     'shared/order-draft-quantity.js',
     'shared/order-draft-state.js',
     'shared/planning-velocity-history.js',
     'shared/planning-velocity.js',
+    'shared/product-update-entry.css',
+    'shared/product-update-entry.mjs',
     'shared/shared-product-catalog.js',
+    'shared/supply-fba-theme.css',
     'shared/supply-planner.js',
     'shared/workspace-navigation.js',
     'shared/workspace-snapshot.js',
@@ -101,7 +135,7 @@ test('site build emits the exact deterministic deployment artifact', t => {
     'vendor/LICENSE.sheetjs.txt',
     'vendor/xlsx.full.min.js',
   ]);
-  assert.equal(Object.keys(manifest.files).length, 18);
+  assert.equal(Object.keys(manifest.files).length, 35);
   for (const relativePath of Object.keys(manifest.files)) {
     assert.match(manifest.files[relativePath], /^[a-f0-9]{64}$/);
     assert.equal(manifest.files[relativePath], sha256(path.join(firstDist, relativePath)));
@@ -133,7 +167,7 @@ test('artifact verifier accepts a complete unmodified site build', t => {
 
   const verified = runNode(verifyScript, ['--dir', dist, '--revision', 'verified-revision']);
   assert.equal(verified.status, 0, verified.stderr || verified.stdout);
-  assert.match(verified.stdout, /Verified 18 hashed site files for verified-revision/);
+  assert.match(verified.stdout, /Verified 35 hashed site files for verified-revision/);
 });
 
 test('artifact verifier rejects repository-only or unexpected files', t => {
@@ -288,4 +322,11 @@ test('artifact verifier rejects high-confidence credential material', t => {
   const verified = runNode(verifyScript, ['--dir', dist, '--revision', 'test-revision']);
   assert.notEqual(verified.status, 0);
   assert.match(verified.stderr, /Potential credential material in product-data\.js: private key/);
+});
+
+test('temporary product override refuses duplicate source conflicts instead of choosing a row', () => {
+  const html = fs.readFileSync(path.join(repoRoot, 'index.html'), 'utf8');
+  assert.match(html, /sourceConflictCount > 0/);
+  assert.match(html, /不會臨時套用任何一列/);
+  assert.doesNotMatch(html, /重複衝突已保留第一筆完整資料/);
 });

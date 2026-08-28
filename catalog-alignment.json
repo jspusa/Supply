@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "catalogVersion": "2026-08-28.4",
+  "site": "supply",
+  "publicContentHash": "267f521222440bea5e951eac12d7f4e66b56d820fcd0945f5cda971ce1605ea1",
+  "expectedPublicContentHashes": {
+    "supply": "267f521222440bea5e951eac12d7f4e66b56d820fcd0945f5cda971ce1605ea1",
+    "fba": "080488a383c1ff43bae783880e0e794fddaa88c5408815b36ed1129063fdd12b"
+  }
+}

@@ -2,10 +2,11 @@
 
 Read this reference only when the user explicitly asked to publish or go live.
 
-1. Confirm both local diffs contain only the four generated release artifacts named in `SKILL.md`. Stage exact paths; never use broad Git add commands.
-2. Commit Supply and FBA separately with the same catalog version in their messages. Push both feature branches.
-3. Reuse matching open pull requests or create two draft pull requests, each with one base/head pair. Include the shared catalog version and local verification in both bodies.
-4. Wait for both pull-request check suites. Keep both draft and stop if either fails. After both pass, mark both ready and merge using the repositories' normal squash policy.
-5. Wait for both main-branch Pages deployments. A merge or Actions success alone is not live proof.
-6. From the updated default branches, verify Supply with its exact live file and browser verifiers. Verify FBA with `npm run verify:live:catalog -- --version <catalog-version>`.
-7. Confirm both public pages expose the same catalog version. If one side fails after the other is live, keep working within the authorized release to repair the failed side; avoid rollback or destructive Git operations unless the user separately authorizes them.
+1. Confirm both local diffs contain only the release-owned artifacts named in `SKILL.md`. Stage exact paths; never use broad Git add commands.
+2. Commit FBA first with the shared catalog version in its message. Run `node scripts/catalog-peer-lock.mjs --write-peer ../FBA` so Supply records that exact 40-character commit SHA plus the matching catalog version and FBA public-content hash, then run `node scripts/verify-catalog-seams.mjs --fba-repo ../FBA --require-pinned-peer`. Commit Supply only after that immutable peer check passes. Push both feature branches.
+3. Reuse matching open pull requests or create two draft pull requests, each with one base/head pair. Include the shared catalog version, pinned FBA commit, and local verification in both bodies.
+4. Wait for both pull-request check suites. Supply CI must check out the exact pinned FBA pull-request commit rather than FBA's default branch. Immediately before marking ready or merging, reread the FBA pull request's head OID and require it to equal the peer lock; if FBA gained another commit, regenerate and commit the Supply lock and rerun Supply CI. Record `repositoryCi` evidence for each site's exact catalog-content revision. Keep both draft and stop if either fails. After both exact heads pass, mark both ready and merge using the repositories' normal squash policy.
+5. Wait for both main-branch Pages deployments and record each `deployment` result. A merge or Actions success alone is not live proof.
+6. From the updated default branches, verify Supply with its exact live hash and browser verifiers. Verify FBA with its exact catalog-version/hash verifier and browser entrypoint checks. Record `liveHash` and then `liveBrowser` separately; neither may be inferred from CI or deployment success.
+7. Confirm the two compact public manifests name the same catalog version and the same pair of expected public-content hashes. Only then may the alignment record become `aligned`.
+8. If one side fails after the other is live, keep the successful side and evidence unchanged. Begin Catalog Alignment recovery for the failed site, rerun from its first failed stage, and do not start another catalog version until alignment is complete. Avoid rollback or destructive Git operations unless the user separately authorizes them.
