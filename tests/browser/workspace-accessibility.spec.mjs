@@ -42,7 +42,7 @@ async function expectKeyboardFocusRing(locator) {
   expect(Number.parseFloat(focus.outlineWidth)).toBeGreaterThanOrEqual(3);
 }
 
-test('keyboard alone reaches and operates workspace navigation and the Today action', async ({ page, context }) => {
+test('keyboard alone reaches and operates four-workspace navigation and the Today action', async ({ page, context }) => {
   await freezeBrowserTime(page);
   const unexpectedRequests = [];
   await installOfflineAssetRoutes(context, unexpectedRequests);
@@ -50,23 +50,29 @@ test('keyboard alone reaches and operates workspace navigation and the Today act
   await waitForSupplyApp(page);
 
   await page.keyboard.press('Tab');
-  const todayTab = page.locator('.workspaceNavTab[data-workspace="today"]');
-  await expect(todayTab).toBeFocused();
-  await expectKeyboardFocusRing(todayTab);
+  const recommendationsTab = page.locator('.workspaceNavTab[data-workspace="recommendations"]');
+  await expect(recommendationsTab).toBeFocused();
+  await expectKeyboardFocusRing(recommendationsTab);
 
-  await page.keyboard.press('ArrowRight');
+  await page.keyboard.press('ArrowLeft');
   const dataTab = page.locator('.workspaceNavTab[data-workspace="data"]');
   await expect(dataTab).toBeFocused();
   await expectOnlyWorkspace(page, 'data');
   await expectKeyboardFocusRing(dataTab);
 
+  await page.keyboard.press('ArrowRight');
+  await expect(recommendationsTab).toBeFocused();
+  await expectOnlyWorkspace(page, 'recommendations');
+
   await page.keyboard.press('End');
   await expect(page.locator('.workspaceNavTab[data-workspace="analysis"]')).toBeFocused();
   await expectOnlyWorkspace(page, 'analysis');
   await page.keyboard.press('Home');
-  await expect(todayTab).toBeFocused();
-  await expectOnlyWorkspace(page, 'today');
+  await expect(dataTab).toBeFocused();
+  await expectOnlyWorkspace(page, 'data');
 
+  await page.keyboard.press('ArrowRight');
+  await expect(recommendationsTab).toBeFocused();
   await page.keyboard.press('Tab');
   const todayAction = page.locator('#todayNextAction');
   await expect(todayAction).toBeFocused();
@@ -75,8 +81,8 @@ test('keyboard alone reaches and operates workspace navigation and the Today act
   await expect(dataTab).toBeFocused();
   await expectOnlyWorkspace(page, 'data');
 
-  await page.keyboard.press('Home');
-  await expect(todayTab).toBeFocused();
+  await page.keyboard.press('ArrowRight');
+  await expect(recommendationsTab).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(todayAction).toBeFocused();
   await page.keyboard.press('Space');
@@ -161,8 +167,8 @@ test('reduced-motion preference disables smooth scrolling and collapses animatio
   expect(Math.max(...reducedStyles.transitionDurations)).toBeLessThanOrEqual(0.001);
   expect(Math.max(...reducedStyles.animationDurations)).toBeLessThanOrEqual(0.001);
 
-  await page.locator('.workspaceNavTab[data-workspace="recommendations"]').click();
-  await expectOnlyWorkspace(page, 'recommendations');
+  await page.locator('.workspaceNavTab[data-workspace="data"]').click();
+  await expectOnlyWorkspace(page, 'data');
   expect(await page.evaluate(() => window.__workspaceScrollBehaviors)).toEqual(['auto']);
   expect(unexpectedRequests).toEqual([]);
 });

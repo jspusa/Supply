@@ -57,11 +57,13 @@ function createFakeBrowserType({ failures = [] } = {}) {
                 async goto(url, options) {
                   pageLog.gotos.push({ url, options });
                   const failure = failures[attemptIndex];
-                  if (failure?.phase === 'goto' && failure.page === pageIndex % 3) {
+                  if (failure?.phase === 'goto' && failure.page === pageIndex % 4) {
                     throw new Error(failure.message);
                   }
                   currentUrl = url.endsWith('#decisionDashboard')
                     ? url.replace(/#decisionDashboard$/, '#recommendations')
+                    : url.endsWith('#today') && !/\/Boss\//.test(url)
+                      ? url.replace(/#today$/, '#recommendations')
                     : url;
                   if (failure?.phase === 'mutation' && /\/Boss\//.test(url)) {
                     requestListeners.forEach(listener => listener({
@@ -75,12 +77,11 @@ function createFakeBrowserType({ failures = [] } = {}) {
                   pageLog.selectors.push(selector);
                   log.locators.push(selector);
                   const isSidebar = selector === '.appSidebar';
-                  const isToday = selector.startsWith('#todayWorkspaceSummary');
+                  const isWorkspaceTabs = selector === '.workspaceNavTab';
                   return {
-                    async count() { return isSidebar ? 0 : 1; },
+                    async count() { return isSidebar ? 0 : isWorkspaceTabs ? 4 : 1; },
                     async waitFor(options) { log.waits.push({ selector, ...options }); },
-                    async isVisible() { return !isToday; },
-                    async isHidden() { return isToday; },
+                    async isVisible() { return true; },
                   };
                 },
               };
@@ -104,6 +105,7 @@ test('URL contract keeps the live revision cache buster and separates legacy, ca
   }), {
     releaseUrl:`${BASE_URL}release.json?supply-release=${REVISION}-3`,
     legacyPublicUrl:`${BASE_URL}?supply-release=${REVISION}-3#decisionDashboard`,
+    legacyTodayUrl:`${BASE_URL}?supply-release=${REVISION}-3#today`,
     legacyCanonicalUrl:`${BASE_URL}?supply-release=${REVISION}-3#recommendations`,
     canonicalPublicUrl:`${BASE_URL}?supply-release=${REVISION}-3#recommendations`,
     bossUrl:`${BASE_URL}Boss/?supply-release=${REVISION}-3#today`,
@@ -145,24 +147,26 @@ test('browser smoke proves legacy canonicalization, canonical public UI, absent 
   }]);
   assert.deepEqual(log.pages.map(page => page.gotos[0].url), [
     `${BASE_URL}?supply-release=${REVISION}-1#decisionDashboard`,
+    `${BASE_URL}?supply-release=${REVISION}-1#today`,
     `${BASE_URL}?supply-release=${REVISION}-1#recommendations`,
     `${BASE_URL}Boss/?supply-release=${REVISION}-1#today`,
   ]);
-  assert.deepEqual(log.pages.map(page => page.gotos[0].options), Array(3).fill({
+  assert.deepEqual(log.pages.map(page => page.gotos[0].options), Array(4).fill({
     waitUntil:'domcontentloaded',
     timeout:3210,
   }));
 
-  for (const publicPage of log.pages.slice(0, 2)) {
+  for (const publicPage of log.pages.slice(0, 3)) {
     assert.deepEqual(publicPage.selectors, [
       'html[data-workspace-ui-ready="true"]',
+      '.workspaceNavTab',
       '.workspaceNavTab[data-workspace="recommendations"][aria-selected="true"]',
       '#decisionDashboard[data-workspace-panel="recommendations"]',
-      '#todayWorkspaceSummary[data-workspace-panel="today"]',
+      '#todayWorkspaceSummary[data-workspace-panel="recommendations"]',
       '.appSidebar',
     ]);
   }
-  assert.deepEqual(log.pages[2].selectors, ['#bossAuthGate:not([hidden])', '#bossLoginForm']);
+  assert.deepEqual(log.pages[3].selectors, ['#bossAuthGate:not([hidden])', '#bossLoginForm']);
   assert.equal(log.locators.some(selector => /submit|save|delete/i.test(selector)), false);
   assert.deepEqual(log.closes, { browser:1, context:1 });
 });

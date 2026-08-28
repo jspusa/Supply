@@ -26,6 +26,7 @@ test('Boss rejects a cross-origin cloud file URL before sending a request or Bea
 
   await page.goto('/Boss/#today');
   await waitForSupplyApp(page);
+  await expect(page).toHaveURL(/#recommendations$/);
   await page.locator('#bossLoginUsername').fill('fixture-user');
   await page.locator('#bossLoginPassword').fill('fixture-password');
   await page.locator('#bossLoginButton').click();

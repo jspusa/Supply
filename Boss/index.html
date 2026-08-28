@@ -6,6 +6,7 @@
   <title>訂單分析器 V2</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Ctext x=%278%27 y=%2746%27 font-size=%2742%27%3E📦%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="stylesheet" href="../shared/coverage-indicator.css">
   <style>
     :root { font-family: "Noto Sans TC", system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #0f1d2b; }
     * { box-sizing: border-box; }
@@ -157,34 +158,48 @@
     .order-generator th, .order-generator td { padding: 12px 8px; border-bottom: 1px solid #e3e8f0; font-size: 13px; }
     .order-generator th { background: #eaf1fc; color: #375a7f; font-weight: 700; border-bottom: 2px solid #b7d2f6; }
     .order-generator tr:hover td { background: #f0f5fe; }
-    .order-generator .action-button, .order-generator .remove-button, .order-generator .lock-button, .order-generator .drag-handle { background: #e0e7f3; color: #5c6f8f; padding: 5px 9px; margin: 2px 1px; border: none; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: bold; transition: background 0.2s; box-shadow: none; }
-    .order-generator .remove-button { background: #fa7878; color: #fff; }
-    .order-generator .lock-button { background: #ffd76b; color: #925700; }
-    .order-generator .drag-handle { cursor: grab; background:#dbeafe; color:#2563eb; touch-action:none; }
+    .order-generator .action-button, .order-generator .remove-button, .order-generator .lock-button, .order-generator .drag-handle { display:inline-grid; place-items:center; inline-size:28px; block-size:28px; padding:0; margin:0; border:0; border-radius:7px; background:transparent; color:#64748b; cursor:pointer; font-size:12px; font-weight:800; transition:background .15s ease,color .15s ease; box-shadow:none; }
+    .order-generator .action-button:hover, .order-generator .remove-button:hover, .order-generator .lock-button:hover, .order-generator .drag-handle:hover { transform:none; box-shadow:none; }
+    .order-generator .remove-button { color:#dc2626; }
+    .order-generator .remove-button:hover { background:#fee2e2; color:#b91c1c; }
+    .order-generator .lock-button { color:#92600a; }
+    .order-generator .lock-button:hover { background:#fef3c7; color:#854d0e; }
+    .order-generator .drag-handle { cursor:grab; color:#2563eb; touch-action:none; }
+    .order-generator .drag-handle:hover { background:#dbeafe; color:#1d4ed8; }
     .order-generator .drag-handle:active { cursor:grabbing; }
     .order-generator tr.generator-dragging { opacity:.45; pointer-events:none; }
-    .order-generator .generatorActions { white-space:nowrap; }
+    .order-generator .generatorActions { width:1%; padding-inline:4px; white-space:nowrap; }
+    .generatorActionGroup { display:inline-flex; align-items:center; gap:3px; inline-size:90px; }
+    .order-generator .generatorActionGroup > button:focus-visible, .order-generator .miniBtn:focus-visible { outline:2px solid #2563eb; outline-offset:2px; }
+    .order-generator .miniBtn { display:inline-grid; place-items:center; inline-size:26px; block-size:26px; margin-left:4px; padding:0; border-radius:7px; font-size:11px; }
     .generatorQuantityGroup { display:flex; flex-direction:column; gap:6px; min-width:84px; max-width:112px; }
     .generatorQuantityGroup.single { min-width:82px; }
     .generatorQuantityField { display:flex; flex-direction:column; gap:3px; color:#64748b; font-size:10px; font-weight:800; }
     .generatorQuantityField input { min-width:0; width:100%; }
-    .palletStepControl { display:grid; grid-template-columns:minmax(72px,1fr) 28px; gap:4px; align-items:stretch; min-width:104px; }
-    .palletStepButtons { display:grid; grid-template-rows:1fr 1fr; gap:3px; }
-    .palletStepButton { display:grid; place-items:center; min-width:28px; min-height:24px; padding:0; border:1px solid #cbd5e1; border-radius:7px; background:#fff; color:#334155; box-shadow:none; font-size:12px; line-height:1; cursor:pointer; }
-    .palletStepButton:hover { background:#eff6ff; color:#1d4ed8; }
+    .palletStepControl { position:relative; display:block; width:88px; min-width:88px; height:34px; }
+    .palletStepButtons { position:absolute; inset:1px 1px 1px auto; z-index:1; display:grid; grid-template-rows:1fr 1fr; width:20px; overflow:hidden; border-left:1px solid #cbd5e1; border-radius:0 7px 7px 0; }
+    .palletStepButton { display:grid; place-items:center; width:20px; min-width:0; min-height:0; padding:0; margin:0; border:0; border-radius:0; background:#f8fafc; color:#475569; box-shadow:none; font-size:8px; line-height:1; cursor:pointer; }
+    .palletStepButton + .palletStepButton { border-top:1px solid #cbd5e1; }
+    .palletStepButton:hover { background:#eff6ff; color:#1d4ed8; transform:none; box-shadow:none; }
+    .palletStepButton:focus-visible { outline:0; box-shadow:inset 0 0 0 2px #2563eb; }
     .palletStepButton:disabled { cursor:not-allowed; opacity:.45; }
-    .edit-pallets-input { appearance:textfield; -moz-appearance:textfield; }
+    .palletStepControl:focus-within .edit-pallets-input { border-color:#2563eb; box-shadow:0 0 0 2px rgba(37,99,235,.2); }
+    .edit-pallets-input { width:100%; height:100%; padding:6px 23px 6px 8px; border-radius:8px; appearance:textfield; -moz-appearance:textfield; }
     .edit-pallets-input::-webkit-inner-spin-button, .edit-pallets-input::-webkit-outer-spin-button { appearance:none; margin:0; }
     .pallet-guidance { display:block; max-width:128px; margin-top:4px; color:#92400e; font-size:10px; font-weight:750; line-height:1.3; }
     .pallet-guidance[hidden] { display:none; }
-    .generatorCoverageStatus { font-size:.78rem; font-weight:850; white-space:nowrap; }
-    .generatorCoverageStatus.low { color:#b45309; }
-    .generatorCoverageStatus.healthy { color:#15803d; }
-    .generatorCoverageStatus.excess { color:#b91c1c; }
-    .generatorCoverageStatus.neutral { color:#64748b; }
+    .coverageHealthCell, .estimated-days, .arrival-days { min-width:148px; }
     .order-generator tr.locked td, .order-generator tr.locked:hover td { background:#dcfce7 !important; color:#166534; border-bottom-color:#86efac; }
     .order-generator tr.locked input { background:#f0fdf4; color:#166534; border-color:#86efac; font-weight:800; }
-    .order-generator tr.locked .lock-button { background:#16a34a; color:#fff; }
+    .order-generator tr.locked .lock-button { background:#dcfce7; color:#15803d; }
+    @media (pointer:coarse) {
+      .palletStepControl { width:96px; min-width:96px; height:48px; }
+      .palletStepButtons { inset:0 0 0 auto; width:28px; }
+      .palletStepButton { width:28px; font-size:10px; }
+      .edit-pallets-input { padding-right:31px; }
+      .order-generator .generatorActionGroup { gap:3px; inline-size:126px; }
+      .order-generator .generatorActionGroup > button, .order-generator .miniBtn { inline-size:40px; block-size:40px; }
+    }
     .generatorColumnBar { display:flex; align-items:center; flex-wrap:wrap; gap:7px; margin:0 0 10px; padding:9px 11px; border:1px solid #e2e8f0; border-radius:14px; background:#f8fafc; }
     .generatorColumnBar > span { color:#64748b; font-size:12px; font-weight:800; margin-right:2px; }
     .generatorColumnToggle { display:inline-flex; align-items:center; gap:5px; padding:6px 9px; border-radius:999px; background:#e2e8f0; color:#64748b; font-size:11px; font-weight:800; cursor:pointer; user-select:none; }
@@ -1080,7 +1095,7 @@
                   <tbody></tbody>
                 </table>
               </div>
-              <div class="hint" style="text-align:right;margin-top:10px;">含舊訂單可售天數會包含 JAM/FY 的預計補貨；新訂單到港後總可售天數會先扣前置期銷售，納入已下單舊單，並排除「還沒下單／STOP」。低於目標天數會提醒，達標到 365 天為綠色，只有超過 365 天才標紅；建議會優先使用整板，只有下一整板會從低於目標跳到超過 365 天時，才依最小箱數顯示零散板。按住拖曳圖示可調整順序，草稿會自動保存。</div>
+              <div class="hint" style="text-align:right;margin-top:10px;">含舊訂單可售天數會包含 JAM/FY 的預計補貨；新訂單到港後總可售天數會先扣前置期銷售，納入已下單舊單，並排除「還沒下單／STOP」。血條固定為：低於 180 天黃色、180–365 天綠色、超過 365 天紅色；上方到港後目標仍只影響建議量。建議會優先使用整板，只有下一整板會從低於目標跳到超過 365 天時，才依最小箱數顯示零散板。按住拖曳圖示可調整順序，草稿會自動保存。</div>
               <div class="totals-container">
                 <div class="total"><i class="fa-solid fa-boxes-stacked"></i> 總包數: <span id="totalQuantity">0</span> | 總箱數: <span id="totalCartons">0</span> | 總棧板數: <span id="totalPallets">0</span></div>
                 <div class="box-counts" id="boxCounts"></div>
@@ -1405,6 +1420,7 @@
   <script type="module" src="../shared/workspace-snapshot.js"></script>
   <script type="module" src="../shared/workspace-navigation.js"></script>
   <script type="module" src="../shared/workspace-ui.js"></script>
+  <script type="module" src="../shared/coverage-indicator.js"></script>
   <script>
     const IS_BOSS_PORTAL = true;
     const BOSS_API_BASE = 'https://supply-boss.brave-prawn-0848.chatgpt.site';
@@ -2422,7 +2438,8 @@
     }
     function renderInventoryCell(value, missingText = "(未對應)") { return (value === null || value === undefined) ? `<td class="bad">${escapeHtml(missingText)}</td>` : `<td class="ok">${escapeHtml(fmtQty(value))}</td>`; }
     function renderNumericCell(value, badText = "(未對應)") { return (value === null || value === undefined) ? `<td class="bad">${escapeHtml(badText)}</td>` : `<td class="ok">${escapeHtml(fmtQty(value))}</td>`; }
-    function renderCoverageDaysCell(value, targetDays = getReorderTargetDays()) { if (!Number.isFinite(value)) return '<td class="bad">(不可算)</td>'; const band = getGeneratorCoverageBand(value, targetDays); const cls = band === 'excess' ? 'bad' : (band === 'low' ? 'warn' : 'ok'); const note = band === 'excess' ? '<br><span class="generatorCoverageStatus excess">超過 365 天</span>' : ''; return `<td class="${cls}">${fmtDays(value)}${note}</td>`; }
+    function renderCoverageMeterHtml(coverageDays, assessment = 'ready') { const api = window.SupplyCoverageIndicator; if (!api?.renderCoverageMeter) return Number.isFinite(coverageDays) ? escapeHtml(fmtDays(coverageDays)) : '—'; return api.renderCoverageMeter({ coverageDays:Number.isFinite(coverageDays) ? coverageDays : null, assessment }); }
+    function renderCoverageDaysCell(value) { const assessment = Number.isFinite(value) ? 'ready' : 'unavailable'; return `<td class="coverageHealthCell">${renderCoverageMeterHtml(value, assessment)}</td>`; }
     function getSharedBookCoverageDays(row) { const plan = getLeadTimePlan(row, 365); return Number.isFinite(plan?.bookCoverageDays) ? plan.bookCoverageDays : row?.days; }
     function renderAmazonUnitCell(value, rawValue, sku, missingText = "(未對應)") {
       if (value === null || value === undefined) return `<td class="bad">${escapeHtml(missingText)}</td>`;
@@ -2980,9 +2997,9 @@
     }
 
     function captureActiveWorkspace() {
-      const ids = window.SupplyWorkspaceNavigation?.WORKSPACE_IDS || [];
       const activeWorkspace = workspaceUiController?.getActiveWorkspace();
-      return ids.includes(activeWorkspace) ? activeWorkspace : (ids.includes(restoredWorkspacePreference) ? restoredWorkspacePreference : 'today');
+      const canonicalize = window.SupplyWorkspaceNavigation?.canonicalWorkspaceId;
+      return canonicalize?.(activeWorkspace) || canonicalize?.(restoredWorkspacePreference) || 'data';
     }
 
     function captureGeneratorColumns() {
@@ -3093,8 +3110,7 @@
       activatePanel('.decisionTab[data-panel]', '.decisionPanel', otherText.decisionPanel);
       activatePanel('.toolTab[data-panel]', '.toolPanel', otherText.toolPanel);
       updateSortButtons();
-      const ids = window.SupplyWorkspaceNavigation?.WORKSPACE_IDS || [];
-      restoredWorkspacePreference = ids.includes(preferences.activeWorkspace) ? preferences.activeWorkspace : null;
+      restoredWorkspacePreference = window.SupplyWorkspaceNavigation?.canonicalWorkspaceId?.(preferences.activeWorkspace) || null;
     }
 
     function getWorkspaceStorageMessage(result, action = 'save') {
@@ -3407,7 +3423,7 @@
       }
       velocityHistoryFailureSignature = '';
       restoredWorkspacePreference = null;
-      workspaceUiController?.activate('today', { historyMode:'replace' });
+      workspaceUiController?.activate('data', { historyMode:'replace' });
       updateSortButtons();
       buildTables();
       updateTotals();
@@ -4401,7 +4417,7 @@
     function syncVisibleGeneratorRowsToDraft() { if (!generatorDraft) return false; const rows = Array.from(document.querySelectorAll('#productTable tbody tr')); for (const row of rows) { const serialized = serializeGeneratorRow(row); const existing = generatorDraft.rowsByProductSku?.[normalizeSkuKey(serialized.productSku)]; const command = existing ? { type:'patch-row', productSku:serialized.productSku, patch:{ quantities:serialized.quantities, pallet:serialized.pallet, locked:serialized.locked } } : { type:'upsert-row', row:serialized }; if (!applyGeneratorDraftCommand(command)) return false; } return Boolean(applyGeneratorDraftCommand({ type:'reorder-group', group:currentOrderGroup, productSkus:rows.map(row => row.dataset.product) })); }
     function persistGeneratorDraft(options = null) { const announce = options?.announce !== false; const api = getOrderDraftStateApi(); if (!api || !generatorDraft || generatorDraftLoadBlocked) { if (announce) setGeneratorDraftStatus('訂單草稿目前無法安全保存；請先處理上方載入錯誤。', 'error'); return false; } const result = api.saveOrderDraft({ storage:localStorage, draft:generatorDraft, context:getGeneratorDraftContext() }); if (!result?.ok) { setGeneratorDraftStatus(getGeneratorDraftErrorMessage(result, '訂單草稿保存失敗，請勿關閉頁面。'), 'error'); return false; } if (announce) { const count = Object.keys(generatorDraft.rowsByProductSku || {}).length; setGeneratorDraftStatus(`已自動保存 ${count} 個品項 · ${new Date().toLocaleTimeString('zh-TW', {hour:'2-digit', minute:'2-digit'})}`); } updateWorkflowUi(); return true; }
     function saveGeneratorDraft() { if (isRestoringDraft) return true; if (!syncVisibleGeneratorRowsToDraft()) return false; return persistGeneratorDraft(); }
-    function hydrateGeneratorRow(row, draftRow, prod) { const quantities = draftRow?.quantities || {}, pallet = draftRow?.pallet || {}; const put = (selector, value) => { const input = row.querySelector(selector); if (input) input.value = value ?? ''; }; row.dataset.orderCode = draftRow.orderSku || draftRow.productSku; row.dataset.palletMode = pallet.mode || ''; row.dataset.exactPalletValue = String(pallet.value ?? '').trim(); const label = row.querySelector('.order-code-label'); if (label) label.textContent = row.dataset.orderCode; put('.edit-quantity-input', quantities.quantity ?? quantities.packages); put('.edit-pack-input, .edit-box-input', quantities.units ?? quantities.secondary); put('.target-input', quantities.target); put('.edit-cartons-input', quantities.cartons); put('.edit-pallets-input', row.dataset.exactPalletValue === '' ? '' : formatPalletValue(pallet.value)); if (String(quantities.orderDraft ?? '').trim() && Number.isFinite(Number(quantities.orderDraft))) row.dataset.orderDraftQuantity = String(Math.max(0, Number(quantities.orderDraft))); row.dataset.authoritativeField = pallet.authoritativeField || ''; const targetInput = row.querySelector('.target-input'); if (targetInput) checkTarget(targetInput); if (draftRow.locked) { row.classList.add('locked'); row.querySelectorAll('input').forEach(control => { control.disabled = true; }); const icon = row.querySelector('.lock-button'); if (icon) icon.innerHTML = '<i class="fa-solid fa-lock-open"></i>'; } const currentCatalogIssue = getProductPalletCatalogIssue(prod); const restoredWarningCode = currentCatalogIssue?.code || (pallet.warningCode === 'INVALID_PALLET_CATALOG' ? '' : (pallet.warningCode || '')); setGeneratorPalletState(row, { warningCode:restoredWarningCode, strategy:pallet.strategy || '', message:currentCatalogIssue ? '' : (pallet.guidance || '') }); updateEstimatedDays(row, prod); }
+    function hydrateGeneratorRow(row, draftRow, prod) { const quantities = draftRow?.quantities || {}, pallet = draftRow?.pallet || {}; const put = (selector, value) => { const input = row.querySelector(selector); if (input) input.value = value ?? ''; }; row.dataset.orderCode = draftRow.orderSku || draftRow.productSku; row.dataset.palletMode = pallet.mode || ''; row.dataset.exactPalletValue = String(pallet.value ?? '').trim(); const label = row.querySelector('.order-code-label'); if (label) label.textContent = row.dataset.orderCode; put('.edit-quantity-input', quantities.quantity ?? quantities.packages); put('.edit-pack-input, .edit-box-input', quantities.units ?? quantities.secondary); put('.target-input', quantities.target); put('.edit-cartons-input', quantities.cartons); put('.edit-pallets-input', row.dataset.exactPalletValue === '' ? '' : formatPalletValue(pallet.value)); if (String(quantities.orderDraft ?? '').trim() && Number.isFinite(Number(quantities.orderDraft))) row.dataset.orderDraftQuantity = String(Math.max(0, Number(quantities.orderDraft))); row.dataset.authoritativeField = pallet.authoritativeField || ''; const targetInput = row.querySelector('.target-input'); if (targetInput) checkTarget(targetInput); if (draftRow.locked) { row.classList.add('locked'); row.querySelectorAll('input').forEach(control => { control.disabled = true; }); } syncGeneratorLockButton(row); const currentCatalogIssue = getProductPalletCatalogIssue(prod); const restoredWarningCode = currentCatalogIssue?.code || (pallet.warningCode === 'INVALID_PALLET_CATALOG' ? '' : (pallet.warningCode || '')); setGeneratorPalletState(row, { warningCode:restoredWarningCode, strategy:pallet.strategy || '', message:currentCatalogIssue ? '' : (pallet.guidance || '') }); updateEstimatedDays(row, prod); }
     function renderGeneratorRepairRows() { const box = document.getElementById('generatorRepairRows'); if (!box) return; const rows = (generatorDraft?.repairOrder || []).map(productSku => generatorDraft.rowsByProductSku?.[productSku]).filter(Boolean); box.hidden = rows.length === 0; box.innerHTML = rows.length ? `<b>需要修復，暫停匯出</b><br>${rows.map(row => { const quantities = Object.entries(row.quantities || {}).filter(([, value]) => String(value ?? '').trim() !== '').map(([key, value]) => `${key}: ${value}`).join(' · ') || '未保存數量'; const issues = (row.issues || []).map(issue => issue.code).join('、') || '身份資料不完整'; return `<div class="generatorRepairRow" data-repair-product="${escapeHtml(row.productSku)}"><span>Product SKU：${escapeHtml(row.productSku)} · Order SKU：${escapeHtml(row.orderSku)} · ${escapeHtml(quantities)} · 棧板：${escapeHtml(String(row.pallet?.value ?? ''))} · ${escapeHtml(issues)}</span> <button type="button" class="secondary generatorRepairDelete">刪除此筆</button></div>`; }).join('')}` : ''; box.querySelectorAll('.generatorRepairDelete').forEach(button => { button.addEventListener('click', () => removeGeneratorRepairRow(button)); }); }
     function removeGeneratorRepairRow(button) { const productSku = button?.closest('.generatorRepairRow')?.dataset.repairProduct; if (!productSku) return; const result = applyGeneratorDraftCommand({ type:'remove-row', productSku }); if (!result) return; persistGeneratorDraft(); renderActiveOrderGroup(); setGeneratorDraftStatus(`已刪除需要修復的 ${productSku}，可重新檢查匯出。`); }
     window.removeGeneratorRepairRow = removeGeneratorRepairRow;
@@ -4418,6 +4434,7 @@
     function getProductPalletCatalogIssue(prod) { if (!window.SupplyPlanningLegacy) return { code:'INVALID_PALLET_CATALOG' }; return window.SupplyPlanningLegacy.getPalletCatalogIssue({ unitsPerPallet:getUnitsPerPallet(prod), executableOrderIncrement:getOrderIncrementInAmazonUnits(prod?.productCode) }); }
     function formatPalletDays(prod) { const planningVelocity = getPlanningVelocityForProduct(prod.productCode); if (!planningVelocity || planningVelocity <= 0) return '—'; const days = getUnitsPerPallet(prod) / planningVelocity; return Number.isFinite(days) ? `${days.toFixed(1)} 天` : '—'; }
     function formatEstimatedDays(prod) { const code = getCanonicalSku(prod.productCode); const sourceRow = mainRowsAll.find(row => getCanonicalSku(row.sku) === code); if (!sourceRow) return '—'; const days = getLeadTimePlan(sourceRow, 365).bookCoverageDays; return Number.isFinite(days) ? `${days.toFixed(1)} 天` : '—'; }
+    function renderGeneratorBookCoverage(prod) { const code = getCanonicalSku(prod.productCode); const sourceRow = mainRowsAll.find(row => getCanonicalSku(row.sku) === code); if (!sourceRow) return renderCoverageMeterHtml(null, 'unavailable'); const plan = getLeadTimePlan(sourceRow, 365); return renderCoverageMeterHtml(plan.bookCoverageDays, plan.canRecommend === false ? 'unavailable' : 'ready'); }
     function getPostArrivalCoverageDays(prod, quantity, units) {
       const code = getCanonicalSku(prod.productCode);
       const planningVelocity = getPlanningVelocityForProduct(code);
@@ -4428,32 +4445,19 @@
       const days = getLeadTimePlan(sourceRow, 365, Math.max(0, newOrderUnits)).continuousPostOrderCoverageDays;
       return Number.isFinite(days) ? days : null;
     }
-    function getGeneratorCoverageBand(days, targetDays = 180) {
-      if (!window.SupplyPlanningLegacy) return 'neutral';
-      return window.SupplyPlanningLegacy.classifyCoverageDays({ coverageDays:days, targetDays:Math.min(365, Math.max(1, Number(targetDays) || 180)), maximumCoverageDays:365 });
-    }
-    function formatPostArrivalDays(prod, quantity, units) {
-      const days = getPostArrivalCoverageDays(prod, quantity, units);
-      return Number.isFinite(days) ? `${days.toFixed(1)} 天` : '—';
-    }
     function renderGeneratorArrivalCoverage(prod, quantity, units) {
       const days = getPostArrivalCoverageDays(prod, quantity, units);
-      const coverage = formatPostArrivalDays(prod, quantity, units);
       const code = getCanonicalSku(prod.productCode);
       const sourceRow = mainRowsAll.find(row => getCanonicalSku(row.sku) === code);
-      if (!sourceRow || !Number.isFinite(days)) return escapeHtml(coverage);
+      if (!sourceRow || !Number.isFinite(days)) return renderCoverageMeterHtml(null, 'unavailable');
       const plan = getLeadTimePlan(sourceRow, 365);
-      if (plan.canRecommend === false) return `${escapeHtml(coverage)}<br><span class="generatorCoverageStatus neutral">資料未完整，不判色</span>`;
-      const target = getReorderTargetDays();
-      const band = getGeneratorCoverageBand(days, target);
-      const label = band === 'excess' ? '超過 365 天' : (band === 'low' ? `低於目標 ${target} 天` : `健康範圍 ${target}–365 天`);
-      return `${escapeHtml(coverage)}<br><span class="generatorCoverageStatus ${band}">${escapeHtml(label)}</span>`;
+      return renderCoverageMeterHtml(days, plan.canRecommend === false ? 'unavailable' : 'ready');
     }
     window.refreshGeneratorSpeedMetrics = function() { document.querySelectorAll('#productTable tbody tr').forEach(row => { const prod = getProductSpecByCode(row.dataset.product); if (!prod) return; row.querySelector('.pallet-days').textContent = formatPalletDays(prod); updateEstimatedDays(row, prod); }); };
     function searchProduct() { const raw = document.getElementById('searchInput').value.trim(); const val = normalizeSkuKey(raw); const nameVal = raw.toLocaleLowerCase('zh-Hant'); const res = document.getElementById('searchResults'); res.innerHTML = ''; if (!val) { res.style.display = 'none'; return; } const matched = getFilteredProducts().filter(p => normalizeSkuKey(p.productCode).includes(val) || String(p.productName || '').toLocaleLowerCase('zh-Hant').includes(nameVal)).slice(0, 40); if (matched.length) { res.style.display = 'block'; matched.forEach(prod => { const item = document.createElement('div'); item.className = 'search-result-item'; item.textContent = `${prod.productCode} - ${prod.productName}`; item.onclick = () => { addProduct(prod); document.getElementById('searchInput').value = ''; res.innerHTML = ''; res.style.display = 'none'; }; res.appendChild(item); }); } else res.style.display = 'none'; }
     window.searchProduct = searchProduct;
     function checkPackageType(prod) { const hasPack = typeof prod.perPack !== 'undefined' && prod.perPack > 0; const hasBox = typeof prod.perBox !== 'undefined' && prod.perBox > 0 && !hasPack; return { hasPack, hasBox }; }
-    function renderEquivalentOrderToggle(code, orderCode = code) { const group = getEquivalentSkuGroup(code); if (!group || group.length < 2) return ''; const currentIndex = group.indexOf(normalizeSkuKey(orderCode)); const nextCode = group[(currentIndex + 1) % group.length] || group[0]; return `<button type="button" class="miniBtn" onclick="toggleEquivalentOrderCode(this)">切換下單：${escapeHtml(nextCode)}</button>`; }
+    function renderEquivalentOrderToggle(code, orderCode = code) { const group = getEquivalentSkuGroup(code); if (!group || group.length < 2) return ''; const currentIndex = group.indexOf(normalizeSkuKey(orderCode)); const nextCode = group[(currentIndex + 1) % group.length] || group[0]; const safeNextCode = escapeHtml(nextCode); return `<button type="button" class="miniBtn" onclick="toggleEquivalentOrderCode(this)" aria-label="切換下單品號為 ${safeNextCode}" title="切換為 ${safeNextCode}" data-next-order-sku="${safeNextCode}"><i class="fa-solid fa-repeat" aria-hidden="true"></i></button>`; }
     function toggleEquivalentOrderCode(btn) { const row = btn.closest('tr'), group = getEquivalentSkuGroup(row?.dataset.product); if (!row || !group) return; saveGeneratorDraft(); const current = normalizeSkuKey(row.dataset.orderCode || group[0]); const nextOrderSku = group[(group.indexOf(current) + 1) % group.length] || group[0]; const result = applyGeneratorDraftCommand({ type:'switch-order-sku', productSku:row.dataset.product, orderSku:nextOrderSku }); if (!result) return; persistGeneratorDraft(); setActiveOrderGroup(result.row.orderGroup); renderActiveOrderGroup(); showTip(`已切換下單品號 ${result.row.orderSku}，並移至${getOrderGroupLabel(result.row.orderGroup)}。`, 'success'); }
     window.toggleEquivalentOrderCode = toggleEquivalentOrderCode;
     function createGeneratorDraftRow(prod, { quantity = null, recommendation = null } = {}) { const { hasPack, hasBox } = checkPackageType(prod); let values = { quantity:0, units:0, cartons:0, pallets:0 }; let authoritativeField = ''; let palletMode = 'derived'; if (recommendation) { const recommendedQuantity = Number(recommendation.quantity); const recommendedPallets = Number(recommendation.pallets); const applyBy = recommendation.applyBy || 'none'; if (applyBy === 'pallets' && recommendedPallets > 0) { values.pallets = recommendedPallets; authoritativeField = 'pallets'; values = recalcValues('pallets', { ...values, perPack:Number(prod.perPack || 0), perBox:Number(prod.perBox || 0), perCarton:Number(prod.perCarton), perPallet:Number(prod.perPallet) }); } else if (applyBy === 'quantity' && recommendedQuantity > 0) { authoritativeField = (hasPack || hasBox) ? 'units' : 'quantity'; values[authoritativeField] = recommendedQuantity; values = recalcValues(authoritativeField, { ...values, perPack:Number(prod.perPack || 0), perBox:Number(prod.perBox || 0), perCarton:Number(prod.perCarton), perPallet:Number(prod.perPallet) }); } palletMode = recommendation.strategy || (authoritativeField === 'pallets' ? 'whole-pallet' : 'unit-guidance'); } else if (quantity !== null && Number.isFinite(quantity)) { values.quantity = Math.max(0, quantity); authoritativeField = 'quantity'; values = recalcValues('quantity', { ...values, perPack:Number(prod.perPack || 0), perBox:Number(prod.perBox || 0), perCarton:Number(prod.perCarton), perPallet:Number(prod.perPallet) }); } const warningCode = recommendation?.warning?.code || recommendation?.warning || ''; return { productSku:normalizeSkuKey(prod.productCode), orderSku:normalizeSkuKey(prod.productCode), quantities:{ packages:authoritativeField ? values.quantity : '', secondary:authoritativeField ? values.units : '', target:'', cartons:authoritativeField ? values.cartons : '', orderDraft:authoritativeField ? getOrderDraftQuantityFromValues(prod, values.quantity, values.units) : '' }, pallet:{ value:authoritativeField ? values.pallets : '', mode:palletMode, authoritativeField, warningCode, strategy:recommendation?.strategy || '', guidance:getPalletRecommendationWarning(warningCode) }, locked:false }; }
@@ -4488,7 +4492,7 @@
       const quantityInputs = `<div class="generatorQuantityGroup${unitInput ? '' : ' single'}"><label class="generatorQuantityField"><span>包</span><input type="number" class="edit-quantity-input" placeholder="包數" oninput="updateFields(this,'${code}')"></label>${unitInput ? `<label class="generatorQuantityField"><span>${unitLabel}</span>${unitInput}</label>` : ''}</div>`;
       const targetPlaceholder = hasPack ? '目標袋數' : (hasBox ? '目標盒數' : '目標包數');
       const orderCode = draftRow.orderSku || code;
-      const rowHTML = `<tr data-product="${escapeHtml(code)}" data-order-code="${escapeHtml(orderCode)}"><td></td><td><span class="order-code-label">${escapeHtml(orderCode)}</span>${renderEquivalentOrderToggle(code, orderCode)}</td><td>${quantityInputs}</td><td data-generator-col="target"><input type="number" class="target-input" placeholder="${targetPlaceholder}" oninput="checkTarget(this)"></td><td data-generator-col="cartons"><input type="number" class="edit-cartons-input" placeholder="箱數" oninput="updateFields(this,'${code}')"></td><td><div class="palletStepControl"><input type="number" class="edit-pallets-input" step="any" min="0" placeholder="棧板數" oninput="updateFields(this,'${code}')" onchange="normalizeGeneratorPallets(this,'${code}')" onkeydown="handleGeneratorPalletKey(event)"><span class="palletStepButtons"><button type="button" class="palletStepButton" onclick="stepGeneratorPallets(this,1)" aria-label="增加 1 棧板">▲</button><button type="button" class="palletStepButton" onclick="stepGeneratorPallets(this,-1)" aria-label="減少 1 棧板">▼</button></span></div><span class="pallet-guidance" hidden></span></td><td class="box-size-cell" data-generator-col="box">${escapeHtml(prod.boxSize || '')} cm</td><td class="pallet-days">${formatPalletDays(prod)}</td><td class="estimated-days" data-generator-col="estimated">${formatEstimatedDays(prod, 0, 0)}</td><td class="arrival-days" data-generator-col="arrival">${renderGeneratorArrivalCoverage(prod, 0, 0)}</td><td class="generatorActions"><button type="button" class="drag-handle" aria-label="按住拖曳排序" title="按住拖曳排序"><i class="fa-solid fa-grip-vertical"></i></button><button type="button" class="lock-button" onclick="toggleLock(this)" aria-label="鎖定這列"><i class="fa-solid fa-lock"></i></button><button type="button" class="remove-button" onclick="removeRow(this)" aria-label="刪除這列"><i class="fa-solid fa-trash"></i></button></td></tr>`;
+      const rowHTML = `<tr data-product="${escapeHtml(code)}" data-order-code="${escapeHtml(orderCode)}"><td></td><td><span class="order-code-label">${escapeHtml(orderCode)}</span>${renderEquivalentOrderToggle(code, orderCode)}</td><td>${quantityInputs}</td><td data-generator-col="target"><input type="number" class="target-input" placeholder="${targetPlaceholder}" oninput="checkTarget(this)"></td><td data-generator-col="cartons"><input type="number" class="edit-cartons-input" placeholder="箱數" oninput="updateFields(this,'${code}')"></td><td><div class="palletStepControl"><input type="number" class="edit-pallets-input" step="any" min="0" aria-label="${escapeHtml(code)} 棧板數" placeholder="棧板數" oninput="updateFields(this,'${code}')" onchange="normalizeGeneratorPallets(this,'${code}')" onkeydown="handleGeneratorPalletKey(event)"><span class="palletStepButtons"><button type="button" class="palletStepButton" onclick="stepGeneratorPallets(this,1)" aria-label="增加 1 棧板" title="增加 1 棧板">▲</button><button type="button" class="palletStepButton" onclick="stepGeneratorPallets(this,-1)" aria-label="減少 1 棧板" title="減少 1 棧板">▼</button></span></div><span class="pallet-guidance" hidden></span></td><td class="box-size-cell" data-generator-col="box">${escapeHtml(prod.boxSize || '')} cm</td><td class="pallet-days">${formatPalletDays(prod)}</td><td class="estimated-days" data-generator-col="estimated">${renderGeneratorBookCoverage(prod)}</td><td class="arrival-days" data-generator-col="arrival">${renderGeneratorArrivalCoverage(prod, 0, 0)}</td><td class="generatorActions"><span class="generatorActionGroup"><button type="button" class="drag-handle" aria-label="按住拖曳排序" title="按住拖曳排序"><i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button><button type="button" class="lock-button" onclick="toggleLock(this)" aria-label="鎖定這列" aria-pressed="false" title="鎖定這列"><i class="fa-solid fa-lock" aria-hidden="true"></i></button><button type="button" class="remove-button" onclick="removeRow(this)" aria-label="刪除這列" title="刪除這列"><i class="fa-solid fa-trash" aria-hidden="true"></i></button></span></td></tr>`;
       tbody.insertAdjacentHTML('beforeend', rowHTML);
       const row = tbody.lastElementChild;
       hydrateGeneratorRow(row, draftRow, prod);
@@ -4525,11 +4529,12 @@
     function getRowExactMetrics(row) { const prod = getProductSpecByCode(row?.dataset.product); if (!prod) return { quantity:0, cartons:0, pallets:0 }; const orderDraftQuantity = getRowOrderDraftQuantity(row, prod); const { hasPack, hasBox } = checkPackageType(prod); const factor = hasPack ? Number(prod.perPack) : (hasBox ? Number(prod.perBox) : 1); const quantity = orderDraftQuantity * (Number.isFinite(factor) && factor > 0 ? factor : 1); const perCarton = Number(prod.perCarton); const cartons = Number.isFinite(perCarton) && perCarton > 0 ? (hasBox ? orderDraftQuantity : quantity) / perCarton : 0; const unitsPerPallet = getUnitsPerPallet(prod); const pallets = unitsPerPallet > 0 ? orderDraftQuantity / unitsPerPallet : 0; return { quantity, cartons, pallets, orderDraftQuantity }; }
     function updateFields(input, productCode, state = {}) { const row = input.closest('tr'), prod = getProductSpecByCode(productCode); if (!prod) return; const catalogIssue = getProductPalletCatalogIssue(prod); const changedField = getChangedField(input); const authoritativeField = state.authoritativeField || changedField; row.dataset.authoritativeField = authoritativeField; row.dataset.palletMode = state.mode || (authoritativeField === 'pallets' ? 'manual' : 'derived'); if (changedField === 'pallets' && catalogIssue) { setGeneratorPalletState(row, { warningCode:catalogIssue.code }); updateTotals(); saveGeneratorDraft(); return; } let { quantity, units, cartons, pallets } = getCurrentValues(row); ({ quantity, units, cartons, pallets } = recalcValues(changedField, { quantity, units, cartons, pallets, perPack:Number(prod.perPack || 0), perBox:Number(prod.perBox || 0), perCarton:Number(prod.perCarton), perPallet:Number(prod.perPallet) })); row.dataset.exactPalletValue = Number.isFinite(pallets) && pallets >= 0 ? String(pallets) : ''; if (changedField !== 'quantity') row.querySelector('.edit-quantity-input').value = formatDraftNumber(quantity); const unitInput = row.querySelector('.edit-pack-input') || row.querySelector('.edit-box-input'); if (unitInput && changedField !== 'units') unitInput.value = formatDraftNumber(units); if (changedField !== 'cartons') row.querySelector('.edit-cartons-input').value = formatDraftNumber(cartons); if (!catalogIssue && changedField !== 'pallets') row.querySelector('.edit-pallets-input').value = formatPalletValue(pallets); const exactOrderDraftQuantity = Number(state.exactOrderDraftQuantity); row.dataset.orderDraftQuantity = String(Number.isFinite(exactOrderDraftQuantity) && exactOrderDraftQuantity >= 0 ? exactOrderDraftQuantity : getOrderDraftQuantityFromValues(prod, quantity, units)); setGeneratorPalletState(row, { warningCode:catalogIssue?.code || '' }); updateEstimatedDays(row, prod); updateTotals(); saveGeneratorDraft(); }
     window.updateFields = updateFields;
-    function updateEstimatedDays(row, prod) { const orderDraftQuantity = getRowOrderDraftQuantity(row, prod); const quantity = checkPackageType(prod).hasPack || checkPackageType(prod).hasBox ? 0 : orderDraftQuantity; const units = quantity > 0 ? 0 : orderDraftQuantity; const estimated = row.querySelector('.estimated-days'); const arrival = row.querySelector('.arrival-days'); if (estimated) estimated.textContent = formatEstimatedDays(prod); if (arrival) arrival.innerHTML = renderGeneratorArrivalCoverage(prod, quantity, units); }
+    function updateEstimatedDays(row, prod) { const orderDraftQuantity = getRowOrderDraftQuantity(row, prod); const quantity = checkPackageType(prod).hasPack || checkPackageType(prod).hasBox ? 0 : orderDraftQuantity; const units = quantity > 0 ? 0 : orderDraftQuantity; const estimated = row.querySelector('.estimated-days'); const arrival = row.querySelector('.arrival-days'); if (estimated) estimated.innerHTML = renderGeneratorBookCoverage(prod); if (arrival) arrival.innerHTML = renderGeneratorArrivalCoverage(prod, quantity, units); }
     function checkTarget(targetInput) { const row = targetInput.closest('tr'); const unitInput = row.querySelector('.edit-pack-input') || row.querySelector('.edit-box-input'); const currentVal = unitInput ? (parseFloat(unitInput.value) || 0) : (parseFloat(row.querySelector('.edit-quantity-input').value) || 0); const tVal = parseFloat(targetInput.value) || 0; if (tVal > 0 && currentVal >= tVal) { targetInput.style.backgroundColor = '#23c87d'; targetInput.style.color = '#fff'; } else if (tVal > 0) { targetInput.style.backgroundColor = '#fa5353'; targetInput.style.color = '#fff'; } else { targetInput.style.backgroundColor = ''; targetInput.style.color = ''; } saveGeneratorDraft(); }
     window.checkTarget = checkTarget;
     function setGeneratorPalletState(row, { warningCode = '', strategy = '', message = '' } = {}) { if (!row) return; const code = warningCode?.code || warningCode || ''; row.dataset.palletWarningCode = code; row.dataset.palletStrategy = strategy || ''; const invalid = code === 'INVALID_PALLET_CATALOG'; const locked = row.classList.contains('locked'); const palletInput = row.querySelector('.edit-pallets-input'); if (palletInput) { if (invalid) palletInput.value = ''; palletInput.disabled = locked || invalid; } row.querySelectorAll('.palletStepButton').forEach(control => { control.disabled = locked || invalid; }); const guidance = row.querySelector('.pallet-guidance'); const guidanceText = message || getPalletRecommendationWarning(code) || (strategy === 'fractional-exception' ? '整板會超過 365 天；已依最小箱數預填零散棧板。' : ''); if (guidance) { guidance.textContent = guidanceText; guidance.hidden = !guidanceText; } }
-    function toggleLock(btn) { const row = btn.closest('tr'); const isLocked = row.classList.contains('locked'); row.classList.toggle('locked', !isLocked); row.querySelectorAll('input').forEach(control => { control.disabled = !isLocked; }); setGeneratorPalletState(row, { warningCode:row.dataset.palletWarningCode || '', strategy:row.dataset.palletStrategy || '', message:row.querySelector('.pallet-guidance')?.textContent || '' }); btn.innerHTML = isLocked ? '<i class="fa-solid fa-lock"></i>' : '<i class="fa-solid fa-lock-open"></i>'; saveGeneratorDraft(); }
+    function syncGeneratorLockButton(row) { const button = row?.querySelector('.lock-button'); if (!button) return; const locked = row.classList.contains('locked'); const label = locked ? '解除鎖定這列' : '鎖定這列'; button.innerHTML = locked ? '<i class="fa-solid fa-lock-open" aria-hidden="true"></i>' : '<i class="fa-solid fa-lock" aria-hidden="true"></i>'; button.setAttribute('aria-label', label); button.setAttribute('title', label); button.setAttribute('aria-pressed', String(locked)); }
+    function toggleLock(btn) { const row = btn.closest('tr'); const isLocked = row.classList.contains('locked'); row.classList.toggle('locked', !isLocked); row.querySelectorAll('input').forEach(control => { control.disabled = !isLocked; }); setGeneratorPalletState(row, { warningCode:row.dataset.palletWarningCode || '', strategy:row.dataset.palletStrategy || '', message:row.querySelector('.pallet-guidance')?.textContent || '' }); syncGeneratorLockButton(row); saveGeneratorDraft(); }
     function removeRow(btn) { const row = btn.closest('tr'); if (!row) return; const result = applyGeneratorDraftCommand({ type:'remove-row', productSku:row.dataset.product }); if (!result) return; persistGeneratorDraft(); renderActiveOrderGroup(); }
     window.toggleLock = toggleLock; window.removeRow = removeRow;
     function updateRowNumbers() { document.querySelectorAll('#productTable tbody tr').forEach((r, i) => { r.cells[0].textContent = i + 1; }); }

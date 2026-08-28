@@ -37,27 +37,30 @@ function createElement(id = '') {
     attributes:{},
     hidden:false,
     tabIndex:-1,
-    addEventListener() {},
+    listeners:{},
+    scrollCalls:[],
+    addEventListener(name, listener) { this.listeners[name] = listener; },
     focus() {},
-    scrollIntoView() {},
+    scrollIntoView(options) { this.scrollCalls.push(options); },
     setAttribute(name, value) { this.attributes[name] = String(value); },
   };
 }
 
-function createWorkspaceUiHarness(initialSummary) {
+function createWorkspaceUiHarness(initialSummary, { href = 'https://supply.test/#today' } = {}) {
   let summaryInput = initialSummary;
   const ids = [
     'workspaceNavMount', 'todayWorkspaceMount', 'todaySourceReadiness', 'todaySourceReadinessHint',
     'todayPriorityCount', 'todayVelocityRiskCount', 'todayOrderGroupTotal', 'todayOrderGroupCounts',
     'todaySummaryState', 'todayHighestRisk', 'todayNextActionReason', 'todayNextAction',
+    'decisionDashboard',
   ];
   const elements = new Map(ids.map(id => [id, createElement(id)]));
-  const navTabs = ['today', 'data', 'recommendations', 'orders', 'analysis'].map(workspace => {
+  const navTabs = ['data', 'recommendations', 'orders', 'analysis'].map(workspace => {
     const element = createElement();
     element.dataset.workspace = workspace;
     return element;
   });
-  const panels = ['today', 'data', 'recommendations', 'orders', 'analysis'].map(workspace => {
+  const panels = ['data', 'recommendations', 'recommendations', 'orders', 'analysis'].map(workspace => {
     const element = createElement();
     element.dataset.workspacePanel = workspace;
     return element;
@@ -79,11 +82,12 @@ function createWorkspaceUiHarness(initialSummary) {
       return null;
     },
   };
+  const initialUrl = new URL(href);
   const location = {
-    href:'https://supply.test/#today',
-    pathname:'/',
-    search:'',
-    hash:'#today',
+    href:initialUrl.href,
+    pathname:initialUrl.pathname,
+    search:initialUrl.search,
+    hash:initialUrl.hash,
   };
   const updateLocation = nextUrl => {
     const parsed = new URL(nextUrl, location.href);
@@ -109,6 +113,7 @@ function createWorkspaceUiHarness(initialSummary) {
   return {
     controller,
     elements,
+    location,
     setSummaryInput(value) { summaryInput = value; },
   };
 }
@@ -140,12 +145,28 @@ test('browser consumers receive the frozen shared workspace UI factory', async (
   }
 });
 
+test('shared UI canonicalizes the old Today hash and preference and defaults invalid activation to Data', () => {
+  const legacyHash = createWorkspaceUiHarness({});
+  assert.equal(legacyHash.controller.start(), 'recommendations');
+  assert.equal(legacyHash.controller.getActiveWorkspace(), 'recommendations');
+  assert.equal(legacyHash.location.hash, '#recommendations');
+
+  const legacyPreference = createWorkspaceUiHarness({}, { href:'https://supply.test/' });
+  assert.equal(legacyPreference.controller.start({ preference:'today' }), 'recommendations');
+  assert.equal(legacyPreference.controller.getActiveWorkspace(), 'recommendations');
+  assert.equal(legacyPreference.location.hash, '#recommendations');
+  assert.equal(legacyPreference.controller.activate('unknown'), 'data');
+  assert.equal(legacyPreference.controller.getActiveWorkspace(), 'data');
+  assert.equal(legacyPreference.location.hash, '#data');
+});
+
 test('shared Today renders one next action and honest empty, loading, warning, and invalid states', () => {
   assert.equal((workspaceUiSource.match(/id="todayNextAction"/g) || []).length, 1);
   const harness = createWorkspaceUiHarness({
     sourceReadiness:{ h10:false, jam:false, jsp:false },
   });
   harness.controller.start();
+  assert.equal(harness.controller.getActiveWorkspace(), 'recommendations');
   assert.equal(harness.elements.get('todaySummaryState').textContent, '等待資料');
   assert.equal(harness.elements.get('todaySourceReadinessHint').textContent, '等待 H10、JAM、JSP');
   assert.equal(harness.elements.get('todayNextAction').textContent, '開始準備資料');
@@ -176,6 +197,9 @@ test('shared Today renders one next action and honest empty, loading, warning, a
   assert.equal(harness.elements.get('todayHighestRisk').dataset.state, 'risk');
   assert.match(harness.elements.get('todayHighestRisk').textContent, /速度證據可能衝突或被低估/);
   assert.equal(harness.elements.get('todayNextAction').textContent, '查看 GTP03 的 Velocity Risk');
+  assert.equal(harness.elements.get('todayNextAction').dataset.targetId, 'decisionDashboard');
+  harness.elements.get('todayNextAction').listeners.click({ currentTarget:harness.elements.get('todayNextAction') });
+  assert.deepEqual(harness.elements.get('decisionDashboard').scrollCalls, [{ behavior:'smooth', block:'start' }]);
 
   harness.setSummaryInput({ sourceReadiness:'invalid' });
   harness.controller.renderToday();

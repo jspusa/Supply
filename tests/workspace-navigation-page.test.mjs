@@ -56,17 +56,13 @@ function panelForId(html, id) {
   return match[1];
 }
 
-test('shared workspace UI is the only source of top navigation and Today markup', () => {
-  const tabs = Array.from(workspaceUiSource.matchAll(/Object\.freeze\(\{ id:'([^']+)', label:'([^']+)' \}\)/g), match => [match[1], match[2]]);
-  assert.deepEqual(tabs, [
-    ['today', 'Today'],
-    ['data', 'Data'],
-    ['recommendations', 'Recommendations'],
-    ['orders', 'Orders'],
-    ['analysis', 'Analysis'],
-  ]);
+test('shared workspace UI is the only source of four-workspace navigation and merged Today markup', () => {
+  assert.match(workspaceUiSource, /const WORKSPACE_LABELS = Object\.freeze\(\{[\s\S]*?data:'資料',[\s\S]*?recommendations:'今日建議',[\s\S]*?orders:'訂單',[\s\S]*?analysis:'資料分析',[\s\S]*?\}\);/);
+  assert.match(workspaceUiSource, /WORKSPACE_IDS\.map\(id => Object\.freeze\(\{ id, label:WORKSPACE_LABELS\[id\] \}\)\)/);
   assert.match(workspaceUiSource, /function navigationMarkup\(\)/);
   assert.match(workspaceUiSource, /function todayMarkup\(\)/);
+  assert.match(workspaceUiSource, /id="todayWorkspaceSummary" data-workspace-panel="recommendations"/);
+  assert.doesNotMatch(workspaceUiSource, /data-workspace-panel="today"/);
   assert.equal((workspaceUiSource.match(/class="todayNextAction"/g) || []).length, 1);
   for (const id of ['todaySourceReadiness', 'todayPriorityCount', 'todayVelocityRiskCount', 'todayOrderGroupTotal', 'todayOrderGroupCounts', 'todayHighestRisk', 'todayNextActionReason']) {
     assert.match(workspaceUiSource, new RegExp(`id="${id}"`));
@@ -124,7 +120,7 @@ for (const { entrypoint, html } of pages) {
     assert.match(start, /getSummaryInput:getTodayWorkspaceInput/);
     assert.match(start, /onWorkspaceChanged/);
     assert.match(capture, /workspaceUiController\?\.getActiveWorkspace\(\)/);
-    assert.match(apply, /restoredWorkspacePreference = ids\.includes\(preferences\.activeWorkspace\)/);
+    assert.match(apply, /canonicalWorkspaceId\?\.\(preferences\.activeWorkspace\)/);
     assert.match(html, /startWorkspaceUi\(restoredWorkspacePreference\)/);
   });
 
@@ -142,6 +138,7 @@ for (const { entrypoint, html } of pages) {
 }
 
 test('shared controller owns activation, URL history, keyboard focus, reduced motion, and Today projection', () => {
+  assert.match(workspaceUiSource, /canonicalWorkspaceId\(workspace\) \|\| 'data'/);
   assert.match(workspaceUiSource, /projectTodaySummary\(getSummaryInput\(\) \|\| \{\}\)/);
   assert.match(workspaceUiSource, /querySelectorAll\('\[data-workspace-panel\]'\)/);
   assert.match(workspaceUiSource, /panel\.hidden = panel\.dataset\.workspacePanel !== workspace/);
