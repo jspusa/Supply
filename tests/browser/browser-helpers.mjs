@@ -449,14 +449,14 @@ async function expectCoverageMeter(cell, {
     return { backgroundColor:style.backgroundColor, backgroundImage:style.backgroundImage };
   });
   const expectedAccent = {
-    yellow:'rgba(255, 159, 10, 0.72)',
-    green:'rgba(48, 209, 88, 0.72)',
-    red:'rgba(255, 69, 58, 0.72)',
+    yellow:'rgba(255, 204, 0, 0.88)',
+    green:'rgba(0, 190, 75, 0.88)',
+    red:'rgba(255, 45, 45, 0.88)',
   }[fillColor];
   expect(expectedAccent).toBeTruthy();
   expect(fillStyle.backgroundColor).toBe('rgba(0, 0, 0, 0)');
   expect(fillStyle.backgroundImage).toContain(expectedAccent);
-  expect(fillStyle.backgroundImage).toContain('0.58');
+  expect(fillStyle.backgroundImage).toContain('0.74');
   expect(fillStyle.backgroundImage).not.toContain('repeating');
 }
 

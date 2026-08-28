@@ -10,6 +10,7 @@
     "catalog:build": "node scripts/compile-product-catalog.mjs",
     "catalog:check": "node scripts/compile-product-catalog.mjs --check",
     "catalog:import": "node scripts/compile-product-master-workbook.mjs",
+    "catalog:release": "node scripts/release-product-catalog.mjs",
     "check": "npm ci --ignore-scripts --no-audit --no-fund && npm run verify",
     "test": "node --test tests/*.test.mjs",
     "test:browser": "playwright test --config tests/browser/playwright.config.mjs",

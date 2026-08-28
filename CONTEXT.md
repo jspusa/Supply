@@ -79,3 +79,7 @@ _Avoid_: Browser product database, ProductMasterTable, cross-site fetch
 **Temporary Product Override**:
 A same-origin browser copy of raw public packaging facts used only to test an unpublished product-data change. It never becomes the maintained source and expires when the Built-in Product Catalog version changes.
 _Avoid_: Shared Product Catalog, daily product upload, master data
+
+**Product Catalog Release**:
+One versioned operation that plans public old-to-new product changes, generates the Supply and FBA Built-in Product Catalog artifacts, verifies both repositories, and—when publishing is explicitly requested—coordinates both deployments and live checks. The two sites remain independently embedded at runtime.
+_Avoid_: Two manual catalog updates, runtime cross-site synchronization, workbook upload

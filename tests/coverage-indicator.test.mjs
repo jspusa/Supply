@@ -46,10 +46,16 @@ test('yellow, green, and red bands share one Apple-style translucent finish with
   const sharedFill = coverageCss.match(/\.coverageMeter--low \.coverageMeter__fill,\s*\.coverageMeter--healthy \.coverageMeter__fill,\s*\.coverageMeter--excess \.coverageMeter__fill \{([^}]*)\}/s);
   assert.ok(sharedFill, 'all three colored bands should use one shared fill rule');
   assert.match(sharedFill[1], /linear-gradient\(\s*180deg,/s);
-  assert.match(sharedFill[1], /rgba\(var\(--coverage-accent-rgb\), 0\.72\)/);
-  assert.match(sharedFill[1], /rgba\(var\(--coverage-accent-rgb\), 0\.58\)/);
+  assert.match(sharedFill[1], /rgba\(var\(--coverage-accent-rgb\), 0\.88\)/);
+  assert.match(sharedFill[1], /rgba\(var\(--coverage-accent-rgb\), 0\.74\)/);
   assert.match(sharedFill[1], /box-shadow:/);
   assert.doesNotMatch(coverageCss, /repeating-linear-gradient|repeating-radial-gradient/);
+});
+
+test('coverage bands use unmistakable yellow, green, and red accents', () => {
+  assert.match(coverageCss, /\.coverageMeter--low \{[^}]*--coverage-accent-rgb: 255, 204, 0;/s);
+  assert.match(coverageCss, /\.coverageMeter--healthy \{[^}]*--coverage-accent-rgb: 0, 190, 75;/s);
+  assert.match(coverageCss, /\.coverageMeter--excess \{[^}]*--coverage-accent-rgb: 255, 45, 45;/s);
 });
 
 test('coverage meter uses a compact glass surface with restrained highlights and accessible fallbacks', () => {

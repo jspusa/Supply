@@ -127,18 +127,18 @@
 }
 
 .coverageMeter--low {
-  --coverage-accent-rgb: 255, 159, 10;
-  --coverage-status-color: #8a4b00;
+  --coverage-accent-rgb: 255, 204, 0;
+  --coverage-status-color: #745300;
 }
 
 .coverageMeter--healthy {
-  --coverage-accent-rgb: 48, 209, 88;
-  --coverage-status-color: #166534;
+  --coverage-accent-rgb: 0, 190, 75;
+  --coverage-status-color: #087333;
 }
 
 .coverageMeter--excess {
-  --coverage-accent-rgb: 255, 69, 58;
-  --coverage-status-color: #9f2019;
+  --coverage-accent-rgb: 255, 45, 45;
+  --coverage-status-color: #a41118;
 }
 
 .coverageMeter--low .coverageMeter__fill,
@@ -146,14 +146,14 @@
 .coverageMeter--excess .coverageMeter__fill {
   background: linear-gradient(
     180deg,
-    rgba(var(--coverage-accent-rgb), 0.72) 0%,
-    rgba(var(--coverage-accent-rgb), 0.58) 52%,
-    rgba(var(--coverage-accent-rgb), 0.7) 100%
+    rgba(var(--coverage-accent-rgb), 0.88) 0%,
+    rgba(var(--coverage-accent-rgb), 0.74) 52%,
+    rgba(var(--coverage-accent-rgb), 0.86) 100%
   );
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.58),
     inset 0 -1px 0 rgba(15, 23, 42, 0.08),
-    0 1px 5px rgba(var(--coverage-accent-rgb), 0.2);
+    0 1px 5px rgba(var(--coverage-accent-rgb), 0.28);
 }
 
 .coverageMeter--low .coverageMeter__status,
