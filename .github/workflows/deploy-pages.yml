@@ -55,7 +55,7 @@ jobs:
         run: npm run verify
 
       - name: Verify raw Excel and existing-work seams across Supply and FBA
-        run: node scripts/verify-catalog-seams.mjs --fba-repo .catalog-peer/FBA --require-pinned-peer
+        run: node scripts/verify-catalog-seams.mjs --fba-repo .catalog-peer/FBA --require-pinned-peer --reuse-verified-dist
 
       - name: Upload verified Pages artifact
         if: github.ref == 'refs/heads/main'

@@ -80,6 +80,7 @@ export function verifyCatalogSeams({
   includeBrowser = true,
   includeFullSuites = false,
   requirePinnedPeer = false,
+  reuseVerifiedDist = false,
 } = {}) {
   const resolvedFbaRepo = path.resolve(fbaRepo || path.join(supplyRepo, '..', 'FBA'));
   requireFile(path.join(supplyRepo, 'package.json'), 'Supply repository');
@@ -131,9 +132,11 @@ export function verifyCatalogSeams({
   if (includeBrowser) {
     stages.push(
       {
-        name:'Build exact Supply artifact for Catalog Alignment browser acceptance',
+        name:reuseVerifiedDist
+          ? 'Reuse exact verified Supply artifact for Catalog Alignment browser acceptance'
+          : 'Build exact Supply artifact for Catalog Alignment browser acceptance',
         command:'npm',
-        args:['run', 'build'],
+        args:['run', reuseVerifiedDist ? 'verify:dist' : 'build'],
         cwd:supplyRepo,
       },
       {
@@ -182,6 +185,7 @@ function main() {
     includeBrowser:!argv.includes('--skip-browser'),
     includeFullSuites:argv.includes('--full'),
     requirePinnedPeer:argv.includes('--require-pinned-peer'),
+    reuseVerifiedDist:argv.includes('--reuse-verified-dist'),
   });
 }
 
