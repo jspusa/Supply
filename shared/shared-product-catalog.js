@@ -6,7 +6,8 @@
   if (Array.isArray(root.allProductsData)) {
     root.SUPPLY_BUILTIN_PRODUCT_DATA = root.allProductsData.map(product => ({ ...product }));
     const payload = api.loadFromStorage(root.localStorage);
-    if (payload) {
+    const builtInVersion = root.SUPPLY_PRODUCT_CATALOG_META?.catalogVersion || null;
+    if (payload && api.isCompatibleWithBuiltIn(payload, builtInVersion)) {
       const result = api.applyToSupplyProducts(root.allProductsData, payload);
       root.SUPPLY_SHARED_PRODUCT_CATALOG_META = Object.freeze({
         sourceFile:payload.sourceFile,
@@ -15,13 +16,16 @@
         added:result.added,
         updated:result.updated,
       });
+    } else if (payload) {
+      api.removeFromStorage(root.localStorage);
     }
   }
 })(typeof globalThis === 'object' ? globalThis : this, function sharedProductCatalogFactory() {
   'use strict';
 
-  const STORAGE_KEY = 'jspusa:shared-product-catalog:v1';
-  const SCHEMA_VERSION = 1;
+  const STORAGE_KEY = 'jspusa:shared-product-catalog:v2';
+  const LEGACY_STORAGE_KEY = 'jspusa:shared-product-catalog:v1';
+  const SCHEMA_VERSION = 2;
   const WANTED_SHEETS = new Set(['AMZ所有SKU', '2026', '罐頭']);
   const ORIGINS = new Map([
     ['台灣', 'TW'], ['TW', 'TW'],
@@ -166,6 +170,7 @@
 
     return validatePayload({
       schemaVersion:SCHEMA_VERSION,
+      baseCatalogVersion:text(options.baseCatalogVersion),
       sourceFile:text(options.sourceFile || '產品資訊 Excel').slice(0, 200),
       updatedAt:options.updatedAt || new Date().toISOString(),
       matchedSheets:matchedSheets.map(text),
@@ -207,6 +212,7 @@
     });
     return {
       schemaVersion:SCHEMA_VERSION,
+      baseCatalogVersion:text(payload.baseCatalogVersion).slice(0, 40),
       sourceFile:text(payload.sourceFile || '產品資訊 Excel').slice(0, 200),
       updatedAt:Number.isNaN(Date.parse(payload.updatedAt)) ? new Date().toISOString() : new Date(payload.updatedAt).toISOString(),
       matchedSheets:Array.isArray(payload.matchedSheets) ? payload.matchedSheets.map(name => text(name).slice(0, 100)) : [],
@@ -221,6 +227,7 @@
   function saveToStorage(payload, storage) {
     const validated = validatePayload(payload);
     if (!storage?.setItem) throw new Error('這個瀏覽器無法保存共用產品資料');
+    storage.removeItem?.(LEGACY_STORAGE_KEY);
     storage.setItem(STORAGE_KEY, JSON.stringify(validated));
     return validated;
   }
@@ -237,6 +244,11 @@
 
   function removeFromStorage(storage) {
     storage?.removeItem?.(STORAGE_KEY);
+    storage?.removeItem?.(LEGACY_STORAGE_KEY);
+  }
+
+  function isCompatibleWithBuiltIn(payload, builtInVersion) {
+    return Boolean(payload && builtInVersion && payload.baseCatalogVersion === builtInVersion);
   }
 
   function applyToFbaCatalog(baseCatalog, payload) {
@@ -323,6 +335,7 @@
     saveToStorage,
     loadFromStorage,
     removeFromStorage,
+    isCompatibleWithBuiltIn,
     applyToFbaCatalog,
     applyToSupplyProducts,
   };

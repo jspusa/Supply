@@ -429,7 +429,7 @@
     .downloadLinks { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:12px; }
     .downloadLinkChip { display:inline-flex; align-items:center; gap:5px; padding:7px 10px; border:1px solid #dbeafe; border-radius:999px; background:#eff6ff; color:#1d4ed8; font-size:12px; font-weight:800; text-decoration:none; }
     .downloadLinkChip:hover { border-color:#60a5fa; background:#dbeafe; }
-    .uploadStatusRow { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin-top:11px; }
+    .uploadStatusRow { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-top:11px; }
     .uploadStatus { display:flex; align-items:center; gap:7px; min-height:38px; padding:8px 10px; border-radius:12px; background:#f1f5f9; color:#64748b; font-size:11px; font-weight:800; }
     .uploadStatus::before { content:""; width:8px; height:8px; border-radius:50%; background:#f59e0b; flex:0 0 auto; }
     .uploadStatus.ready { background:#ecfdf5; color:#166534; }
@@ -567,7 +567,6 @@
       .heroActions button { flex: 1; }
       .controlDock { position: static; border-radius: 22px; }
       .controlGroup, .togglePill { width: 100%; justify-content: space-between; }
-      .uploadStatusRow { grid-template-columns:repeat(2,minmax(0,1fr)); }
       .subGrid { grid-template-columns: 1fr; }
       .card summary { flex-direction: column; align-items: flex-start; gap: 12px; }
       .summary-actions { width: 100%; }
@@ -893,24 +892,22 @@
 
           <div class="uploadWorkspace">
             <section class="uploadPrimaryPanel">
-              <div class="uploadPanelTitle"><h3><i class="fa-solid fa-cloud-arrow-up"></i> 四個原始檔一起丟這裡</h3><span class="pill">自動分類</span></div>
+              <div class="uploadPanelTitle"><h3><i class="fa-solid fa-cloud-arrow-up"></i> 三個檔案一起丟這裡</h3><span class="pill">自動分類</span></div>
               <div class="downloadLinks" aria-label="下載來源">
                 <a class="downloadLinkChip" href="https://24466647-my.sharepoint.com/:x:/g/personal/hongren_petlifeco_com/ER_jNs_oIg9JlOmxXlpGb6sBG3yRl9Zd7gzqAfH_q3WL1A?CID=bbf41374-a2d3-7260-37b3-d7bdd684d58e&amp;e=ocBSqj" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-file-excel"></i> 1. JAM 訂單</a>
                 <a class="downloadLinkChip" href="https://members.helium10.com/inventory-management/restock-suggestions-new/index?accountId=1547156136" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-chart-line"></i> 2. H10</a>
                 <a class="downloadLinkChip" href="https://24466647.sharepoint.com/:x:/r/sites/Cloud/Shared%2520Documents/%E7%8F%8D%E9%A3%9F%E5%A0%A1%2520-%2520%E5%85%B1%E7%94%A8/JSP%2520Amrica/Inventory%2520update%2520with%2520expiration%2520date%2520-%2520temporary%2520file.xlsx?d=wdb6b7635090543b0b4433ce8572b2c4a&amp;e=4%3ab1c52cfb6a554376882e5c1e30fa2339&amp;sharingv2=true&amp;fromShare=true&amp;at=9" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-warehouse"></i> 3. JSP 庫存</a>
-                <a class="downloadLinkChip" href="https://24466647-my.sharepoint.com/:x:/r/personal/hongren_petlifeco_com/_layouts/15/Doc.aspx?sourcedoc=%7BE5CC3B4A-0A68-44FC-B4BA-8A535837639D%7D&amp;file=20260324%25u7f8e%25u570b%25u7522%25u54c1%25u8cc7%25u8a0a%20JAM%20chuy%25u1ec3n%20%25u0111%25u00e0i%20loan.xlsx&amp;fromShare=true&amp;action=default&amp;mobileredirect=true" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-boxes-stacked"></i> 4. 產品資訊</a>
               </div>
               <label class="fileDropZone masterUploadZone">
                 <input type="file" id="masterFileInput" multiple accept=".xlsx,.xls,.csv,.txt" />
                 <i class="fa-solid fa-cloud-arrow-up dropIcon"></i>
-                <span>點擊選檔，或一次拖入 JAM／H10／JSP／產品資訊</span>
+                <span>點擊選檔，或一次拖入 JAM／H10／JSP</span>
                 <span class="dropSub">不用照順序，系統會自動辨識</span>
               </label>
               <div class="uploadStatusRow">
                 <div class="uploadStatus" id="uploadStatusJam">JAM 等待檔案</div>
                 <div class="uploadStatus" id="uploadStatusH10">H10 等待檔案</div>
                 <div class="uploadStatus" id="uploadStatusJsp">JSP 等待檔案</div>
-                <div class="uploadStatus" id="uploadStatusCatalog">產品資料使用內建版</div>
               </div>
               <div class="jamMetaBox" id="masterMetaBox" style="margin-top:10px;">尚未使用總檔案上傳。</div>
               <div class="jamMetaBox workspaceSnapshotState" id="workspaceSnapshotState" role="status" aria-live="polite">公開版原始資料只會保存在這個瀏覽器。</div>
@@ -964,11 +961,11 @@
                 </div>
               </div>
               <div class="subCard">
-                <div class="subCardHeader">Supply／FBA 共用產品資訊</div>
+                <div class="subCardHeader">備用：臨時測試產品資訊</div>
                 <div class="subCardContent">
-                  <label class="fileDropZone"><input type="file" id="productCatalogInput" accept=".xlsx,.xlsm,.xls" /><i class="fa-solid fa-boxes-stacked dropIcon"></i><span>直接上傳原始產品資訊 Excel</span></label>
-                  <div class="row" style="justify-content:flex-end;"><button type="button" class="secondary" id="btnResetProductCatalog">恢復內建備援</button></div>
-                  <div class="jamMetaBox" id="productCatalogMetaBox">尚未上傳原始檔，目前使用內建產品資料。</div>
+                  <label class="fileDropZone"><input type="file" id="productCatalogInput" accept=".xlsx,.xlsm,.xls" /><i class="fa-solid fa-boxes-stacked dropIcon"></i><span>平常不用上傳；僅供發布前臨時測試</span></label>
+                  <div class="row" style="justify-content:flex-end;"><button type="button" class="secondary" id="btnResetProductCatalog">清除臨時測試，恢復內建</button></div>
+                  <div class="jamMetaBox" id="productCatalogMetaBox">目前直接使用程式內建產品資料。</div>
                 </div>
               </div>
             </div>
@@ -1491,13 +1488,13 @@
         else {
           const updated = new Date(payload.updatedAt).toLocaleString('zh-TW', { hour12:false });
           const extra = result ? `；Supply 更新 ${result.updated}、新增 ${result.added}` : '';
-          meta.textContent = `已共用：${payload.sourceFile} · ${payload.records.length} 個 SKU · ${updated}${extra}`;
+          meta.textContent = `臨時測試：${payload.sourceFile} · ${payload.records.length} 個 SKU · ${updated}${extra}`;
         }
       }
       const status = document.getElementById('uploadStatusCatalog');
       if (status) {
         status.classList.add('ready');
-        status.textContent = payload ? '產品資料 已共用原始檔' : '產品資料 內建備援';
+        status.textContent = payload ? '產品資料 臨時測試中' : '產品資料 內建版本';
       }
     }
 
@@ -1505,7 +1502,10 @@
       if (!file) throw new Error('請先選擇產品資訊 Excel');
       if (!sharedCatalogApi || typeof XLSX === 'undefined') throw new Error('產品資料讀取元件尚未準備完成，請重新整理');
       const workbook = existingWorkbook || XLSX.read(await file.arrayBuffer(), { type:'array', cellDates:false });
-      let payload = sharedCatalogApi.createPayload(workbook, XLSX, { sourceFile:file.name });
+      let payload = sharedCatalogApi.createPayload(workbook, XLSX, {
+        sourceFile:file.name,
+        baseCatalogVersion:window.SUPPLY_PRODUCT_CATALOG_META?.catalogVersion || '',
+      });
       payload = sharedCatalogApi.saveToStorage(payload, localStorage);
       allProducts.splice(0, allProducts.length, ...builtInProducts.map(product => ({ ...product })));
       const result = sharedCatalogApi.applyToSupplyProducts(allProducts, payload);
@@ -1520,7 +1520,7 @@
       renderSharedProductCatalogMeta(payload, result);
       if (!workspaceBatching) buildTables();
       updateWorkflowUi();
-      showTip(`產品資料已保存並與 FBA 共用（${payload.records.length} 個 SKU）`, 'success');
+      showTip(`已臨時套用產品資料（${payload.records.length} 個 SKU）；平常仍以內建版本為準`, 'success');
       return { payload, result };
     }
 
@@ -1534,7 +1534,7 @@
       renderSharedProductCatalogMeta(null);
       buildTables();
       updateWorkflowUi();
-      showTip('已恢復內建產品資料；FBA 也會使用內建備援', 'success');
+      showTip('已清除臨時測試並恢復程式內建產品資料', 'success');
     }
     const h10El = document.getElementById('inputH10');
     const ordersEl = document.getElementById('inputOrders');
@@ -2822,7 +2822,7 @@
             const imported = await parseSharedProductCatalogFile(file, workbook);
             recognizedTypes.add('catalog');
             catalogFiles.push(file);
-            results.push(`${file.name} → Supply／FBA 共用產品資料（${imported.payload.records.length} 個 SKU）`);
+            results.push(`${file.name} → 臨時產品測試資料（${imported.payload.records.length} 個 SKU）`);
             continue;
           }
 

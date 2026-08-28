@@ -1,7 +1,7 @@
 // Generated from catalog/product-catalog.json. Do not edit by hand.
 window.SUPPLY_PRODUCT_CATALOG_META = Object.freeze({
   "schemaVersion": 2,
-  "catalogVersion": "2026-08-28.3"
+  "catalogVersion": "2026-08-28.4"
 });
 window.SUPPLY_EQUIVALENT_SKU_PAIRS = Object.freeze([
   [
@@ -2816,7 +2816,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1VFAD053A0",
-    "productName": "",
+    "productName": "1VFAD053A0",
     "boxSize": "50*40*30",
     "perCarton": 110,
     "perPack": null,
@@ -2826,7 +2826,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1VFBD053A0",
-    "productName": "",
+    "productName": "1VFBD053A0",
     "boxSize": "50*40*30",
     "perCarton": 80,
     "perPack": null,
@@ -2836,7 +2836,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1VFBD015A0",
-    "productName": "",
+    "productName": "1VFBD015A0",
     "boxSize": "50*40*30",
     "perCarton": 70,
     "perPack": null,
@@ -2846,7 +2846,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1VFCD017A0",
-    "productName": "",
+    "productName": "1VFCD017A0",
     "boxSize": "50*40*30",
     "perCarton": 36,
     "perPack": null,
@@ -2856,7 +2856,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1VFRD055A0",
-    "productName": "",
+    "productName": "1VFRD055A0",
     "boxSize": "50*40*30",
     "perCarton": 60,
     "perPack": null,
@@ -2866,7 +2866,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1VFRD015A0",
-    "productName": "",
+    "productName": "1VFRD015A0",
     "boxSize": "50*40*30",
     "perCarton": 50,
     "perPack": null,
@@ -2876,7 +2876,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1VFSD013A0",
-    "productName": "",
+    "productName": "1VFSD013A0",
     "boxSize": "50*40*30",
     "perCarton": 70,
     "perPack": null,
@@ -2886,7 +2886,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GFTD033A0",
-    "productName": "",
+    "productName": "1GFTD033A0",
     "boxSize": "50*40*30",
     "perCarton": 70,
     "perPack": null,
@@ -2896,7 +2896,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GFTD035A0",
-    "productName": "",
+    "productName": "1GFTD035A0",
     "boxSize": "50*40*30",
     "perCarton": 28,
     "perPack": null,
@@ -2906,7 +2906,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GFTD043A0",
-    "productName": "",
+    "productName": "1GFTD043A0",
     "boxSize": "50*40*30",
     "perCarton": 70,
     "perPack": null,
@@ -2916,7 +2916,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GFTD045A0",
-    "productName": "",
+    "productName": "1GFTD045A0",
     "boxSize": "50*40*30",
     "perCarton": 28,
     "perPack": null,
@@ -2926,7 +2926,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GFTD061A0",
-    "productName": "",
+    "productName": "1GFTD061A0",
     "boxSize": "50*40*30",
     "perCarton": 60,
     "perPack": null,
@@ -2936,7 +2936,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GSDD023A0",
-    "productName": "",
+    "productName": "1GSDD023A0",
     "boxSize": "50*40*30",
     "perCarton": 80,
     "perPack": null,
@@ -2946,7 +2946,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GSDD033A0",
-    "productName": "",
+    "productName": "1GSDD033A0",
     "boxSize": "50*40*30",
     "perCarton": 90,
     "perPack": null,
@@ -2956,7 +2956,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1VDFD011A0",
-    "productName": "",
+    "productName": "1VDFD011A0",
     "boxSize": "50*40*30",
     "perCarton": 70,
     "perPack": null,
@@ -2966,7 +2966,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GBRD027A0",
-    "productName": "",
+    "productName": "1GBRD027A0",
     "boxSize": "50*40*30",
     "perCarton": 12,
     "perPack": null,
@@ -2976,7 +2976,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1ABRD016A0",
-    "productName": "",
+    "productName": "1ABRD016A0",
     "boxSize": "50*40*30",
     "perCarton": 14,
     "perPack": null,
@@ -2986,7 +2986,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1VFRD058A0",
-    "productName": "",
+    "productName": "1VFRD058A0",
     "boxSize": "50*40*30",
     "perCarton": 16,
     "perPack": null,
@@ -2996,7 +2996,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1VFBD018A0",
-    "productName": "",
+    "productName": "1VFBD018A0",
     "boxSize": "50*40*30",
     "perCarton": 20,
     "perPack": null,
@@ -3006,7 +3006,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1VFRD018A0",
-    "productName": "",
+    "productName": "1VFRD018A0",
     "boxSize": "50*40*30",
     "perCarton": 16,
     "perPack": null,
@@ -3016,7 +3016,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1VFAD058A0",
-    "productName": "",
+    "productName": "1VFAD058A0",
     "boxSize": "50*40*30",
     "perCarton": 24,
     "perPack": null,
@@ -3026,7 +3026,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GCRD026A0",
-    "productName": "",
+    "productName": "1GCRD026A0",
     "boxSize": "50*40*30",
     "perCarton": 18,
     "perPack": null,
@@ -3036,7 +3036,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GCRD041A0",
-    "productName": "",
+    "productName": "1GCRD041A0",
     "boxSize": "50*40*30",
     "perCarton": 70,
     "perPack": null,
@@ -3046,7 +3046,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GCRD045A0",
-    "productName": "",
+    "productName": "1GCRD045A0",
     "boxSize": "50*40*30",
     "perCarton": 30,
     "perPack": null,
@@ -3056,7 +3056,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GBRD041A0",
-    "productName": "",
+    "productName": "1GBRD041A0",
     "boxSize": "50*40*30",
     "perCarton": 100,
     "perPack": null,
@@ -3066,7 +3066,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GBRD045A0",
-    "productName": "",
+    "productName": "1GBRD045A0",
     "boxSize": "50*40*30",
     "perCarton": 28,
     "perPack": null,
@@ -3076,7 +3076,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GQRD016A0",
-    "productName": "",
+    "productName": "1GQRD016A0",
     "boxSize": "50*40*30",
     "perCarton": 18,
     "perPack": null,
@@ -3086,7 +3086,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1GCRD036A0",
-    "productName": "",
+    "productName": "1GCRD036A0",
     "boxSize": "50*40*30",
     "perCarton": 18,
     "perPack": null,
@@ -3096,7 +3096,7 @@ window.allProductsData = [
   },
   {
     "productCode": "ATR01",
-    "productName": "",
+    "productName": "ATR01",
     "boxSize": "50*40*30",
     "perCarton": 100,
     "perPack": null,
@@ -3106,157 +3106,157 @@ window.allProductsData = [
   },
   {
     "productCode": "EPD021",
-    "productName": "",
+    "productName": "EPD021",
     "boxSize": "48*38*28",
     "perCarton": 18,
     "perPack": null,
     "perBox": null,
-    "perPallet": 36,
+    "perPallet": 30,
     "country": "TW"
   },
   {
     "productCode": "EPD040",
-    "productName": "",
+    "productName": "EPD040",
     "boxSize": "48*38*28",
     "perCarton": 30,
     "perPack": null,
     "perBox": null,
-    "perPallet": 36,
+    "perPallet": 30,
     "country": "TW"
   },
   {
     "productCode": "EPD051",
-    "productName": "",
+    "productName": "EPD051",
     "boxSize": "48*38*28",
     "perCarton": 18,
     "perPack": null,
     "perBox": null,
-    "perPallet": 36,
+    "perPallet": 30,
     "country": "TW"
   },
   {
     "productCode": "EPD060",
-    "productName": "",
+    "productName": "EPD060",
     "boxSize": "48*38*28",
     "perCarton": 30,
     "perPack": null,
     "perBox": null,
-    "perPallet": 36,
+    "perPallet": 30,
     "country": "TW"
   },
   {
     "productCode": "EPD011",
-    "productName": "",
+    "productName": "EPD011",
     "boxSize": "48*38*28",
     "perCarton": 18,
     "perPack": null,
     "perBox": null,
-    "perPallet": 36,
+    "perPallet": 30,
     "country": "TW"
   },
   {
     "productCode": "EPD050",
-    "productName": "",
+    "productName": "EPD050",
     "boxSize": "48*38*28",
     "perCarton": 30,
     "perPack": null,
     "perBox": null,
-    "perPallet": 36,
+    "perPallet": 30,
     "country": "TW"
   },
   {
     "productCode": "EPD020",
-    "productName": "",
+    "productName": "EPD020",
     "boxSize": "48*38*28",
     "perCarton": 30,
     "perPack": null,
     "perBox": null,
-    "perPallet": 36,
+    "perPallet": 30,
     "country": "TW"
   },
   {
     "productCode": "EPD010",
-    "productName": "",
+    "productName": "EPD010",
     "boxSize": "48*38*28",
     "perCarton": 30,
     "perPack": null,
     "perBox": null,
-    "perPallet": 36,
+    "perPallet": 30,
     "country": "TW"
   },
   {
     "productCode": "EPD041",
-    "productName": "",
+    "productName": "EPD041",
     "boxSize": "48*38*28",
     "perCarton": 18,
     "perPack": null,
     "perBox": null,
-    "perPallet": 36,
+    "perPallet": 30,
     "country": "TW"
   },
   {
     "productCode": "EPD061",
-    "productName": "",
+    "productName": "EPD061",
     "boxSize": "48*38*28",
     "perCarton": 18,
     "perPack": null,
     "perBox": null,
-    "perPallet": 36,
+    "perPallet": 30,
     "country": "TW"
   },
   {
     "productCode": "EZD051",
-    "productName": "",
+    "productName": "EZD051",
     "boxSize": "48*38*28",
     "perCarton": 18,
     "perPack": null,
     "perBox": null,
-    "perPallet": 36,
+    "perPallet": 30,
     "country": "TW"
   },
   {
     "productCode": "EZD041",
-    "productName": "",
+    "productName": "EZD041",
     "boxSize": "48*38*28",
     "perCarton": 18,
     "perPack": null,
     "perBox": null,
-    "perPallet": 36,
+    "perPallet": 30,
     "country": "TW"
   },
   {
     "productCode": "EZD021",
-    "productName": "",
+    "productName": "EZD021",
     "boxSize": "48*38*28",
     "perCarton": 18,
     "perPack": null,
     "perBox": null,
-    "perPallet": 36,
+    "perPallet": 30,
     "country": "TW"
   },
   {
     "productCode": "EZD011",
-    "productName": "",
+    "productName": "EZD011",
     "boxSize": "48*38*28",
     "perCarton": 18,
     "perPack": null,
     "perBox": null,
-    "perPallet": 36,
+    "perPallet": 30,
     "country": "TW"
   },
   {
     "productCode": "EZD061",
-    "productName": "",
+    "productName": "EZD061",
     "boxSize": "48*38*28",
     "perCarton": 18,
     "perPack": null,
     "perBox": null,
-    "perPallet": 36,
+    "perPallet": 30,
     "country": "TW"
   },
   {
     "productCode": "1HGCC015A0",
-    "productName": "",
+    "productName": "1HGCC015A0",
     "boxSize": "32.5*23*6.1",
     "perCarton": 24,
     "perPack": null,
@@ -3266,7 +3266,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1HGCC025A0",
-    "productName": "",
+    "productName": "1HGCC025A0",
     "boxSize": "32.5*23*6.1",
     "perCarton": 24,
     "perPack": null,
@@ -3276,7 +3276,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1HGCC035A0",
-    "productName": "",
+    "productName": "1HGCC035A0",
     "boxSize": "32.5*23*6.1",
     "perCarton": 24,
     "perPack": null,
@@ -3286,7 +3286,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1HGCC045A0",
-    "productName": "",
+    "productName": "1HGCC045A0",
     "boxSize": "32.5*23*6.1",
     "perCarton": 24,
     "perPack": null,
@@ -3296,7 +3296,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1HGRD015A0",
-    "productName": "",
+    "productName": "1HGRD015A0",
     "boxSize": "32.5*23*6.1",
     "perCarton": 24,
     "perPack": null,
@@ -3306,7 +3306,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1MGRC015A0",
-    "productName": "",
+    "productName": "1MGRC015A0",
     "boxSize": "32.5*23*6.1",
     "perCarton": 24,
     "perPack": null,
@@ -3316,7 +3316,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1MGRC025A0",
-    "productName": "",
+    "productName": "1MGRC025A0",
     "boxSize": "32.5*23*6.1",
     "perCarton": 24,
     "perPack": null,
@@ -3326,7 +3326,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1MGRC035A0",
-    "productName": "",
+    "productName": "1MGRC035A0",
     "boxSize": "32.5*23*6.1",
     "perCarton": 24,
     "perPack": null,
@@ -3336,7 +3336,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1MGRC045A0",
-    "productName": "",
+    "productName": "1MGRC045A0",
     "boxSize": "32.5*23*6.1",
     "perCarton": 24,
     "perPack": null,
@@ -3346,7 +3346,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1MGRC055A0",
-    "productName": "",
+    "productName": "1MGRC055A0",
     "boxSize": "32.5*23*6.1",
     "perCarton": 24,
     "perPack": null,
@@ -3356,7 +3356,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1MGRD015A0",
-    "productName": "",
+    "productName": "1MGRD015A0",
     "boxSize": "32.5*23*6.1",
     "perCarton": 24,
     "perPack": null,
@@ -3366,7 +3366,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1MGRD025A0",
-    "productName": "",
+    "productName": "1MGRD025A0",
     "boxSize": "32.5*23*6.1",
     "perCarton": 24,
     "perPack": null,
@@ -3376,7 +3376,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1MGRD035A0",
-    "productName": "",
+    "productName": "1MGRD035A0",
     "boxSize": "32.5*23*6.1",
     "perCarton": 24,
     "perPack": null,
@@ -3386,7 +3386,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1MGRD045A0",
-    "productName": "",
+    "productName": "1MGRD045A0",
     "boxSize": "32.5*23*6.1",
     "perCarton": 24,
     "perPack": null,
@@ -3396,7 +3396,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1MGRD055A0",
-    "productName": "",
+    "productName": "1MGRD055A0",
     "boxSize": "32.5*23*6.1",
     "perCarton": 24,
     "perPack": null,
@@ -3406,7 +3406,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1AGHC015A0",
-    "productName": "",
+    "productName": "1AGHC015A0",
     "boxSize": "28.5*19.65*8.2",
     "perCarton": 24,
     "perPack": null,
@@ -3416,7 +3416,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1AGHC025A0",
-    "productName": "",
+    "productName": "1AGHC025A0",
     "boxSize": "28.5*19.65*8.2",
     "perCarton": 24,
     "perPack": null,
@@ -3426,7 +3426,7 @@ window.allProductsData = [
   },
   {
     "productCode": "1AGHC035A0",
-    "productName": "",
+    "productName": "1AGHC035A0",
     "boxSize": "28.5*19.65*8.2",
     "perCarton": 24,
     "perPack": null,
@@ -3436,12 +3436,152 @@ window.allProductsData = [
   },
   {
     "productCode": "1AGHC045A0",
-    "productName": "",
+    "productName": "1AGHC045A0",
     "boxSize": "28.5*19.65*8.2",
     "perCarton": 24,
     "perPack": null,
     "perBox": null,
     "perPallet": 100,
+    "country": "VN"
+  },
+  {
+    "productCode": "1AWDD773A0",
+    "productName": "1AWDD773A0",
+    "boxSize": "50*40*30",
+    "perCarton": 38,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "country": "VN"
+  },
+  {
+    "productCode": "1AWDD775A0",
+    "productName": "1AWDD775A0",
+    "boxSize": "50*40*30",
+    "perCarton": 20,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "country": "VN"
+  },
+  {
+    "productCode": "1AXXD001A0",
+    "productName": "1AXXD001A0",
+    "boxSize": "58.5*34.5*35",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 30,
+    "country": "TW"
+  },
+  {
+    "productCode": "1AXXD002A0",
+    "productName": "1AXXD002A0",
+    "boxSize": "50*40*30",
+    "perCarton": 8,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "country": "VN"
+  },
+  {
+    "productCode": "1GLTD011A0",
+    "productName": "1GLTD011A0",
+    "boxSize": "50*40*30",
+    "perCarton": 8,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "country": "VN"
+  },
+  {
+    "productCode": "1GXXD001A0",
+    "productName": "1GXXD001A0",
+    "boxSize": "48*38*28",
+    "perCarton": 24,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 30,
+    "country": "TW"
+  },
+  {
+    "productCode": "1GXXD002A0",
+    "productName": "1GXXD002A0",
+    "boxSize": "48*38*28",
+    "perCarton": 8,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 30,
+    "country": "TW"
+  },
+  {
+    "productCode": "1VFPD010A0",
+    "productName": "1VFPD010A0",
+    "boxSize": "50*40*30",
+    "perCarton": 90,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "country": "VN"
+  },
+  {
+    "productCode": "1VFPD018A0",
+    "productName": "1VFPD018A0",
+    "boxSize": "50*40*30",
+    "perCarton": 16,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "country": "VN"
+  },
+  {
+    "productCode": "1VFPD050A0",
+    "productName": "1VFPD050A0",
+    "boxSize": "50*40*30",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "country": "VN"
+  },
+  {
+    "productCode": "1VFPD058A0",
+    "productName": "1VFPD058A0",
+    "boxSize": "50*40*30",
+    "perCarton": 12,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "country": "VN"
+  },
+  {
+    "productCode": "1VFRD010A0",
+    "productName": "1VFRD010A0",
+    "boxSize": "50*40*30",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "country": "VN"
+  },
+  {
+    "productCode": "1VFSD010A0",
+    "productName": "1VFSD010A0",
+    "boxSize": "50*40*30",
+    "perCarton": 100,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
+    "country": "VN"
+  },
+  {
+    "productCode": "1VFSD018A0",
+    "productName": "1VFSD018A0",
+    "boxSize": "50*40*30",
+    "perCarton": 18,
+    "perPack": null,
+    "perBox": null,
+    "perPallet": 42,
     "country": "VN"
   }
 ];

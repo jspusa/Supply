@@ -16,6 +16,6 @@ Only `dist/` is deployable. Repository files, tests, documentation, credentials,
 
 ## Shared product catalog
 
-The normal maintenance path is the existing raw product-information workbook. Drop it into Supply's main upload area or FBA's product-database updater; the browser reads `AMZ 所有SKU`, `2026`, and `罐頭`, stores one same-origin catalog locally, and both tools use it after refresh. No extra `產品主檔` worksheet is required.
+Supply and FBA normally use product data compiled into each site. Jasper maintains only the existing raw product-information workbook; a release imports `AMZ 所有SKU`, `2026`, and `罐頭` directly, updates the canonical catalog, and generates both built-in snapshots. No extra `產品主檔` worksheet and no routine browser upload are required.
 
-The checked-in canonical catalog and site-specific snapshots remain release-time fallbacks. They are generated artifacts, not another workbook the operator must maintain. See [docs/product-catalog.md](docs/product-catalog.md).
+The browser upload remains available only as a temporary pre-release override and is invalidated when a newer built-in catalog ships. See [docs/product-catalog.md](docs/product-catalog.md).

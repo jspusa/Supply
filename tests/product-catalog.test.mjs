@@ -437,11 +437,11 @@ test('checked canonical catalog and generated Supply snapshot stay in sync', () 
 
   assert.equal(actual, expected);
   assert.equal(canonical.schemaVersion, 2);
-  assert.equal(canonical.catalogVersion, '2026-08-28.3');
+  assert.equal(canonical.catalogVersion, '2026-08-28.4');
   assert.match(canonical.catalogVersion, /^\d{4}-\d{2}-\d{2}(?:\.\d+)?$/);
 });
 
-test('migration preserves 15 legacy Supply packages and makes the FBA 2026-08-25 rows current', () => {
+test('raw release preserves the 15 legacy Supply packages and makes 2026-08-28.4 current', () => {
   const canonical = JSON.parse(fs.readFileSync(path.join(repoRoot, 'catalog', 'product-catalog.json'), 'utf8'));
   const expectedUnits = new Map(Object.entries({
     '1ABRD002A0':[36, 42],
@@ -462,65 +462,75 @@ test('migration preserves 15 legacy Supply packages and makes the FBA 2026-08-25
   }));
   const versioned = canonical.products.filter(product => product.packagingVersions.length > 1);
 
-  assert.equal(versioned.length, expectedUnits.size);
-  for (const product of versioned) {
-    const [historical, current] = product.packagingVersions;
+  assert.ok(versioned.length >= expectedUnits.size);
+  for (const [productSku, expected] of expectedUnits) {
+    const product = canonical.products.find(item => item.productSku === productSku);
+    const historical = product.packagingVersions[0];
+    const current = product.packagingVersions.at(-1);
     assert.deepEqual(
       [historical.unitsPerCarton, current.unitsPerCarton],
-      expectedUnits.get(product.productSku),
+      expected,
       product.productSku,
     );
     assert.equal(historical.effectiveFrom, '2026-07-19', product.productSku);
     assert.equal(historical.effectiveTo, '2026-08-24', product.productSku);
-    assert.equal(current.effectiveFrom, '2026-08-25', product.productSku);
+    assert.equal(current.effectiveFrom, '2026-08-28', product.productSku);
     assert.equal(current.effectiveTo, null, product.productSku);
     assert.equal(current.source.sheet, 'AMZ 所有SKU', product.productSku);
   }
 
-  const gtp03 = versioned.find(product => product.productSku === 'GTP03');
-  assert.deepEqual(gtp03.packagingVersions[1].cartonDimensionsCm, [58.5, 34.5, 35]);
-  assert.equal(gtp03.packagingVersions[1].cartonsPerPallet, 36);
-  assert.equal(gtp03.packagingVersions[1].grossWeightLb, 26.455471462185308);
+  const gtp03 = canonical.products.find(product => product.productSku === 'GTP03').packagingVersions.at(-1);
+  assert.deepEqual(gtp03.cartonDimensionsCm, [58.5, 34.5, 35]);
+  assert.equal(gtp03.cartonsPerPallet, 36);
+  assert.equal(gtp03.grossWeightLb, 26);
 
   const unknownOrigin = canonical.products.find(product => product.productSku === '1AWDD010A0');
   assert.equal(unknownOrigin.standardFactory, 'VN');
   assert.equal(unknownOrigin.origin, null);
 });
 
-test('canonical union retains 25 FBA-only Product SKUs without exposing incomplete rows to Supply', () => {
+test('raw release promotes 14 complete products while 11 incomplete rows stay out of Supply', () => {
   const canonical = JSON.parse(fs.readFileSync(path.join(repoRoot, 'catalog', 'product-catalog.json'), 'utf8'));
-  const expectedFbaOnly = [
+  const promoted = [
     '1AWDD773A0', '1AWDD775A0', '1AXXD001A0', '1AXXD002A0', '1GLTD011A0',
     '1GXXD001A0', '1GXXD002A0', '1VFPD010A0', '1VFPD018A0', '1VFPD050A0',
-    '1VFPD058A0', '1VFRD010A0', '1VFSD010A0', '1VFSD018A0', 'ED011AM',
-    'EZD010', 'EZD010-3', 'EZD020', 'EZD020-3', 'EZD040', 'EZD040-3',
+    '1VFPD058A0', '1VFRD010A0', '1VFSD010A0', '1VFSD018A0',
+  ];
+  const stillIncomplete = [
+    'ED011AM', 'EZD010', 'EZD010-3', 'EZD020', 'EZD020-3', 'EZD040', 'EZD040-3',
     'EZD050', 'EZD050-3', 'EZD060', 'EZD060-3',
   ];
   const bySku = new Map(canonical.products.map(product => [product.productSku, product]));
 
-  assert.equal(canonical.catalogVersion, '2026-08-28.3');
+  assert.equal(canonical.catalogVersion, '2026-08-28.4');
   assert.equal(canonical.products.length, 360);
-  for (const productSku of expectedFbaOnly) {
+  for (const productSku of promoted) {
     const product = bySku.get(productSku);
     assert.ok(product, productSku);
-    assert.equal(product.productName, '', productSku);
-    assert.equal(product.origin, null, productSku);
-    assert.equal(product.standardFactory, null, productSku);
-    assert.equal(product.lifecycle, 'incomplete', productSku);
+    assert.equal(product.productName, productSku, productSku);
+    assert.ok(product.origin, productSku);
+    assert.ok(product.standardFactory, productSku);
+    assert.equal(product.lifecycle, 'active', productSku);
     assert.deepEqual(product.approvedOrderSkus, [productSku], productSku);
-    assert.equal(product.packagingVersions[0].cartonsPerPallet, null, productSku);
+    assert.ok(product.packagingVersions.at(-1).cartonsPerPallet, productSku);
+  }
+  for (const productSku of stillIncomplete) {
+    const product = bySku.get(productSku);
+    assert.equal(product.lifecycle, 'incomplete', productSku);
+    assert.equal(product.packagingVersions.at(-1).cartonsPerPallet, null, productSku);
   }
 
   const projected = compileCatalog(canonical, supplyCatalogAdapter);
-  assert.equal(projected.products.length, 335);
-  assert.equal(projected.products.some(product => expectedFbaOnly.includes(product.productCode)), false);
+  assert.equal(projected.products.length, 349);
+  assert.equal(promoted.every(productSku => projected.products.some(product => product.productCode === productSku)), true);
+  assert.equal(projected.products.some(product => stillIncomplete.includes(product.productCode)), false);
 
-  const airDried = bySku.get('1AWDD773A0').packagingVersions[0];
+  const airDried = bySku.get('1AWDD773A0').packagingVersions.at(-1);
   assert.equal(airDried.unitsPerCarton, 38);
-  assert.deepEqual(airDried.cartonDimensionsCm, [50.8, 40.64, 30.48]);
+  assert.deepEqual(airDried.cartonDimensionsCm, [50, 40, 30]);
   assert.equal(airDried.grossWeightLb, 43);
 
-  const aliasLikeProduct = bySku.get('ED011AM').packagingVersions[0];
+  const aliasLikeProduct = bySku.get('ED011AM').packagingVersions.at(-1);
   assert.equal(aliasLikeProduct.unitsPerCarton, null);
   assert.equal(aliasLikeProduct.cartonDimensionsCm, null);
   assert.equal(aliasLikeProduct.grossWeightLb, null);
@@ -558,7 +568,7 @@ test('schema v2 retains the 27 FBA legacy 7-SKU packages plus the initialized AT
   const products = new Map(validated.products.map(product => [product.productSku, product]));
 
   assert.equal(canonical.schemaVersion, 2);
-  assert.equal(canonical.catalogVersion, '2026-08-28.3');
+  assert.equal(canonical.catalogVersion, '2026-08-28.4');
   assert.equal(aliases.size, 28);
   assert.equal(validated.orderSkuAliases.filter(alias => alias.lifecycle === 'approved').length, 22);
   assert.deepEqual(
@@ -570,19 +580,22 @@ test('schema v2 retains the 27 FBA legacy 7-SKU packages plus the initialized AT
     const alias = aliases.get(orderSku);
     assert.ok(alias, orderSku);
     assert.equal(alias.currentPackaging.unitsPerCarton, unitsPerCarton, orderSku);
-    assert.deepEqual(alias.currentPackaging.cartonDimensionsCm, [50.8, 40.64, 30.48], orderSku);
+    assert.deepEqual(alias.currentPackaging.cartonDimensionsCm, [50, 40, 30], orderSku);
+    assert.equal(alias.currentPackaging.cartonsPerPallet, 42, orderSku);
     assert.equal(alias.currentPackaging.grossWeightLb, grossWeightLb, orderSku);
   }
 
   const fbaBackedMapped = validated.orderSkuAliases.filter(alias => alias.lifecycle === 'approved'
     && alias.orderSku !== '7ATSD011AB');
   assert.equal(fbaBackedMapped.length, 21);
-  assert.equal(fbaBackedMapped.filter(alias => {
+  const aliasesWithDistinctPackaging = fbaBackedMapped.filter(alias => {
     const owner = products.get(alias.canonicalProductSku).currentPackaging;
     return alias.currentPackaging.unitsPerCarton !== owner.unitsPerCarton
       || JSON.stringify(alias.currentPackaging.cartonDimensionsCm) !== JSON.stringify(owner.cartonDimensionsCm)
       || alias.currentPackaging.grossWeightLb !== owner.grossWeightLb;
-  }).length, 21);
+  });
+  assert.equal(aliasesWithDistinctPackaging.length, 20);
+  assert.equal(aliasesWithDistinctPackaging.some(alias => alias.orderSku === '7VTBD410AB'), false);
 
   const ats = aliases.get('7ATSD011AB');
   const atsOwner = products.get('ATS01');

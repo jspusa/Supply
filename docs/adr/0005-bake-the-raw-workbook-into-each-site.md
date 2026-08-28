@@ -1,0 +1,3 @@
+# Bake the raw workbook into each site
+
+Jasper maintains only the existing raw product-information workbook, while each released site uses an independently embedded Built-in Product Catalog. The release importer reads `AMZ 所有SKU`, `2026`, and `罐頭` directly, preserves confirmed Product SKU and Order SKU Alias ownership from the canonical catalog, versions changed packaging, and generates both site snapshots. Browser upload remains only a Temporary Product Override because requiring it for normal use makes product availability depend on one browser profile and shifts release maintenance onto the operator.
