@@ -71,3 +71,7 @@ _Avoid_: Half-pallet rule, arbitrary decimal
 **Workspace Snapshot**:
 The raw uploaded source files, pasted H10 text, metadata, and small workspace preferences retained in the current browser so the workspace can be reconstructed after refresh.
 _Avoid_: Cloud backup, exported order
+
+**Shared Product Catalog**:
+The normalized SKU, origin, carton, pallet, and weight facts parsed from the operator's existing raw product-information workbook and stored under one same-origin browser key for Supply and FBA. It overlays each site's checked-in fallback without requiring an extra maintenance worksheet.
+_Avoid_: ProductMasterTable, cloud product database, cross-site fetch

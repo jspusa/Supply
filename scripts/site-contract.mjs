@@ -13,6 +13,7 @@ export const runtimeFiles = Object.freeze([
   'shared/order-draft-state.js',
   'shared/planning-velocity-history.js',
   'shared/planning-velocity.js',
+  'shared/shared-product-catalog.js',
   'shared/supply-planner.js',
   'shared/workspace-navigation.js',
   'shared/workspace-snapshot.js',

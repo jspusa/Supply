@@ -429,7 +429,7 @@
     .downloadLinks { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:12px; }
     .downloadLinkChip { display:inline-flex; align-items:center; gap:5px; padding:7px 10px; border:1px solid #dbeafe; border-radius:999px; background:#eff6ff; color:#1d4ed8; font-size:12px; font-weight:800; text-decoration:none; }
     .downloadLinkChip:hover { border-color:#60a5fa; background:#dbeafe; }
-    .uploadStatusRow { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-top:11px; }
+    .uploadStatusRow { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin-top:11px; }
     .uploadStatus { display:flex; align-items:center; gap:7px; min-height:38px; padding:8px 10px; border-radius:12px; background:#f1f5f9; color:#64748b; font-size:11px; font-weight:800; }
     .uploadStatus::before { content:""; width:8px; height:8px; border-radius:50%; background:#f59e0b; flex:0 0 auto; }
     .uploadStatus.ready { background:#ecfdf5; color:#166534; }
@@ -567,6 +567,7 @@
       .heroActions button { flex: 1; }
       .controlDock { position: static; border-radius: 22px; }
       .controlGroup, .togglePill { width: 100%; justify-content: space-between; }
+      .uploadStatusRow { grid-template-columns:repeat(2,minmax(0,1fr)); }
       .subGrid { grid-template-columns: 1fr; }
       .card summary { flex-direction: column; align-items: flex-start; gap: 12px; }
       .summary-actions { width: 100%; }
@@ -892,22 +893,24 @@
 
           <div class="uploadWorkspace">
             <section class="uploadPrimaryPanel">
-              <div class="uploadPanelTitle"><h3><i class="fa-solid fa-cloud-arrow-up"></i> 三個檔案一起丟這裡</h3><span class="pill">自動分類</span></div>
+              <div class="uploadPanelTitle"><h3><i class="fa-solid fa-cloud-arrow-up"></i> 四個原始檔一起丟這裡</h3><span class="pill">自動分類</span></div>
               <div class="downloadLinks" aria-label="下載來源">
                 <a class="downloadLinkChip" href="https://24466647-my.sharepoint.com/:x:/g/personal/hongren_petlifeco_com/ER_jNs_oIg9JlOmxXlpGb6sBG3yRl9Zd7gzqAfH_q3WL1A?CID=bbf41374-a2d3-7260-37b3-d7bdd684d58e&amp;e=ocBSqj" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-file-excel"></i> 1. JAM 訂單</a>
                 <a class="downloadLinkChip" href="https://members.helium10.com/inventory-management/restock-suggestions-new/index?accountId=1547156136" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-chart-line"></i> 2. H10</a>
                 <a class="downloadLinkChip" href="https://24466647.sharepoint.com/:x:/r/sites/Cloud/Shared%2520Documents/%E7%8F%8D%E9%A3%9F%E5%A0%A1%2520-%2520%E5%85%B1%E7%94%A8/JSP%2520Amrica/Inventory%2520update%2520with%2520expiration%2520date%2520-%2520temporary%2520file.xlsx?d=wdb6b7635090543b0b4433ce8572b2c4a&amp;e=4%3ab1c52cfb6a554376882e5c1e30fa2339&amp;sharingv2=true&amp;fromShare=true&amp;at=9" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-warehouse"></i> 3. JSP 庫存</a>
+                <a class="downloadLinkChip" href="https://24466647-my.sharepoint.com/:x:/r/personal/hongren_petlifeco_com/_layouts/15/Doc.aspx?sourcedoc=%7BE5CC3B4A-0A68-44FC-B4BA-8A535837639D%7D&amp;file=20260324%25u7f8e%25u570b%25u7522%25u54c1%25u8cc7%25u8a0a%20JAM%20chuy%25u1ec3n%20%25u0111%25u00e0i%20loan.xlsx&amp;fromShare=true&amp;action=default&amp;mobileredirect=true" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-boxes-stacked"></i> 4. 產品資訊</a>
               </div>
               <label class="fileDropZone masterUploadZone">
                 <input type="file" id="masterFileInput" multiple accept=".xlsx,.xls,.csv,.txt" />
                 <i class="fa-solid fa-cloud-arrow-up dropIcon"></i>
-                <span>點擊選檔，或一次拖入 JAM／H10／JSP</span>
+                <span>點擊選檔，或一次拖入 JAM／H10／JSP／產品資訊</span>
                 <span class="dropSub">不用照順序，系統會自動辨識</span>
               </label>
               <div class="uploadStatusRow">
                 <div class="uploadStatus" id="uploadStatusJam">JAM 等待檔案</div>
                 <div class="uploadStatus" id="uploadStatusH10">H10 等待檔案</div>
                 <div class="uploadStatus" id="uploadStatusJsp">JSP 等待檔案</div>
+                <div class="uploadStatus" id="uploadStatusCatalog">產品資料使用內建版</div>
               </div>
               <div class="jamMetaBox" id="masterMetaBox" style="margin-top:10px;">尚未使用總檔案上傳。</div>
               <div class="jamMetaBox workspaceSnapshotState" id="workspaceSnapshotState" role="status" aria-live="polite">公開版原始資料只會保存在這個瀏覽器。</div>
@@ -958,6 +961,14 @@
                   <div class="row" style="justify-content:flex-end;"><button type="button" class="secondary" id="btnParseJspInventory">重新讀取</button></div>
                   <div class="jamMetaBox" id="jspMetaBox">尚未讀取 JSP 庫存檔。</div>
                   <details class="manualInputDetails"><summary>手動輸入備援 <span>展開</span></summary><div class="manualInputBody"><textarea id="inputUSJsp" placeholder="SKU + 總數"></textarea></div></details>
+                </div>
+              </div>
+              <div class="subCard">
+                <div class="subCardHeader">Supply／FBA 共用產品資訊</div>
+                <div class="subCardContent">
+                  <label class="fileDropZone"><input type="file" id="productCatalogInput" accept=".xlsx,.xlsm,.xls" /><i class="fa-solid fa-boxes-stacked dropIcon"></i><span>直接上傳原始產品資訊 Excel</span></label>
+                  <div class="row" style="justify-content:flex-end;"><button type="button" class="secondary" id="btnResetProductCatalog">恢復內建備援</button></div>
+                  <div class="jamMetaBox" id="productCatalogMetaBox">尚未上傳原始檔，目前使用內建產品資料。</div>
                 </div>
               </div>
             </div>
@@ -1332,6 +1343,7 @@
 
   <script src="./vendor/xlsx.full.min.js"></script>
   <script src="./product-data.js"></script>
+  <script src="./shared/shared-product-catalog.js"></script>
   <script type="module" src="./shared/legacy-planning-adapter.js"></script>
   <script type="module" src="./shared/order-draft-state.js"></script>
   <script type="module" src="./shared/workspace-snapshot.js"></script>
@@ -1460,6 +1472,70 @@
     let workspaceClearInProgress = false;
 
     const productMap = new Map(allProducts.map(p => [normalizeSkuKey(p.productCode), p]));
+    const builtInProducts = (window.SUPPLY_BUILTIN_PRODUCT_DATA || allProducts).map(product => ({ ...product }));
+    const sharedCatalogApi = window.JSPSharedProductCatalog;
+
+    function activeSharedProductCatalog() {
+      return sharedCatalogApi?.loadFromStorage(localStorage) || null;
+    }
+
+    function rebuildProductMap() {
+      productMap.clear();
+      allProducts.forEach(product => productMap.set(normalizeSkuKey(product.productCode), product));
+    }
+
+    function renderSharedProductCatalogMeta(payload = activeSharedProductCatalog(), result = null) {
+      const meta = document.getElementById('productCatalogMetaBox');
+      if (meta) {
+        if (!payload) meta.textContent = `目前使用內建產品資料（${builtInProducts.length} 個品號）。上傳一次原始檔後，重新整理仍會保留。`;
+        else {
+          const updated = new Date(payload.updatedAt).toLocaleString('zh-TW', { hour12:false });
+          const extra = result ? `；Supply 更新 ${result.updated}、新增 ${result.added}` : '';
+          meta.textContent = `已共用：${payload.sourceFile} · ${payload.records.length} 個 SKU · ${updated}${extra}`;
+        }
+      }
+      const status = document.getElementById('uploadStatusCatalog');
+      if (status) {
+        status.classList.add('ready');
+        status.textContent = payload ? '產品資料 已共用原始檔' : '產品資料 內建備援';
+      }
+    }
+
+    async function parseSharedProductCatalogFile(file, existingWorkbook = null) {
+      if (!file) throw new Error('請先選擇產品資訊 Excel');
+      if (!sharedCatalogApi || typeof XLSX === 'undefined') throw new Error('產品資料讀取元件尚未準備完成，請重新整理');
+      const workbook = existingWorkbook || XLSX.read(await file.arrayBuffer(), { type:'array', cellDates:false });
+      let payload = sharedCatalogApi.createPayload(workbook, XLSX, { sourceFile:file.name });
+      payload = sharedCatalogApi.saveToStorage(payload, localStorage);
+      allProducts.splice(0, allProducts.length, ...builtInProducts.map(product => ({ ...product })));
+      const result = sharedCatalogApi.applyToSupplyProducts(allProducts, payload);
+      rebuildProductMap();
+      window.SUPPLY_SHARED_PRODUCT_CATALOG_META = Object.freeze({
+        sourceFile:payload.sourceFile,
+        updatedAt:payload.updatedAt,
+        records:payload.records.length,
+        added:result.added,
+        updated:result.updated,
+      });
+      renderSharedProductCatalogMeta(payload, result);
+      if (!workspaceBatching) buildTables();
+      updateWorkflowUi();
+      showTip(`產品資料已保存並與 FBA 共用（${payload.records.length} 個 SKU）`, 'success');
+      return { payload, result };
+    }
+
+    function resetSharedProductCatalog() {
+      sharedCatalogApi?.removeFromStorage(localStorage);
+      allProducts.splice(0, allProducts.length, ...builtInProducts.map(product => ({ ...product })));
+      rebuildProductMap();
+      delete window.SUPPLY_SHARED_PRODUCT_CATALOG_META;
+      const input = document.getElementById('productCatalogInput');
+      if (input) input.value = '';
+      renderSharedProductCatalogMeta(null);
+      buildTables();
+      updateWorkflowUi();
+      showTip('已恢復內建產品資料；FBA 也會使用內建備援', 'success');
+    }
     const h10El = document.getElementById('inputH10');
     const ordersEl = document.getElementById('inputOrders');
     const usAmzEl = document.getElementById('inputUSAmz');
@@ -1535,6 +1611,7 @@
       setUploadStatus('uploadStatusJam', jamReady, 'JAM 已代入', 'JAM 等待檔案');
       setUploadStatus('uploadStatusH10', h10Ready, 'H10 已代入', 'H10 等待檔案');
       setUploadStatus('uploadStatusJsp', jspReady, 'JSP 已代入', 'JSP 等待檔案');
+      renderSharedProductCatalogMeta();
       const issueCount = Array.isArray(window.latestDecisionExport?.issues) ? window.latestDecisionExport.issues.length : (typeof latestDecisionExport !== 'undefined' ? latestDecisionExport.issues.length : 0);
       setHealthStatus('healthIssues', issueCount ? 'bad' : (h10Ready ? 'ready' : 'warn'), h10Ready ? `${issueCount} 筆` : '等待計算');
       workspaceUiController?.renderToday();
@@ -2690,12 +2767,13 @@
 
     async function autoClassifyAndReadFiles(fileList, options = {}) {
       const files = Array.from(fileList || []);
-      if (!files.length) return { files: [], results: [], recognizedTypes: [], classifiedSources: [], failedCount: 0, unrecognizedCount: 0 };
+      if (!files.length) return { files: [], results: [], recognizedTypes: [], classifiedSources: [], catalogFiles: [], failedCount: 0, unrecognizedCount: 0 };
       const sourceObservedOn = Object.prototype.hasOwnProperty.call(options, 'sourceObservedOn') ? options.sourceObservedOn : getPlanningAsOfDate();
       const sourceSelectedAt = options.sourceSelectedAt || new Date().toISOString();
       const results = [];
       const recognizedTypes = new Set();
       const classifiedSources = [];
+      const catalogFiles = [];
       const h10TextParts = [];
       let failedCount = 0;
       let unrecognizedCount = 0;
@@ -2739,6 +2817,14 @@
           const { workbook, rows } = await readWorkbookRowsFromFile(file);
           const sheetNames = workbook?.SheetNames || [];
           const firstRowsText = rows.slice(0, 8).flat().map(v => String(v ?? '')).join(' ');
+
+          if (sharedCatalogApi?.isRawWorkbook(workbook)) {
+            const imported = await parseSharedProductCatalogFile(file, workbook);
+            recognizedTypes.add('catalog');
+            catalogFiles.push(file);
+            results.push(`${file.name} → Supply／FBA 共用產品資料（${imported.payload.records.length} 個 SKU）`);
+            continue;
+          }
 
           if (sheetNames.some(name => String(name).includes('美國總表')) || firstRowsText.includes('尚未到美國倉庫')) {
             await parseJamExcelFile(file);
@@ -2790,7 +2876,7 @@
       if (!workspaceBatching) buildTables();
       updateWorkflowUi();
       if (!options.silent) showTip(`總檔案上傳已處理 ${files.length} 個檔案`, failedCount || unrecognizedCount ? 'error' : 'success');
-      return { files, results, recognizedTypes: Array.from(recognizedTypes), classifiedSources, failedCount, unrecognizedCount };
+      return { files, results, recognizedTypes: Array.from(recognizedTypes), classifiedSources, catalogFiles, failedCount, unrecognizedCount };
     }
 
     const BOSS_REQUIRED_FILE_TYPES = [
@@ -3434,7 +3520,8 @@
 
     function rememberBossFiles(files, analysis) {
       if (!IS_BOSS_PORTAL) return;
-      bossPendingFiles = Array.from(files || []);
+      const localOnlyCatalogFiles = new Set(analysis?.catalogFiles || []);
+      bossPendingFiles = Array.from(files || []).filter(file => !localOnlyCatalogFiles.has(file));
       bossPendingAnalysis = analysis || null;
       const recognized = new Set(analysis?.recognizedTypes || []);
       const missing = BOSS_REQUIRED_FILE_TYPES.filter(item => !recognized.has(item.key));
@@ -3648,6 +3735,8 @@
               await parseAndRememberWorkspaceFile(input.id, firstFile, parseAmzInventoryFile);
             } else if (input.id === 'jspInventoryInput') {
               await parseAndRememberWorkspaceFile(input.id, firstFile, parseJspInventoryFile);
+            } else if (input.id === 'productCatalogInput') {
+              await parseSharedProductCatalogFile(firstFile);
             } else if (input.id === 'salesBusinessReportInput') {
               await parseAndRememberWorkspaceFile(input.id, firstFile, parseSalesBusinessReportFile);
             } else {
@@ -3674,12 +3763,15 @@
     document.getElementById('jamExcelInput')?.addEventListener('change', () => handleFileAutoRead('jamExcelInput', parseJamExcelFile, "請先選擇 JAM Excel 檔案"));
     document.getElementById('amzInventoryInput')?.addEventListener('change', () => handleFileAutoRead('amzInventoryInput', parseAmzInventoryFile, "請先選擇 H10 檔案"));
     document.getElementById('jspInventoryInput')?.addEventListener('change', () => handleFileAutoRead('jspInventoryInput', parseJspInventoryFile, "請先選擇 JSP 庫存檔"));
+    document.getElementById('productCatalogInput')?.addEventListener('change', event => parseSharedProductCatalogFile(event.target.files?.[0]).catch(error => { console.error(error); showTip(error.message || '產品資料讀取失敗', 'error'); }));
+    document.getElementById('btnResetProductCatalog')?.addEventListener('click', resetSharedProductCatalog);
     document.getElementById('masterFileInput')?.addEventListener('change', (event) => handleMasterFileSelection(event.target.files));
     document.getElementById('salesBusinessReportInput')?.addEventListener('change', () => handleFileAutoRead('salesBusinessReportInput', parseSalesBusinessReportFile, '請先選擇 Business Report / 銷售額檔案'));
     document.getElementById('bossSaveSnapshot')?.addEventListener('click', saveBossSnapshot);
     document.getElementById('bossReloadSnapshot')?.addEventListener('click', () => loadBossSnapshot({ scrollToTree:false }));
     if (hideDiscontinuedFilterEl) hideDiscontinuedFilterEl.checked = true;
     setupFileDropZones();
+    renderSharedProductCatalogMeta();
 
     function showSkuJamBreakdown(sku) {
       const key = getCanonicalSku(sku);
