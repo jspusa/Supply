@@ -66,7 +66,7 @@ function renderTrack(model) {
 export function renderCoverageMeter(options = {}) {
   const model = buildCoverageMeterModel(options);
   const noDataAria = model.hasValue ? '' : ' role="group" aria-label="可售天數：無資料"';
-  return `<div class="coverageMeter coverageMeter--${model.band}" data-band="${model.band}" data-assessment="${model.assessment}"${noDataAria}><div class="coverageMeter__summary"><strong class="coverageMeter__value">${model.valueText}</strong><span class="coverageMeter__status">${model.statusText}</span></div>${renderTrack(model)}</div>`;
+  return `<div class="coverageMeter coverageMeter--${model.band}" data-band="${model.band}" data-assessment="${model.assessment}" data-thresholds="${TARGET_DAYS}-${MAXIMUM_DAYS}"${noDataAria}><div class="coverageMeter__summary"><strong class="coverageMeter__value">${model.valueText}</strong><span class="coverageMeter__status">${model.statusText}</span></div>${renderTrack(model)}</div>`;
 }
 
 const browserInterface = Object.freeze({

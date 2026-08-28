@@ -9,15 +9,19 @@ The canonical SKU that owns demand, inventory, catalog specifications, and cover
 _Avoid_: Order SKU, alias SKU
 
 **Order SKU**:
-The SKU printed on the purchase order for a Product SKU. It may be the Product SKU itself or an approved 7-prefixed equivalent.
+The SKU printed on the purchase order for a Product SKU. It may be the Product SKU itself or an approved 7-prefixed Order SKU Alias.
 _Avoid_: Product SKU, display SKU
+
+**Order SKU Alias**:
+A 7-prefixed purchasing identity with its own versioned carton packaging. An approved alias names one canonical Product SKU; an unmapped legacy alias preserves known historical packaging with no guessed Product SKU owner. It never owns demand, inventory, or coverage.
+_Avoid_: Product SKU, duplicate product, inferred owner
 
 **Standard Order**:
 An order whose Order SKU does not begin with `7`, grouped under either Taiwan or Vietnam according to the Product SKU's standard factory.
 _Avoid_: Main order, normal factory row
 
 **Subcontract Order**:
-An order whose Order SKU begins with `7`. All Subcontract Orders belong to the same subcontract vendor and retain the Product SKU's demand and packaging specifications.
+An order whose Order SKU begins with `7`. All Subcontract Orders belong to the same subcontract vendor and retain the Product SKU's demand ownership; FBA carton specifications may come from the Order SKU Alias.
 _Avoid_: Standard Order, alias-only display
 
 **Order Group**:
