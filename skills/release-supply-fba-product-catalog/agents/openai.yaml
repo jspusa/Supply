@@ -1,0 +1,4 @@
+interface:
+  display_name: "發布 Supply/FBA 產品資料"
+  short_description: "一次更新並發布 Supply 與 FBA 內建產品資料"
+  default_prompt: "Use $release-supply-fba-product-catalog to update and publish the built-in Supply and FBA product catalogs from my latest raw product workbook."

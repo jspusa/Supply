@@ -70,10 +70,10 @@
 
 ## 內建資料發布流程
 
-1. 執行 raw 匯入並指定新的 dated catalog version：`npm run catalog:import -- --input <raw.xlsx> --output catalog/product-catalog.json --version <YYYY-MM-DD.N>`。
-2. 檢查 old → new 品號差異、重複衝突、資料待補與 alias owner。
-3. 執行 `npm run catalog:build` 生成 Supply 內建資料，再由 FBA 執行 `npm run generate:catalog -- --source ../Supply/catalog/product-catalog.json`。
-4. 兩站各自完成測試、Pages 部署與 live catalogVersion/hash 驗證後，才宣稱同步發布完成。
+1. 先執行不寫檔的發布計畫：`npm run catalog:release -- --input <raw.xlsx> --fba-repo ../FBA --report <report.json>`。版本未指定時，會以台北日期接續目前版本號。
+2. 計畫會列出每個 Product SKU／Order SKU Alias 的 old → new 箱入數、箱／棧板、紙箱尺寸（in）、箱重（lb）、生命週期與 owner。沒有公開欄位變更時不建立空版本。
+3. 確認沒有移除、alias owner 變更、資料倒退或其他阻擋項目後，執行同一命令並加入 `--apply --verify`；它會一次生成 Supply canonical/snapshot 與 FBA snapshot/HTML，並完成兩站本機驗證。
+4. `release-supply-fba-product-catalog` Skill 在使用者明確要求「發布／上線」時，接著建立兩個 PR、等候兩邊檢查、合併、等候 Pages，再驗證兩個公開站點的相同 `catalogVersion` 與實際內容。
 
 兩個網站在 runtime 都使用各自已驗證的本地 snapshot，不會互相 fetch，因此其中一站暫時無法連線不會拖垮另一站。更新失敗時保留上一個已發布版本。
 
