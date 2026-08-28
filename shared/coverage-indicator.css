@@ -1,0 +1,73 @@
+.coverageMeter {
+  --coverage-fill: 0%;
+  --coverage-target: 49.3151%;
+  display: grid;
+  gap: 4px;
+  min-width: 132px;
+  max-width: 190px;
+  color: #334155;
+}
+
+.coverageMeter__summary {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  line-height: 1.2;
+}
+
+.coverageMeter__value {
+  color: #0f172a;
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.coverageMeter__status {
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-align: right;
+}
+
+.coverageMeter__track {
+  position: relative;
+  height: 11px;
+  overflow: hidden;
+  border: 1px solid #94a3b8;
+  border-radius: 999px;
+  background: #e2e8f0;
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.18);
+}
+
+.coverageMeter__fill {
+  display: block;
+  width: var(--coverage-fill);
+  height: 100%;
+  border-radius: inherit;
+  background: #94a3b8;
+  transition: width 180ms ease;
+}
+
+.coverageMeter__targetMarker {
+  position: absolute;
+  top: -1px;
+  bottom: -1px;
+  left: var(--coverage-target);
+  width: 2px;
+  background: rgba(15, 23, 42, 0.48);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.58);
+}
+
+.coverageMeter--low .coverageMeter__fill { background: #facc15; }
+.coverageMeter--low .coverageMeter__status { color: #854d0e; }
+.coverageMeter--healthy .coverageMeter__fill { background: #22c55e; }
+.coverageMeter--healthy .coverageMeter__status { color: #166534; }
+.coverageMeter--excess .coverageMeter__fill {
+  background: repeating-linear-gradient(135deg, #ef4444 0 7px, #dc2626 7px 14px);
+}
+.coverageMeter--excess .coverageMeter__status { color: #991b1b; }
+.coverageMeter--neutral .coverageMeter__status { color: #64748b; }
+
+@media (prefers-reduced-motion: reduce) {
+  .coverageMeter__fill { transition: none; }
+}

@@ -87,6 +87,7 @@ test('Boss matches the public scenario while mocked auth/cloud persists exact mu
 
   await page.goto('/Boss/#today');
   await waitForSupplyApp(page);
+  await expect(page).toHaveURL(/#recommendations$/);
   await expect(page.locator('#bossAuthGate')).toBeVisible();
   await page.locator('#bossLoginUsername').fill('fixture-user');
   await page.locator('#bossLoginPassword').fill('fixture-password');
@@ -95,7 +96,7 @@ test('Boss matches the public scenario while mocked auth/cloud persists exact mu
   await expect(page.locator('#todaySourceReadiness')).toHaveText('3 / 3');
   await expect(page.locator('#bossSaveState')).toContainText('已從雲端載入');
   await expectFixturePlanning(page);
-  await expectOnlyWorkspace(page, 'today');
+  await expectOnlyWorkspace(page, 'recommendations');
   expect(cloud.calls.login).toBe(1);
   expect(cloud.calls.get).toBe(1);
   expect(cloud.calls.files).toBe(4);
@@ -165,6 +166,8 @@ test('Boss matches the public scenario while mocked auth/cloud persists exact mu
   await clearButton.click();
   await expect.poll(() => cloud.calls.delete).toBe(1);
   await expect(page.locator('#bossSaveState')).toHaveText('已清除雲端與這個瀏覽器的工作區資料。');
+  await expect(page).toHaveURL(/#data$/);
+  await expectOnlyWorkspace(page, 'data');
   expectNoFixtureSourceState(await readBossSourceState(page));
   for (const key of ['supply-order-draft-v2', 'supply-generator-drafts-v1', 'supply-velocity-history-v1', 'supply-workspace-preferences-v1']) {
     expect(await page.evaluate(storageKey => localStorage.getItem(storageKey), key)).toBeNull();
@@ -176,7 +179,9 @@ test('Boss matches the public scenario while mocked auth/cloud persists exact mu
   const errorsBeforeExpectedMissingSnapshot = browserErrors.length;
   await page.reload();
   await waitForSupplyApp(page);
+  await expect(page).toHaveURL(/#data$/);
   await expect(page.locator('#bossAuthGate')).toBeHidden();
+  await expectOnlyWorkspace(page, 'data');
   await expect(page.locator('#bossSaveState')).toContainText('雲端目前沒有資料');
   expectNoFixtureSourceState(await readBossSourceState(page));
   for (const key of ['supply-order-draft-v2', 'supply-generator-drafts-v1', 'supply-velocity-history-v1', 'supply-workspace-preferences-v1']) {

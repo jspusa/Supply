@@ -4,8 +4,6 @@ import path from 'node:path';
 import test from 'node:test';
 import vm from 'node:vm';
 
-import { classifyCoverageDays } from '../shared/supply-planner.js';
-
 const repoRoot = path.resolve(import.meta.dirname, '..');
 const indexHtml = fs.readFileSync(path.join(repoRoot, 'index.html'), 'utf8');
 const bossHtml = fs.readFileSync(path.join(repoRoot, 'Boss', 'index.html'), 'utf8');
@@ -75,22 +73,39 @@ for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
     const persistDraftSource = extractFunctionSource(html, 'persistGeneratorDraft');
     const restoreDraftSource = extractFunctionSource(html, 'restoreGeneratorDraft');
     const loadDraftSource = extractFunctionSource(html, 'loadGeneratorDraftState');
+    const equivalentToggleSource = extractFunctionSource(html, 'renderEquivalentOrderToggle');
+    const hydrateRowSource = extractFunctionSource(html, 'hydrateGeneratorRow');
+    const syncLockSource = extractFunctionSource(html, 'syncGeneratorLockButton');
     const lockSource = extractFunctionSource(html, 'toggleLock');
+    const palletStepSource = extractFunctionSource(html, 'stepGeneratorPallets');
+    const palletKeySource = extractFunctionSource(html, 'handleGeneratorPalletKey');
     const exportSource = extractFunctionSource(html, 'exportGeneratorToExcel');
     assert.match(addProductSource, /generatorQuantityGroup/);
     assert.match(addProductSource, /class="palletStepControl"/);
-    assert.match(addProductSource, /class="edit-pallets-input"[^>]*step="any"/);
+    assert.match(addProductSource, /class="edit-pallets-input"[^>]*step="any"[^>]*min="0"/);
     assert.match(addProductSource, /stepGeneratorPallets\(this,-1\)/);
     assert.match(addProductSource, /stepGeneratorPallets\(this,1\)/);
     assert.match(addProductSource, /handleGeneratorPalletKey\(event\)/);
     assert.match(addProductSource, /normalizeGeneratorPallets\(this,/);
     assert.match(addProductSource, /class="box-size-cell"/);
+    assert.match(addProductSource, /class="generatorActionGroup"/);
     assert.match(addProductSource, /class="drag-handle"[^>]*aria-label="按住拖曳排序"/);
+    assert.match(addProductSource, /class="lock-button"[^>]*aria-label="鎖定這列"[^>]*aria-pressed="false"[^>]*title="鎖定這列"/);
+    assert.match(addProductSource, /class="remove-button"[^>]*aria-label="刪除這列"[^>]*title="刪除這列"/);
+    assert.match(addProductSource, /aria-label="增加 1 棧板" title="增加 1 棧板"/);
+    assert.match(addProductSource, /aria-label="減少 1 棧板" title="減少 1 棧板"/);
     assert.match(totalsSource, /querySelector\('\.box-size-cell'\)/);
     assert.doesNotMatch(totalsSource, /row\.cells\[7\]/);
     assert.match(html, /\.generatorQuantityGroup \{[^}]*display:flex;[^}]*flex-direction:column/);
-    assert.match(html, /\.generatorCoverageStatus\.healthy \{ color:#15803d; \}/);
-    assert.match(html, /\.generatorCoverageStatus\.excess \{ color:#b91c1c; \}/);
+    assert.match(html, /\.palletStepControl \{[^}]*width:88px;[^}]*height:34px;/);
+    assert.match(html, /\.palletStepButtons \{[^}]*position:absolute;[^}]*width:20px;/);
+    assert.match(html, /\.order-generator \.action-button,[^{]+\{[^}]*inline-size:28px;[^}]*block-size:28px;/);
+    assert.match(html, /\.generatorActionGroup \{[^}]*inline-size:90px;/);
+    assert.match(html, /@media \(pointer:coarse\) \{[\s\S]*?\.order-generator \.generatorActionGroup > button, \.order-generator \.miniBtn \{[^}]*inline-size:40px;[^}]*block-size:40px;/);
+    const coverageBase = entrypoint === 'public' ? './shared/' : '../shared/';
+    assert.match(html, new RegExp(`<link rel="stylesheet" href="${coverageBase.replaceAll('.', '\\.')}coverage-indicator\\.css">`));
+    assert.match(html, new RegExp(`<script type="module" src="${coverageBase.replaceAll('.', '\\.')}coverage-indicator\\.js"></script>`));
+    assert.doesNotMatch(html, /generatorCoverageStatus/);
     assert.match(html, /wireGeneratorRowSorting\(\);/);
     assert.doesNotMatch(html, /function roundUpToHalfPallet\(/);
     assert.doesNotMatch(html, /最小 0\.5 棧板/);
@@ -108,7 +123,25 @@ for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
     assert.doesNotMatch(loadDraftSource, /\(result\.issues \|\| \[\]\)\.length \+ \(generatorDraft\.repairOrder \|\| \[\]\)\.length/);
     assert.match(restoreDraftSource, /setActiveOrderGroup/);
     assert.match(restoreDraftSource, /renderActiveOrderGroup/);
+    assert.match(equivalentToggleSource, /class="miniBtn"/);
+    assert.match(equivalentToggleSource, /aria-label="切換下單品號為 \$\{safeNextCode\}"/);
+    assert.match(equivalentToggleSource, /title="切換為 \$\{safeNextCode\}"/);
+    assert.match(equivalentToggleSource, /data-next-order-sku="\$\{safeNextCode\}"/);
+    assert.match(equivalentToggleSource, /fa-repeat/);
+    assert.doesNotMatch(equivalentToggleSource, />切換下單：/);
+    assert.match(hydrateRowSource, /syncGeneratorLockButton\(row\)/);
+    assert.match(syncLockSource, /locked \? '解除鎖定這列' : '鎖定這列'/);
+    assert.match(syncLockSource, /setAttribute\('aria-label', label\)/);
+    assert.match(syncLockSource, /setAttribute\('title', label\)/);
+    assert.match(syncLockSource, /setAttribute\('aria-pressed', String\(locked\)\)/);
+    assert.match(syncLockSource, /aria-hidden="true"/);
     assert.match(lockSource, /setGeneratorPalletState/);
+    assert.match(lockSource, /row\.querySelectorAll\('input'\)/);
+    assert.match(lockSource, /syncGeneratorLockButton\(row\)/);
+    assert.doesNotMatch(lockSource, /btn\.disabled|querySelectorAll\('button'\)/);
+    assert.match(palletStepSource, /currentPallets:input\.value/);
+    assert.match(palletStepSource, /delta,/);
+    assert.match(palletKeySource, /event\.key === 'ArrowUp' \? 1 : -1/);
     assert.match(exportSource, /projectOrderWorkbook/);
     assert.doesNotMatch(exportSource, /getRowExactMetrics/);
     assert.doesNotMatch(extractFunctionSource(html, 'updateFields'), /perPallet\s*\|\|\s*1/);
@@ -307,19 +340,21 @@ test('Book coverage comes from the shared planner and excludes the current Order
   }
 });
 
-test('coverage colors use the displayed 180 and 365 day boundaries', () => {
-  const context = { window: { SupplyPlanningLegacy: { classifyCoverageDays } } };
-  vm.createContext(context);
-  vm.runInContext(`${extractFunctionSource(indexHtml, 'getGeneratorCoverageBand')}\nthis.getGeneratorCoverageBand = getGeneratorCoverageBand;`, context);
-  assert.equal(context.getGeneratorCoverageBand(null, 180), 'neutral');
-  assert.equal(context.getGeneratorCoverageBand(179.999999998, 180), 'low');
-  assert.equal(context.getGeneratorCoverageBand(179.9999999995, 180), 'healthy');
-  assert.equal(context.getGeneratorCoverageBand(365, 180), 'healthy');
-  assert.equal(context.getGeneratorCoverageBand(365.0000000005, 180), 'healthy');
-  assert.equal(context.getGeneratorCoverageBand(365.000000002, 180), 'excess');
-  assert.equal(context.getGeneratorCoverageBand(179.96, 180), 'low');
-  assert.equal(context.getGeneratorCoverageBand(365.04, 180), 'excess');
-  assert.match(extractFunctionSource(indexHtml, 'getGeneratorCoverageBand'), /SupplyPlanningLegacy\.classifyCoverageDays/);
+test('coverage surfaces delegate the fixed 180 and 365 day bands to one shared indicator', () => {
+  for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
+    const renderMeter = extractFunctionSource(html, 'renderCoverageMeterHtml');
+    const renderArrival = extractFunctionSource(html, 'renderGeneratorArrivalCoverage');
+    const renderBook = extractFunctionSource(html, 'renderGeneratorBookCoverage');
+    assert.match(renderMeter, /SupplyCoverageIndicator/);
+    assert.match(renderMeter, /api\.renderCoverageMeter\(\{ coverageDays:/);
+    assert.match(renderArrival, /renderCoverageMeterHtml\(days,/);
+    assert.match(renderBook, /renderCoverageMeterHtml\(plan\.bookCoverageDays,/);
+    assert.doesNotMatch(`${renderMeter}\n${renderArrival}\n${renderBook}`, /getReorderTargetDays|classifyCoverageDays/);
+    assert.match(html, /低於 180 天黃色、180–365 天綠色、超過 365 天紅色/);
+    assert.doesNotMatch(html, /generatorCoverageStatus/);
+    assert.match(html, /coverageHealthCell/);
+    assert.ok(entrypoint);
+  }
 });
 
 test('planned quantity application updates the shared Product SKU row without using the active tab as factory truth', () => {
@@ -462,19 +497,25 @@ test('fractional totals sum canonical pallet precision before formatting once', 
   }
 });
 
-test('main and generator coverage surfaces mark only real values above 365 as excess', () => {
+test('main and generator coverage surfaces preserve values and assessment while delegating rendering', () => {
   for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
+    const calls = [];
     const context = {
-      getReorderTargetDays: () => 180,
-      getGeneratorCoverageBand: value => classifyCoverageDays({ coverageDays:value, targetDays:180, maximumCoverageDays:365 }),
+      window:{ SupplyCoverageIndicator:{ renderCoverageMeter(options) { calls.push(options); return `<meter>${options.coverageDays ?? 'none'}:${options.assessment}</meter>`; } } },
       fmtDays: value => `${value} 天`,
+      escapeHtml: value => value,
     };
     vm.createContext(context);
-    vm.runInContext(`${extractFunctionSource(html, 'renderCoverageDaysCell')}\nthis.renderCoverageDaysCell = renderCoverageDaysCell;`, context);
-    assert.match(context.renderCoverageDaysCell(365), /class="ok"/, entrypoint);
-    assert.doesNotMatch(context.renderCoverageDaysCell(365), /超過 365 天/, entrypoint);
-    assert.match(context.renderCoverageDaysCell(365.04), /class="bad"/, entrypoint);
-    assert.match(context.renderCoverageDaysCell(365.04), /超過 365 天/, entrypoint);
+    vm.runInContext(`${extractFunctionSource(html, 'renderCoverageMeterHtml')}\n${extractFunctionSource(html, 'renderCoverageDaysCell')}\nthis.renderCoverageDaysCell = renderCoverageDaysCell;`, context);
+    const healthyCell = context.renderCoverageDaysCell(365);
+    const unavailableCell = context.renderCoverageDaysCell(null);
+    assert.match(healthyCell, /class="coverageHealthCell"/);
+    assert.match(healthyCell, /<meter>365:ready<\/meter>/);
+    assert.match(unavailableCell, /<meter>none:unavailable<\/meter>/);
+    assert.deepEqual(calls.map(call => ({ ...call })), [
+      { coverageDays:365, assessment:'ready' },
+      { coverageDays:null, assessment:'unavailable' },
+    ], entrypoint);
   }
 });
 

@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 
 import { SANITIZED_H10_TEXT } from '../fixtures/sanitized-supply-browser.mjs';
 import {
+  expectOnlyWorkspace,
   freezeBrowserTime,
   installOfflineAssetRoutes,
   monitorBrowserErrors,
@@ -9,12 +10,48 @@ import {
   waitForSupplyApp,
 } from './browser-helpers.mjs';
 
+const LEGACY_TODAY_PREFERENCES = Object.freeze({
+  schemaVersion:1,
+  updatedAt:'2026-08-27T08:30:00.000Z',
+  activeWorkspace:'today',
+  planning:{},
+  filters:{},
+  otherText:{},
+});
+
 async function waitForSnapshot(page, predicate) {
   await expect.poll(async () => {
     const snapshot = await readWorkspaceSnapshot(page);
     return snapshot && predicate(snapshot) ? snapshot : null;
   }, { timeout:8_000 }).not.toBeNull();
 }
+
+test('legacy saved Today preference restores and resaves as canonical Recommendations', async ({ page, context }) => {
+  await freezeBrowserTime(page);
+  const unexpectedRequests = [];
+  await installOfflineAssetRoutes(context, unexpectedRequests);
+  const browserErrors = monitorBrowserErrors(page);
+  await page.addInitScript(preferences => {
+    localStorage.setItem('supply-workspace-preferences-v1', JSON.stringify(preferences));
+  }, LEGACY_TODAY_PREFERENCES);
+
+  await page.goto('/');
+  await waitForSupplyApp(page);
+  await expect(page).toHaveURL(/#recommendations$/);
+  await expectOnlyWorkspace(page, 'recommendations');
+  await expect(page.locator('#todayWorkspaceSummary')).toBeVisible();
+  await expect(page.locator('#decisionDashboard')).toBeVisible();
+  await expect(page.locator('.workspaceNavTab[data-workspace="today"]')).toHaveCount(0);
+
+  await page.locator('.workspaceNavTab[data-workspace="recommendations"]').click();
+  await expect.poll(() => page.evaluate(() => {
+    const value = localStorage.getItem('supply-workspace-preferences-v1');
+    return value ? JSON.parse(value).activeWorkspace : null;
+  }), { timeout:8_000 }).toBe('recommendations');
+
+  expect(unexpectedRequests).toEqual([]);
+  expect(browserErrors).toEqual([]);
+});
 
 test('manual-only JAM, H10, and JSP restore ready and continue autosaving after reload', async ({ page, context }) => {
   await freezeBrowserTime(page);

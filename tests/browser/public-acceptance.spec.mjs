@@ -107,15 +107,18 @@ test('public sanitized data flows through planning, shared navigation, three gro
   page.once('dialog', dialog => dialog.accept());
   await page.locator('#btnClearAll').click();
   await expect(page.locator('#workspaceSnapshotState')).toContainText('已清除這個瀏覽器');
+  await expect(page).toHaveURL(/#data$/);
+  await expectOnlyWorkspace(page, 'data');
   expect(await readWorkspaceSnapshot(page)).toBeNull();
   expect(await page.evaluate(() => localStorage.getItem('supply-velocity-history-v1'))).toBeNull();
   const clearedDraft = await readOrderDraft(page);
   expect(clearedDraft === null || Object.keys(clearedDraft.rowsByProductSku || {}).length === 0).toBe(true);
   expect(await page.locator('#inputH10').inputValue()).toBe('');
 
-  await page.reload();
+  await page.goto('/');
   await waitForSupplyApp(page);
-  await expectOnlyWorkspace(page, 'today');
+  await expect(page).toHaveURL(/#data$/);
+  await expectOnlyWorkspace(page, 'data');
   await expect(page.locator('#workspaceSnapshotState')).toContainText('尚無 Workspace Snapshot');
   await expect(page.locator('#todaySourceReadiness')).toHaveText('0 / 3');
   expect(await readWorkspaceSnapshot(page)).toBeNull();

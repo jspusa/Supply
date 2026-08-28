@@ -5,6 +5,8 @@ export const runtimeFiles = Object.freeze([
   'Boss/index.html',
   'index.html',
   'product-data.js',
+  'shared/coverage-indicator.css',
+  'shared/coverage-indicator.js',
   'shared/legacy-planning-adapter.js',
   'shared/order-draft-quantity.js',
   'shared/order-draft-state.js',

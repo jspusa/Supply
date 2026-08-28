@@ -1,17 +1,18 @@
 import {
   WORKSPACE_IDS,
+  canonicalWorkspaceId,
   projectTodaySummary,
   resolveInitialWorkspace,
   workspaceHash,
 } from './workspace-navigation.js';
 
-const NAV_ITEMS = Object.freeze([
-  Object.freeze({ id:'today', label:'Today' }),
-  Object.freeze({ id:'data', label:'Data' }),
-  Object.freeze({ id:'recommendations', label:'Recommendations' }),
-  Object.freeze({ id:'orders', label:'Orders' }),
-  Object.freeze({ id:'analysis', label:'Analysis' }),
-]);
+const WORKSPACE_LABELS = Object.freeze({
+  data:'資料',
+  recommendations:'今日建議',
+  orders:'訂單',
+  analysis:'資料分析',
+});
+const NAV_ITEMS = Object.freeze(WORKSPACE_IDS.map(id => Object.freeze({ id, label:WORKSPACE_LABELS[id] })));
 
 function navigationMarkup() {
   return `<nav class="workspaceTopNav" aria-label="主要工作區">
@@ -22,7 +23,7 @@ function navigationMarkup() {
 }
 
 function todayMarkup() {
-  return `<section class="todayWorkspaceSummary" id="todayWorkspaceSummary" data-workspace-panel="today" aria-live="polite">
+  return `<section class="todayWorkspaceSummary" id="todayWorkspaceSummary" data-workspace-panel="recommendations" aria-live="polite">
     <div class="todaySummaryHeader">
       <div><p class="eyebrow">Today</p><h2>今天先做什麼</h2></div>
       <span class="pill" id="todaySummaryState">等待資料</span>
@@ -44,10 +45,6 @@ function requiredElement(documentRef, id) {
   return element;
 }
 
-function canonicalPreference(value) {
-  return WORKSPACE_IDS.includes(value) ? value : null;
-}
-
 export function createWorkspaceUi({
   getSummaryInput,
   onWorkspaceChanged = () => {},
@@ -58,7 +55,7 @@ export function createWorkspaceUi({
   if (typeof onWorkspaceChanged !== 'function') throw new TypeError('onWorkspaceChanged must be a function');
   if (!documentRef || !windowRef) throw new TypeError('Workspace UI requires a browser document and window');
 
-  let activeWorkspace = 'today';
+  let activeWorkspace = 'data';
   let restoredPreference = null;
   let mounted = false;
   let wired = false;
@@ -112,6 +109,7 @@ export function createWorkspaceUi({
     if (action) {
       action.textContent = summary.nextAction.label;
       action.dataset.workspace = summary.nextAction.workspace;
+      action.dataset.targetId = summary.nextAction.targetId || '';
     }
     return summary;
   }
@@ -123,7 +121,7 @@ export function createWorkspaceUi({
     userInitiated = false,
   } = {}) {
     if (!mounted) throw new Error('Workspace UI must be started before activation');
-    if (!WORKSPACE_IDS.includes(workspace)) workspace = 'today';
+    workspace = canonicalWorkspaceId(workspace) || 'data';
     activeWorkspace = workspace;
     restoredPreference = workspace;
     let selectedTab = null;
@@ -189,10 +187,17 @@ export function createWorkspaceUi({
         userInitiated:true,
       });
     });
-    documentRef.getElementById('todayNextAction')?.addEventListener('click', event => activate(
-      event.currentTarget.dataset.workspace || 'data',
-      { historyMode:'push', focus:true, scroll:true, userInitiated:true },
-    ));
+    documentRef.getElementById('todayNextAction')?.addEventListener('click', event => {
+      const targetId = event.currentTarget.dataset.targetId || '';
+      activate(
+        event.currentTarget.dataset.workspace || 'data',
+        { historyMode:'push', focus:true, scroll:!targetId, userInitiated:true },
+      );
+      if (targetId) {
+        const reduced = windowRef.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+        documentRef.getElementById(targetId)?.scrollIntoView({ behavior:reduced ? 'auto' : 'smooth', block:'start' });
+      }
+    });
     windowRef.addEventListener('popstate', syncFromLocation);
     windowRef.addEventListener('hashchange', syncFromLocation);
     wired = true;
@@ -200,7 +205,7 @@ export function createWorkspaceUi({
 
   function start({ preference = null } = {}) {
     mount();
-    restoredPreference = canonicalPreference(preference);
+    restoredPreference = canonicalWorkspaceId(preference);
     const initial = resolveInitialWorkspace({
       url:windowRef.location.href,
       preference:restoredPreference,

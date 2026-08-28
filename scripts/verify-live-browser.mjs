@@ -47,6 +47,7 @@ export function buildLiveBrowserUrls({ baseUrl, expectedRevision, attempt = 1 } 
   return Object.freeze({
     releaseUrl:cacheBustedUrl(resolvedBaseUrl, 'release.json', revision, boundedAttempt),
     legacyPublicUrl:cacheBustedUrl(resolvedBaseUrl, './', revision, boundedAttempt, '#decisionDashboard'),
+    legacyTodayUrl:cacheBustedUrl(resolvedBaseUrl, './', revision, boundedAttempt, '#today'),
     legacyCanonicalUrl:cacheBustedUrl(resolvedBaseUrl, './', revision, boundedAttempt, '#recommendations'),
     canonicalPublicUrl:cacheBustedUrl(resolvedBaseUrl, './', revision, boundedAttempt, '#recommendations'),
     bossUrl:cacheBustedUrl(resolvedBaseUrl, 'Boss/', revision, boundedAttempt, '#today'),
@@ -65,13 +66,6 @@ async function requireVisible(page, selector, label, timeout) {
   if (!await locator.isVisible()) throw new Error(`${label} is not visible`);
 }
 
-async function requireHidden(page, selector, label, timeout) {
-  const locator = page.locator(selector);
-  await requireCount(locator, 1, label);
-  await locator.waitFor({ state:'hidden', timeout });
-  if (!await locator.isHidden()) throw new Error(`${label} is not hidden`);
-}
-
 async function requireWorkspaceReady(page, timeout) {
   const ready = page.locator('html[data-workspace-ui-ready="true"]');
   await requireCount(ready, 1, 'workspace UI ready marker');
@@ -88,6 +82,7 @@ function requireExactUrl(page, expectedUrl, label) {
 async function assertRecommendationsWorkspace(page, expectedUrl, assertionTimeoutMs) {
   await requireWorkspaceReady(page, assertionTimeoutMs);
   requireExactUrl(page, expectedUrl, 'Recommendations workspace');
+  await requireCount(page.locator('.workspaceNavTab'), 4, 'workspace navigation tabs');
   await requireVisible(
     page,
     '.workspaceNavTab[data-workspace="recommendations"][aria-selected="true"]',
@@ -100,10 +95,10 @@ async function assertRecommendationsWorkspace(page, expectedUrl, assertionTimeou
     'Recommendations panel',
     assertionTimeoutMs,
   );
-  await requireHidden(
+  await requireVisible(
     page,
-    '#todayWorkspaceSummary[data-workspace-panel="today"]',
-    'Today panel',
+    '#todayWorkspaceSummary[data-workspace-panel="recommendations"]',
+    'Merged Today summary',
     assertionTimeoutMs,
   );
   await requireCount(page.locator('.appSidebar'), 0, 'legacy app sidebar');
@@ -141,6 +136,13 @@ async function verifyBrowserAttempt({ browserType, urls, expectedRevision, navig
         timeout:navigationTimeoutMs,
       });
       await assertRecommendationsWorkspace(legacyPage, urls.legacyCanonicalUrl, assertionTimeoutMs);
+
+      const legacyTodayPage = await context.newPage();
+      await legacyTodayPage.goto(urls.legacyTodayUrl, {
+        waitUntil:'domcontentloaded',
+        timeout:navigationTimeoutMs,
+      });
+      await assertRecommendationsWorkspace(legacyTodayPage, urls.legacyCanonicalUrl, assertionTimeoutMs);
 
       const canonicalPage = await context.newPage();
       await canonicalPage.goto(urls.canonicalPublicUrl, {

@@ -4,30 +4,38 @@ import test from 'node:test';
 import {
   LEGACY_WORKSPACE_HASHES,
   WORKSPACE_IDS,
+  canonicalWorkspaceId,
   projectTodaySummary,
   resolveInitialWorkspace,
   workspaceHash,
 } from '../shared/workspace-navigation.js';
 
 test('canonical workspace ids and hashes are stable', () => {
-  assert.deepEqual(WORKSPACE_IDS, ['today', 'data', 'recommendations', 'orders', 'analysis']);
+  assert.deepEqual(WORKSPACE_IDS, ['data', 'recommendations', 'orders', 'analysis']);
   assert.equal(Object.isFrozen(WORKSPACE_IDS), true);
   for (const workspace of WORKSPACE_IDS) {
     assert.equal(workspaceHash(workspace), `#${workspace}`);
   }
-  assert.equal(workspaceHash('unknown'), '#today');
+  assert.equal(workspaceHash('today'), '#recommendations');
+  assert.equal(workspaceHash('unknown'), '#data');
+  assert.equal(canonicalWorkspaceId(' Today '), 'recommendations');
+  assert.equal(canonicalWorkspaceId('ANALYSIS'), 'analysis');
+  assert.equal(canonicalWorkspaceId('unknown'), null);
+  assert.equal(canonicalWorkspaceId('toString'), null);
 });
 
-test('initial workspace prefers a valid URL, then preference, then Today', () => {
+test('initial workspace prefers a valid URL, then canonicalized preference, then Data', () => {
   assert.equal(resolveInitialWorkspace({ url:'https://jspusa.github.io/Supply/#reorderCard', preference:'orders' }), 'recommendations');
   assert.equal(resolveInitialWorkspace({ url:'#not-a-workspace', preference:'orders' }), 'orders');
-  assert.equal(resolveInitialWorkspace({ url:'#not-a-workspace', preference:'not-a-workspace' }), 'today');
+  assert.equal(resolveInitialWorkspace({ url:'#not-a-workspace', preference:'today' }), 'recommendations');
+  assert.equal(resolveInitialWorkspace({ url:'#not-a-workspace', preference:'not-a-workspace' }), 'data');
   assert.equal(resolveInitialWorkspace({ hash:'#analysis', preference:'data' }), 'analysis');
-  assert.equal(resolveInitialWorkspace(), 'today');
+  assert.equal(resolveInitialWorkspace(), 'data');
 });
 
 test('every legacy card hash resolves to its canonical workspace', () => {
   assert.deepEqual(LEGACY_WORKSPACE_HASHES, {
+    '#today':'recommendations',
     '#decisionDashboard':'recommendations',
     '#uploadCard':'data',
     '#reorderCard':'recommendations',
@@ -137,6 +145,19 @@ test('Today selects the highest-priority matching Velocity Risk and uses non-con
   assert.equal(summary.nextAction.id, 'review-velocity-risk');
   assert.equal(summary.nextAction.workspace, 'recommendations');
   assert.equal(summary.nextAction.hash, '#recommendations');
+  assert.equal(summary.nextAction.targetId, 'decisionDashboard');
+});
+
+test('Today priority action targets the merged recommendation dashboard', () => {
+  const summary = projectTodaySummary({
+    sourceReadiness:{ h10:true, openOrders:true, inventory:true },
+    priorityRows:[{ sku:'AFA12AM' }],
+    velocityRiskRows:[],
+  });
+  assert.equal(summary.nextAction.id, 'review-priorities');
+  assert.equal(summary.nextAction.workspace, 'recommendations');
+  assert.equal(summary.nextAction.hash, '#recommendations');
+  assert.equal(summary.nextAction.targetId, 'decisionDashboard');
 });
 
 test('three Order Draft groups are counted and become the one next action after priorities clear', () => {
@@ -166,7 +187,7 @@ test('browser consumers receive one frozen workspace-navigation interface', asyn
     assert.equal(Object.isFrozen(browserInterface), true);
     assert.deepEqual(browserInterface.WORKSPACE_IDS, WORKSPACE_IDS);
     assert.equal(browserInterface.LEGACY_WORKSPACE_HASHES['#decisionDashboard'], 'recommendations');
-    for (const name of ['resolveInitialWorkspace', 'workspaceHash', 'projectTodaySummary']) {
+    for (const name of ['canonicalWorkspaceId', 'resolveInitialWorkspace', 'workspaceHash', 'projectTodaySummary']) {
       assert.equal(typeof browserInterface[name], 'function', name);
     }
   } finally {

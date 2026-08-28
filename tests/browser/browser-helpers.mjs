@@ -218,6 +218,7 @@ export async function waitForSupplyApp(page) {
   await expect.poll(() => page.evaluate(() => Boolean(
     window.SupplyWorkspaceNavigation?.WORKSPACE_IDS
     && window.SupplyWorkspaceUI?.createWorkspaceUi
+    && window.SupplyCoverageIndicator?.renderCoverageMeter
     && window.SupplyOrderDraftState?.ORDER_GROUP_IDS
     && window.SupplyWorkspaceSnapshot?.createWorkspaceSnapshotStore
     && window.XLSX?.utils
@@ -328,11 +329,14 @@ export async function orderDraftGroupCounts(page) {
 
 export async function exerciseWorkspaceNavigationAndLayout(page, { expectEmptyToday = false } = {}) {
   await page.setViewportSize({ width:1280, height:900 });
-  await page.locator('.workspaceNavTab[data-workspace="today"]').click();
-  await expectOnlyWorkspace(page, 'today');
-  await expect(page.locator('[data-workspace-panel="today"]')).toHaveCount(1);
+  await expect(page.locator('.workspaceNavTab')).toHaveCount(4);
+  await expect(page.locator('.workspaceNavTab')).toHaveText(['資料', '今日建議', '訂單', '資料分析']);
+  await page.locator('.workspaceNavTab[data-workspace="recommendations"]').click();
+  await expectOnlyWorkspace(page, 'recommendations');
+  await expect(page.locator('[data-workspace-panel="today"]')).toHaveCount(0);
   await expect(page.locator('#todayWorkspaceSummary')).toBeVisible();
   await expect(page.locator('#decisionDashboard')).toHaveAttribute('data-workspace-panel', 'recommendations');
+  await expect(page.locator('#decisionDashboard')).toBeVisible();
   if (expectEmptyToday) {
     await expect(page.locator('#todaySourceReadiness')).toHaveText('0 / 3');
     await expect(page.locator('#todayNextAction')).toHaveText('開始準備資料');
@@ -360,6 +364,12 @@ export async function exerciseWorkspaceNavigationAndLayout(page, { expectEmptyTo
   await page.evaluate(() => { window.location.hash = '#decisionDashboard'; });
   await expect(page).toHaveURL(/#recommendations$/);
   await expectOnlyWorkspace(page, 'recommendations');
+
+  await page.evaluate(() => { window.location.hash = '#today'; });
+  await expect(page).toHaveURL(/#recommendations$/);
+  await expectOnlyWorkspace(page, 'recommendations');
+  await expect(page.locator('#todayWorkspaceSummary')).toBeVisible();
+  await expect(page.locator('#decisionDashboard')).toBeVisible();
 
   const desktopLayout = await page.evaluate(() => ({
     viewport:document.documentElement.clientWidth,
@@ -401,7 +411,43 @@ export async function exerciseWorkspaceNavigationAndLayout(page, { expectEmptyTo
   await page.setViewportSize({ width:1280, height:900 });
 }
 
+async function expectCoverageMeter(cell, {
+  band,
+  valueText,
+  statusText,
+  ariaNow,
+  fillColor,
+}) {
+  const indicator = cell.locator('.coverageMeter');
+  await expect(indicator).toHaveCount(1);
+  await expect(indicator).toHaveClass(new RegExp(`coverageMeter--${band}`));
+  await expect(indicator).toHaveAttribute('data-band', band);
+  await expect(indicator).toHaveAttribute('data-assessment', 'ready');
+  const value = indicator.locator('.coverageMeter__value');
+  const status = indicator.locator('.coverageMeter__status');
+  await expect(value).toHaveText(valueText);
+  await expect(status).toHaveText(statusText);
+  const actualValueText = (await value.textContent())?.trim();
+  const track = indicator.getByRole('meter', { name:'可售天數' });
+  await expect(track).toHaveAttribute('aria-valuemin', '0');
+  await expect(track).toHaveAttribute('aria-valuemax', '365');
+  await expect(track).toHaveAttribute('aria-valuenow', String(ariaNow));
+  await expect(track).toHaveAttribute('aria-valuetext', `${actualValueText}，${statusText}`);
+
+  const fillStyle = await indicator.locator('.coverageMeter__fill').evaluate(element => {
+    const style = getComputedStyle(element);
+    return { backgroundColor:style.backgroundColor, backgroundImage:style.backgroundImage };
+  });
+  if (fillColor === 'yellow') expect(fillStyle.backgroundColor).toBe('rgb(250, 204, 21)');
+  if (fillColor === 'green') expect(fillStyle.backgroundColor).toBe('rgb(34, 197, 94)');
+  if (fillColor === 'red') {
+    expect(fillStyle.backgroundImage).toContain('rgb(239, 68, 68)');
+    expect(fillStyle.backgroundImage).toContain('rgb(220, 38, 38)');
+  }
+}
+
 export async function buildThreeGroupOrderScenario(page) {
+  await page.setViewportSize({ width:1280, height:900 });
   await page.locator('.workspaceNavTab[data-workspace="recommendations"]').click();
   await expectOnlyWorkspace(page, 'recommendations');
   await expect(page.locator('#reorderTableWrap tbody tr')).toHaveCount(5);
@@ -430,6 +476,43 @@ export async function buildThreeGroupOrderScenario(page) {
   expect(packedQuantityLayout).toEqual({ direction:'column', labels:['包', '袋'] });
 
   const palletRow = page.locator('#productTable tbody tr[data-product="GTSL01"]');
+  const compactControls = await palletRow.evaluate(row => {
+    const rect = element => {
+      const box = element.getBoundingClientRect();
+      return { left:box.left, top:box.top, right:box.right, bottom:box.bottom, width:box.width, height:box.height };
+    };
+    const palletControl = row.querySelector('.palletStepControl');
+    const stepButtons = Array.from(row.querySelectorAll('.palletStepButton'));
+    const actionGroup = row.querySelector('.generatorActionGroup');
+    const actions = Array.from(actionGroup.querySelectorAll(':scope > button'));
+    const controlBox = rect(palletControl);
+    const stepBoxes = stepButtons.map(rect);
+    return {
+      palletControl:controlBox,
+      stepLabels:stepButtons.map(button => button.textContent.trim()),
+      stepsInsideControl:stepBoxes.every(box => box.left >= controlBox.left - 0.5
+        && box.top >= controlBox.top - 0.5
+        && box.right <= controlBox.right + 0.5
+        && box.bottom <= controlBox.bottom + 0.5),
+      stepsStackVertically:stepBoxes.length === 2 && stepBoxes[0].bottom <= stepBoxes[1].top + 0.5,
+      actionGroup:rect(actionGroup),
+      actionLabels:actions.map(button => button.getAttribute('aria-label')),
+      actions:actions.map(rect),
+    };
+  });
+  expect(compactControls.palletControl.width).toBeLessThanOrEqual(90);
+  expect(compactControls.palletControl.height).toBeLessThanOrEqual(36);
+  expect(compactControls.stepLabels).toEqual(['▲', '▼']);
+  expect(compactControls.stepsInsideControl).toBe(true);
+  expect(compactControls.stepsStackVertically).toBe(true);
+  expect(compactControls.actionLabels).toEqual(['按住拖曳排序', '鎖定這列', '刪除這列']);
+  expect(compactControls.actions).toHaveLength(3);
+  for (const action of compactControls.actions) {
+    expect(action.width).toBeLessThanOrEqual(30);
+    expect(action.height).toBeLessThanOrEqual(30);
+  }
+  expect(compactControls.actionGroup.width).toBeLessThanOrEqual(94);
+
   const palletInput = palletRow.locator('.edit-pallets-input');
   await palletInput.fill('0.5');
   const palletBeforeStep = Number(await palletInput.inputValue());
@@ -442,19 +525,61 @@ export async function buildThreeGroupOrderScenario(page) {
   }).toEqual({ mode:'manual', authoritativeField:'pallets' });
 
   const ttsRow = page.locator('#productTable tbody tr[data-product="TTS05AM-1"]');
+  for (const selector of ['.estimated-days', '.arrival-days']) {
+    const cell = ttsRow.locator(selector);
+    await expect(cell.locator('.coverageMeter')).toHaveCount(1);
+    await expect(cell.locator('.coverageMeter__value')).toHaveText(/^\d+\.\d 天$/);
+    await expect(cell.locator('.coverageMeter__status')).toHaveText(/^(?:低於 180 天|健康範圍 180–365 天|超過 365 天)$/);
+    const valueText = (await cell.locator('.coverageMeter__value').textContent())?.trim();
+    const statusText = (await cell.locator('.coverageMeter__status').textContent())?.trim();
+    await expect(cell.getByRole('meter', { name:'可售天數' })).toHaveAttribute('aria-valuetext', `${valueText}，${statusText}`);
+  }
+
   await ttsRow.locator('.lock-button').click();
   const ttsQuantity = ttsRow.locator('.edit-quantity-input');
   await ttsQuantity.fill('10000');
-  const highCoverage = Number((await ttsRow.locator('.arrival-days').innerText()).match(/[\d.]+/)?.[0]);
+  const arrivalCell = ttsRow.locator('.arrival-days');
+  const highCoverage = Number((await arrivalCell.locator('.coverageMeter__value').innerText()).match(/[\d.]+/)?.[0]);
   expect(highCoverage).toBeGreaterThan(365);
   const assumedStockAtArrival = highCoverage * 10 - 10000;
+  const quantityFor180Days = Math.round(1800 - assumedStockAtArrival);
   const quantityFor365Days = Math.round(3650 - assumedStockAtArrival);
+
+  await ttsQuantity.fill(String(quantityFor180Days - 10));
+  await expectCoverageMeter(arrivalCell, {
+    band:'low',
+    valueText:'179.0 天',
+    statusText:'低於 180 天',
+    ariaNow:179,
+    fillColor:'yellow',
+  });
+
+  await ttsQuantity.fill(String(quantityFor180Days));
+  await expectCoverageMeter(arrivalCell, {
+    band:'healthy',
+    valueText:'180.0 天',
+    statusText:'健康範圍 180–365 天',
+    ariaNow:180,
+    fillColor:'green',
+  });
+
   await ttsQuantity.fill(String(quantityFor365Days));
-  await expect(ttsRow.locator('.generatorCoverageStatus')).toHaveClass(/healthy/);
-  await expect(ttsRow.locator('.generatorCoverageStatus')).toContainText('365 天');
+  await expectCoverageMeter(arrivalCell, {
+    band:'healthy',
+    valueText:'365.0 天',
+    statusText:'健康範圍 180–365 天',
+    ariaNow:365,
+    fillColor:'green',
+  });
+
   await ttsQuantity.fill(String(quantityFor365Days + 10));
-  await expect(ttsRow.locator('.generatorCoverageStatus')).toHaveClass(/excess/);
-  await expect(ttsRow.locator('.generatorCoverageStatus')).toHaveText('超過 365 天');
+  await expectCoverageMeter(arrivalCell, {
+    band:'excess',
+    valueText:'366.0 天',
+    statusText:'超過 365 天',
+    ariaNow:365,
+    fillColor:'red',
+  });
   await expect.poll(async () => {
     const row = (await readOrderDraft(page)).rowsByProductSku['TTS05AM-1'];
     return { mode:row.pallet.mode, authoritativeField:row.pallet.authoritativeField };

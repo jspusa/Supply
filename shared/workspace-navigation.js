@@ -1,12 +1,17 @@
 export const WORKSPACE_IDS = Object.freeze([
-  'today',
   'data',
   'recommendations',
   'orders',
   'analysis',
 ]);
 
+const DEFAULT_WORKSPACE = 'data';
+const LEGACY_WORKSPACE_IDS = Object.freeze({
+  today:'recommendations',
+});
+
 export const LEGACY_WORKSPACE_HASHES = Object.freeze({
+  '#today':'recommendations',
   '#decisionDashboard':'recommendations',
   '#uploadCard':'data',
   '#reorderCard':'recommendations',
@@ -53,17 +58,18 @@ function workspaceFromHash(value) {
   return HASH_TO_WORKSPACE.get(hash.toLowerCase()) || null;
 }
 
-function canonicalWorkspace(value) {
+export function canonicalWorkspaceId(value) {
   const workspace = String(value ?? '').trim().toLowerCase();
-  return WORKSPACE_SET.has(workspace) ? workspace : null;
+  if (WORKSPACE_SET.has(workspace)) return workspace;
+  return Object.hasOwn(LEGACY_WORKSPACE_IDS, workspace) ? LEGACY_WORKSPACE_IDS[workspace] : null;
 }
 
 export function resolveInitialWorkspace({ url, hash, preference } = {}) {
-  return workspaceFromHash(url ?? hash) || canonicalWorkspace(preference) || 'today';
+  return workspaceFromHash(url ?? hash) || canonicalWorkspaceId(preference) || DEFAULT_WORKSPACE;
 }
 
 export function workspaceHash(workspace) {
-  return `#${canonicalWorkspace(workspace) || 'today'}`;
+  return `#${canonicalWorkspaceId(workspace) || DEFAULT_WORKSPACE}`;
 }
 
 function normalizeRows(value, field, issues) {
@@ -199,10 +205,10 @@ function nextAction({ readiness, priorityCount, highestPriorityVelocityRisk, gro
   }
   if (highestPriorityVelocityRisk) {
     const suffix = highestPriorityVelocityRisk.productSku ? ` ${highestPriorityVelocityRisk.productSku}` : '';
-    return { id:'review-velocity-risk', workspace:'recommendations', hash:'#recommendations', label:`查看${suffix} 的 Velocity Risk`, reason:'先理解可能低估的速度證據。' };
+    return { id:'review-velocity-risk', workspace:'recommendations', hash:'#recommendations', targetId:'decisionDashboard', label:`查看${suffix} 的 Velocity Risk`, reason:'先理解可能低估的速度證據。' };
   }
   if (priorityCount > 0) {
-    return { id:'review-priorities', workspace:'recommendations', hash:'#recommendations', label:`查看 ${priorityCount} 個優先品項`, reason:'先處理目前優先順序最高的建議。' };
+    return { id:'review-priorities', workspace:'recommendations', hash:'#recommendations', targetId:'decisionDashboard', label:`查看 ${priorityCount} 個優先品項`, reason:'先處理目前優先順序最高的建議。' };
   }
   if (groupCounts.total > 0) {
     return { id:'continue-order', workspace:'orders', hash:'#orders', label:`繼續整理 ${groupCounts.total} 個訂單品項`, reason:'訂單草稿已有品項。' };
@@ -236,6 +242,7 @@ export function projectTodaySummary(input = {}) {
 const browserInterface = Object.freeze({
   WORKSPACE_IDS,
   LEGACY_WORKSPACE_HASHES,
+  canonicalWorkspaceId,
   resolveInitialWorkspace,
   workspaceHash,
   projectTodaySummary,
