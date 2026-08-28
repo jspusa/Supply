@@ -31,7 +31,7 @@ function rawWorkbook() {
 const xlsx = { utils:{ sheet_to_json:sheet => sheet.rows } };
 
 test('raw workbook parser keeps the first complete duplicate and reads origin and pallet count', () => {
-  const payload = api.createPayload(rawWorkbook(), xlsx, { sourceFile:'raw.xlsx', updatedAt:'2026-08-28T00:00:00Z' });
+  const payload = api.createPayload(rawWorkbook(), xlsx, { sourceFile:'raw.xlsx', updatedAt:'2026-08-28T00:00:00Z', baseCatalogVersion:'2026-08-28.4' });
   const gtp03 = payload.records.find(record => record.sku === 'GTP03');
 
   assert.equal(payload.records.length, 3);
@@ -44,7 +44,7 @@ test('raw workbook parser keeps the first complete duplicate and reads origin an
 });
 
 test('one browser payload overlays Supply, excludes 7-prefixed aliases, and persists safely', () => {
-  const payload = api.createPayload(rawWorkbook(), xlsx, { sourceFile:'raw.xlsx', updatedAt:'2026-08-28T00:00:00Z' });
+  const payload = api.createPayload(rawWorkbook(), xlsx, { sourceFile:'raw.xlsx', updatedAt:'2026-08-28T00:00:00Z', baseCatalogVersion:'2026-08-28.4' });
   const storage = new Map();
   const browserStorage = {
     getItem:key => storage.get(key) || null,
@@ -53,6 +53,8 @@ test('one browser payload overlays Supply, excludes 7-prefixed aliases, and pers
   };
   api.saveToStorage(payload, browserStorage);
   const restored = api.loadFromStorage(browserStorage);
+  assert.equal(api.isCompatibleWithBuiltIn(restored, '2026-08-28.4'), true);
+  assert.equal(api.isCompatibleWithBuiltIn(restored, '2026-08-28.5'), false);
   const products = [{
     productCode:'GTP03', productName:'Turkey Tendon', boxSize:'50*40*30',
     perCarton:90, perPack:null, perBox:null, perPallet:42, country:'VN',
@@ -75,7 +77,8 @@ test('one browser payload overlays Supply, excludes 7-prefixed aliases, and pers
 
 test('FBA overlay preserves built-in fields when the raw row leaves a value blank', () => {
   const payload = api.validatePayload({
-    schemaVersion:1,
+    schemaVersion:2,
+    baseCatalogVersion:'2026-08-28.4',
     sourceFile:'raw.xlsx',
     updatedAt:'2026-08-28T00:00:00Z',
     records:[{

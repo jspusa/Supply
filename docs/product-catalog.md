@@ -1,8 +1,8 @@
 # 共用產品資料規格
 
-日常維護只使用既有產品資訊原始 Excel，不要求新增 `產品主檔` 或 `下單品號箱規`。把原始檔丟到 Supply 或 FBA 後，兩站會讀取 `AMZ 所有SKU`、`2026`、`罐頭`，將可公開的產品箱規保存在同一個瀏覽器的 `jspusa:shared-product-catalog:v1`，並共同套用到各自的內建備援。
+日常使用直接讀取 Supply 與 FBA 各自內建的產品資料，不需要上傳產品資訊 Excel。Jasper 只維護既有產品資訊原始 Excel，不要求新增 `產品主檔` 或 `下單品號箱規`；發布工具直接讀取 `AMZ 所有SKU`、`2026`、`罐頭`，更新 canonical catalog，再生成兩站的內建版本。
 
-下列 ProductMasterTable／OrderSkuPackagingTable 是內建版本發布與資料遷移的 canonical schema，不是 Jasper 平常要維護的 Excel 工作表。Canonical JSON、Supply 的 `product-data.js` 與 FBA snapshot 仍不得手動修改。
+下列 ProductMasterTable／OrderSkuPackagingTable 是發布內部與資料遷移的 canonical schema，不是 Jasper 平常要維護的 Excel 工作表。Canonical JSON、Supply 的 `product-data.js` 與 FBA snapshot 仍不得手動修改。
 
 ## 內建備援：ProductMasterTable
 
@@ -53,23 +53,28 @@
 - 同一 Order SKU Alias 的包裝有效期間不得重疊，且必須恰有一個現行版本。
 - `approved` alias 的 owner 必須存在且明列該 Order SKU；`unmapped-legacy` alias 的 owner 必須是 `null`。
 - 正常產品必須有品名、標準下單廠別與完整 Supply 包裝資料；資料待補產品可先供具備足夠欄位的 FBA adapter 使用，但不會自動進入 Supply 訂單清單。
-- 任一重複、欄位不完整、版本重疊或 alias 衝突都會阻止生成；不得 first-row-wins、last-row-wins 或猜值。
+- 原始 Excel 的重複 SKU 保留第一筆完整資料；較晚的完整衝突列會列入報告但不覆蓋。Canonical 內的重複、版本重疊或 alias owner 衝突則會阻止生成，不得猜值。
 
 ## 公開邊界
 
 公開 catalog 只允許 Product SKU、品名、產地、標準下單廠別、核准 Order SKU、包裝版本、箱規、箱重、棧板數與生命週期。成本、報價、供應商、聯絡方式、庫存、銷速、open orders、Order Draft、憑證與原始 Excel 檔不得進入 GitHub Pages artifact。
 
-## 日常維護流程
+## Jasper 的維護方式
 
 1. 照原本方式更新產品資訊原始 Excel；不要新增額外工作表。
-2. 在 Supply「資料」頁把它和 JAM／H10／JSP 一起丟入，或到 FBA「備用：更新產品資訊資料庫」單獨上傳。
-3. 系統會自動辨識三張工作表、保存第一筆完整的重複 SKU，並顯示讀取 SKU 數量與衝突數。
-4. 重新整理、切換 Supply／FBA 後仍會使用同一份資料；按「恢復內建備援」才會移除。
+2. 產品資料真的有變更時，將最新 raw Excel 交給發布流程；平常開啟網站不需上傳它。
+3. 發布工具自動辨識三張工作表、保留第一筆完整的重複 SKU、保存已確認的 7 字頭 owner，並產生新 catalog 版本。
+4. Supply 與 FBA 測試、發布完成後，所有瀏覽器直接取得新的內建資料。
 
-原始 Excel 不會上傳至 GitHub 或伺服器。瀏覽器共用資料只含 SKU、產地、箱入數、紙箱尺寸、箱／棧板、箱毛重、來源工作表與來源列；缺值不會清掉內建完整值。
+原始 Excel 不會進入 GitHub Pages artifact。公開內建 catalog 只含允許發布的產品與包裝欄位；缺值不會清掉 canonical 既有完整值。
 
-## 內建備援發布流程
+## 內建資料發布流程
 
-需要把新資料固化成所有瀏覽器的預設值時，才執行 canonical 匯入、old → new 差異檢查、`npm run catalog:build`、FBA 投影、兩站測試與 Pages 發布。平常上傳原始檔不需要走這套開發流程。
+1. 執行 raw 匯入並指定新的 dated catalog version：`npm run catalog:import -- --input <raw.xlsx> --output catalog/product-catalog.json --version <YYYY-MM-DD.N>`。
+2. 檢查 old → new 品號差異、重複衝突、資料待補與 alias owner。
+3. 執行 `npm run catalog:build` 生成 Supply 內建資料，再由 FBA 執行 `npm run generate:catalog -- --source ../Supply/catalog/product-catalog.json`。
+4. 兩站各自完成測試、Pages 部署與 live catalogVersion/hash 驗證後，才宣稱同步發布完成。
 
 兩個網站在 runtime 都使用各自已驗證的本地 snapshot，不會互相 fetch，因此其中一站暫時無法連線不會拖垮另一站。更新失敗時保留上一個已發布版本。
+
+網站仍保留「Temporary Product Override」供發布前用原始檔做臨時測試。它不是日常流程，也不會改寫內建 catalog；當 Built-in Product Catalog 版本更新時，較舊的瀏覽器覆蓋會自動失效。

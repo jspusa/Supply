@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "catalogVersion": "2026-08-28.3",
+  "catalogVersion": "2026-08-28.4",
   "products": [
     {
       "productSku": "1GBRD019A0",
@@ -873,7 +873,7 @@
         {
           "version": "2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 42,
           "cartonsPerPallet": 42,
           "cartonDimensionsCm": [
@@ -883,6 +883,28 @@
           ],
           "grossWeightKg": 16.9,
           "grossWeightLb": 37.25812230924431,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "AMZ 所有SKU",
+            "row": 209
+          }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 42,
+          "cartonsPerPallet": 42,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 37,
           "orderUnit": {
             "kind": "single",
             "units": 1
@@ -1859,7 +1881,7 @@
         {
           "version": "2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 100,
           "cartonsPerPallet": 36,
           "cartonDimensionsCm": [
@@ -1869,6 +1891,28 @@
           ],
           "grossWeightKg": 12,
           "grossWeightLb": 26.455471462185308,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "AMZ 所有SKU",
+            "row": 6
+          }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 100,
+          "cartonsPerPallet": 36,
+          "cartonDimensionsCm": [
+            58.5,
+            34.5,
+            35
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 26,
           "orderUnit": {
             "kind": "single",
             "units": 1
@@ -1972,7 +2016,7 @@
         {
           "version": "2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 100,
           "cartonsPerPallet": 36,
           "cartonDimensionsCm": [
@@ -1982,6 +2026,28 @@
           ],
           "grossWeightKg": 13,
           "grossWeightLb": 28.660094084034085,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "AMZ 所有SKU",
+            "row": 28
+          }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 100,
+          "cartonsPerPallet": 36,
+          "cartonDimensionsCm": [
+            58.5,
+            34.5,
+            35
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 29,
           "orderUnit": {
             "kind": "single",
             "units": 1
@@ -2025,7 +2091,7 @@
         {
           "version": "2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 100,
           "cartonsPerPallet": 36,
           "cartonDimensionsCm": [
@@ -2035,6 +2101,28 @@
           ],
           "grossWeightKg": 13,
           "grossWeightLb": 28.660094084034085,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "AMZ 所有SKU",
+            "row": 24
+          }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 100,
+          "cartonsPerPallet": 36,
+          "cartonDimensionsCm": [
+            58.5,
+            34.5,
+            35
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 29,
           "orderUnit": {
             "kind": "single",
             "units": 1
@@ -2168,7 +2256,7 @@
         {
           "version": "2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 30,
           "cartonsPerPallet": 30,
           "cartonDimensionsCm": [
@@ -2178,6 +2266,28 @@
           ],
           "grossWeightKg": 16,
           "grossWeightLb": 35.27396194958041,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "AMZ 所有SKU",
+            "row": 39
+          }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 30,
+          "cartonsPerPallet": 30,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            40
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 35,
           "orderUnit": {
             "kind": "single",
             "units": 1
@@ -2221,7 +2331,7 @@
         {
           "version": "2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 30,
           "cartonsPerPallet": 30,
           "cartonDimensionsCm": [
@@ -2231,6 +2341,28 @@
           ],
           "grossWeightKg": 16,
           "grossWeightLb": 35.27396194958041,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "AMZ 所有SKU",
+            "row": 46
+          }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 30,
+          "cartonsPerPallet": 30,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            40
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 35,
           "orderUnit": {
             "kind": "single",
             "units": 1
@@ -2274,7 +2406,7 @@
         {
           "version": "2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 30,
           "cartonsPerPallet": 30,
           "cartonDimensionsCm": [
@@ -2284,6 +2416,28 @@
           ],
           "grossWeightKg": 16,
           "grossWeightLb": 35.27396194958041,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "AMZ 所有SKU",
+            "row": 41
+          }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 30,
+          "cartonsPerPallet": 30,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            40
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 35,
           "orderUnit": {
             "kind": "single",
             "units": 1
@@ -2327,7 +2481,7 @@
         {
           "version": "2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 30,
           "cartonsPerPallet": 30,
           "cartonDimensionsCm": [
@@ -2337,6 +2491,28 @@
           ],
           "grossWeightKg": 16,
           "grossWeightLb": 35.27396194958041,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "AMZ 所有SKU",
+            "row": 44
+          }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 30,
+          "cartonsPerPallet": 30,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            40
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 35,
           "orderUnit": {
             "kind": "single",
             "units": 1
@@ -2379,7 +2555,7 @@
         {
           "version": "2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 38,
           "cartonsPerPallet": 30,
           "cartonDimensionsCm": [
@@ -2389,6 +2565,28 @@
           ],
           "grossWeightKg": 20,
           "grossWeightLb": 44.09245243697551,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "AMZ 所有SKU",
+            "row": 21
+          }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 38,
+          "cartonsPerPallet": 30,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            40
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 44,
           "orderUnit": {
             "kind": "single",
             "units": 1
@@ -2431,7 +2629,7 @@
         {
           "version": "2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 30,
           "cartonsPerPallet": 30,
           "cartonDimensionsCm": [
@@ -2441,6 +2639,28 @@
           ],
           "grossWeightKg": 16,
           "grossWeightLb": 35.27396194958041,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "AMZ 所有SKU",
+            "row": 19
+          }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 30,
+          "cartonsPerPallet": 30,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            40
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 35,
           "orderUnit": {
             "kind": "single",
             "units": 1
@@ -2484,7 +2704,7 @@
         {
           "version": "2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 30,
           "cartonsPerPallet": 30,
           "cartonDimensionsCm": [
@@ -2494,6 +2714,28 @@
           ],
           "grossWeightKg": 16,
           "grossWeightLb": 35.27396194958041,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "AMZ 所有SKU",
+            "row": 16
+          }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 30,
+          "cartonsPerPallet": 30,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            40
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 35,
           "orderUnit": {
             "kind": "single",
             "units": 1
@@ -2537,7 +2779,7 @@
         {
           "version": "2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 30,
           "cartonsPerPallet": 30,
           "cartonDimensionsCm": [
@@ -2547,6 +2789,28 @@
           ],
           "grossWeightKg": 16,
           "grossWeightLb": 35.27396194958041,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "AMZ 所有SKU",
+            "row": 12
+          }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 30,
+          "cartonsPerPallet": 30,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            40
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 35,
           "orderUnit": {
             "kind": "single",
             "units": 1
@@ -2590,7 +2854,7 @@
         {
           "version": "2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 30,
           "cartonsPerPallet": 30,
           "cartonDimensionsCm": [
@@ -2600,6 +2864,28 @@
           ],
           "grossWeightKg": 16,
           "grossWeightLb": 35.27396194958041,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "AMZ 所有SKU",
+            "row": 14
+          }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 30,
+          "cartonsPerPallet": 30,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            40
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 35,
           "orderUnit": {
             "kind": "single",
             "units": 1
@@ -2673,7 +2959,7 @@
         {
           "version": "2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 30,
           "cartonsPerPallet": 30,
           "cartonDimensionsCm": [
@@ -2683,6 +2969,28 @@
           ],
           "grossWeightKg": 16,
           "grossWeightLb": 35.27396194958041,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "AMZ 所有SKU",
+            "row": 26
+          }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 30,
+          "cartonsPerPallet": 30,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            40
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 35,
           "orderUnit": {
             "kind": "single",
             "units": 1
@@ -2726,7 +3034,7 @@
         {
           "version": "2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 30,
           "cartonsPerPallet": 30,
           "cartonDimensionsCm": [
@@ -2736,6 +3044,28 @@
           ],
           "grossWeightKg": 16,
           "grossWeightLb": 35.27396194958041,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "AMZ 所有SKU",
+            "row": 30
+          }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 30,
+          "cartonsPerPallet": 30,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            40
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 35,
           "orderUnit": {
             "kind": "single",
             "units": 1
@@ -8515,10 +8845,10 @@
     },
     {
       "productSku": "1VFAD053A0",
-      "productName": "",
+      "productName": "1VFAD053A0",
       "origin": "VN",
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1VFAD053A0"
       ],
@@ -8545,10 +8875,10 @@
     },
     {
       "productSku": "1VFBD053A0",
-      "productName": "",
+      "productName": "1VFBD053A0",
       "origin": "VN",
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1VFBD053A0"
       ],
@@ -8575,10 +8905,10 @@
     },
     {
       "productSku": "1VFBD015A0",
-      "productName": "",
+      "productName": "1VFBD015A0",
       "origin": "VN",
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1VFBD015A0"
       ],
@@ -8605,10 +8935,10 @@
     },
     {
       "productSku": "1VFCD017A0",
-      "productName": "",
+      "productName": "1VFCD017A0",
       "origin": "VN",
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1VFCD017A0"
       ],
@@ -8635,10 +8965,10 @@
     },
     {
       "productSku": "1VFRD055A0",
-      "productName": "",
+      "productName": "1VFRD055A0",
       "origin": "VN",
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1VFRD055A0"
       ],
@@ -8665,10 +8995,10 @@
     },
     {
       "productSku": "1VFRD015A0",
-      "productName": "",
+      "productName": "1VFRD015A0",
       "origin": "VN",
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1VFRD015A0"
       ],
@@ -8695,10 +9025,10 @@
     },
     {
       "productSku": "1VFSD013A0",
-      "productName": "",
+      "productName": "1VFSD013A0",
       "origin": "VN",
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1VFSD013A0"
       ],
@@ -8725,10 +9055,10 @@
     },
     {
       "productSku": "1GFTD033A0",
-      "productName": "",
+      "productName": "1GFTD033A0",
       "origin": "VN",
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1GFTD033A0"
       ],
@@ -8755,10 +9085,10 @@
     },
     {
       "productSku": "1GFTD035A0",
-      "productName": "",
+      "productName": "1GFTD035A0",
       "origin": "VN",
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1GFTD035A0"
       ],
@@ -8785,10 +9115,10 @@
     },
     {
       "productSku": "1GFTD043A0",
-      "productName": "",
+      "productName": "1GFTD043A0",
       "origin": "VN",
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1GFTD043A0"
       ],
@@ -8815,10 +9145,10 @@
     },
     {
       "productSku": "1GFTD045A0",
-      "productName": "",
+      "productName": "1GFTD045A0",
       "origin": "VN",
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1GFTD045A0"
       ],
@@ -8845,10 +9175,10 @@
     },
     {
       "productSku": "1GFTD061A0",
-      "productName": "",
+      "productName": "1GFTD061A0",
       "origin": "VN",
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1GFTD061A0"
       ],
@@ -8875,10 +9205,10 @@
     },
     {
       "productSku": "1GSDD023A0",
-      "productName": "",
+      "productName": "1GSDD023A0",
       "origin": "VN",
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1GSDD023A0"
       ],
@@ -8905,10 +9235,10 @@
     },
     {
       "productSku": "1GSDD033A0",
-      "productName": "",
+      "productName": "1GSDD033A0",
       "origin": "VN",
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1GSDD033A0"
       ],
@@ -8935,10 +9265,10 @@
     },
     {
       "productSku": "1VDFD011A0",
-      "productName": "",
+      "productName": "1VDFD011A0",
       "origin": "VN",
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1VDFD011A0"
       ],
@@ -8965,10 +9295,10 @@
     },
     {
       "productSku": "1GBRD027A0",
-      "productName": "",
+      "productName": "1GBRD027A0",
       "origin": "VN",
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1GBRD027A0"
       ],
@@ -8995,10 +9325,10 @@
     },
     {
       "productSku": "1ABRD016A0",
-      "productName": "",
+      "productName": "1ABRD016A0",
       "origin": "VN",
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1ABRD016A0"
       ],
@@ -9025,10 +9355,10 @@
     },
     {
       "productSku": "1VFRD058A0",
-      "productName": "",
+      "productName": "1VFRD058A0",
       "origin": "VN",
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1VFRD058A0"
       ],
@@ -9055,10 +9385,10 @@
     },
     {
       "productSku": "1VFBD018A0",
-      "productName": "",
+      "productName": "1VFBD018A0",
       "origin": "VN",
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1VFBD018A0"
       ],
@@ -9085,10 +9415,10 @@
     },
     {
       "productSku": "1VFRD018A0",
-      "productName": "",
+      "productName": "1VFRD018A0",
       "origin": "VN",
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1VFRD018A0"
       ],
@@ -9115,10 +9445,10 @@
     },
     {
       "productSku": "1VFAD058A0",
-      "productName": "",
+      "productName": "1VFAD058A0",
       "origin": "VN",
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1VFAD058A0"
       ],
@@ -9145,10 +9475,10 @@
     },
     {
       "productSku": "1GCRD026A0",
-      "productName": "",
+      "productName": "1GCRD026A0",
       "origin": "VN",
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1GCRD026A0"
       ],
@@ -9175,10 +9505,10 @@
     },
     {
       "productSku": "1GCRD041A0",
-      "productName": "",
+      "productName": "1GCRD041A0",
       "origin": "VN",
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1GCRD041A0"
       ],
@@ -9205,10 +9535,10 @@
     },
     {
       "productSku": "1GCRD045A0",
-      "productName": "",
+      "productName": "1GCRD045A0",
       "origin": "VN",
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1GCRD045A0"
       ],
@@ -9235,10 +9565,10 @@
     },
     {
       "productSku": "1GBRD041A0",
-      "productName": "",
+      "productName": "1GBRD041A0",
       "origin": "VN",
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1GBRD041A0"
       ],
@@ -9265,10 +9595,10 @@
     },
     {
       "productSku": "1GBRD045A0",
-      "productName": "",
+      "productName": "1GBRD045A0",
       "origin": "VN",
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1GBRD045A0"
       ],
@@ -9295,10 +9625,10 @@
     },
     {
       "productSku": "1GQRD016A0",
-      "productName": "",
+      "productName": "1GQRD016A0",
       "origin": "VN",
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1GQRD016A0"
       ],
@@ -9325,10 +9655,10 @@
     },
     {
       "productSku": "1GCRD036A0",
-      "productName": "",
+      "productName": "1GCRD036A0",
       "origin": "VN",
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1GCRD036A0"
       ],
@@ -9355,10 +9685,10 @@
     },
     {
       "productSku": "ATR01",
-      "productName": "",
+      "productName": "ATR01",
       "origin": "VN",
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "ATR01",
         "7ATRD013AB"
@@ -9386,10 +9716,10 @@
     },
     {
       "productSku": "EPD021",
-      "productName": "",
+      "productName": "EPD021",
       "origin": "TW",
       "standardFactory": "TW",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "EPD021"
       ],
@@ -9397,7 +9727,7 @@
         {
           "version": "2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 18,
           "cartonsPerPallet": 36,
           "cartonDimensionsCm": [
@@ -9411,15 +9741,37 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 18,
+          "cartonsPerPallet": 30,
+          "cartonDimensionsCm": [
+            48,
+            38,
+            28
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 45,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "AMZ 所有SKU",
+            "row": 153
+          }
         }
       ]
     },
     {
       "productSku": "EPD040",
-      "productName": "",
+      "productName": "EPD040",
       "origin": "TW",
       "standardFactory": "TW",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "EPD040"
       ],
@@ -9427,7 +9779,7 @@
         {
           "version": "2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 30,
           "cartonsPerPallet": 36,
           "cartonDimensionsCm": [
@@ -9441,15 +9793,37 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 30,
+          "cartonsPerPallet": 30,
+          "cartonDimensionsCm": [
+            48,
+            38,
+            28
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 36,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "AMZ 所有SKU",
+            "row": 154
+          }
         }
       ]
     },
     {
       "productSku": "EPD051",
-      "productName": "",
+      "productName": "EPD051",
       "origin": "TW",
       "standardFactory": "TW",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "EPD051"
       ],
@@ -9457,7 +9831,7 @@
         {
           "version": "2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 18,
           "cartonsPerPallet": 36,
           "cartonDimensionsCm": [
@@ -9471,15 +9845,37 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 18,
+          "cartonsPerPallet": 30,
+          "cartonDimensionsCm": [
+            48,
+            38,
+            28
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 45,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "AMZ 所有SKU",
+            "row": 155
+          }
         }
       ]
     },
     {
       "productSku": "EPD060",
-      "productName": "",
+      "productName": "EPD060",
       "origin": "TW",
       "standardFactory": "TW",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "EPD060"
       ],
@@ -9487,7 +9883,7 @@
         {
           "version": "2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 30,
           "cartonsPerPallet": 36,
           "cartonDimensionsCm": [
@@ -9501,15 +9897,37 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 30,
+          "cartonsPerPallet": 30,
+          "cartonDimensionsCm": [
+            48,
+            38,
+            28
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 36,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "AMZ 所有SKU",
+            "row": 156
+          }
         }
       ]
     },
     {
       "productSku": "EPD011",
-      "productName": "",
+      "productName": "EPD011",
       "origin": "TW",
       "standardFactory": "TW",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "EPD011"
       ],
@@ -9517,7 +9935,7 @@
         {
           "version": "2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 18,
           "cartonsPerPallet": 36,
           "cartonDimensionsCm": [
@@ -9531,15 +9949,37 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 18,
+          "cartonsPerPallet": 30,
+          "cartonDimensionsCm": [
+            48,
+            38,
+            28
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 45,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "AMZ 所有SKU",
+            "row": 157
+          }
         }
       ]
     },
     {
       "productSku": "EPD050",
-      "productName": "",
+      "productName": "EPD050",
       "origin": "TW",
       "standardFactory": "TW",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "EPD050"
       ],
@@ -9547,7 +9987,7 @@
         {
           "version": "2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 30,
           "cartonsPerPallet": 36,
           "cartonDimensionsCm": [
@@ -9561,15 +10001,37 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 30,
+          "cartonsPerPallet": 30,
+          "cartonDimensionsCm": [
+            48,
+            38,
+            28
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 36,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "AMZ 所有SKU",
+            "row": 158
+          }
         }
       ]
     },
     {
       "productSku": "EPD020",
-      "productName": "",
+      "productName": "EPD020",
       "origin": "TW",
       "standardFactory": "TW",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "EPD020"
       ],
@@ -9577,7 +10039,7 @@
         {
           "version": "2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 30,
           "cartonsPerPallet": 36,
           "cartonDimensionsCm": [
@@ -9591,15 +10053,37 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 30,
+          "cartonsPerPallet": 30,
+          "cartonDimensionsCm": [
+            48,
+            38,
+            28
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 36,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "AMZ 所有SKU",
+            "row": 159
+          }
         }
       ]
     },
     {
       "productSku": "EPD010",
-      "productName": "",
+      "productName": "EPD010",
       "origin": "TW",
       "standardFactory": "TW",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "EPD010"
       ],
@@ -9607,7 +10091,7 @@
         {
           "version": "2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 30,
           "cartonsPerPallet": 36,
           "cartonDimensionsCm": [
@@ -9621,15 +10105,37 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 30,
+          "cartonsPerPallet": 30,
+          "cartonDimensionsCm": [
+            48,
+            38,
+            28
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 36,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "AMZ 所有SKU",
+            "row": 160
+          }
         }
       ]
     },
     {
       "productSku": "EPD041",
-      "productName": "",
+      "productName": "EPD041",
       "origin": "TW",
       "standardFactory": "TW",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "EPD041"
       ],
@@ -9637,7 +10143,7 @@
         {
           "version": "2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 18,
           "cartonsPerPallet": 36,
           "cartonDimensionsCm": [
@@ -9651,15 +10157,37 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 18,
+          "cartonsPerPallet": 30,
+          "cartonDimensionsCm": [
+            48,
+            38,
+            28
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 45,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "AMZ 所有SKU",
+            "row": 161
+          }
         }
       ]
     },
     {
       "productSku": "EPD061",
-      "productName": "",
+      "productName": "EPD061",
       "origin": "TW",
       "standardFactory": "TW",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "EPD061"
       ],
@@ -9667,7 +10195,7 @@
         {
           "version": "2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 18,
           "cartonsPerPallet": 36,
           "cartonDimensionsCm": [
@@ -9681,15 +10209,37 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 18,
+          "cartonsPerPallet": 30,
+          "cartonDimensionsCm": [
+            48,
+            38,
+            28
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 45,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "AMZ 所有SKU",
+            "row": 162
+          }
         }
       ]
     },
     {
       "productSku": "EZD051",
-      "productName": "",
+      "productName": "EZD051",
       "origin": "TW",
       "standardFactory": "TW",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "EZD051"
       ],
@@ -9697,7 +10247,7 @@
         {
           "version": "2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 18,
           "cartonsPerPallet": 36,
           "cartonDimensionsCm": [
@@ -9711,15 +10261,37 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 18,
+          "cartonsPerPallet": 30,
+          "cartonDimensionsCm": [
+            48,
+            38,
+            28
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 41,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "AMZ 所有SKU",
+            "row": 169
+          }
         }
       ]
     },
     {
       "productSku": "EZD041",
-      "productName": "",
+      "productName": "EZD041",
       "origin": "TW",
       "standardFactory": "TW",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "EZD041"
       ],
@@ -9727,7 +10299,7 @@
         {
           "version": "2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 18,
           "cartonsPerPallet": 36,
           "cartonDimensionsCm": [
@@ -9741,15 +10313,37 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 18,
+          "cartonsPerPallet": 30,
+          "cartonDimensionsCm": [
+            48,
+            38,
+            28
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 41,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "AMZ 所有SKU",
+            "row": 170
+          }
         }
       ]
     },
     {
       "productSku": "EZD021",
-      "productName": "",
+      "productName": "EZD021",
       "origin": "TW",
       "standardFactory": "TW",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "EZD021"
       ],
@@ -9757,7 +10351,7 @@
         {
           "version": "2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 18,
           "cartonsPerPallet": 36,
           "cartonDimensionsCm": [
@@ -9771,15 +10365,37 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 18,
+          "cartonsPerPallet": 30,
+          "cartonDimensionsCm": [
+            48,
+            38,
+            28
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 41,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "AMZ 所有SKU",
+            "row": 171
+          }
         }
       ]
     },
     {
       "productSku": "EZD011",
-      "productName": "",
+      "productName": "EZD011",
       "origin": "TW",
       "standardFactory": "TW",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "EZD011"
       ],
@@ -9787,7 +10403,7 @@
         {
           "version": "2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 18,
           "cartonsPerPallet": 36,
           "cartonDimensionsCm": [
@@ -9801,15 +10417,37 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 18,
+          "cartonsPerPallet": 30,
+          "cartonDimensionsCm": [
+            48,
+            38,
+            28
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 41,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "AMZ 所有SKU",
+            "row": 172
+          }
         }
       ]
     },
     {
       "productSku": "EZD061",
-      "productName": "",
+      "productName": "EZD061",
       "origin": "TW",
       "standardFactory": "TW",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "EZD061"
       ],
@@ -9817,7 +10455,7 @@
         {
           "version": "2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 18,
           "cartonsPerPallet": 36,
           "cartonDimensionsCm": [
@@ -9831,15 +10469,37 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 18,
+          "cartonsPerPallet": 30,
+          "cartonDimensionsCm": [
+            48,
+            38,
+            28
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 41,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "AMZ 所有SKU",
+            "row": 173
+          }
         }
       ]
     },
     {
       "productSku": "1HGCC015A0",
-      "productName": "",
+      "productName": "1HGCC015A0",
       "origin": null,
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1HGCC015A0"
       ],
@@ -9866,10 +10526,10 @@
     },
     {
       "productSku": "1HGCC025A0",
-      "productName": "",
+      "productName": "1HGCC025A0",
       "origin": null,
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1HGCC025A0"
       ],
@@ -9896,10 +10556,10 @@
     },
     {
       "productSku": "1HGCC035A0",
-      "productName": "",
+      "productName": "1HGCC035A0",
       "origin": null,
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1HGCC035A0"
       ],
@@ -9926,10 +10586,10 @@
     },
     {
       "productSku": "1HGCC045A0",
-      "productName": "",
+      "productName": "1HGCC045A0",
       "origin": null,
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1HGCC045A0"
       ],
@@ -9956,10 +10616,10 @@
     },
     {
       "productSku": "1HGRD015A0",
-      "productName": "",
+      "productName": "1HGRD015A0",
       "origin": null,
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1HGRD015A0"
       ],
@@ -9986,10 +10646,10 @@
     },
     {
       "productSku": "1MGRC015A0",
-      "productName": "",
+      "productName": "1MGRC015A0",
       "origin": null,
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1MGRC015A0"
       ],
@@ -10016,10 +10676,10 @@
     },
     {
       "productSku": "1MGRC025A0",
-      "productName": "",
+      "productName": "1MGRC025A0",
       "origin": null,
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1MGRC025A0"
       ],
@@ -10046,10 +10706,10 @@
     },
     {
       "productSku": "1MGRC035A0",
-      "productName": "",
+      "productName": "1MGRC035A0",
       "origin": null,
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1MGRC035A0"
       ],
@@ -10076,10 +10736,10 @@
     },
     {
       "productSku": "1MGRC045A0",
-      "productName": "",
+      "productName": "1MGRC045A0",
       "origin": null,
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1MGRC045A0"
       ],
@@ -10106,10 +10766,10 @@
     },
     {
       "productSku": "1MGRC055A0",
-      "productName": "",
+      "productName": "1MGRC055A0",
       "origin": null,
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1MGRC055A0"
       ],
@@ -10136,10 +10796,10 @@
     },
     {
       "productSku": "1MGRD015A0",
-      "productName": "",
+      "productName": "1MGRD015A0",
       "origin": null,
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1MGRD015A0"
       ],
@@ -10166,10 +10826,10 @@
     },
     {
       "productSku": "1MGRD025A0",
-      "productName": "",
+      "productName": "1MGRD025A0",
       "origin": null,
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1MGRD025A0"
       ],
@@ -10196,10 +10856,10 @@
     },
     {
       "productSku": "1MGRD035A0",
-      "productName": "",
+      "productName": "1MGRD035A0",
       "origin": null,
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1MGRD035A0"
       ],
@@ -10226,10 +10886,10 @@
     },
     {
       "productSku": "1MGRD045A0",
-      "productName": "",
+      "productName": "1MGRD045A0",
       "origin": null,
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1MGRD045A0"
       ],
@@ -10256,10 +10916,10 @@
     },
     {
       "productSku": "1MGRD055A0",
-      "productName": "",
+      "productName": "1MGRD055A0",
       "origin": null,
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1MGRD055A0"
       ],
@@ -10286,10 +10946,10 @@
     },
     {
       "productSku": "1AGHC015A0",
-      "productName": "",
+      "productName": "1AGHC015A0",
       "origin": null,
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1AGHC015A0"
       ],
@@ -10316,10 +10976,10 @@
     },
     {
       "productSku": "1AGHC025A0",
-      "productName": "",
+      "productName": "1AGHC025A0",
       "origin": null,
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1AGHC025A0"
       ],
@@ -10346,10 +11006,10 @@
     },
     {
       "productSku": "1AGHC035A0",
-      "productName": "",
+      "productName": "1AGHC035A0",
       "origin": null,
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1AGHC035A0"
       ],
@@ -10376,10 +11036,10 @@
     },
     {
       "productSku": "1AGHC045A0",
-      "productName": "",
+      "productName": "1AGHC045A0",
       "origin": null,
       "standardFactory": "VN",
-      "lifecycle": "incomplete",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1AGHC045A0"
       ],
@@ -10406,429 +11066,485 @@
     },
     {
       "productSku": "1AWDD773A0",
-      "productName": "",
-      "origin": null,
-      "standardFactory": null,
-      "lifecycle": "incomplete",
+      "productName": "1AWDD773A0",
+      "origin": "VN",
+      "standardFactory": "VN",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1AWDD773A0"
       ],
       "packagingVersions": [
         {
-          "version": "2026-08-25",
-          "effectiveFrom": "2026-08-25",
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
           "effectiveTo": null,
           "unitsPerCarton": 38,
-          "cartonsPerPallet": null,
+          "cartonsPerPallet": 42,
           "cartonDimensionsCm": [
-            50.8,
-            40.64,
-            30.48
+            50,
+            40,
+            30
           ],
           "grossWeightKg": null,
           "grossWeightLb": 43,
           "orderUnit": {
             "kind": "single",
             "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 53
           }
         }
       ]
     },
     {
       "productSku": "1AWDD775A0",
-      "productName": "",
-      "origin": null,
-      "standardFactory": null,
-      "lifecycle": "incomplete",
+      "productName": "1AWDD775A0",
+      "origin": "VN",
+      "standardFactory": "VN",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1AWDD775A0"
       ],
       "packagingVersions": [
         {
-          "version": "2026-08-25",
-          "effectiveFrom": "2026-08-25",
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
           "effectiveTo": null,
           "unitsPerCarton": 20,
-          "cartonsPerPallet": null,
+          "cartonsPerPallet": 42,
           "cartonDimensionsCm": [
-            50.8,
-            40.64,
-            30.48
+            50,
+            40,
+            30
           ],
           "grossWeightKg": null,
           "grossWeightLb": 48,
           "orderUnit": {
             "kind": "single",
             "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 54
           }
         }
       ]
     },
     {
       "productSku": "1AXXD001A0",
-      "productName": "",
-      "origin": null,
-      "standardFactory": null,
-      "lifecycle": "incomplete",
+      "productName": "1AXXD001A0",
+      "origin": "TW",
+      "standardFactory": "TW",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1AXXD001A0"
       ],
       "packagingVersions": [
         {
-          "version": "2026-08-25",
-          "effectiveFrom": "2026-08-25",
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
           "effectiveTo": null,
           "unitsPerCarton": 100,
-          "cartonsPerPallet": null,
+          "cartonsPerPallet": 30,
           "cartonDimensionsCm": [
-            58.42,
-            35.56,
-            35.56
+            58.5,
+            34.5,
+            35
           ],
           "grossWeightKg": null,
           "grossWeightLb": 25,
           "orderUnit": {
             "kind": "single",
             "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 5
           }
         }
       ]
     },
     {
       "productSku": "1AXXD002A0",
-      "productName": "",
-      "origin": null,
-      "standardFactory": null,
-      "lifecycle": "incomplete",
+      "productName": "1AXXD002A0",
+      "origin": "VN",
+      "standardFactory": "VN",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1AXXD002A0"
       ],
       "packagingVersions": [
         {
-          "version": "2026-08-25",
-          "effectiveFrom": "2026-08-25",
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
           "effectiveTo": null,
           "unitsPerCarton": 8,
-          "cartonsPerPallet": null,
+          "cartonsPerPallet": 42,
           "cartonDimensionsCm": [
-            50.8,
-            40.64,
-            30.48
+            50,
+            40,
+            30
           ],
           "grossWeightKg": null,
           "grossWeightLb": 36,
           "orderUnit": {
             "kind": "single",
             "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 61
           }
         }
       ]
     },
     {
       "productSku": "1GLTD011A0",
-      "productName": "",
-      "origin": null,
-      "standardFactory": null,
-      "lifecycle": "incomplete",
+      "productName": "1GLTD011A0",
+      "origin": "VN",
+      "standardFactory": "VN",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1GLTD011A0"
       ],
       "packagingVersions": [
         {
-          "version": "2026-08-25",
-          "effectiveFrom": "2026-08-25",
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
           "effectiveTo": null,
           "unitsPerCarton": 8,
-          "cartonsPerPallet": null,
+          "cartonsPerPallet": 42,
           "cartonDimensionsCm": [
-            50.8,
-            40.64,
-            30.48
+            50,
+            40,
+            30
           ],
           "grossWeightKg": null,
           "grossWeightLb": 21,
           "orderUnit": {
             "kind": "single",
             "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 60
           }
         }
       ]
     },
     {
       "productSku": "1GXXD001A0",
-      "productName": "",
-      "origin": null,
-      "standardFactory": null,
-      "lifecycle": "incomplete",
+      "productName": "1GXXD001A0",
+      "origin": "TW",
+      "standardFactory": "TW",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1GXXD001A0"
       ],
       "packagingVersions": [
         {
-          "version": "2026-08-25",
-          "effectiveFrom": "2026-08-25",
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
           "effectiveTo": null,
           "unitsPerCarton": 24,
-          "cartonsPerPallet": null,
+          "cartonsPerPallet": 30,
           "cartonDimensionsCm": [
-            48.26,
-            38.1,
-            27.94
+            48,
+            38,
+            28
           ],
           "grossWeightKg": null,
           "grossWeightLb": 29,
           "orderUnit": {
             "kind": "single",
             "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 3
           }
         }
       ]
     },
     {
       "productSku": "1GXXD002A0",
-      "productName": "",
-      "origin": null,
-      "standardFactory": null,
-      "lifecycle": "incomplete",
+      "productName": "1GXXD002A0",
+      "origin": "TW",
+      "standardFactory": "TW",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1GXXD002A0"
       ],
       "packagingVersions": [
         {
-          "version": "2026-08-25",
-          "effectiveFrom": "2026-08-25",
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
           "effectiveTo": null,
           "unitsPerCarton": 8,
-          "cartonsPerPallet": null,
+          "cartonsPerPallet": 30,
           "cartonDimensionsCm": [
-            48.26,
-            38.1,
-            27.94
+            48,
+            38,
+            28
           ],
           "grossWeightKg": null,
           "grossWeightLb": 20,
           "orderUnit": {
             "kind": "single",
             "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 4
           }
         }
       ]
     },
     {
       "productSku": "1VFPD010A0",
-      "productName": "",
-      "origin": null,
-      "standardFactory": null,
-      "lifecycle": "incomplete",
+      "productName": "1VFPD010A0",
+      "origin": "VN",
+      "standardFactory": "VN",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1VFPD010A0"
       ],
       "packagingVersions": [
         {
-          "version": "2026-08-25",
-          "effectiveFrom": "2026-08-25",
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
           "effectiveTo": null,
           "unitsPerCarton": 90,
-          "cartonsPerPallet": null,
+          "cartonsPerPallet": 42,
           "cartonDimensionsCm": [
-            50.8,
-            40.64,
-            30.48
+            50,
+            40,
+            30
           ],
           "grossWeightKg": null,
           "grossWeightLb": 16,
           "orderUnit": {
             "kind": "single",
             "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 64
           }
         }
       ]
     },
     {
       "productSku": "1VFPD018A0",
-      "productName": "",
-      "origin": null,
-      "standardFactory": null,
-      "lifecycle": "incomplete",
+      "productName": "1VFPD018A0",
+      "origin": "VN",
+      "standardFactory": "VN",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1VFPD018A0"
       ],
       "packagingVersions": [
         {
-          "version": "2026-08-25",
-          "effectiveFrom": "2026-08-25",
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
           "effectiveTo": null,
           "unitsPerCarton": 16,
-          "cartonsPerPallet": null,
+          "cartonsPerPallet": 42,
           "cartonDimensionsCm": [
-            50.8,
-            40.64,
-            30.48
+            50,
+            40,
+            30
           ],
           "grossWeightKg": null,
           "grossWeightLb": 20,
           "orderUnit": {
             "kind": "single",
             "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 67
           }
         }
       ]
     },
     {
       "productSku": "1VFPD050A0",
-      "productName": "",
-      "origin": null,
-      "standardFactory": null,
-      "lifecycle": "incomplete",
+      "productName": "1VFPD050A0",
+      "origin": "VN",
+      "standardFactory": "VN",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1VFPD050A0"
       ],
       "packagingVersions": [
         {
-          "version": "2026-08-25",
-          "effectiveFrom": "2026-08-25",
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
           "effectiveTo": null,
           "unitsPerCarton": 100,
-          "cartonsPerPallet": null,
+          "cartonsPerPallet": 42,
           "cartonDimensionsCm": [
-            50.8,
-            40.64,
-            30.48
+            50,
+            40,
+            30
           ],
           "grossWeightKg": null,
           "grossWeightLb": 17,
           "orderUnit": {
             "kind": "single",
             "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 65
           }
         }
       ]
     },
     {
       "productSku": "1VFPD058A0",
-      "productName": "",
-      "origin": null,
-      "standardFactory": null,
-      "lifecycle": "incomplete",
+      "productName": "1VFPD058A0",
+      "origin": "VN",
+      "standardFactory": "VN",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1VFPD058A0"
       ],
       "packagingVersions": [
         {
-          "version": "2026-08-25",
-          "effectiveFrom": "2026-08-25",
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
           "effectiveTo": null,
           "unitsPerCarton": 12,
-          "cartonsPerPallet": null,
+          "cartonsPerPallet": 42,
           "cartonDimensionsCm": [
-            50.8,
-            40.64,
-            30.48
+            50,
+            40,
+            30
           ],
           "grossWeightKg": null,
           "grossWeightLb": 16,
           "orderUnit": {
             "kind": "single",
             "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 68
           }
         }
       ]
     },
     {
       "productSku": "1VFRD010A0",
-      "productName": "",
-      "origin": null,
-      "standardFactory": null,
-      "lifecycle": "incomplete",
+      "productName": "1VFRD010A0",
+      "origin": "VN",
+      "standardFactory": "VN",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1VFRD010A0"
       ],
       "packagingVersions": [
         {
-          "version": "2026-08-25",
-          "effectiveFrom": "2026-08-25",
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
           "effectiveTo": null,
           "unitsPerCarton": 100,
-          "cartonsPerPallet": null,
+          "cartonsPerPallet": 42,
           "cartonDimensionsCm": [
-            50.8,
-            40.64,
-            30.48
+            50,
+            40,
+            30
           ],
           "grossWeightKg": null,
           "grossWeightLb": 18,
           "orderUnit": {
             "kind": "single",
             "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 63
           }
         }
       ]
     },
     {
       "productSku": "1VFSD010A0",
-      "productName": "",
-      "origin": null,
-      "standardFactory": null,
-      "lifecycle": "incomplete",
+      "productName": "1VFSD010A0",
+      "origin": "VN",
+      "standardFactory": "VN",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1VFSD010A0"
       ],
       "packagingVersions": [
         {
-          "version": "2026-08-25",
-          "effectiveFrom": "2026-08-25",
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
           "effectiveTo": null,
           "unitsPerCarton": 100,
-          "cartonsPerPallet": null,
+          "cartonsPerPallet": 42,
           "cartonDimensionsCm": [
-            50.8,
-            40.64,
-            30.48
+            50,
+            40,
+            30
           ],
           "grossWeightKg": null,
           "grossWeightLb": 18,
           "orderUnit": {
             "kind": "single",
             "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 62
           }
         }
       ]
     },
     {
       "productSku": "1VFSD018A0",
-      "productName": "",
-      "origin": null,
-      "standardFactory": null,
-      "lifecycle": "incomplete",
+      "productName": "1VFSD018A0",
+      "origin": "VN",
+      "standardFactory": "VN",
+      "lifecycle": "active",
       "approvedOrderSkus": [
         "1VFSD018A0"
       ],
       "packagingVersions": [
         {
-          "version": "2026-08-25",
-          "effectiveFrom": "2026-08-25",
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
           "effectiveTo": null,
           "unitsPerCarton": 18,
-          "cartonsPerPallet": null,
+          "cartonsPerPallet": 42,
           "cartonDimensionsCm": [
-            50.8,
-            40.64,
-            30.48
+            50,
+            40,
+            30
           ],
           "grossWeightKg": null,
           "grossWeightLb": 22,
           "orderUnit": {
             "kind": "single",
             "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 66
           }
         }
       ]
     },
     {
       "productSku": "ED011AM",
-      "productName": "",
-      "origin": null,
-      "standardFactory": null,
+      "productName": "ED011AM",
+      "origin": "TW",
+      "standardFactory": "TW",
       "lifecycle": "incomplete",
       "approvedOrderSkus": [
         "ED011AM"
@@ -10852,9 +11568,9 @@
     },
     {
       "productSku": "EZD010",
-      "productName": "",
-      "origin": null,
-      "standardFactory": null,
+      "productName": "EZD010",
+      "origin": "TW",
+      "standardFactory": "TW",
       "lifecycle": "incomplete",
       "approvedOrderSkus": [
         "EZD010"
@@ -10878,9 +11594,9 @@
     },
     {
       "productSku": "EZD010-3",
-      "productName": "",
-      "origin": null,
-      "standardFactory": null,
+      "productName": "EZD010-3",
+      "origin": "TW",
+      "standardFactory": "TW",
       "lifecycle": "incomplete",
       "approvedOrderSkus": [
         "EZD010-3"
@@ -10904,9 +11620,9 @@
     },
     {
       "productSku": "EZD020",
-      "productName": "",
-      "origin": null,
-      "standardFactory": null,
+      "productName": "EZD020",
+      "origin": "TW",
+      "standardFactory": "TW",
       "lifecycle": "incomplete",
       "approvedOrderSkus": [
         "EZD020"
@@ -10930,9 +11646,9 @@
     },
     {
       "productSku": "EZD020-3",
-      "productName": "",
-      "origin": null,
-      "standardFactory": null,
+      "productName": "EZD020-3",
+      "origin": "TW",
+      "standardFactory": "TW",
       "lifecycle": "incomplete",
       "approvedOrderSkus": [
         "EZD020-3"
@@ -10956,9 +11672,9 @@
     },
     {
       "productSku": "EZD040",
-      "productName": "",
-      "origin": null,
-      "standardFactory": null,
+      "productName": "EZD040",
+      "origin": "TW",
+      "standardFactory": "TW",
       "lifecycle": "incomplete",
       "approvedOrderSkus": [
         "EZD040"
@@ -10982,9 +11698,9 @@
     },
     {
       "productSku": "EZD040-3",
-      "productName": "",
-      "origin": null,
-      "standardFactory": null,
+      "productName": "EZD040-3",
+      "origin": "TW",
+      "standardFactory": "TW",
       "lifecycle": "incomplete",
       "approvedOrderSkus": [
         "EZD040-3"
@@ -11008,9 +11724,9 @@
     },
     {
       "productSku": "EZD050",
-      "productName": "",
-      "origin": null,
-      "standardFactory": null,
+      "productName": "EZD050",
+      "origin": "TW",
+      "standardFactory": "TW",
       "lifecycle": "incomplete",
       "approvedOrderSkus": [
         "EZD050"
@@ -11034,9 +11750,9 @@
     },
     {
       "productSku": "EZD050-3",
-      "productName": "",
-      "origin": null,
-      "standardFactory": null,
+      "productName": "EZD050-3",
+      "origin": "TW",
+      "standardFactory": "TW",
       "lifecycle": "incomplete",
       "approvedOrderSkus": [
         "EZD050-3"
@@ -11060,9 +11776,9 @@
     },
     {
       "productSku": "EZD060",
-      "productName": "",
-      "origin": null,
-      "standardFactory": null,
+      "productName": "EZD060",
+      "origin": "TW",
+      "standardFactory": "TW",
       "lifecycle": "incomplete",
       "approvedOrderSkus": [
         "EZD060"
@@ -11086,9 +11802,9 @@
     },
     {
       "productSku": "EZD060-3",
-      "productName": "",
-      "origin": null,
-      "standardFactory": null,
+      "productName": "EZD060-3",
+      "origin": "TW",
+      "standardFactory": "TW",
       "lifecycle": "incomplete",
       "approvedOrderSkus": [
         "EZD060-3"
@@ -11120,7 +11836,7 @@
         {
           "version": "fba-2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 100,
           "cartonsPerPallet": null,
           "cartonDimensionsCm": [
@@ -11134,6 +11850,28 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 100,
+          "cartonsPerPallet": 42,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 21,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 88
+          }
         }
       ]
     },
@@ -11145,7 +11883,7 @@
         {
           "version": "fba-2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 100,
           "cartonsPerPallet": null,
           "cartonDimensionsCm": [
@@ -11158,6 +11896,28 @@
           "orderUnit": {
             "kind": "single",
             "units": 1
+          }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 100,
+          "cartonsPerPallet": 42,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 24,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 84
           }
         }
       ]
@@ -11195,7 +11955,7 @@
         {
           "version": "fba-2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 30,
           "cartonsPerPallet": null,
           "cartonDimensionsCm": [
@@ -11209,6 +11969,28 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 30,
+          "cartonsPerPallet": 42,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 22,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 86
+          }
         }
       ]
     },
@@ -11220,7 +12002,7 @@
         {
           "version": "fba-2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 8,
           "cartonsPerPallet": null,
           "cartonDimensionsCm": [
@@ -11234,6 +12016,28 @@
             "kind": "box",
             "units": 10
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 8,
+          "cartonsPerPallet": 42,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 22,
+          "orderUnit": {
+            "kind": "box",
+            "units": 10
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 85
+          }
         }
       ]
     },
@@ -11245,7 +12049,7 @@
         {
           "version": "fba-2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 100,
           "cartonsPerPallet": null,
           "cartonDimensionsCm": [
@@ -11259,6 +12063,28 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 100,
+          "cartonsPerPallet": 42,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 21,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 76
+          }
         }
       ]
     },
@@ -11270,7 +12096,7 @@
         {
           "version": "fba-2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 26,
           "cartonsPerPallet": null,
           "cartonDimensionsCm": [
@@ -11284,6 +12110,28 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 26,
+          "cartonsPerPallet": 42,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 30,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 77
+          }
         }
       ]
     },
@@ -11295,7 +12143,7 @@
         {
           "version": "fba-2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 28,
           "cartonsPerPallet": null,
           "cartonDimensionsCm": [
@@ -11309,6 +12157,28 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 28,
+          "cartonsPerPallet": 42,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 32,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 71
+          }
         }
       ]
     },
@@ -11320,7 +12190,7 @@
         {
           "version": "fba-2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 90,
           "cartonsPerPallet": null,
           "cartonDimensionsCm": [
@@ -11333,6 +12203,28 @@
           "orderUnit": {
             "kind": "single",
             "units": 1
+          }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 90,
+          "cartonsPerPallet": 42,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 25,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 78
           }
         }
       ]
@@ -11345,7 +12237,7 @@
         {
           "version": "fba-2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 24,
           "cartonsPerPallet": null,
           "cartonDimensionsCm": [
@@ -11359,6 +12251,28 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 24,
+          "cartonsPerPallet": 42,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 27,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 72
+          }
         }
       ]
     },
@@ -11370,7 +12284,7 @@
         {
           "version": "fba-2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 100,
           "cartonsPerPallet": null,
           "cartonDimensionsCm": [
@@ -11384,6 +12298,28 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 100,
+          "cartonsPerPallet": 42,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 21,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 80
+          }
         }
       ]
     },
@@ -11395,7 +12331,7 @@
         {
           "version": "fba-2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 24,
           "cartonsPerPallet": null,
           "cartonDimensionsCm": [
@@ -11408,6 +12344,28 @@
           "orderUnit": {
             "kind": "single",
             "units": 1
+          }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 24,
+          "cartonsPerPallet": 42,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 27,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 75
           }
         }
       ]
@@ -11420,7 +12378,7 @@
         {
           "version": "fba-2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 24,
           "cartonsPerPallet": null,
           "cartonDimensionsCm": [
@@ -11434,6 +12392,28 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 24,
+          "cartonsPerPallet": 42,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 27,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 83
+          }
         }
       ]
     },
@@ -11445,7 +12425,7 @@
         {
           "version": "fba-2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 90,
           "cartonsPerPallet": null,
           "cartonDimensionsCm": [
@@ -11459,6 +12439,28 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 90,
+          "cartonsPerPallet": 42,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 25,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 79
+          }
         }
       ]
     },
@@ -11470,7 +12472,7 @@
         {
           "version": "fba-2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 24,
           "cartonsPerPallet": null,
           "cartonDimensionsCm": [
@@ -11484,6 +12486,28 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 24,
+          "cartonsPerPallet": 42,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 27,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 74
+          }
         }
       ]
     },
@@ -11495,7 +12519,7 @@
         {
           "version": "fba-2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 100,
           "cartonsPerPallet": null,
           "cartonDimensionsCm": [
@@ -11509,6 +12533,28 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 100,
+          "cartonsPerPallet": 42,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 21,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 81
+          }
         }
       ]
     },
@@ -11520,7 +12566,7 @@
         {
           "version": "fba-2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 22,
           "cartonsPerPallet": null,
           "cartonDimensionsCm": [
@@ -11534,6 +12580,28 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 22,
+          "cartonsPerPallet": 42,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 25,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 73
+          }
         }
       ]
     },
@@ -11545,7 +12613,7 @@
         {
           "version": "fba-2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 28,
           "cartonsPerPallet": null,
           "cartonDimensionsCm": [
@@ -11559,6 +12627,28 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 28,
+          "cartonsPerPallet": 42,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 32,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 82
+          }
         }
       ]
     },
@@ -11570,7 +12660,7 @@
         {
           "version": "fba-2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 100,
           "cartonsPerPallet": null,
           "cartonDimensionsCm": [
@@ -11584,6 +12674,28 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 100,
+          "cartonsPerPallet": 42,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 24,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 69
+          }
         }
       ]
     },
@@ -11595,7 +12707,7 @@
         {
           "version": "fba-2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 24,
           "cartonsPerPallet": null,
           "cartonDimensionsCm": [
@@ -11609,6 +12721,28 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 24,
+          "cartonsPerPallet": 42,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 24,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 70
+          }
         }
       ]
     },
@@ -11620,7 +12754,7 @@
         {
           "version": "fba-2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 50,
           "cartonsPerPallet": null,
           "cartonDimensionsCm": [
@@ -11634,6 +12768,28 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 50,
+          "cartonsPerPallet": 42,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 17,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 32
+          }
         }
       ]
     },
@@ -11645,7 +12801,7 @@
         {
           "version": "fba-2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 90,
           "cartonsPerPallet": null,
           "cartonDimensionsCm": [
@@ -11659,6 +12815,28 @@
             "kind": "pack",
             "units": 4
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 90,
+          "cartonsPerPallet": 42,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 18,
+          "orderUnit": {
+            "kind": "pack",
+            "units": 4
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 33
+          }
         }
       ]
     },
@@ -11670,7 +12848,7 @@
         {
           "version": "fba-2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 50,
           "cartonsPerPallet": null,
           "cartonDimensionsCm": [
@@ -11684,6 +12862,28 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 50,
+          "cartonsPerPallet": 42,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 17,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 34
+          }
         }
       ]
     },
@@ -11695,7 +12895,7 @@
         {
           "version": "fba-2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 25,
           "cartonsPerPallet": null,
           "cartonDimensionsCm": [
@@ -11709,6 +12909,28 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 25,
+          "cartonsPerPallet": 42,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 18,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 35
+          }
         }
       ]
     },
@@ -11720,7 +12942,7 @@
         {
           "version": "fba-2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 100,
           "cartonsPerPallet": null,
           "cartonDimensionsCm": [
@@ -11734,6 +12956,28 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 100,
+          "cartonsPerPallet": 42,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 24,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 36
+          }
         }
       ]
     },
@@ -11745,7 +12989,7 @@
         {
           "version": "fba-2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 24,
           "cartonsPerPallet": null,
           "cartonDimensionsCm": [
@@ -11759,6 +13003,28 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 24,
+          "cartonsPerPallet": 42,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 29,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 39
+          }
         }
       ]
     },
@@ -11770,7 +13036,7 @@
         {
           "version": "fba-2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 20,
           "cartonsPerPallet": null,
           "cartonDimensionsCm": [
@@ -11784,6 +13050,28 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 20,
+          "cartonsPerPallet": 42,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 24,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 37
+          }
         }
       ]
     },
@@ -11795,7 +13083,7 @@
         {
           "version": "fba-2026-08-25",
           "effectiveFrom": "2026-08-25",
-          "effectiveTo": null,
+          "effectiveTo": "2026-08-27",
           "unitsPerCarton": 10,
           "cartonsPerPallet": null,
           "cartonDimensionsCm": [
@@ -11808,6 +13096,28 @@
           "orderUnit": {
             "kind": "single",
             "units": 1
+          }
+        },
+        {
+          "version": "2026-08-28.4",
+          "effectiveFrom": "2026-08-28",
+          "effectiveTo": null,
+          "unitsPerCarton": 10,
+          "cartonsPerPallet": 42,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 24,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 38
           }
         }
       ]

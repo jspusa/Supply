@@ -72,6 +72,10 @@ _Avoid_: Half-pallet rule, arbitrary decimal
 The raw uploaded source files, pasted H10 text, metadata, and small workspace preferences retained in the current browser so the workspace can be reconstructed after refresh.
 _Avoid_: Cloud backup, exported order
 
-**Shared Product Catalog**:
-The normalized SKU, origin, carton, pallet, and weight facts parsed from the operator's existing raw product-information workbook and stored under one same-origin browser key for Supply and FBA. It overlays each site's checked-in fallback without requiring an extra maintenance worksheet.
-_Avoid_: ProductMasterTable, cloud product database, cross-site fetch
+**Built-in Product Catalog**:
+The released SKU, origin, carton, pallet, weight, and confirmed Order SKU Alias facts compiled from the existing raw product-information workbook and embedded independently in Supply and FBA. It is the normal product source and requires neither an extra maintenance worksheet nor a routine browser upload.
+_Avoid_: Browser product database, ProductMasterTable, cross-site fetch
+
+**Temporary Product Override**:
+A same-origin browser copy of raw public packaging facts used only to test an unpublished product-data change. It never becomes the maintained source and expires when the Built-in Product Catalog version changes.
+_Avoid_: Shared Product Catalog, daily product upload, master data

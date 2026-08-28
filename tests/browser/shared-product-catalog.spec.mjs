@@ -36,13 +36,12 @@ test('raw product workbook persists and overlays Supply without added master wor
     buffer:rawProductWorkbook(),
   });
 
-  await expect(page.locator('#masterMetaBox')).toContainText('Supply／FBA 共用產品資料');
-  await expect(page.locator('#uploadStatusCatalog')).toHaveText('產品資料 已共用原始檔');
+  await expect(page.locator('#masterMetaBox')).toContainText('臨時產品測試資料');
   await expect(page.locator('#productCatalogMetaBox')).toContainText('raw-products.xlsx');
   await expect.poll(() => page.evaluate(() => window.getProductByCode('GTP03')?.perCarton)).toBe(101);
   await expect.poll(() => page.evaluate(() => window.getProductByCode('NEW01')?.country)).toBe('TW');
   await expect.poll(() => page.evaluate(() => {
-    const payload = JSON.parse(localStorage.getItem('jspusa:shared-product-catalog:v1') || 'null');
+    const payload = JSON.parse(localStorage.getItem('jspusa:shared-product-catalog:v2') || 'null');
     return payload?.records?.length;
   })).toBe(2);
 
@@ -54,9 +53,9 @@ test('raw product workbook persists and overlays Supply without added master wor
 
   await page.locator('.uploadAdvancedDetails > summary').click();
   await page.locator('#btnResetProductCatalog').click();
-  await expect.poll(() => page.evaluate(() => localStorage.getItem('jspusa:shared-product-catalog:v1'))).toBeNull();
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('jspusa:shared-product-catalog:v2'))).toBeNull();
   await expect.poll(() => page.evaluate(() => window.getProductByCode('NEW01'))).toBeNull();
-  await expect(page.locator('#productCatalogMetaBox')).toContainText('目前使用內建產品資料');
+  await expect(page.locator('#productCatalogMetaBox')).toContainText('使用內建產品資料');
 
   expect(unexpectedRequests).toEqual([]);
   expect(browserErrors).toEqual([]);
