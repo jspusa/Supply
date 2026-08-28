@@ -1,5 +1,7 @@
 # Use one versioned product catalog
 
+Operator-maintenance portion superseded by ADR 0004. The canonical schema and per-site fallback design remain in force.
+
 Supply and FBA will treat the same Excel workbook and its `ProductMasterTable` plus `OrderSkuPackagingTable` as the only manually maintained product source, validate them into one versioned canonical catalog, and fan out project-specific snapshots at build time. The canonical JSON and site-specific JavaScript are generated release artifacts, not additional manual sources. This keeps runtime callers synchronous and independent of network, cache, and cross-repository availability while making `schemaVersion` and `catalogVersion` explicit release contracts.
 
 ## Consequences

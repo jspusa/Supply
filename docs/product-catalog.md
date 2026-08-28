@@ -1,8 +1,10 @@
-# 共用產品主檔規格
+# 共用產品資料規格
 
-Supply 與 FBA 使用同一份 Excel 的 `產品主檔` 與 `下單品號箱規` 工作表作為唯一人工維護來源。Canonical JSON、Supply 的 `product-data.js` 與 FBA 的 snapshot 都是生成檔，不得手動修改。
+日常維護只使用既有產品資訊原始 Excel，不要求新增 `產品主檔` 或 `下單品號箱規`。把原始檔丟到 Supply 或 FBA 後，兩站會讀取 `AMZ 所有SKU`、`2026`、`罐頭`，將可公開的產品箱規保存在同一個瀏覽器的 `jspusa:shared-product-catalog:v1`，並共同套用到各自的內建備援。
 
-## ProductMasterTable
+下列 ProductMasterTable／OrderSkuPackagingTable 是內建版本發布與資料遷移的 canonical schema，不是 Jasper 平常要維護的 Excel 工作表。Canonical JSON、Supply 的 `product-data.js` 與 FBA snapshot 仍不得手動修改。
+
+## 內建備援：ProductMasterTable
 
 表頭固定在第 5 列；每一列代表一個 Product SKU 的一個包裝版本。
 
@@ -25,7 +27,7 @@ Supply 與 FBA 使用同一份 Excel 的 `產品主檔` 與 `下單品號箱規`
 | 資料來源工作表／來源列 | 初次轉換與衝突稽核證據 |
 | 備註／發布檢查 | 維護說明與公式檢查結果；只有 `⚠` 會阻止發布，未知產地與資料待補會誠實標示但不假造資料 |
 
-## OrderSkuPackagingTable
+## 內建備援：OrderSkuPackagingTable
 
 `下單品號箱規` 表頭同樣固定在第 5 列；每列代表一個 7 字頭 Order SKU Alias 的一個包裝版本。箱入數、尺寸與重量只有在 Order SKU 層級真實不同時才放這裡；不會複製需求、庫存或 coverage。
 
@@ -57,13 +59,17 @@ Supply 與 FBA 使用同一份 Excel 的 `產品主檔` 與 `下單品號箱規`
 
 公開 catalog 只允許 Product SKU、品名、產地、標準下單廠別、核准 Order SKU、包裝版本、箱規、箱重、棧板數與生命週期。成本、報價、供應商、聯絡方式、庫存、銷速、open orders、Order Draft、憑證與原始 Excel 檔不得進入 GitHub Pages artifact。
 
-## 發布流程
+## 日常維護流程
 
-1. 在 Excel 的 `ProductMasterTable` 維護產品包裝，並在 `OrderSkuPackagingTable` 維護 7 字頭專屬箱規；新增資料列時使用 Excel 表格列，發布檢查會以動態表格範圍計算。
-2. 執行 `npm run catalog:import -- --input <xlsx> --output catalog/product-catalog.json`。
-3. 確認兩張表的發布檢查都沒有 `⚠`，再檢查 old → new 差異與 catalog 測試；`可發布 · 產地待補` 與 `資料待補（僅 FBA）` 是允許發布的誠實狀態。
-4. 執行 `npm run catalog:build` 生成 Supply 的同步 legacy adapter。
-5. 在 FBA 專案執行 `npm run generate:catalog -- --source ../Supply/catalog/product-catalog.json`。
-6. 兩站各自完成測試、build、Pages 部署與 live catalogVersion/hash 驗證後，才可宣稱同步發布完成。
+1. 照原本方式更新產品資訊原始 Excel；不要新增額外工作表。
+2. 在 Supply「資料」頁把它和 JAM／H10／JSP 一起丟入，或到 FBA「備用：更新產品資訊資料庫」單獨上傳。
+3. 系統會自動辨識三張工作表、保存第一筆完整的重複 SKU，並顯示讀取 SKU 數量與衝突數。
+4. 重新整理、切換 Supply／FBA 後仍會使用同一份資料；按「恢復內建備援」才會移除。
+
+原始 Excel 不會上傳至 GitHub 或伺服器。瀏覽器共用資料只含 SKU、產地、箱入數、紙箱尺寸、箱／棧板、箱毛重、來源工作表與來源列；缺值不會清掉內建完整值。
+
+## 內建備援發布流程
+
+需要把新資料固化成所有瀏覽器的預設值時，才執行 canonical 匯入、old → new 差異檢查、`npm run catalog:build`、FBA 投影、兩站測試與 Pages 發布。平常上傳原始檔不需要走這套開發流程。
 
 兩個網站在 runtime 都使用各自已驗證的本地 snapshot，不會互相 fetch，因此其中一站暫時無法連線不會拖垮另一站。更新失敗時保留上一個已發布版本。

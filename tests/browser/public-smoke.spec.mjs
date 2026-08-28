@@ -36,7 +36,7 @@ test('public workspace navigation, legacy URL, history, and bounded layout are r
   await page.goto('/#today');
   await waitForSupplyApp(page);
   await expect(page).toHaveURL(/#recommendations$/);
-  await expect(page.locator('input[type="file"]')).toHaveCount(5);
+  await expect(page.locator('input[type="file"]')).toHaveCount(6);
   for (const input of await page.locator('input[type="file"]').all()) await expect(input).toHaveValue('');
   await expect(page.locator('#todayWorkspaceSummary button')).toHaveCount(1);
   await expect(page.locator('#todayWorkspaceSummary')).toBeVisible();
