@@ -10,6 +10,7 @@ const WORKSPACE_LABELS = Object.freeze({
   data:'資料',
   recommendations:'今日建議',
   orders:'訂單',
+  'sku-tree':'SKU 決策樹',
   analysis:'資料分析',
 });
 const NAV_ITEMS = Object.freeze(WORKSPACE_IDS.map(id => Object.freeze({ id, label:WORKSPACE_LABELS[id] })));
@@ -32,7 +33,7 @@ function todayMarkup() {
       <div class="todayMetric"><div class="todayMetricLabel">來源就緒</div><div class="todayMetricValue" id="todaySourceReadiness">0 / 3</div><div class="todayMetricHint" id="todaySourceReadinessHint">等待 H10、JAM、JSP</div></div>
       <div class="todayMetric"><div class="todayMetricLabel">Priority</div><div class="todayMetricValue" id="todayPriorityCount">0</div><div class="todayMetricHint">今日優先品項</div></div>
       <div class="todayMetric"><div class="todayMetricLabel">Velocity Risk</div><div class="todayMetricValue" id="todayVelocityRiskCount">0</div><div class="todayMetricHint">需核對速度證據</div></div>
-      <div class="todayMetric"><div class="todayMetricLabel">Orders</div><div class="todayMetricValue" id="todayOrderGroupTotal">0</div><div class="todayMetricHint" id="todayOrderGroupCounts">台灣 0 · 越南 0 · 代工 0</div></div>
+      <div class="todayMetric"><div class="todayMetricLabel">Orders</div><div class="todayMetricValue" id="todayOrderGroupTotal">0</div><div class="todayMetricHint" id="todayOrderGroupCounts">越南 0 · 台灣 0 · 委外 0</div></div>
     </div>
     <div class="todayRiskExplanation" id="todayHighestRisk" data-state="empty">目前沒有可說明的 Velocity Risk。</div>
     <div class="todayActionRow"><div class="todayActionReason" id="todayNextActionReason">尚未讀取資料。</div><button type="button" class="todayNextAction" id="todayNextAction">開始準備資料</button></div>
@@ -88,7 +89,7 @@ export function createWorkspaceUi({
     setText('todayPriorityCount', summary.priorityCount);
     setText('todayVelocityRiskCount', summary.velocityRiskCount);
     setText('todayOrderGroupTotal', summary.groupCounts.total);
-    setText('todayOrderGroupCounts', `台灣 ${summary.groupCounts.taiwan} · 越南 ${summary.groupCounts.vietnam} · 代工 ${summary.groupCounts.subcontract}`);
+    setText('todayOrderGroupCounts', `越南 ${summary.groupCounts.vietnam} · 台灣 ${summary.groupCounts.taiwan} · 委外 ${summary.groupCounts.subcontract}`);
     setText(
       'todaySummaryState',
       summary.status === 'ready'

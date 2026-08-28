@@ -7,6 +7,7 @@ export const runtimeFiles = Object.freeze([
   'product-data.js',
   'shared/coverage-indicator.css',
   'shared/coverage-indicator.js',
+  'shared/discontinuation-suggestions.js',
   'shared/legacy-planning-adapter.js',
   'shared/order-draft-quantity.js',
   'shared/order-draft-state.js',

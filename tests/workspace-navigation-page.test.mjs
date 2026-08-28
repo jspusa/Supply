@@ -56,8 +56,8 @@ function panelForId(html, id) {
   return match[1];
 }
 
-test('shared workspace UI is the only source of four-workspace navigation and merged Today markup', () => {
-  assert.match(workspaceUiSource, /const WORKSPACE_LABELS = Object\.freeze\(\{[\s\S]*?data:'資料',[\s\S]*?recommendations:'今日建議',[\s\S]*?orders:'訂單',[\s\S]*?analysis:'資料分析',[\s\S]*?\}\);/);
+test('shared workspace UI is the only source of five-workspace navigation and merged Today markup', () => {
+  assert.match(workspaceUiSource, /const WORKSPACE_LABELS = Object\.freeze\(\{[\s\S]*?data:'資料',[\s\S]*?recommendations:'今日建議',[\s\S]*?orders:'訂單',[\s\S]*?'sku-tree':'SKU 決策樹',[\s\S]*?analysis:'資料分析',[\s\S]*?\}\);/);
   assert.match(workspaceUiSource, /WORKSPACE_IDS\.map\(id => Object\.freeze\(\{ id, label:WORKSPACE_LABELS\[id\] \}\)\)/);
   assert.match(workspaceUiSource, /function navigationMarkup\(\)/);
   assert.match(workspaceUiSource, /function todayMarkup\(\)/);
@@ -96,7 +96,10 @@ for (const { entrypoint, html } of pages) {
     assert.equal(panelForId(html, 'decisionDashboard'), 'recommendations');
     assert.equal(panelForId(html, 'reorderCard'), 'recommendations');
     assert.equal(panelForId(html, 'generatorCard'), 'orders');
-    for (const id of ['skuDecisionTreeCard', 'autoDecisionTreeCard', 'mainCard', 'hotCard', 'newCard', 'salesPieDetails', 'salesGanttDetails', 'otherToolsDetails']) {
+    for (const id of ['skuDecisionTreeCard', 'autoDecisionTreeCard']) {
+      assert.equal(panelForId(html, id), 'sku-tree');
+    }
+    for (const id of ['mainCard', 'hotCard', 'newCard', 'salesPieDetails', 'salesGanttDetails', 'otherToolsDetails']) {
       assert.equal(panelForId(html, id), 'analysis');
     }
     const pagePanels = Array.from(html.matchAll(/<[^>]+data-workspace-panel="[^"]+"[^>]*>/g), match => match[0]);
@@ -127,7 +130,7 @@ for (const { entrypoint, html } of pages) {
   test(`${entrypoint}: Orders is segmented, bounded, vertical, keyboard-visible, and narrow responsive`, () => {
     assert.equal((html.match(/role="radiogroup" aria-label="訂單群組"/g) || []).length, 1);
     const values = Array.from(html.matchAll(/name="orderGroupSelect" value="([^"]+)"/g), match => match[1]);
-    assert.deepEqual(values, ['taiwan', 'vietnam', 'subcontract']);
+    assert.deepEqual(values, ['vietnam', 'taiwan', 'subcontract']);
     assert.match(html, /\.generatorQuantityGroup, \.generatorQuantityGroup\.single \{[^}]*display:flex;[^}]*flex-direction:column/);
     assert.match(html, /\.tableWrap, \.order-generator \.table-responsive \{[^}]*max-height:min\(68vh,720px\);[^}]*overflow:auto/);
     assert.match(html, /\.tableWrap thead th, \.order-generator \.table-responsive thead th \{[^}]*position:sticky;[^}]*top:0/);

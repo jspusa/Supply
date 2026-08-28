@@ -237,6 +237,26 @@ test('versioned storage round-trip returns explicit saved and loaded outcomes', 
   assert.equal(loaded.draft.rowsByProductSku['VN-01'].pallet.value, 2.35);
 });
 
+test('a saved v2 draft with the former Taiwan-first key order keeps all canonical group ids', () => {
+  const draft = applyOrderDraftCommand(createOrderDraft({ now:NOW }), {
+    type:'upsert-row',
+    row:{ productSku:'VN-01', quantities:{ orderDraft:112 }, pallet:{ value:1 / 3, mode:'manual' } },
+  }, context).draft;
+  const legacyKeyOrder = {
+    ...draft,
+    groupOrder:{ taiwan:[], vietnam:['VN-01'], subcontract:[] },
+  };
+  const loaded = loadOrderDraft({
+    storage:createMemoryStorage({ [ORDER_DRAFT_STORAGE_KEY]:JSON.stringify(legacyKeyOrder) }),
+    context,
+  });
+
+  assert.deepEqual({ ok:loaded.ok, status:loaded.status }, { ok:true, status:'loaded' });
+  assert.deepEqual(getOrderGroupRows(loaded.draft, 'vietnam').map(row => row.productSku), ['VN-01']);
+  assert.deepEqual(getOrderGroupRows(loaded.draft, 'taiwan'), []);
+  assert.deepEqual(getOrderGroupRows(loaded.draft, 'subcontract'), []);
+});
+
 test('legacy VN/TW/Others drafts migrate without rounding fractional pallets or dropping unknown catalog rows', () => {
   const legacy = {
     VN:{
@@ -410,7 +430,7 @@ test('v2 storage rejects drafts missing required row state or valid timestamps',
   assert.match(rejectedTimestamp.error.message, /updatedAt/);
 });
 
-test('workbook projection always emits 台灣, 越南, and 代工 in saved group order', () => {
+test('workbook projection preserves the established 台灣, 越南, and 代工 sheet contract', () => {
   const empty = projectOrderWorkbook(createOrderDraft({ now:NOW }), { getProduct:context.getProduct });
   assert.equal(empty.ok, true);
   assert.deepEqual(empty.sheetOrder, ['台灣', '越南', '代工']);
@@ -461,8 +481,9 @@ test('workbook projection retains legacy saved carton and pallet values when exa
   }, context).draft;
   const projected = projectOrderWorkbook(draft, context);
   assert.equal(projected.ok, true);
-  assert.equal(projected.sheets[0].rows[0][5], 4);
-  assert.equal(projected.sheets[0].rows[0][7], 0.1);
+  const taiwan = projected.sheets.find(sheet => sheet.id === 'taiwan');
+  assert.equal(taiwan.rows[0][5], 4);
+  assert.equal(taiwan.rows[0][7], 0.1);
 });
 
 test('browser consumers receive one frozen Order Draft interface', async () => {
@@ -473,7 +494,7 @@ test('browser consumers receive one frozen Order Draft interface', async () => {
     const browserInterface = globalThis.window.SupplyOrderDraftState;
     assert.equal(Object.isFrozen(browserInterface), true);
     assert.equal(browserInterface.ORDER_DRAFT_SCHEMA_VERSION, 2);
-    assert.deepEqual(browserInterface.ORDER_GROUP_IDS, ['taiwan', 'vietnam', 'subcontract']);
+    assert.deepEqual(browserInterface.ORDER_GROUP_IDS, ['vietnam', 'taiwan', 'subcontract']);
     for (const name of ['createOrderDraft', 'applyOrderDraftCommand', 'getOrderGroupRows', 'loadOrderDraft', 'saveOrderDraft', 'projectOrderWorkbook']) {
       assert.equal(typeof browserInterface[name], 'function', name);
     }

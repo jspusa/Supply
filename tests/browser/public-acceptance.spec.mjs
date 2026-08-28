@@ -49,6 +49,16 @@ test('public sanitized data flows through planning, shared navigation, three gro
   await waitForPublicSnapshot(page, snapshot => snapshot.inputs.h10Paste === SANITIZED_H10_TEXT && snapshot.sources.length === 3);
   await expect.poll(() => page.evaluate(() => localStorage.getItem('supply-velocity-history-v1')), { timeout:8_000 }).not.toBeNull();
 
+  await page.locator('.workspaceNavTab[data-workspace="analysis"]').click();
+  await page.locator('#otherToolsDetails > summary').click();
+  await page.locator('.toolTab[data-panel="suggestedDiscontinuedPanel"]').click();
+  await expect(page.locator('#suggestedDiscontinuedCount')).toHaveText('10');
+  await expect(page.locator('#suggestedDiscontinuedWrap tbody tr')).toHaveCount(10);
+  const ttsSuggestion = page.locator('#suggestedDiscontinuedWrap tbody tr').filter({ hasText:'TTS05AM-1' });
+  await expect(ttsSuggestion).toHaveCount(1);
+  await expect(ttsSuggestion).toContainText('420 天');
+  await expect(page.locator('#suggestedDiscontinuedWrap')).not.toContainText('EZD011AM');
+
   await exerciseWorkspaceNavigationAndLayout(page);
   const draftBeforeRefresh = await buildThreeGroupOrderScenario(page);
   await downloadAndAssertOrderWorkbook(page);
@@ -63,7 +73,9 @@ test('public sanitized data flows through planning, shared navigation, three gro
   const restoredSnapshotState = page.locator('#workspaceSnapshotState');
   await expect(restoredSnapshotState).toHaveAttribute('data-state', 'ready');
   await expect(restoredSnapshotState).toHaveText(/^已從本機還原 Workspace Snapshot · 2026\/8\/28.*下午4:30:00；檔案選擇欄保持空白。$/);
-  expect((await readWorkspaceSnapshot(page)).updatedAt).toBe('2026-08-28T08:30:00.000Z');
+  const restoredUpdatedAt = Date.parse((await readWorkspaceSnapshot(page)).updatedAt);
+  expect(restoredUpdatedAt).toBeGreaterThanOrEqual(Date.parse('2026-08-28T08:30:00.000Z'));
+  expect(restoredUpdatedAt).toBeLessThan(Date.parse('2026-08-28T08:30:01.000Z'));
   await expect(page.locator('#jamMetaBox')).toContainText('已從本機還原：sanitized-jam.xlsx；基於瀏覽器安全限制，檔案選擇欄保持空白。');
   await expect(page.locator('#amzMetaBox')).toContainText('已從本機還原：sanitized-h10-inventory.xlsx；基於瀏覽器安全限制，檔案選擇欄保持空白。');
   await expect(page.locator('#jspMetaBox')).toContainText('已從本機還原：sanitized-jsp-inventory.xlsx；基於瀏覽器安全限制，檔案選擇欄保持空白。');

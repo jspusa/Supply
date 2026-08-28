@@ -2,6 +2,7 @@ export const WORKSPACE_IDS = Object.freeze([
   'data',
   'recommendations',
   'orders',
+  'sku-tree',
   'analysis',
 ]);
 
@@ -16,8 +17,8 @@ export const LEGACY_WORKSPACE_HASHES = Object.freeze({
   '#uploadCard':'data',
   '#reorderCard':'recommendations',
   '#generatorCard':'orders',
-  '#skuDecisionTreeCard':'analysis',
-  '#autoDecisionTreeCard':'analysis',
+  '#skuDecisionTreeCard':'sku-tree',
+  '#autoDecisionTreeCard':'sku-tree',
   '#mainCard':'analysis',
   '#hotCard':'analysis',
   '#newCard':'analysis',
@@ -175,13 +176,13 @@ function velocityRiskProjection(row) {
 }
 
 function orderGroupProjection(orderDraft, issues) {
-  const counts = { taiwan:0, vietnam:0, subcontract:0, total:0 };
+  const counts = { vietnam:0, taiwan:0, subcontract:0, total:0 };
   if (orderDraft === undefined || orderDraft === null) return counts;
   if (!isRecord(orderDraft) || !isRecord(orderDraft.groupOrder)) {
     issues.push({ code:'INVALID_ORDER_DRAFT' });
     return counts;
   }
-  for (const group of ['taiwan', 'vietnam', 'subcontract']) {
+  for (const group of ['vietnam', 'taiwan', 'subcontract']) {
     const rows = orderDraft.groupOrder[group];
     if (!Array.isArray(rows)) {
       issues.push({ code:'INVALID_ORDER_GROUP', group });

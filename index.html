@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>訂單分析器 V2</title>
+  <title>訂單分析器 __SUPPLY_APP_VERSION__</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Ctext x=%278%27 y=%2746%27 font-size=%2742%27%3E📦%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <link rel="stylesheet" href="./shared/coverage-indicator.css">
@@ -172,6 +172,7 @@
     .generatorActionGroup { display:inline-flex; align-items:center; gap:3px; inline-size:90px; }
     .order-generator .generatorActionGroup > button:focus-visible, .order-generator .miniBtn:focus-visible { outline:2px solid #2563eb; outline-offset:2px; }
     .order-generator .miniBtn { display:inline-grid; place-items:center; inline-size:26px; block-size:26px; margin-left:4px; padding:0; border-radius:7px; font-size:11px; }
+    .order-generator .equivalentOrderToggle { display:inline-flex; inline-size:auto; max-inline-size:120px; padding-inline:6px; gap:4px; white-space:nowrap; }
     .generatorQuantityGroup { display:flex; flex-direction:column; gap:6px; min-width:84px; max-width:112px; }
     .generatorQuantityGroup.single { min-width:82px; }
     .generatorQuantityField { display:flex; flex-direction:column; gap:3px; color:#64748b; font-size:10px; font-weight:800; }
@@ -199,6 +200,7 @@
       .edit-pallets-input { padding-right:31px; }
       .order-generator .generatorActionGroup { gap:3px; inline-size:126px; }
       .order-generator .generatorActionGroup > button, .order-generator .miniBtn { inline-size:40px; block-size:40px; }
+      .order-generator .equivalentOrderToggle { inline-size:auto; min-inline-size:40px; padding-inline:8px; }
     }
     .generatorColumnBar { display:flex; align-items:center; flex-wrap:wrap; gap:7px; margin:0 0 10px; padding:9px 11px; border:1px solid #e2e8f0; border-radius:14px; background:#f8fafc; }
     .generatorColumnBar > span { color:#64748b; font-size:12px; font-weight:800; margin-right:2px; }
@@ -805,7 +807,7 @@
     <header class="appHero" id="workflowTop" data-workspace-panel="data" hidden>
       <div class="heroCopy">
         <p class="eyebrow">Jasper Operations</p>
-        <h1>訂單分析器 V2</h1>
+        <h1>訂單分析器 __SUPPLY_APP_VERSION__</h1>
         <div class="heroSubtitle">上傳資料 → 檢視缺口 → 產生訂單</div>
       </div>
       <div class="heroActions">
@@ -976,9 +978,9 @@
             <div class="container">
               <div class="header-bar">
                 <div class="factory-switch orderGroupSegmented" role="radiogroup" aria-label="訂單群組">
-                  <label><input type="radio" name="orderGroupSelect" value="taiwan"><span>台灣</span></label>
                   <label><input type="radio" name="orderGroupSelect" value="vietnam" checked><span>越南</span></label>
-                  <label><input type="radio" name="orderGroupSelect" value="subcontract"><span>代工</span></label>
+                  <label><input type="radio" name="orderGroupSelect" value="taiwan"><span>台灣</span></label>
+                  <label><input type="radio" name="orderGroupSelect" value="subcontract"><span>委外</span></label>
                 </div>
                 <h2><i class="fa-solid fa-cube"></i> 訂單產生器 <span style="font-size: 1rem; color:#8ab2e0; margin-left:12px;font-weight:400;">Order Generator</span></h2>
                 <button class="secondary" onclick="openModal()"><i class="fa-solid fa-ruler-combined"></i> 紙箱尺寸</button>
@@ -1047,7 +1049,7 @@
         </div>
       </details>
 
-      <details class="card priority" id="skuDecisionTreeCard" data-workspace-panel="analysis" hidden>
+      <details class="card priority" id="skuDecisionTreeCard" data-workspace-panel="sku-tree" hidden>
         <summary>
           <div>
             <p class="eyebrow">SKU Decision Tree</p>
@@ -1072,7 +1074,7 @@
         </div>
       </details>
 
-      <details class="card priority autoDecisionCard" id="autoDecisionTreeCard" data-workspace-panel="analysis" hidden>
+      <details class="card priority autoDecisionCard" id="autoDecisionTreeCard" data-workspace-panel="sku-tree" hidden>
         <summary>
           <div>
             <p class="eyebrow">Automatic Decision Tree</p>
@@ -1259,13 +1261,14 @@
         <div>
           <p class="eyebrow">其他功能</p>
           <h2>其他功能區</h2>
-          <div class="hint">集中管理庫齡、停產品、熱銷品、Business Report 與缺貨月曆。</div>
+          <div class="hint">集中管理庫齡、建議停產、既有停產品、熱銷品、Business Report 與缺貨月曆。</div>
         </div>
         <div class="summary-actions"><span class="pill">Tools</span></div>
       </summary>
       <div class="cardContent">
         <div class="toolTabs" id="otherToolTabs">
           <button class="toolTab active" data-panel="amzOver180Panel">AMZ超過180天</button>
+          <button class="toolTab" data-panel="suggestedDiscontinuedPanel">建議停產（<span id="suggestedDiscontinuedCount">0</span>）</button>
           <button class="toolTab" data-panel="discontinuedPanel">停產清單</button>
           <button class="toolTab" data-panel="hotToolPanel">熱銷品專區</button>
           <button class="toolTab" data-panel="businessReportPanel">Business Report</button>
@@ -1275,6 +1278,10 @@
         <div id="amzOver180Panel" class="toolPanel active">
           <div class="hint">以 AMZ 庫存 ÷ H10 速度估算。此清單不受「隱藏停產品」影響，避免漏掉長期倉儲費風險。</div>
           <div class="tableWrap" id="amzOver180Wrap"></div>
+        </div>
+        <div id="suggestedDiscontinuedPanel" class="toolPanel">
+          <div class="hint">若一整板依目前 Planning Velocity 需要超過 365 天才賣完，就列入評估；這只是建議，不會自動把品號改成停產。</div>
+          <div class="tableWrap" id="suggestedDiscontinuedWrap"></div>
         </div>
         <div id="discontinuedPanel" class="toolPanel">
           <div class="hint">固定停產品清單；若停產品仍有 AMZ/JSP 庫存或未到貨訂單，會一併顯示。</div>
@@ -1331,6 +1338,7 @@
   <script type="module" src="./shared/workspace-navigation.js"></script>
   <script type="module" src="./shared/workspace-ui.js"></script>
   <script type="module" src="./shared/coverage-indicator.js"></script>
+  <script type="module" src="./shared/discontinuation-suggestions.js"></script>
   <script>
     const IS_BOSS_PORTAL = window.__SUPPLY_BOSS_PORTAL__ === true;
     if (IS_BOSS_PORTAL) document.body.classList.add('bossPortal');
@@ -2708,6 +2716,8 @@
               h10TextParts.push(text);
               h10El.value = h10TextParts.join('\n\n');
               h10SourceObservedOn = sourceObservedOn;
+              workspaceH10SelectedAt = sourceSelectedAt;
+              stageWorkspaceH10Draft();
               if (options.recordVelocityHistory !== false) shouldRecordVelocityHistory = true;
               recognizedTypes.add('h10');
               rememberSource('h10TextFile');
@@ -2869,6 +2879,21 @@
         return null;
       }
       return workspaceSnapshotStore;
+    }
+
+    function stageWorkspaceH10Draft() {
+      if (IS_BOSS_PORTAL) return null;
+      const store = getPublicWorkspaceSnapshotStore();
+      if (!store?.stageH10Draft) return null;
+      const result = store.stageH10Draft({
+        h10Paste:h10El?.value || '',
+        h10ObservedOn:h10SourceObservedOn || null,
+        h10SelectedAt:workspaceH10SelectedAt
+      });
+      if (!result.ok) {
+        setWorkspaceSnapshotState('H10 原始文字的立即暫存失敗；請等候完整 Workspace Snapshot 顯示已保存再重新整理。', 'warning');
+      }
+      return result;
     }
 
     function captureWorkspaceSources() {
@@ -3047,13 +3072,13 @@
         return Promise.resolve(result);
       }
       const epoch = workspaceSaveEpoch;
-      const payload = {
-        sources:captureWorkspaceSources(),
-        inputs:captureWorkspaceInputs(),
-        preferences:captureWorkspacePreferences()
-      };
       const run = async () => {
         if (epoch !== workspaceSaveEpoch) return { ok:false, status:'cancelled' };
+        const payload = {
+          sources:captureWorkspaceSources(),
+          inputs:captureWorkspaceInputs(),
+          preferences:captureWorkspacePreferences()
+        };
         const result = await store.save(payload);
         if (epoch !== workspaceSaveEpoch) return result;
         if (result.ok) {
@@ -3061,7 +3086,7 @@
           workspacePersistenceBlocked = result.status === 'partial' || remainingIssues.length > 0;
           if (workspacePersistenceBlocked) {
             const replacements = formatWorkspaceReplacementIssues(remainingIssues);
-            setWorkspaceSnapshotState('已保存可讀資料；仍需重新選擇：' + replacements + '。', 'warning');
+            setWorkspaceSnapshotState('已保存可讀資料；仍需處理：' + replacements + '。', 'warning');
           } else {
             setWorkspaceSnapshotState('已安全保存在此瀏覽器 · ' + new Date(result.snapshot.updatedAt).toLocaleString('zh-TW'), 'ready');
           }
@@ -3210,6 +3235,11 @@
     function formatWorkspaceReplacementIssues(issues = [], analysis = {}) {
       const labels = Array.from(issues || [], issue => {
         if (issue?.kind === 'preferences') return '工作區偏好';
+        if (issue?.kind === 'h10-draft') {
+          if (issue.status === 'unsupported-version') return 'H10 原始文字立即暫存（版本較新，請用較新版本開啟；原資料未覆寫）';
+          if (issue.status === 'corrupt') return 'H10 原始文字立即暫存（資料損壞但已保留；若確定不需要舊資料，請按上方「清空」後重建）';
+          return 'H10 原始文字立即暫存（瀏覽器儲存失敗，請保留本頁並重試）';
+        }
         const role = WORKSPACE_SOURCE_LABEL_BY_ROLE[issue?.role] || String(issue?.role || '').trim();
         const name = String(issue?.name || '').trim();
         if (role && name) return `${role}（${name}）`;
@@ -3259,11 +3289,12 @@
       workspacePersistenceBlocked = issues.length > 0;
       if (result.status === 'partial' || parserPartial) {
         const replacements = formatWorkspaceReplacementIssues(issues, analysis);
-        setWorkspaceSnapshotState('已從本機還原可讀資料；請重新選擇：' + replacements + '。檔案選擇欄保持空白。', 'warning');
+        setWorkspaceSnapshotState('已從本機還原可讀資料；仍需處理：' + replacements + '。檔案選擇欄保持空白。', 'warning');
       } else {
         const when = result.plan.updatedAt ? new Date(result.plan.updatedAt).toLocaleString('zh-TW') : '時間不明';
         setWorkspaceSnapshotState('已從本機還原 Workspace Snapshot · ' + when + '；檔案選擇欄保持空白。', 'ready');
       }
+      if (result.recoveredH10Draft) await persistWorkspaceSnapshot({ force:true });
       return { ...result, analysis };
     }
 
@@ -3368,6 +3399,7 @@
         const id = event.target?.id;
         if (id === 'inputH10') {
           workspaceH10SelectedAt = new Date().toISOString();
+          stageWorkspaceH10Draft();
           scheduleFromUserEvent(event);
           return;
         }
@@ -3782,7 +3814,7 @@
     function getOrderDraftStateApi() { return window.SupplyOrderDraftState || null; }
     function getApprovedOrderSkusForProduct(productSku) { const canonical = getCanonicalSku(productSku); const group = getEquivalentSkuGroup(canonical) || []; return group.map(normalizeSkuKey).filter(orderSku => orderSku && orderSku !== canonical); }
     function getGeneratorDraftContext() { return { getProduct:getProductSpecByCode, getApprovedOrderSkus:getApprovedOrderSkusForProduct, now:() => new Date() }; }
-    function getOrderGroupLabel(group) { return ({ taiwan:'台灣', vietnam:'越南', subcontract:'代工' })[group] || group; }
+    function getOrderGroupLabel(group) { return ({ vietnam:'越南', taiwan:'台灣', subcontract:'委外' })[group] || group; }
     function setActiveOrderGroup(group) { const api = getOrderDraftStateApi(); if (!api?.ORDER_GROUP_IDS?.includes(group)) return false; currentOrderGroup = group; const radio = document.querySelector(`[name="orderGroupSelect"][value="${group}"]`); if (radio) radio.checked = true; return true; }
     function setGeneratorDraftStatus(message, state = '') { const status = document.getElementById('generatorDraftStatus'); if (!status) return; status.textContent = message; if (state) status.dataset.state = state; else delete status.dataset.state; }
     function getGeneratorDraftErrorMessage(result, fallback) { const detail = result?.error?.message || result?.error || result?.status; return detail ? `${fallback}（${detail}）` : fallback; }
@@ -3832,7 +3864,7 @@
     function searchProduct() { const raw = document.getElementById('searchInput').value.trim(); const val = normalizeSkuKey(raw); const nameVal = raw.toLocaleLowerCase('zh-Hant'); const res = document.getElementById('searchResults'); res.innerHTML = ''; if (!val) { res.style.display = 'none'; return; } const matched = getFilteredProducts().filter(p => normalizeSkuKey(p.productCode).includes(val) || String(p.productName || '').toLocaleLowerCase('zh-Hant').includes(nameVal)).slice(0, 40); if (matched.length) { res.style.display = 'block'; matched.forEach(prod => { const item = document.createElement('div'); item.className = 'search-result-item'; item.textContent = `${prod.productCode} - ${prod.productName}`; item.onclick = () => { addProduct(prod); document.getElementById('searchInput').value = ''; res.innerHTML = ''; res.style.display = 'none'; }; res.appendChild(item); }); } else res.style.display = 'none'; }
     window.searchProduct = searchProduct;
     function checkPackageType(prod) { const hasPack = typeof prod.perPack !== 'undefined' && prod.perPack > 0; const hasBox = typeof prod.perBox !== 'undefined' && prod.perBox > 0 && !hasPack; return { hasPack, hasBox }; }
-    function renderEquivalentOrderToggle(code, orderCode = code) { const group = getEquivalentSkuGroup(code); if (!group || group.length < 2) return ''; const currentIndex = group.indexOf(normalizeSkuKey(orderCode)); const nextCode = group[(currentIndex + 1) % group.length] || group[0]; const safeNextCode = escapeHtml(nextCode); return `<button type="button" class="miniBtn" onclick="toggleEquivalentOrderCode(this)" aria-label="切換下單品號為 ${safeNextCode}" title="切換為 ${safeNextCode}" data-next-order-sku="${safeNextCode}"><i class="fa-solid fa-repeat" aria-hidden="true"></i></button>`; }
+    function renderEquivalentOrderToggle(code, orderCode = code) { const group = getEquivalentSkuGroup(code); if (!group || group.length < 2) return ''; const currentIndex = group.indexOf(normalizeSkuKey(orderCode)); const nextCode = group[(currentIndex + 1) % group.length] || group[0]; const safeNextCode = escapeHtml(nextCode); return `<button type="button" class="miniBtn equivalentOrderToggle" onclick="toggleEquivalentOrderCode(this)" aria-label="切換下單品號為 ${safeNextCode}" title="切換為 ${safeNextCode}" data-next-order-sku="${safeNextCode}"><i class="fa-solid fa-repeat" aria-hidden="true"></i><span>${safeNextCode}</span></button>`; }
     function toggleEquivalentOrderCode(btn) { const row = btn.closest('tr'), group = getEquivalentSkuGroup(row?.dataset.product); if (!row || !group) return; saveGeneratorDraft(); const current = normalizeSkuKey(row.dataset.orderCode || group[0]); const nextOrderSku = group[(group.indexOf(current) + 1) % group.length] || group[0]; const result = applyGeneratorDraftCommand({ type:'switch-order-sku', productSku:row.dataset.product, orderSku:nextOrderSku }); if (!result) return; persistGeneratorDraft(); setActiveOrderGroup(result.row.orderGroup); renderActiveOrderGroup(); showTip(`已切換下單品號 ${result.row.orderSku}，並移至${getOrderGroupLabel(result.row.orderGroup)}。`, 'success'); }
     window.toggleEquivalentOrderCode = toggleEquivalentOrderCode;
     function createGeneratorDraftRow(prod, { quantity = null, recommendation = null } = {}) { const { hasPack, hasBox } = checkPackageType(prod); let values = { quantity:0, units:0, cartons:0, pallets:0 }; let authoritativeField = ''; let palletMode = 'derived'; if (recommendation) { const recommendedQuantity = Number(recommendation.quantity); const recommendedPallets = Number(recommendation.pallets); const applyBy = recommendation.applyBy || 'none'; if (applyBy === 'pallets' && recommendedPallets > 0) { values.pallets = recommendedPallets; authoritativeField = 'pallets'; values = recalcValues('pallets', { ...values, perPack:Number(prod.perPack || 0), perBox:Number(prod.perBox || 0), perCarton:Number(prod.perCarton), perPallet:Number(prod.perPallet) }); } else if (applyBy === 'quantity' && recommendedQuantity > 0) { authoritativeField = (hasPack || hasBox) ? 'units' : 'quantity'; values[authoritativeField] = recommendedQuantity; values = recalcValues(authoritativeField, { ...values, perPack:Number(prod.perPack || 0), perBox:Number(prod.perBox || 0), perCarton:Number(prod.perCarton), perPallet:Number(prod.perPallet) }); } palletMode = recommendation.strategy || (authoritativeField === 'pallets' ? 'whole-pallet' : 'unit-guidance'); } else if (quantity !== null && Number.isFinite(quantity)) { values.quantity = Math.max(0, quantity); authoritativeField = 'quantity'; values = recalcValues('quantity', { ...values, perPack:Number(prod.perPack || 0), perBox:Number(prod.perBox || 0), perCarton:Number(prod.perCarton), perPallet:Number(prod.perPallet) }); } const warningCode = recommendation?.warning?.code || recommendation?.warning || ''; return { productSku:normalizeSkuKey(prod.productCode), orderSku:normalizeSkuKey(prod.productCode), quantities:{ packages:authoritativeField ? values.quantity : '', secondary:authoritativeField ? values.units : '', target:'', cartons:authoritativeField ? values.cartons : '', orderDraft:authoritativeField ? getOrderDraftQuantityFromValues(prod, values.quantity, values.units) : '' }, pallet:{ value:authoritativeField ? values.pallets : '', mode:palletMode, authoritativeField, warningCode, strategy:recommendation?.strategy || '', guidance:getPalletRecommendationWarning(warningCode) }, locked:false }; }
@@ -4497,6 +4529,33 @@
       wrap.innerHTML = `<table><thead><tr><th>#</th><th>SKU</th><th>停產原因</th><th>速度</th><th>未到貨</th><th>AMZ</th><th>JSP</th><th>品名</th></tr></thead><tbody>${body}</tbody></table>`;
     }
 
+    function renderSuggestedDiscontinuations() {
+      const wrap = document.getElementById('suggestedDiscontinuedWrap');
+      const count = document.getElementById('suggestedDiscontinuedCount');
+      if (!wrap) return;
+      const api = window.SupplyDiscontinuationSuggestions;
+      if (!api?.buildDiscontinuationSuggestions) {
+        if (count) count.textContent = '0';
+        wrap.innerHTML = '<div class="hint">建議停產模組尚未載入，請重新整理後再試。</div>';
+        return;
+      }
+      const rows = api.buildDiscontinuationSuggestions(mainRowsAll.map(row => ({
+        productSku:row.sku,
+        planningVelocity:row.planningVelocity,
+        unitsPerPallet:getUnitsPerPallet(getProductSpecByCode(row.sku))
+      })), { isDiscontinuedSku });
+      if (count) count.textContent = String(rows.length);
+      if (!rows.length) {
+        wrap.innerHTML = '<div class="hint">目前沒有「一板可售超過 365 天」的在售品號。</div>';
+        return;
+      }
+      const body = rows.map((row, index) => {
+        const product = getProductSpecByCode(row.productSku);
+        return `<tr><td>${index + 1}</td>${renderSkuCell(row.productSku)}<td>${fmtQty(row.planningVelocity)}</td><td>${fmtQty(row.unitsPerPallet)}</td><td class="warn">${fmtQty(row.onePalletSellableDays)} 天</td><td>${escapeHtml(product?.productName || '')}</td><td>${escapeHtml(row.reason)}</td></tr>`;
+      }).join('');
+      wrap.innerHTML = `<table><thead><tr><th>#</th><th>品號</th><th>Planning Velocity</th><th>每板可售單位</th><th>一板可售天數</th><th>品名</th><th>建議原因</th></tr></thead><tbody>${body}</tbody></table>`;
+    }
+
     function renderBusinessReportInsights() {
       const wrap = document.getElementById('businessReportInsightsWrap');
       if (!wrap) return;
@@ -4546,6 +4605,7 @@
     }
     function renderOtherTools() {
       renderAmzOver180();
+      renderSuggestedDiscontinuations();
       renderDiscontinuedList();
       renderBusinessReportInsights();
     }

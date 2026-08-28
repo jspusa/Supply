@@ -88,6 +88,8 @@ test('successful parsers classify exact raw source roles before public persisten
       assert.match(classify, new RegExp("rememberSource\\('" + role + "'\\)"));
     }
     assert.match(classify, /classifiedSources/);
+    assert.ok(classify.indexOf("h10El.value = h10TextParts.join('\\n\\n')") < classify.indexOf('stageWorkspaceH10Draft()'));
+    assert.ok(classify.indexOf('workspaceH10SelectedAt = sourceSelectedAt') < classify.indexOf('stageWorkspaceH10Draft()'));
     const individual = extractFunctionSource(html, 'parseAndRememberWorkspaceFile');
     assert.match(individual, /return enqueueWorkspaceParse\(async \(\) =>/);
     assert.ok(individual.indexOf('await parser(file)') < individual.indexOf('rememberSuccessfulWorkspaceSources(records)'));
@@ -176,7 +178,7 @@ test('public restore reports partial and future-version states without overwriti
   assert.ok(restore.indexOf('applyWorkspacePreferences(result.plan.preferences)') < restore.indexOf('restoreWorkspaceInputs({ sources:result.plan.sources'));
   assert.doesNotMatch(restore, /if \(!result\.plan\.sources\.length\).*return/s);
   assert.match(restore, /formatWorkspaceReplacementIssues\(issues, analysis\)/);
-  assert.match(restore, /請重新選擇/);
+  assert.match(restore, /仍需處理/);
   const messages = extractFunctionSource(publicHtml, 'getWorkspaceStorageMessage');
   for (const status of ['quota', 'denied', 'unavailable', 'corrupt', 'unsupported-version', 'unreadable']) {
     assert.match(messages, new RegExp("['\"]?" + status.replace('-', '\\-') + "['\"]?:"));
@@ -185,11 +187,15 @@ test('public restore reports partial and future-version states without overwriti
 
 test('public saves stay warning/partial until every preserved unreadable role is replaced', () => {
   const persist = extractFunctionSource(publicHtml, 'persistWorkspaceSnapshot');
+  assert.ok(persist.indexOf('const run = async () =>') < persist.indexOf('const payload = {'));
+  assert.ok(persist.indexOf('const payload = {') < persist.indexOf('await store.save(payload)'));
   assert.match(persist, /result\.status === 'partial'/);
   assert.match(persist, /remainingIssues\.length > 0/);
   assert.match(persist, /formatWorkspaceReplacementIssues\(remainingIssues\)/);
-  assert.match(persist, /仍需重新選擇/);
+  assert.match(persist, /仍需處理/);
   assert.ok(persist.indexOf("setWorkspaceSnapshotState('已保存可讀資料") < persist.indexOf("setWorkspaceSnapshotState('已安全保存"));
+  const bossPersist = extractFunctionSource(bossHtml, 'persistWorkspaceSnapshot');
+  assert.ok(bossPersist.indexOf('const run = async () =>') < bossPersist.indexOf('const payload = {'));
 });
 
 test('partial restore names the exact source role and filename that must be replaced', () => {
@@ -232,7 +238,19 @@ test('Clear is confirmed, cancels pending writes, uses the exact store clear, an
   assert.match(schedule, /workspaceAutoSaveSuppressedUntilUserChange && !userInitiated/);
   assert.match(schedule, /workspacePersistenceBlocked && !userInitiated/);
   assert.match(schedule, /persistWorkspaceSnapshot\(\{ force:userInitiated \}\)/);
-  assert.match(extractFunctionSource(publicHtml, 'wireWorkspacePersistence'), /event\?\.isTrusted/);
+  const h10Draft = extractFunctionSource(publicHtml, 'stageWorkspaceH10Draft');
+  assert.match(h10Draft, /store\.stageH10Draft\(/);
+  assert.match(h10Draft, /h10Paste:h10El\?\.value \|\| ''/);
+  assert.match(h10Draft, /h10ObservedOn:h10SourceObservedOn \|\| null/);
+  assert.match(h10Draft, /h10SelectedAt:workspaceH10SelectedAt/);
+  const issueFormatter = extractFunctionSource(publicHtml, 'formatWorkspaceReplacementIssues');
+  assert.match(issueFormatter, /issue\.status === 'unsupported-version'[\s\S]*請用較新版本開啟/);
+  assert.match(issueFormatter, /issue\.status === 'corrupt'[\s\S]*按上方「清空」後重建/);
+  const persistenceWiring = extractFunctionSource(publicHtml, 'wireWorkspacePersistence');
+  assert.match(persistenceWiring, /event\?\.isTrusted/);
+  assert.match(persistenceWiring, /workspaceH10SelectedAt = new Date\(\)\.toISOString\(\)/);
+  assert.match(persistenceWiring, /stageWorkspaceH10Draft\(\)/);
+  assert.match(extractFunctionSource(publicHtml, 'restorePublicWorkspace'), /result\.recoveredH10Draft[\s\S]*persistWorkspaceSnapshot\(\{ force:true \}\)/);
   const reset = extractFunctionSource(publicHtml, 'resetWorkspaceUiAfterClear');
   for (const token of ['input[type="file"]', 'defaultOpenSections', 'priorityPanel', 'amzOver180Panel', 'createOrderDraft', 'velocityHistoryFailureSignature']) {
     assert.match(reset, new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));

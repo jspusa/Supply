@@ -55,12 +55,12 @@ function createWorkspaceUiHarness(initialSummary, { href = 'https://supply.test/
     'decisionDashboard',
   ];
   const elements = new Map(ids.map(id => [id, createElement(id)]));
-  const navTabs = ['data', 'recommendations', 'orders', 'analysis'].map(workspace => {
+  const navTabs = ['data', 'recommendations', 'orders', 'sku-tree', 'analysis'].map(workspace => {
     const element = createElement();
     element.dataset.workspace = workspace;
     return element;
   });
-  const panels = ['data', 'recommendations', 'recommendations', 'orders', 'analysis'].map(workspace => {
+  const panels = ['data', 'recommendations', 'recommendations', 'orders', 'sku-tree', 'analysis'].map(workspace => {
     const element = createElement();
     element.dataset.workspacePanel = workspace;
     return element;
@@ -213,7 +213,8 @@ test('public and Boss expose one designated primary task for every non-Today wor
     { workspace:'data', containerId:'workflowTop', action:/<button(?=[^>]*\bid="btnBuild")[^>]*>[\s\S]*?整理表格[\s\S]*?<\/button>/g },
     { workspace:'recommendations', containerId:'decisionDashboard', action:/<button(?=[^>]*\bid="btnAddPriorityToGenerator")[^>]*>[\s\S]*?一鍵加入訂單產生器[\s\S]*?<\/button>/g },
     { workspace:'orders', containerId:'generatorCard', action:/<button(?=[^>]*\bonclick="exportGeneratorToExcel\(\)")[^>]*>[\s\S]*?匯出訂單 Excel[\s\S]*?<\/button>/g },
-    { workspace:'analysis', containerId:'skuDecisionTreeCard', action:/<button(?=[^>]*\bid="btnRenderSkuTree")[^>]*>[\s\S]*?查詢[\s\S]*?<\/button>/g },
+    { workspace:'sku-tree', containerId:'skuDecisionTreeCard', action:/<button(?=[^>]*\bid="btnRenderSkuTree")[^>]*>[\s\S]*?查詢[\s\S]*?<\/button>/g },
+    { workspace:'analysis', containerId:'mainCard', action:/<button(?=[^>]*\bid="btnDownloadMainCSV")[^>]*>[\s\S]*?下載Excel[\s\S]*?<\/button>/g },
   ];
   for (const page of pages) {
     for (const task of tasks) {
@@ -230,7 +231,7 @@ test('public and Boss state surfaces use concise plain-language lifecycle eviden
       ['loading', /正在載入本週資料/],
       ['restored', /已從本機還原 Workspace Snapshot/],
       ['empty', /這個瀏覽器尚無 Workspace Snapshot/],
-      ['warning', /已從本機還原可讀資料；請重新選擇/],
+      ['warning', /已從本機還原可讀資料；仍需處理/],
       ['success', /已安全保存在此瀏覽器/],
       ['storage-error', /本機儲存空間不足；目前畫面可繼續使用，但這次變更尚未保存/],
     ],
@@ -250,5 +251,20 @@ test('public and Boss state surfaces use concise plain-language lifecycle eviden
     for (const [state, pattern] of stateEvidence[page.name]) {
       assert.match(page.source, pattern, `${page.name} should expose a plain-language ${state} state`);
     }
+  }
+});
+
+test('Data Analysis exposes an advisory one-pallet-over-365-day discontinuation list on both pages', () => {
+  for (const page of pages) {
+    const expectedModulePath = page.name === 'public'
+      ? './shared/discontinuation-suggestions.js'
+      : '../shared/discontinuation-suggestions.js';
+    assert.match(page.source, new RegExp(`<script type="module" src="${expectedModulePath.replaceAll('.', '\\.')}"`));
+    assert.match(page.source, /data-panel="suggestedDiscontinuedPanel"[^>]*>建議停產/);
+    assert.match(page.source, /id="suggestedDiscontinuedPanel" class="toolPanel"/);
+    assert.match(page.source, /id="suggestedDiscontinuedWrap"/);
+    assert.match(page.source, /function renderSuggestedDiscontinuations\(\)[\s\S]*SupplyDiscontinuationSuggestions[\s\S]*getUnitsPerPallet\(getProductSpecByCode\(row\.sku\)\)[\s\S]*\{ isDiscontinuedSku \}/);
+    assert.match(page.source, /這只是建議，不會自動把品號改成停產/);
+    assert.match(page.source, /function renderOtherTools\(\) \{[\s\S]*renderSuggestedDiscontinuations\(\)/);
   }
 });

@@ -58,14 +58,40 @@
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.58);
 }
 
-.coverageMeter--low .coverageMeter__fill { background: #facc15; }
-.coverageMeter--low .coverageMeter__status { color: #854d0e; }
-.coverageMeter--healthy .coverageMeter__fill { background: #22c55e; }
-.coverageMeter--healthy .coverageMeter__status { color: #166534; }
-.coverageMeter--excess .coverageMeter__fill {
-  background: repeating-linear-gradient(135deg, #ef4444 0 7px, #dc2626 7px 14px);
+.coverageMeter--low {
+  --coverage-accent-rgb: 234, 179, 8;
+  --coverage-status-color: #854d0e;
 }
-.coverageMeter--excess .coverageMeter__status { color: #991b1b; }
+
+.coverageMeter--healthy {
+  --coverage-accent-rgb: 34, 197, 94;
+  --coverage-status-color: #166534;
+}
+
+.coverageMeter--excess {
+  --coverage-accent-rgb: 239, 68, 68;
+  --coverage-status-color: #991b1b;
+}
+
+.coverageMeter--low .coverageMeter__fill,
+.coverageMeter--healthy .coverageMeter__fill,
+.coverageMeter--excess .coverageMeter__fill {
+  background: linear-gradient(
+    180deg,
+    rgba(var(--coverage-accent-rgb), 0.56) 0%,
+    rgba(var(--coverage-accent-rgb), 0.74) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.46),
+    inset 0 -1px 0 rgba(15, 23, 42, 0.12);
+}
+
+.coverageMeter--low .coverageMeter__status,
+.coverageMeter--healthy .coverageMeter__status,
+.coverageMeter--excess .coverageMeter__status {
+  color: var(--coverage-status-color);
+}
+
 .coverageMeter--neutral .coverageMeter__status { color: #64748b; }
 
 @media (prefers-reduced-motion: reduce) {

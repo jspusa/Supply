@@ -285,7 +285,9 @@ export async function switchToSubcontract(page, productSku, expectedOrderSku, { 
   await expect(row).toBeVisible();
   const quantityBefore = await row.locator('.edit-quantity-input').inputValue();
   if (lock) await row.locator('.lock-button').click();
-  await row.locator('.miniBtn').click();
+  const toggle = row.locator('.equivalentOrderToggle');
+  await expect(toggle).toContainText(expectedOrderSku);
+  await toggle.click();
   await expect(page.locator('input[name="orderGroupSelect"][value="subcontract"]')).toBeChecked();
   const moved = page.locator(`#productTable tbody tr[data-product="${productSku}"]`);
   await expect(moved.locator('.order-code-label')).toHaveText(expectedOrderSku);
@@ -329,8 +331,8 @@ export async function orderDraftGroupCounts(page) {
 
 export async function exerciseWorkspaceNavigationAndLayout(page, { expectEmptyToday = false } = {}) {
   await page.setViewportSize({ width:1280, height:900 });
-  await expect(page.locator('.workspaceNavTab')).toHaveCount(4);
-  await expect(page.locator('.workspaceNavTab')).toHaveText(['資料', '今日建議', '訂單', '資料分析']);
+  await expect(page.locator('.workspaceNavTab')).toHaveCount(5);
+  await expect(page.locator('.workspaceNavTab')).toHaveText(['資料', '今日建議', '訂單', 'SKU 決策樹', '資料分析']);
   await page.locator('.workspaceNavTab[data-workspace="recommendations"]').click();
   await expectOnlyWorkspace(page, 'recommendations');
   await expect(page.locator('[data-workspace-panel="today"]')).toHaveCount(0);
@@ -344,7 +346,7 @@ export async function exerciseWorkspaceNavigationAndLayout(page, { expectEmptyTo
   }
   await expect(page.locator('.appSidebar')).toHaveCount(0);
 
-  for (const workspace of ['data', 'recommendations', 'orders', 'analysis']) {
+  for (const workspace of ['data', 'recommendations', 'orders', 'sku-tree', 'analysis']) {
     await page.locator(`.workspaceNavTab[data-workspace="${workspace}"]`).click();
     await expect(page).toHaveURL(new RegExp(`#${workspace}$`));
     await expectOnlyWorkspace(page, workspace);
@@ -355,11 +357,19 @@ export async function exerciseWorkspaceNavigationAndLayout(page, { expectEmptyTo
   await expect.poll(() => page.evaluate(() => history.length)).toBe(historyBeforeRepeatedClick);
 
   await page.goBack();
-  await expect(page).toHaveURL(/#orders$/);
-  await expectOnlyWorkspace(page, 'orders');
+  await expect(page).toHaveURL(/#sku-tree$/);
+  await expectOnlyWorkspace(page, 'sku-tree');
+  await expect(page.locator('#skuDecisionTreeCard')).toBeVisible();
+  await expect(page.locator('#autoDecisionTreeCard')).toBeVisible();
   await page.goForward();
   await expect(page).toHaveURL(/#analysis$/);
   await expectOnlyWorkspace(page, 'analysis');
+
+  await page.evaluate(() => { window.location.hash = '#skuDecisionTreeCard'; });
+  await expect(page).toHaveURL(/#sku-tree$/);
+  await expectOnlyWorkspace(page, 'sku-tree');
+  await expect(page.locator('#skuDecisionTreeCard')).toBeVisible();
+  await expect(page.locator('#mainCard')).toBeHidden();
 
   await page.evaluate(() => { window.location.hash = '#decisionDashboard'; });
   await expect(page).toHaveURL(/#recommendations$/);
@@ -438,12 +448,16 @@ async function expectCoverageMeter(cell, {
     const style = getComputedStyle(element);
     return { backgroundColor:style.backgroundColor, backgroundImage:style.backgroundImage };
   });
-  if (fillColor === 'yellow') expect(fillStyle.backgroundColor).toBe('rgb(250, 204, 21)');
-  if (fillColor === 'green') expect(fillStyle.backgroundColor).toBe('rgb(34, 197, 94)');
-  if (fillColor === 'red') {
-    expect(fillStyle.backgroundImage).toContain('rgb(239, 68, 68)');
-    expect(fillStyle.backgroundImage).toContain('rgb(220, 38, 38)');
-  }
+  const expectedAccent = {
+    yellow:'rgba(234, 179, 8, 0.56)',
+    green:'rgba(34, 197, 94, 0.56)',
+    red:'rgba(239, 68, 68, 0.56)',
+  }[fillColor];
+  expect(expectedAccent).toBeTruthy();
+  expect(fillStyle.backgroundColor).toBe('rgba(0, 0, 0, 0)');
+  expect(fillStyle.backgroundImage).toContain(expectedAccent);
+  expect(fillStyle.backgroundImage).toContain('0.74');
+  expect(fillStyle.backgroundImage).not.toContain('repeating');
 }
 
 export async function buildThreeGroupOrderScenario(page) {
@@ -463,7 +477,7 @@ export async function buildThreeGroupOrderScenario(page) {
   await switchToSubcontract(page, 'GTSL01', '7GTSD017AB');
   await switchToSubcontract(page, 'VTB01-4', '7VTBD410AB');
   await expect.poll(() => orderDraftGroupCounts(page)).toEqual({ taiwan:1, vietnam:1, subcontract:3 });
-  await expect(page.locator('#todayOrderGroupCounts')).toHaveText('台灣 1 · 越南 1 · 代工 3');
+  await expect(page.locator('#todayOrderGroupCounts')).toHaveText('越南 1 · 台灣 1 · 委外 3');
 
   await dragProductBefore(page, 'VTB01-4', 'TTS05AM-1');
   await expect.poll(() => visibleProductOrder(page)).toEqual(['VTB01-4', 'TTS05AM-1', 'GTSL01']);

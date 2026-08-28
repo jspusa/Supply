@@ -42,7 +42,7 @@ async function expectKeyboardFocusRing(locator) {
   expect(Number.parseFloat(focus.outlineWidth)).toBeGreaterThanOrEqual(3);
 }
 
-test('keyboard alone reaches and operates four-workspace navigation and the Today action', async ({ page, context }) => {
+test('keyboard alone reaches and operates five-workspace navigation and the Today action', async ({ page, context }) => {
   await freezeBrowserTime(page);
   const unexpectedRequests = [];
   await installOfflineAssetRoutes(context, unexpectedRequests);
@@ -67,6 +67,9 @@ test('keyboard alone reaches and operates four-workspace navigation and the Toda
   await page.keyboard.press('End');
   await expect(page.locator('.workspaceNavTab[data-workspace="analysis"]')).toBeFocused();
   await expectOnlyWorkspace(page, 'analysis');
+  await page.keyboard.press('ArrowLeft');
+  await expect(page.locator('.workspaceNavTab[data-workspace="sku-tree"]')).toBeFocused();
+  await expectOnlyWorkspace(page, 'sku-tree');
   await page.keyboard.press('Home');
   await expect(dataTab).toBeFocused();
   await expectOnlyWorkspace(page, 'data');
@@ -119,7 +122,11 @@ test('keyboard alone operates Order groups and exact pallet stepping', async ({ 
   });
   expect(groupFocus).toEqual({ focusVisible:true, outlineStyle:'solid', outlineWidth:'3px' });
   await page.keyboard.press('ArrowRight');
+  await expect(page.locator('input[name="orderGroupSelect"][value="taiwan"]')).toBeChecked();
+  await page.keyboard.press('ArrowRight');
   await expect(page.locator('input[name="orderGroupSelect"][value="subcontract"]')).toBeChecked();
+  await page.keyboard.press('ArrowLeft');
+  await expect(page.locator('input[name="orderGroupSelect"][value="taiwan"]')).toBeChecked();
   await page.keyboard.press('ArrowLeft');
   await expect(vietnam).toBeChecked();
 

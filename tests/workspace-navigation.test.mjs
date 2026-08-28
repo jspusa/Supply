@@ -11,7 +11,7 @@ import {
 } from '../shared/workspace-navigation.js';
 
 test('canonical workspace ids and hashes are stable', () => {
-  assert.deepEqual(WORKSPACE_IDS, ['data', 'recommendations', 'orders', 'analysis']);
+  assert.deepEqual(WORKSPACE_IDS, ['data', 'recommendations', 'orders', 'sku-tree', 'analysis']);
   assert.equal(Object.isFrozen(WORKSPACE_IDS), true);
   for (const workspace of WORKSPACE_IDS) {
     assert.equal(workspaceHash(workspace), `#${workspace}`);
@@ -19,6 +19,7 @@ test('canonical workspace ids and hashes are stable', () => {
   assert.equal(workspaceHash('today'), '#recommendations');
   assert.equal(workspaceHash('unknown'), '#data');
   assert.equal(canonicalWorkspaceId(' Today '), 'recommendations');
+  assert.equal(canonicalWorkspaceId('SKU-TREE'), 'sku-tree');
   assert.equal(canonicalWorkspaceId('ANALYSIS'), 'analysis');
   assert.equal(canonicalWorkspaceId('unknown'), null);
   assert.equal(canonicalWorkspaceId('toString'), null);
@@ -29,6 +30,8 @@ test('initial workspace prefers a valid URL, then canonicalized preference, then
   assert.equal(resolveInitialWorkspace({ url:'#not-a-workspace', preference:'orders' }), 'orders');
   assert.equal(resolveInitialWorkspace({ url:'#not-a-workspace', preference:'today' }), 'recommendations');
   assert.equal(resolveInitialWorkspace({ url:'#not-a-workspace', preference:'not-a-workspace' }), 'data');
+  assert.equal(resolveInitialWorkspace({ hash:'#skuDecisionTreeCard', preference:'analysis' }), 'sku-tree');
+  assert.equal(resolveInitialWorkspace({ hash:'#sku-tree', preference:'analysis' }), 'sku-tree');
   assert.equal(resolveInitialWorkspace({ hash:'#analysis', preference:'data' }), 'analysis');
   assert.equal(resolveInitialWorkspace(), 'data');
 });
@@ -40,8 +43,8 @@ test('every legacy card hash resolves to its canonical workspace', () => {
     '#uploadCard':'data',
     '#reorderCard':'recommendations',
     '#generatorCard':'orders',
-    '#skuDecisionTreeCard':'analysis',
-    '#autoDecisionTreeCard':'analysis',
+    '#skuDecisionTreeCard':'sku-tree',
+    '#autoDecisionTreeCard':'sku-tree',
     '#mainCard':'analysis',
     '#hotCard':'analysis',
     '#newCard':'analysis',
@@ -62,7 +65,7 @@ test('an empty or invalid Today state stays honest and points to Data', () => {
   assert.deepEqual(empty.readiness, { state:'empty', ready:0, total:0, missing:0 });
   assert.equal(empty.priorityCount, 0);
   assert.equal(empty.velocityRiskCount, 0);
-  assert.deepEqual(empty.groupCounts, { taiwan:0, vietnam:0, subcontract:0, total:0 });
+  assert.deepEqual(empty.groupCounts, { vietnam:0, taiwan:0, subcontract:0, total:0 });
   assert.equal(empty.highestPriorityVelocityRisk, null);
   assert.equal(empty.nextAction.workspace, 'data');
   assert.equal(empty.nextAction.label, '開始準備資料');
@@ -134,7 +137,7 @@ test('Today selects the highest-priority matching Velocity Risk and uses non-con
   assert.equal(summary.status, 'ready');
   assert.equal(summary.priorityCount, 2);
   assert.equal(summary.velocityRiskCount, 2);
-  assert.deepEqual(summary.groupCounts, { taiwan:1, vietnam:1, subcontract:2, total:4 });
+  assert.deepEqual(summary.groupCounts, { vietnam:1, taiwan:1, subcontract:2, total:4 });
   assert.equal(summary.highestPriorityVelocityRisk.productSku, 'GTP03');
   assert.equal(summary.highestPriorityVelocityRisk.signalCount, 2);
   assert.match(summary.highestPriorityVelocityRisk.text, /H10 Source Velocity 0\.36 \/ 18\.39/);
@@ -172,7 +175,7 @@ test('three Order Draft groups are counted and become the one next action after 
     orderDraft:{ groupOrder:{ taiwan:['TW01', 'TW02'], vietnam:['VN01'], subcontract:['GT01', 'GT02', 'GT03'] } },
   });
   assert.deepEqual(summary.readiness, { state:'ready', ready:3, total:3, missing:0 });
-  assert.deepEqual(summary.groupCounts, { taiwan:2, vietnam:1, subcontract:3, total:6 });
+  assert.deepEqual(summary.groupCounts, { vietnam:1, taiwan:2, subcontract:3, total:6 });
   assert.equal(summary.nextAction.id, 'continue-order');
   assert.equal(summary.nextAction.workspace, 'orders');
   assert.equal(Object.hasOwn(summary, 'nextActions'), false);

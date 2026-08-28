@@ -9,7 +9,7 @@ import {
   waitForSupplyApp,
 } from './browser-helpers.mjs';
 
-test('public root defaults to Data with exactly four ordered workspace tabs', async ({ page, context }) => {
+test('public root defaults to Data with exactly five ordered workspace tabs', async ({ page, context }) => {
   await freezeBrowserTime(page);
   const unexpectedRequests = [];
   await installOfflineAssetRoutes(context, unexpectedRequests);
@@ -19,8 +19,8 @@ test('public root defaults to Data with exactly four ordered workspace tabs', as
   await waitForSupplyApp(page);
   await expect(page).toHaveURL(/#data$/);
   await expectOnlyWorkspace(page, 'data');
-  await expect(page.locator('.workspaceNavTab')).toHaveCount(4);
-  await expect(page.locator('.workspaceNavTab')).toHaveText(['資料', '今日建議', '訂單', '資料分析']);
+  await expect(page.locator('.workspaceNavTab')).toHaveCount(5);
+  await expect(page.locator('.workspaceNavTab')).toHaveText(['資料', '今日建議', '訂單', 'SKU 決策樹', '資料分析']);
   await expect(page.locator('.workspaceNavTab[data-workspace="today"]')).toHaveCount(0);
 
   expect(unexpectedRequests).toEqual([]);
