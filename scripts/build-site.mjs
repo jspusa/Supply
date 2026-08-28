@@ -9,6 +9,7 @@ import {
   formatAppVersion,
   replaceAppVersionToken,
 } from './release-version.mjs';
+import { compileSupplyProductData } from './compile-product-catalog.mjs';
 import { runtimeFiles, sha256File } from './site-contract.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -55,10 +56,14 @@ fs.rmSync(output, { recursive: true, force: true });
 fs.mkdirSync(output, { recursive: true });
 
 for (const relativePath of runtimeFiles) {
-  const source = path.join(repoRoot, relativePath);
-  if (!fs.statSync(source).isFile()) throw new Error(`Missing deploy source: ${relativePath}`);
   const destination = path.join(output, relativePath);
   fs.mkdirSync(path.dirname(destination), { recursive: true });
+  if (relativePath === 'product-data.js') {
+    fs.writeFileSync(destination, compileSupplyProductData());
+    continue;
+  }
+  const source = path.join(repoRoot, relativePath);
+  if (!fs.statSync(source).isFile()) throw new Error(`Missing deploy source: ${relativePath}`);
   fs.copyFileSync(source, destination);
 }
 

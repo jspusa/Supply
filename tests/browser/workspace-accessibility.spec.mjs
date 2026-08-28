@@ -134,10 +134,10 @@ test('keyboard alone operates Order groups and exact pallet stepping', async ({ 
   await expect(pallet).toBeFocused();
   await expect(pallet).toHaveValue('0.33');
   await page.keyboard.press('ArrowUp');
-  await expect(pallet).toHaveValue('1.33');
-  await expect.poll(async () => (await readOrderDraft(page)).rowsByProductSku.GTSL01.quantities.orderDraft).toBe(1344);
+  await expect(pallet).toHaveValue('1.37');
+  await expect.poll(async () => (await readOrderDraft(page)).rowsByProductSku.GTSL01.quantities.orderDraft).toBe(1236);
   await page.keyboard.press('ArrowDown');
-  await expect(pallet).toHaveValue('0.33');
+  await expect(pallet).toHaveValue('0.37');
   await expect.poll(async () => {
     const row = (await readOrderDraft(page)).rowsByProductSku.GTSL01;
     return { quantity:row.quantities.orderDraft, mode:row.pallet.mode, authoritativeField:row.pallet.authoritativeField };

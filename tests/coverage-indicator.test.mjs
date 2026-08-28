@@ -38,16 +38,36 @@ test('coverage meter fill is proportional to days over the 365 day track', () =>
   assert.equal(Object.isFrozen(model), true);
 });
 
-test('yellow, green, and red bands share one translucent finish without special patterns', () => {
+test('yellow, green, and red bands share one Apple-style translucent finish without special patterns', () => {
   for (const band of ['low', 'healthy', 'excess']) {
     assert.match(coverageCss, new RegExp(`\\.coverageMeter--${band} \\{[^}]*--coverage-accent-rgb:[^}]*--coverage-status-color:`, 's'));
   }
 
   const sharedFill = coverageCss.match(/\.coverageMeter--low \.coverageMeter__fill,\s*\.coverageMeter--healthy \.coverageMeter__fill,\s*\.coverageMeter--excess \.coverageMeter__fill \{([^}]*)\}/s);
   assert.ok(sharedFill, 'all three colored bands should use one shared fill rule');
-  assert.match(sharedFill[1], /linear-gradient\(\s*180deg,\s*rgba\(var\(--coverage-accent-rgb\), 0\.56\) 0%,\s*rgba\(var\(--coverage-accent-rgb\), 0\.74\) 100%\s*\)/s);
+  assert.match(sharedFill[1], /linear-gradient\(\s*180deg,/s);
+  assert.match(sharedFill[1], /rgba\(var\(--coverage-accent-rgb\), 0\.72\)/);
+  assert.match(sharedFill[1], /rgba\(var\(--coverage-accent-rgb\), 0\.58\)/);
   assert.match(sharedFill[1], /box-shadow:/);
   assert.doesNotMatch(coverageCss, /repeating-linear-gradient|repeating-radial-gradient/);
+});
+
+test('coverage meter uses a compact glass surface with restrained highlights and accessible fallbacks', () => {
+  const meterRule = coverageCss.match(/\.coverageMeter \{([^}]*)\}/s);
+  assert.ok(meterRule);
+  assert.match(meterRule[1], /background:\s*linear-gradient/);
+  assert.match(meterRule[1], /border:\s*1px solid rgba\(/);
+  assert.match(meterRule[1], /backdrop-filter:\s*saturate\(/);
+  assert.match(meterRule[1], /box-shadow:/);
+
+  const trackRule = coverageCss.match(/\.coverageMeter__track \{([^}]*)\}/s);
+  assert.ok(trackRule);
+  assert.match(trackRule[1], /border-radius:\s*999px/);
+  assert.match(trackRule[1], /inset 0 1px/);
+
+  assert.match(coverageCss, /\.coverageMeter__fill::after/);
+  assert.match(coverageCss, /@media \(forced-colors: active\)/);
+  assert.match(coverageCss, /@media \(prefers-reduced-motion: reduce\)/);
 });
 
 test('unavailable assessment is neutral while retaining its finite value', () => {
@@ -85,6 +105,7 @@ test('rendered meter keeps numeric and status text alongside accessible meter se
   const healthy = renderCoverageMeter({ coverageDays:180 });
   assert.match(healthy, /class="coverageMeter coverageMeter--healthy"/);
   assert.match(healthy, /data-band="healthy"/);
+  assert.match(healthy, /data-thresholds="180-365"/);
   assert.match(healthy, />180\.0 天</);
   assert.match(healthy, />健康範圍 180–365 天</);
   assert.match(healthy, /role="meter"/);
