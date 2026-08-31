@@ -93,7 +93,7 @@ for (const entry of [
     await expect(row).toHaveAttribute('data-historical-only', 'true');
     await expect(row).toHaveAttribute('title', /已不供新訂單使用.*保留既有草稿.*匯出/);
     await expect(row.locator('.packagingAssignmentSlot')).toContainText('歷史草稿');
-    await expect(row.locator('.packagingAssignmentSlot')).toContainText(`包裝 ${PACKAGING_VERSION}`);
+    await expect(row.locator('.packagingAssignmentSlot')).not.toContainText(`包裝 ${PACKAGING_VERSION}`);
     await expect(row.locator('.box-size-cell')).toHaveText('50*40*30 cm');
     await expect(row.locator('.edit-quantity-input')).toHaveValue('120');
     await expect(row.locator('.edit-cartons-input')).toHaveValue('5');

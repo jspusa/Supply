@@ -137,6 +137,7 @@ test('ASCL05 does not ask for confirmation when every packaging preview value is
   const row = page.locator('#productTable tbody tr[data-product="ASCL05"]');
   await expect(row).toBeVisible();
   await expect(row.locator('.packagingReassignButton')).toHaveCount(0);
+  await expect(row.locator('.packagingAssignmentSlot')).toBeEmpty();
   await expect(page.locator('#generatorPackagingReviewBar')).toBeHidden();
   const resolved = (await readOrderDraft(page)).rowsByProductSku.ASCL05;
   expect(resolved.packagingAssignment.state).toBe('pinned');

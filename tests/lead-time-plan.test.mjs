@@ -87,6 +87,8 @@ for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
     const confirmPackagingSource = extractFunctionSource(html, 'confirmPackagingReassignment');
     const reassignPackagingSource = extractFunctionSource(html, 'reassignGeneratorPackaging');
     const assignmentStatusSource = extractFunctionSource(html, 'renderPackagingAssignmentStatus');
+    assert.match(assignmentStatusSource, /return action \?[^:]+: '';/s);
+    assert.doesNotMatch(assignmentStatusSource, /包裝 \$\{version\}|packagingAssignmentStatus/);
     assert.match(addProductSource, /generatorQuantityGroup/);
     assert.match(addProductSource, /class="palletStepControl"/);
     assert.match(addProductSource, /useNativePalletStepper\(row\)/);
