@@ -36,7 +36,7 @@ const SEEDED_DRAFT = {
   issues:[],
 };
 
-const MISCLASSIFIED_AUTO_DRAFT = {
+const CHANGED_LEGACY_REVIEW_DRAFT = {
   schemaVersion:3,
   createdAt:NOW,
   updatedAt:NOW,
@@ -57,7 +57,7 @@ const MISCLASSIFIED_AUTO_DRAFT = {
         assignedAt:NOW,
         orderSku:'GTSL01',
         canonicalProductSku:'GTSL01',
-        packagingVersion:'2026-08-28.4',
+        packagingVersion:'2026-08-25',
         catalogVersion:null,
         perCarton:30,
         perPack:null,
@@ -72,7 +72,7 @@ const MISCLASSIFIED_AUTO_DRAFT = {
         code:'PACKAGING_ASSIGNMENT_REVIEW_REQUIRED',
         productSku:'GTSL01',
         orderSku:'GTSL01',
-        packagingVersion:'2026-08-28.4',
+        packagingVersion:'2026-08-25',
         advisory:true,
       }],
     },
@@ -82,7 +82,72 @@ const MISCLASSIFIED_AUTO_DRAFT = {
   issues:[],
 };
 
-test('a saved v3 review stays unchanged until one explicit batch confirmation preserves it', async ({ page, context }) => {
+const IDENTICAL_ASCL05_REVIEW_DRAFT = {
+  schemaVersion:3,
+  createdAt:NOW,
+  updatedAt:NOW,
+  rowsByProductSku:{
+    ASCL05:{
+      productSku:'ASCL05', orderSku:'ASCL05', standardFactory:'vietnam', orderGroup:'vietnam',
+      quantities:{ packages:14364, cartons:399, orderDraft:null },
+      pallet:{ value:9.5, mode:'manual', authoritativeField:'pallets', strategy:'' },
+      locked:false,
+      packagingAssignment:{
+        state:'review-required',
+        reason:'legacy-migration',
+        assignedAt:NOW,
+        orderSku:'ASCL05',
+        canonicalProductSku:'ASCL05',
+        packagingVersion:'2026-08-25',
+        catalogVersion:null,
+        perCarton:36,
+        perPack:null,
+        perBox:null,
+        perPallet:42,
+        boxSize:'50*40*30',
+        productName:'AFreschi - Natural Soft Chicken Jerky Cuts 454g*36',
+      },
+      createdAt:NOW,
+      updatedAt:NOW,
+      issues:[{
+        code:'PACKAGING_ASSIGNMENT_REVIEW_REQUIRED',
+        productSku:'ASCL05',
+        orderSku:'ASCL05',
+        packagingVersion:'2026-08-25',
+        advisory:true,
+      }],
+    },
+  },
+  groupOrder:{ taiwan:[], vietnam:['ASCL05'], subcontract:[] },
+  repairOrder:[],
+  issues:[],
+};
+
+test('ASCL05 does not ask for confirmation when every packaging preview value is identical', async ({ page, context }) => {
+  await freezeBrowserTime(page);
+  const unexpectedRequests = [];
+  await installOfflineAssetRoutes(context, unexpectedRequests);
+  await page.addInitScript(draft => {
+    localStorage.setItem('supply-order-draft-v3', JSON.stringify(draft));
+  }, IDENTICAL_ASCL05_REVIEW_DRAFT);
+
+  await page.goto('/#orders');
+  await waitForSupplyApp(page);
+  await page.locator('input[name="orderGroupSelect"][value="vietnam"]').check();
+  const row = page.locator('#productTable tbody tr[data-product="ASCL05"]');
+  await expect(row).toBeVisible();
+  await expect(row.locator('.packagingReassignButton')).toHaveCount(0);
+  await expect(page.locator('#generatorPackagingReviewBar')).toBeHidden();
+  const resolved = (await readOrderDraft(page)).rowsByProductSku.ASCL05;
+  expect(resolved.packagingAssignment.state).toBe('pinned');
+  expect(resolved.packagingAssignment.reason).toBe('legacy-identical-packaging');
+  expect(resolved.packagingAssignment.packagingVersion).toBe('2026-08-25');
+  expect(resolved.quantities).toEqual(IDENTICAL_ASCL05_REVIEW_DRAFT.rowsByProductSku.ASCL05.quantities);
+  expect(resolved.pallet).toEqual(IDENTICAL_ASCL05_REVIEW_DRAFT.rowsByProductSku.ASCL05.pallet);
+  expect(unexpectedRequests).toEqual([]);
+});
+
+test('a real legacy packaging version difference stays pending until one explicit batch confirmation preserves it', async ({ page, context }) => {
   await freezeBrowserTime(page);
   const unexpectedRequests = [];
   await installOfflineAssetRoutes(context, unexpectedRequests);
@@ -90,7 +155,7 @@ test('a saved v3 review stays unchanged until one explicit batch confirmation pr
     if (!localStorage.getItem('supply-order-draft-v3')) {
       localStorage.setItem('supply-order-draft-v3', JSON.stringify(draft));
     }
-  }, MISCLASSIFIED_AUTO_DRAFT);
+  }, CHANGED_LEGACY_REVIEW_DRAFT);
 
   await page.goto('/#orders');
   await waitForSupplyApp(page);
@@ -123,7 +188,8 @@ test('a saved v3 review stays unchanged until one explicit batch confirmation pr
   await page.reload();
   await waitForSupplyApp(page);
   await page.locator('input[name="orderGroupSelect"][value="vietnam"]').check();
-  await expect(page.locator('#productTable tbody tr[data-product="GTSL01"] .packagingReassignButton')).toHaveCount(0);
+  await expect(page.locator('#generatorPackagingReviewBar')).toBeHidden();
+  await expect(page.locator('#productTable tbody tr[data-product="GTSL01"] .packagingReassignButton')).toContainText('有新版');
   expect((await readOrderDraft(page)).rowsByProductSku.GTSL01.packagingAssignment.state).toBe('pinned');
   expect(unexpectedRequests).toEqual([]);
 });
@@ -205,7 +271,7 @@ test.describe('coarse pointer packaging review layout', () => {
     await installOfflineAssetRoutes(context, unexpectedRequests);
     await page.addInitScript(draft => {
       localStorage.setItem('supply-order-draft-v3', JSON.stringify(draft));
-    }, MISCLASSIFIED_AUTO_DRAFT);
+    }, CHANGED_LEGACY_REVIEW_DRAFT);
 
     await page.goto('/#orders');
     await waitForSupplyApp(page);

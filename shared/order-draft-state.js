@@ -468,6 +468,63 @@ export function previewPackagingReassignment(draft, command, context = {}) {
   };
 }
 
+const LEGACY_NOOP_PACKAGING_FIELDS = Object.freeze([
+  'orderSku',
+  'canonicalProductSku',
+  'packagingVersion',
+  'perCarton',
+  'perPack',
+  'perBox',
+  'perPallet',
+  'boxSize',
+]);
+
+function isNoopPackagingReassignment(preview) {
+  if (!preview?.ok) return false;
+  if (Object.values(preview.changes || {}).some(Boolean)) return false;
+  if (!LEGACY_NOOP_PACKAGING_FIELDS.every(field => (
+    (preview.before.packaging?.[field] ?? null) === (preview.after.packaging?.[field] ?? null)
+  ))) return false;
+  return ['cartons', 'pallets', 'coverageDays'].every(field => (
+    (preview.before?.[field] ?? null) === (preview.after?.[field] ?? null)
+  ));
+}
+
+function resolveIdenticalLegacyPackagingReviews(draft, context) {
+  let next = null;
+  const resolvedProductSkus = [];
+  for (const row of Object.values(draft.rowsByProductSku)) {
+    if (
+      row.packagingAssignment?.state !== 'review-required'
+      || row.packagingAssignment.reason !== 'legacy-migration'
+    ) continue;
+    if (contextualRowIssues(row, context).length) continue;
+    const preview = previewPackagingReassignment(draft, {
+      productSku:row.productSku,
+      orderSku:row.orderSku,
+    }, context);
+    if (!isNoopPackagingReassignment(preview)) continue;
+    if (!next) next = clone(draft);
+    const resolvedRow = next.rowsByProductSku[row.productSku];
+    resolvedRow.packagingAssignment = {
+      ...resolvedRow.packagingAssignment,
+      state:'pinned',
+      reason:'legacy-identical-packaging',
+    };
+    resolvedRow.issues = resolvedRow.issues.filter(issue => (
+      issue?.code !== 'PACKAGING_ASSIGNMENT_REVIEW_REQUIRED'
+    ));
+    resolvedProductSkus.push(row.productSku);
+  }
+  if (!next) return { draft, resolvedProductSkus };
+  const resolvedSet = new Set(resolvedProductSkus);
+  next.issues = next.issues.filter(issue => !(
+    issue?.code === 'PACKAGING_ASSIGNMENT_REVIEW_REQUIRED'
+    && resolvedSet.has(normalizeSku(issue?.productSku))
+  ));
+  return { draft:next, resolvedProductSkus };
+}
+
 function reassignPackaging(draft, command, context) {
   const preview = previewPackagingReassignment(draft, command, context);
   if (!preview.ok) return preview;
@@ -1147,7 +1204,9 @@ export function loadOrderDraft({
       draft:createOrderDraft({ now:context.now }), needsSave:false, issues:[],
     });
   }
-  const repaired = repairContextualRows(draft, context);
+  const legacyResolution = resolveIdenticalLegacyPackagingReviews(draft, context);
+  const loadedDraft = legacyResolution.draft;
+  const repaired = repairContextualRows(loadedDraft, context);
   if (repaired.blockingIssues.length) {
     const repairedValidationError = validateDraftShape(repaired.draft);
     if (repairedValidationError) {
@@ -1163,15 +1222,15 @@ export function loadOrderDraft({
       issues:repaired.issues,
     };
   }
-  const packagingIssues = Object.values(draft.rowsByProductSku).flatMap(row => (
+  const packagingIssues = Object.values(loadedDraft.rowsByProductSku).flatMap(row => (
     (row.issues || []).filter(issue => issue?.code === 'PACKAGING_ASSIGNMENT_REVIEW_REQUIRED')
   ));
-  const issues = [...clone(draft.issues), ...packagingIssues, ...repaired.issues];
+  const issues = [...clone(loadedDraft.issues), ...packagingIssues, ...repaired.issues];
   return {
     ok:true,
     status:issues.length ? 'loaded-with-warnings' : 'loaded',
-    draft,
-    needsSave:false,
+    draft:loadedDraft,
+    needsSave:legacyResolution.resolvedProductSkus.length > 0,
     issues,
   };
 }
