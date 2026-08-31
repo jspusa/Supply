@@ -36,6 +36,98 @@ const SEEDED_DRAFT = {
   issues:[],
 };
 
+const MISCLASSIFIED_AUTO_DRAFT = {
+  schemaVersion:3,
+  createdAt:NOW,
+  updatedAt:NOW,
+  rowsByProductSku:{
+    GTSL01:{
+      productSku:'GTSL01', orderSku:'GTSL01', standardFactory:'vietnam', orderGroup:'vietnam',
+      quantities:{ packages:900, cartons:30, orderDraft:900 },
+      pallet:{
+        value:1,
+        mode:'whole-pallet',
+        authoritativeField:'pallets',
+        strategy:'whole-pallet',
+      },
+      locked:false,
+      packagingAssignment:{
+        state:'review-required',
+        reason:'legacy-migration',
+        assignedAt:NOW,
+        orderSku:'GTSL01',
+        canonicalProductSku:'GTSL01',
+        packagingVersion:'2026-08-28.4',
+        catalogVersion:null,
+        perCarton:30,
+        perPack:null,
+        perBox:null,
+        perPallet:30,
+        boxSize:'50*40*40',
+        productName:'Gootoe - Turkey Tendon Strip (454g x 30)',
+      },
+      createdAt:NOW,
+      updatedAt:NOW,
+      issues:[{
+        code:'PACKAGING_ASSIGNMENT_REVIEW_REQUIRED',
+        productSku:'GTSL01',
+        orderSku:'GTSL01',
+        packagingVersion:'2026-08-28.4',
+        advisory:true,
+      }],
+    },
+  },
+  groupOrder:{ taiwan:[], vietnam:['GTSL01'], subcontract:[] },
+  repairOrder:[],
+  issues:[],
+};
+
+test('a saved v3 review stays unchanged until one explicit batch confirmation preserves it', async ({ page, context }) => {
+  await freezeBrowserTime(page);
+  const unexpectedRequests = [];
+  await installOfflineAssetRoutes(context, unexpectedRequests);
+  await page.addInitScript(draft => {
+    if (!localStorage.getItem('supply-order-draft-v3')) {
+      localStorage.setItem('supply-order-draft-v3', JSON.stringify(draft));
+    }
+  }, MISCLASSIFIED_AUTO_DRAFT);
+
+  await page.goto('/#orders');
+  await waitForSupplyApp(page);
+  await page.locator('input[name="orderGroupSelect"][value="vietnam"]').check();
+  const row = page.locator('#productTable tbody tr[data-product="GTSL01"]');
+  await expect(row).toBeVisible();
+  await expect(row.locator('.packagingReassignButton')).toContainText('待確認');
+  await expect(page.locator('#generatorPackagingReviewBar')).toContainText('舊版草稿有 1 筆包裝待確認');
+  const before = (await readOrderDraft(page)).rowsByProductSku.GTSL01;
+  expect(before.packagingAssignment.state).toBe('review-required');
+
+  let batchMessage = '';
+  page.once('dialog', async dialog => {
+    batchMessage = dialog.message();
+    await dialog.accept();
+  });
+  await page.locator('#confirmAllLegacyPackagingReviewsButton').click();
+  expect(batchMessage).toContain('一次確認 1 筆舊版草稿包裝');
+  expect(batchMessage).toContain('不會套用新版');
+  await expect(page.locator('#generatorPackagingReviewBar')).toBeHidden();
+  const confirmed = (await readOrderDraft(page)).rowsByProductSku.GTSL01;
+  expect(confirmed.packagingAssignment.state).toBe('pinned');
+  expect(confirmed.packagingAssignment.packagingVersion).toBe(before.packagingAssignment.packagingVersion);
+  for (const field of ['packages', 'cartons', 'orderDraft']) {
+    expect(confirmed.quantities[field]).toBe(before.quantities[field]);
+  }
+  expect(confirmed.orderSku).toBe(before.orderSku);
+  expect(confirmed.issues).toEqual([]);
+
+  await page.reload();
+  await waitForSupplyApp(page);
+  await page.locator('input[name="orderGroupSelect"][value="vietnam"]').check();
+  await expect(page.locator('#productTable tbody tr[data-product="GTSL01"] .packagingReassignButton')).toHaveCount(0);
+  expect((await readOrderDraft(page)).rowsByProductSku.GTSL01.packagingAssignment.state).toBe('pinned');
+  expect(unexpectedRequests).toEqual([]);
+});
+
 test('unknown draft rows stay visible and removable while fractional pallet display does not round stored/exported truth', async ({ page, context }) => {
   await freezeBrowserTime(page);
   const unexpectedRequests = [];
@@ -67,6 +159,23 @@ test('unknown draft rows stay visible and removable while fractional pallet disp
 
   const packagingReview = page.locator('#productTable tbody tr[data-product="GTSL01"] .packagingReassignButton');
   await expect(packagingReview).toContainText('待確認');
+  for (const viewport of [{ width:1440, height:900 }, { width:390, height:844 }]) {
+    await page.setViewportSize(viewport);
+    const packagingLayout = await packagingReview.evaluate(button => {
+      const row = button.closest('tr');
+      const textRange = document.createRange();
+      textRange.selectNodeContents(button);
+      const rowRect = row.getBoundingClientRect();
+      const textRect = textRange.getBoundingClientRect();
+      return {
+        buttonClientHeight:button.clientHeight,
+        buttonScrollHeight:button.scrollHeight,
+        overflowPx:Math.max(0, textRect.bottom - rowRect.bottom),
+      };
+    });
+    expect(packagingLayout.buttonScrollHeight).toBeLessThanOrEqual(packagingLayout.buttonClientHeight);
+    expect(packagingLayout.overflowPx).toBeLessThanOrEqual(0.5);
+  }
   let previewMessage = '';
   page.once('dialog', async dialog => {
     previewMessage = dialog.message();
@@ -85,4 +194,41 @@ test('unknown draft rows stay visible and removable while fractional pallet disp
   expect(rows[1][7]).toBeCloseTo(1 / 3, 12);
   expect((await readOrderDraft(page)).rowsByProductSku.GTSL01.pallet.value).toBe(1 / 3);
   expect(unexpectedRequests).toEqual([]);
+});
+
+test.describe('coarse pointer packaging review layout', () => {
+  test.use({ hasTouch:true, viewport:{ width:390, height:844 } });
+
+  test('touch sizing keeps the full review label inside its row', async ({ page, context }) => {
+    await freezeBrowserTime(page);
+    const unexpectedRequests = [];
+    await installOfflineAssetRoutes(context, unexpectedRequests);
+    await page.addInitScript(draft => {
+      localStorage.setItem('supply-order-draft-v3', JSON.stringify(draft));
+    }, MISCLASSIFIED_AUTO_DRAFT);
+
+    await page.goto('/#orders');
+    await waitForSupplyApp(page);
+    await page.locator('input[name="orderGroupSelect"][value="vietnam"]').check();
+    expect(await page.evaluate(() => matchMedia('(pointer: coarse)').matches)).toBe(true);
+    const packagingReview = page.locator('#productTable tbody tr[data-product="GTSL01"] .packagingReassignButton');
+    const layout = await packagingReview.evaluate(button => {
+      const row = button.closest('tr');
+      const textRange = document.createRange();
+      textRange.selectNodeContents(button);
+      const rowRect = row.getBoundingClientRect();
+      const textRect = textRange.getBoundingClientRect();
+      return {
+        buttonClientHeight:button.clientHeight,
+        buttonScrollHeight:button.scrollHeight,
+        buttonClientWidth:button.clientWidth,
+        buttonScrollWidth:button.scrollWidth,
+        overflowBottom:Math.max(0, textRect.bottom - rowRect.bottom),
+      };
+    });
+    expect(layout.buttonScrollHeight).toBeLessThanOrEqual(layout.buttonClientHeight);
+    expect(layout.buttonScrollWidth).toBeLessThanOrEqual(layout.buttonClientWidth);
+    expect(layout.overflowBottom).toBeLessThanOrEqual(0.5);
+    expect(unexpectedRequests).toEqual([]);
+  });
 });

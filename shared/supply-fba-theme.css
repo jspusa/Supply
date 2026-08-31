@@ -358,6 +358,49 @@
 }
 .fba-visual-system .generatorActionGroup{inline-size:87px}
 .fba-visual-system .order-generator .equivalentOrderToggle{inline-size:auto;max-inline-size:128px;background:#ececf0}
+.fba-visual-system .order-generator .skuIdentityCell{min-width:166px;vertical-align:middle}
+.fba-visual-system .order-generator .skuIdentity{display:grid;justify-items:start;gap:5px;min-width:0}
+.fba-visual-system .order-generator .order-code-label{font-weight:800;white-space:nowrap}
+.fba-visual-system .order-generator .skuIdentityActions:empty,
+.fba-visual-system .order-generator .packagingAssignmentSlot:empty{display:none}
+.fba-visual-system .order-generator .packagingAssignmentSlot{display:block;max-inline-size:100%}
+.fba-visual-system .order-generator .packagingAssignmentStatus{display:block;color:#6e6e73;font-size:10px;line-height:1.25;white-space:nowrap}
+.fba-visual-system .order-generator .packagingReassignButton{
+  display:inline-flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:3px;
+  inline-size:auto;
+  max-inline-size:100%;
+  block-size:auto;
+  min-block-size:27px;
+  margin:0;
+  padding:4px 7px;
+  border:1px solid #f0b429;
+  background:#fff8e6;
+  color:#7a4b00;
+  font-size:10px!important;
+  line-height:1.2!important;
+  text-align:start;
+  white-space:normal;
+}
+.fba-visual-system .order-generator .packagingStatusVersion{font-weight:700;white-space:nowrap}
+.fba-visual-system .generatorPackagingReviewBar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin:12px 0 8px;
+  padding:12px 14px;
+  border:1px solid #f0b429;
+  border-radius:14px;
+  background:#fff8e6;
+  color:#7a4b00;
+}
+.fba-visual-system .generatorPackagingReviewBar[hidden]{display:none}
+.fba-visual-system .generatorPackagingReviewBar>span{display:grid;gap:2px}
+.fba-visual-system .generatorPackagingReviewBar small{color:#7a4b00;font-size:11px;line-height:1.4}
+.fba-visual-system .generatorPackagingReviewBar button{flex:0 0 auto;margin:0;white-space:nowrap}
 .fba-visual-system .order-generator tr.locked td,
 .fba-visual-system .order-generator tr.locked:hover td{border-bottom-color:rgba(36,138,61,.22);background:#f3fbf5!important;color:#176d31}
 .fba-visual-system .order-generator .progress-container{height:12px;border-radius:999px;background:#e8e8ed}
@@ -430,6 +473,8 @@
   .fba-visual-system .order-generator .container{padding:0}
   .fba-visual-system .order-generator .header-bar{gap:12px}
   .fba-visual-system .order-generator .table-responsive{border-radius:14px}
+  .fba-visual-system .generatorPackagingReviewBar{align-items:stretch;flex-direction:column}
+  .fba-visual-system .generatorPackagingReviewBar button{width:100%}
   .fba-visual-system .bossAuthCard{padding:25px;border-radius:24px}
 }
 
@@ -437,7 +482,8 @@
   .fba-visual-system .palletStepControl{width:88px;min-width:88px;height:42px}
   .fba-visual-system .order-generator .generatorActionGroup{inline-size:126px}
   .fba-visual-system .order-generator .generatorActionGroup>button,
-  .fba-visual-system .order-generator .miniBtn{inline-size:40px;block-size:40px}
+  .fba-visual-system .order-generator .miniBtn:not(.packagingReassignButton){inline-size:40px;block-size:40px}
+  .fba-visual-system .order-generator .packagingReassignButton{inline-size:auto;block-size:auto;min-block-size:40px}
 }
 
 @media(prefers-reduced-motion:reduce){

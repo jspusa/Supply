@@ -592,7 +592,7 @@ test('Packaging Reassignment previews alias-owned cartons, pallets, coverage, an
   assert.strictEqual(stale.draft, draft);
 });
 
-test('v2 migration preserves touched values for review while untouched suggestions can adopt the current default', () => {
+test('v2 migration keeps ambiguous populated rows for one explicit batch review while empty rows float', () => {
   const v2 = {
     schemaVersion:2,
     createdAt:NOW,
@@ -608,8 +608,19 @@ test('v2 migration preserves touched values for review while untouched suggestio
         quantities:{ orderDraft:'', cartons:'' },
         pallet:{ value:null, mode:'derived' }, locked:false, createdAt:NOW, updatedAt:NOW, issues:[],
       },
+      'VN-03':{
+        productSku:'VN-03', orderSku:'VN-03', standardFactory:'vietnam', orderGroup:'vietnam',
+        quantities:{ packages:672, cartons:42, orderDraft:672 },
+        pallet:{
+          value:1,
+          mode:'whole-pallet',
+          authoritativeField:'pallets',
+          strategy:'whole-pallet',
+        },
+        locked:false, createdAt:NOW, updatedAt:NOW, issues:[],
+      },
     },
-    groupOrder:{ vietnam:['VN-02'], taiwan:['TW-01'], subcontract:[] },
+    groupOrder:{ vietnam:['VN-02', 'VN-03'], taiwan:['TW-01'], subcontract:[] },
     repairOrder:[],
     issues:[],
   };
@@ -641,6 +652,7 @@ test('v2 migration preserves touched values for review while untouched suggestio
   assert.equal(touched.packagingAssignment.state, 'review-required');
   assert.ok(touched.issues.some(issue => issue.code === 'PACKAGING_ASSIGNMENT_REVIEW_REQUIRED'));
   assert.equal(migrated.draft.rowsByProductSku['VN-02'].packagingAssignment, null);
+  assert.equal(migrated.draft.rowsByProductSku['VN-03'].packagingAssignment.state, 'review-required');
   assert.deepEqual(projectOrderWorkbook(migrated.draft, migrationContext).status, 'review-required');
 
   const saved = saveOrderDraft({ storage, draft:migrated.draft, context:migrationContext });
@@ -649,13 +661,125 @@ test('v2 migration preserves touched values for review while untouched suggestio
   assert.equal(storage.values.has(PREVIOUS_ORDER_DRAFT_STORAGE_KEY), false);
 
   const confirmed = applyOrderDraftCommand(migrated.draft, {
-    type:'reassign-packaging', productSku:'TW-01', orderSku:'TW-01', expectedPackagingVersion:'TW-01-current',
+    type:'confirm-legacy-packaging-reviews',
   }, migrationContext);
   assert.equal(confirmed.ok, true);
+  assert.deepEqual(confirmed.confirmedProductSkus, ['TW-01', 'VN-03']);
+  assert.equal(confirmed.draft.rowsByProductSku['TW-01'].quantities.orderDraft, 55.5);
+  assert.equal(confirmed.draft.rowsByProductSku['VN-03'].quantities.orderDraft, 672);
+  assert.equal(confirmed.draft.rowsByProductSku['VN-03'].packagingAssignment.packagingVersion, 'VN-03-current');
   const exported = projectOrderWorkbook(confirmed.draft, migrationContext);
   assert.equal(exported.ok, true);
   assert.equal(exported.draft.rowsByProductSku['TW-01'].packagingAssignment.state, 'pinned');
   assert.equal(exported.draft.rowsByProductSku['VN-02'].packagingAssignment.state, 'pinned');
+  assert.equal(exported.draft.rowsByProductSku['VN-03'].packagingAssignment.state, 'pinned');
+});
+
+test('loading v3 never infers provenance from terminal state and batch confirmation preserves every assignment', () => {
+  const reviewIssue = productSku => ({
+    code:'PACKAGING_ASSIGNMENT_REVIEW_REQUIRED',
+    productSku,
+    orderSku:productSku,
+    packagingVersion:`${productSku}-v1`,
+    advisory:true,
+  });
+  const assignment = productSku => ({
+    state:'review-required',
+    reason:'legacy-migration',
+    assignedAt:NOW,
+    orderSku:productSku,
+    canonicalProductSku:productSku,
+    packagingVersion:`${productSku}-v1`,
+    catalogVersion:null,
+    perCarton:catalog.get(productSku).perCarton,
+    perPack:catalog.get(productSku).perPack,
+    perBox:catalog.get(productSku).perBox,
+    perPallet:catalog.get(productSku).perPallet,
+    boxSize:catalog.get(productSku).boxSize,
+    productName:catalog.get(productSku).productName,
+  });
+  const priorBugDraft = {
+    schemaVersion:ORDER_DRAFT_SCHEMA_VERSION,
+    createdAt:NOW,
+    updatedAt:NOW,
+    rowsByProductSku:{
+      'VN-03':{
+        productSku:'VN-03', orderSku:'VN-03', standardFactory:'vietnam', orderGroup:'vietnam',
+        quantities:{ packages:672, cartons:42, orderDraft:672 },
+        pallet:{
+          value:1,
+          mode:'whole-pallet',
+          authoritativeField:'pallets',
+          strategy:'whole-pallet',
+        },
+        locked:false,
+        packagingAssignment:assignment('VN-03'),
+        createdAt:NOW,
+        updatedAt:NOW,
+        issues:[reviewIssue('VN-03')],
+      },
+      'TW-01':{
+        productSku:'TW-01', orderSku:'TW-01', standardFactory:'taiwan', orderGroup:'taiwan',
+        quantities:{ packages:55.5, cartons:5.55, orderDraft:55.5 },
+        pallet:{ value:0.14, mode:'manual', authoritativeField:'pallets', strategy:'' },
+        locked:false,
+        packagingAssignment:assignment('TW-01'),
+        createdAt:NOW,
+        updatedAt:NOW,
+        issues:[reviewIssue('TW-01')],
+      },
+    },
+    groupOrder:{ vietnam:['VN-03'], taiwan:['TW-01'], subcontract:[] },
+    repairOrder:[],
+    issues:[],
+  };
+  const storage = createMemoryStorage({
+    [ORDER_DRAFT_STORAGE_KEY]:JSON.stringify(priorBugDraft),
+  });
+
+  const loaded = loadOrderDraft({ storage, context });
+
+  assert.equal(loaded.ok, true);
+  assert.equal(loaded.status, 'loaded-with-warnings');
+  assert.equal(loaded.needsSave, false);
+  assert.equal(loaded.draft.rowsByProductSku['VN-03'].packagingAssignment.state, 'review-required');
+  assert.equal(loaded.draft.rowsByProductSku['TW-01'].packagingAssignment.state, 'review-required');
+  const beforeAssignments = structuredClone({
+    planner:loaded.draft.rowsByProductSku['VN-03'].packagingAssignment,
+    manual:loaded.draft.rowsByProductSku['TW-01'].packagingAssignment,
+  });
+
+  const confirmed = applyOrderDraftCommand(loaded.draft, {
+    type:'confirm-legacy-packaging-reviews',
+  }, context);
+
+  assert.equal(confirmed.ok, true);
+  assert.deepEqual(confirmed.confirmedProductSkus, ['VN-03', 'TW-01']);
+  assert.deepEqual(
+    {
+      ...confirmed.draft.rowsByProductSku['VN-03'].packagingAssignment,
+      state:'review-required', reason:'legacy-migration', assignedAt:NOW,
+    },
+    beforeAssignments.planner,
+  );
+  assert.deepEqual(
+    {
+      ...confirmed.draft.rowsByProductSku['TW-01'].packagingAssignment,
+      state:'review-required', reason:'legacy-migration', assignedAt:NOW,
+    },
+    beforeAssignments.manual,
+  );
+  assert.equal(confirmed.draft.rowsByProductSku['VN-03'].packagingAssignment.state, 'pinned');
+  assert.equal(confirmed.draft.rowsByProductSku['TW-01'].packagingAssignment.state, 'pinned');
+  assert.equal(confirmed.draft.rowsByProductSku['VN-03'].issues.length, 0);
+  assert.equal(confirmed.draft.rowsByProductSku['TW-01'].issues.length, 0);
+
+  const saved = saveOrderDraft({ storage, draft:confirmed.draft, context });
+  assert.equal(saved.ok, true);
+  const reloaded = loadOrderDraft({ storage, context });
+  assert.equal(reloaded.needsSave, false);
+  assert.equal(reloaded.draft.rowsByProductSku['VN-03'].packagingAssignment.state, 'pinned');
+  assert.equal(reloaded.draft.rowsByProductSku['TW-01'].packagingAssignment.state, 'pinned');
 });
 
 test('a later Standard Factory change warns but never moves a pinned row to another Order Group', () => {

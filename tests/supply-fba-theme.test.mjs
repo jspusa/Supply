@@ -35,6 +35,14 @@ test('Dense Workflow Variant preserves horizontal tables and compact actions', (
   assert.match(theme, /\.fba-visual-system \.order-generator table\{[^}]*min-width:1120px/s);
   assert.match(theme, /\.fba-visual-system \.tableWrap,[\s\S]*?overflow:auto/);
   assert.match(theme, /\.fba-visual-system \.order-generator \.drag-handle,[\s\S]*?inline-size:27px/);
+  assert.match(theme, /\.packagingReassignButton\{[^}]*inline-size:auto;[^}]*block-size:auto/s);
+  assert.match(theme, /\.miniBtn:not\(\.packagingReassignButton\)\{inline-size:40px;block-size:40px\}/);
+  assert.match(theme, /@media\(pointer:coarse\)[\s\S]*?\.packagingReassignButton\{[^}]*inline-size:auto;[^}]*block-size:auto/s);
+  for (const html of [publicHtml, bossHtml]) {
+    assert.match(html, /id="generatorPackagingReviewBar"/);
+    assert.match(html, /id="confirmAllLegacyPackagingReviewsButton"/);
+    assert.match(html, /type:'confirm-legacy-packaging-reviews'/);
+  }
   assert.doesNotMatch(theme, /display:none[^}]*data-generator-col|data-generator-col[^}]*display:none/);
 });
 

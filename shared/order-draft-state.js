@@ -511,6 +511,42 @@ function reassignPackaging(draft, command, context) {
   return { ok:true, status:'applied', draft:next, row, preview };
 }
 
+function confirmLegacyPackagingReviews(draft, context) {
+  const validationError = validateDraftShape(draft);
+  if (validationError) return failure('invalid-draft', new TypeError(validationError), { draft });
+  const confirmedProductSkus = Object.values(draft.rowsByProductSku)
+    .filter(row => (
+      row.packagingAssignment?.state === 'review-required'
+      && row.packagingAssignment.reason === 'legacy-migration'
+    ))
+    .map(row => row.productSku);
+  if (!confirmedProductSkus.length) {
+    return { ok:true, status:'unchanged', draft, confirmedProductSkus:[] };
+  }
+  const next = clone(draft);
+  const confirmedAt = timestamp(context?.now);
+  const confirmedSet = new Set(confirmedProductSkus);
+  for (const productSku of confirmedProductSkus) {
+    const row = next.rowsByProductSku[productSku];
+    row.packagingAssignment = {
+      ...row.packagingAssignment,
+      state:'pinned',
+      reason:'legacy-review-confirmed',
+      assignedAt:confirmedAt,
+    };
+    row.issues = row.issues.filter(issue => issue?.code !== 'PACKAGING_ASSIGNMENT_REVIEW_REQUIRED');
+    row.updatedAt = confirmedAt;
+  }
+  next.issues = next.issues.filter(issue => !(
+    issue?.code === 'PACKAGING_ASSIGNMENT_REVIEW_REQUIRED'
+    && confirmedSet.has(normalizeSku(issue?.productSku))
+  ));
+  next.updatedAt = confirmedAt;
+  const nextValidationError = validateDraftShape(next);
+  if (nextValidationError) return failure('invalid-draft', new TypeError(nextValidationError), { draft });
+  return { ok:true, status:'confirmed', draft:next, confirmedProductSkus };
+}
+
 function removeRow(draft, command, context) {
   const productSku = normalizeSku(command?.productSku);
   if (!draft.rowsByProductSku[productSku]) return { ok:false, status:'missing-row', draft };
@@ -530,6 +566,7 @@ export function applyOrderDraftCommand(draft, command, context = {}) {
   if (command?.type === 'reorder-group') return reorderGroup(draft, command, context);
   if (command?.type === 'patch-row') return patchRow(draft, command, context);
   if (command?.type === 'reassign-packaging') return reassignPackaging(draft, command, context);
+  if (command?.type === 'confirm-legacy-packaging-reviews') return confirmLegacyPackagingReviews(draft, context);
   if (command?.type === 'remove-row') return removeRow(draft, command, context);
   return { ok:false, status:'unsupported-command', draft };
 }
