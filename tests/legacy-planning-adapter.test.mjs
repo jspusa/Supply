@@ -63,6 +63,21 @@ test('legacy adapter ignores obsolete source speed and plans only with Planning 
   assert.ok(Math.abs(plan.bookCoverageDays - 100) < 1e-9);
 });
 
+test('legacy adapter exposes AFA12AM existing-order coverage at the new port-arrival date', () => {
+  const plan = planLegacyReplenishment({
+    asOfDate:'2026-08-27',
+    row:{ sku:'AFA12AM', planningVelocity:10, usAmz:0, usJsp:0, usAmzInbound:0, order:3144 },
+    readiness:{ amazonInventory:true, jspInventory:true, openOrders:true },
+    openOrders:[],
+    policy:{ ...policy, leadTimeDays:100, targetDays:365 },
+    orderDraftQuantity:0,
+  });
+
+  assert.equal(plan.assumedBeforeNew, 3144);
+  assert.equal(plan.unmatchedInbound, 3144);
+  assert.ok(Math.abs(plan.newOrderPortArrivalCoverageDays - 214.4) < 1e-9);
+});
+
 test('legacy supply decision uses the same explicit planner timeline', () => {
   const overdue = getLegacySupplyDecision({
     asOfDate: '2026-08-27',

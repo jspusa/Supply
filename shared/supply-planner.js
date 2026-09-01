@@ -442,8 +442,9 @@ function classifyOpenOrders(input, dates) {
 
   supply.unmatched = Math.max(0, input.inventory.reportedOpenOrder - breakdownQuantity);
   if (supply.unmatched > 0) {
+    supply.assumedBeforeNew += supply.unmatched;
     supply.uncertain += supply.unmatched;
-    addWarning(warnings, 'UNMATCHED_OPEN_ORDER', null, { quantity: supply.unmatched });
+    addWarning(warnings, 'ASSUMED_UNMATCHED_OPEN_ORDER', null, { quantity: supply.unmatched });
   }
   if (supply.jspReserve > 0) {
     events.push({ id: 'JSP_RESERVE', day: addCalendarDays(input.asOfDay, input.policy.transferTimeDays), quantity: supply.jspReserve });
@@ -474,6 +475,7 @@ function statusResult(input, dates, classification, status, missingData, noVeloc
     projection: {
       currentStock,
       leadDemand: null,
+      assumedStockAtPortArrival: null,
       confirmedStockAtArrival: null,
       assumedStockAtArrival: null,
     },
@@ -494,6 +496,7 @@ function statusResult(input, dates, classification, status, missingData, noVeloc
     coverage: {
       arrivalDays: null,
       bookDays: null,
+      newOrderPortArrivalDays: null,
       postOrderTotalDays: null,
       postOrderContinuousDays: null,
       shortageBeforeArrivalDays: null,
@@ -527,6 +530,7 @@ export function planReplenishment(rawInput) {
   if (missingData.length) return statusResult(input, dates, classification, 'missing-data', missingData, null);
 
   const eventsBeforeNew = classification.events.filter(event => event.day <= dates.newOrderSellableDay);
+  const eventsBeforePortArrival = classification.events.filter(event => event.day <= dates.newOrderPortArrivalDay);
   const eventsWithinTarget = classification.events.filter(event => event.day > dates.newOrderSellableDay && event.day <= dates.targetEndDay);
   const maximumCoverageEndDay = addCalendarDays(dates.newOrderSellableDay, input.policy.maximumCoverageDays);
   const eventsWithinMaximumCoverage = classification.events.filter(event => event.day > dates.newOrderSellableDay && event.day <= maximumCoverageEndDay);
@@ -556,6 +560,13 @@ export function planReplenishment(rawInput) {
     velocity,
     eventsBeforeNew,
   );
+  const assumedPortArrivalProjection = projectStockAcrossEvents(
+    input.inventory.amazonSellable + classification.supply.assumedBeforeNew,
+    input.asOfDay,
+    dates.newOrderPortArrivalDay,
+    velocity,
+    eventsBeforePortArrival,
+  );
   const targetPlan = requiredQuantityAcrossEvents(
     assumedProjection.stock,
     dates.newOrderSellableDay,
@@ -579,6 +590,16 @@ export function planReplenishment(rawInput) {
     coverageForQuantity,
   });
   const appliedQuantity = input.orderDraftQuantity ?? recommendation.executableQuantity;
+  const portArrivalMaximumCoverageEndDay = addCalendarDays(dates.newOrderPortArrivalDay, input.policy.maximumCoverageDays);
+  const eventsAfterPortArrival = classification.events.filter(
+    event => event.day > dates.newOrderPortArrivalDay && event.day <= portArrivalMaximumCoverageEndDay,
+  );
+  const newOrderPortArrivalDays = continuousCoverageDays(
+    assumedPortArrivalProjection.stock + appliedQuantity,
+    dates.newOrderPortArrivalDay,
+    velocity,
+    eventsAfterPortArrival,
+  );
   const postOrderStock = assumedProjection.stock + appliedQuantity;
   const postOrderTotalDays = (postOrderStock + targetPlan.scheduledQuantity) / velocity;
   const postOrderContinuousDays = continuousCoverageDays(
@@ -611,6 +632,7 @@ export function planReplenishment(rawInput) {
     projection: {
       currentStock: input.inventory.amazonSellable + input.inventory.jspReserve,
       leadDemand: (input.policy.leadTimeDays + input.policy.transferTimeDays) * velocity,
+      assumedStockAtPortArrival: assumedPortArrivalProjection.stock,
       confirmedStockAtArrival: confirmedProjection.stock,
       assumedStockAtArrival: assumedProjection.stock,
     },
@@ -622,6 +644,7 @@ export function planReplenishment(rawInput) {
     coverage: {
       arrivalDays: assumedProjection.stock / velocity,
       bookDays: (input.inventory.amazonSellable + input.inventory.jspReserve + input.inventory.reportedOpenOrder) / velocity,
+      newOrderPortArrivalDays,
       postOrderTotalDays,
       postOrderContinuousDays,
       shortageBeforeArrivalDays: confirmedProjection.shortageDays,

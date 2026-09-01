@@ -95,6 +95,7 @@ function toLegacyPlan(result, policy) {
     postArrivalDays: coverage.postOrderTotalDays,
     totalPostOrderCoverageDays: coverage.postOrderTotalDays,
     continuousPostOrderCoverageDays: coverage.postOrderContinuousDays,
+    newOrderPortArrivalCoverageDays: coverage.newOrderPortArrivalDays,
     bookCoverageDays: coverage.bookDays,
     arrivalCoverageDays: coverage.arrivalDays,
     canRecommend: recommendation.canRecommend,

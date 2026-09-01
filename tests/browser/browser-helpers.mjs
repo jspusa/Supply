@@ -551,6 +551,28 @@ export async function buildThreeGroupOrderScenario(page) {
   }
   expect(compactControls.actionGroup.width).toBeLessThanOrEqual(94);
 
+  const planningDetails = palletRow.locator('.generatorPlanningDetails');
+  await expect(planningDetails.locator('summary')).toHaveText('速度／來源');
+  await planningDetails.locator('summary').click();
+  await expect(planningDetails.locator('.generatorOrderSourceText')).not.toHaveText('目前沒有對應的 JAM／FY 訂單');
+  const systemPalletDays = Number((await palletRow.locator('.pallet-days-value').innerText()).match(/[\d.]+/)?.[0]);
+  const manualVelocity = planningDetails.locator('.manual-velocity-input');
+  await manualVelocity.fill('50');
+  await manualVelocity.press('Tab');
+  await expect(planningDetails.locator('summary')).toHaveText('手動速度／來源');
+  await expect.poll(() => page.evaluate(() => {
+    const saved = JSON.parse(localStorage.getItem('supply-order-velocity-overrides-v1') || '{}');
+    return saved.overrides?.GTSL01;
+  })).toBe(50);
+  const manualPalletDays = Number((await palletRow.locator('.pallet-days-value').innerText()).match(/[\d.]+/)?.[0]);
+  expect(manualPalletDays).toBeLessThan(systemPalletDays);
+  await planningDetails.locator('.generatorVelocityReset').click();
+  await expect(planningDetails.locator('summary')).toHaveText('速度／來源');
+  await expect.poll(() => page.evaluate(() => {
+    const saved = JSON.parse(localStorage.getItem('supply-order-velocity-overrides-v1') || '{}');
+    return saved.overrides?.GTSL01 ?? null;
+  })).toBeNull();
+
   const palletInput = palletRow.locator('.edit-pallets-input');
   await palletInput.fill('0.5');
   const palletBeforeStep = Number(await palletInput.inputValue());

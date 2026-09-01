@@ -4,6 +4,7 @@ import {
   ORDER_DRAFT_STORAGE_KEY,
 } from './order-draft-state.js';
 import { PLANNING_VELOCITY_HISTORY_KEY } from './planning-velocity-history.js';
+import { ORDER_VELOCITY_OVERRIDES_KEY } from './order-velocity-overrides.js';
 
 export const WORKSPACE_SNAPSHOT_SCHEMA_VERSION = 1;
 export const WORKSPACE_PREFERENCES_SCHEMA_VERSION = 1;
@@ -79,6 +80,7 @@ export const WORKSPACE_CLEAR_LOCAL_STORAGE_KEYS = Object.freeze([
   ORDER_DRAFT_STORAGE_KEY,
   LEGACY_ORDER_DRAFT_STORAGE_KEY,
   PLANNING_VELOCITY_HISTORY_KEY,
+  ORDER_VELOCITY_OVERRIDES_KEY,
   'supply-lead-time-days',
   'supply-fba-transfer-days',
   'supply-generator-columns-v1',

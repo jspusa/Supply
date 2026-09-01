@@ -114,6 +114,23 @@ test('placed and unknown old orders without ETA are assumed before the new order
   assert.deepEqual(result.warnings.map(item => item.code).sort(), ['ASSUMED_UNDATED_ORDER', 'ASSUMED_UNKNOWN_ORDER']);
 });
 
+test('order-arrival coverage treats an unmatched existing order as arriving before the new order', () => {
+  const result = planReplenishment(planningInput({
+    productSku: 'AFA12AM',
+    planningVelocity: 10,
+    inventory: { reportedOpenOrder: 3144 },
+    openOrders: [],
+    policy: { leadTimeDays: 100, transferTimeDays: 21, targetDays: 365 },
+    orderDraftQuantity: 0,
+  }));
+
+  assert.equal(result.coverage.bookDays, 314.4);
+  assert.equal(result.supply.unmatched, 3144);
+  assert.equal(result.supply.assumedBeforeNew, 3144);
+  assert.ok(Math.abs(result.coverage.newOrderPortArrivalDays - 214.4) < 1e-9);
+  assert.ok(result.warnings.some(item => item.code === 'ASSUMED_UNMATCHED_OPEN_ORDER'));
+});
+
 test('planned and STOP orders stay out of the recommendation', () => {
   const result = planReplenishment(planningInput({
     productSku: 'GCTL03',

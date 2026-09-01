@@ -65,6 +65,25 @@ for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
     assert.match(generatorMarkup, /新訂單到港後總可售天數/);
   });
 
+  test(`${entrypoint}: Order Draft keeps manual speed and order sources behind one compact disclosure`, () => {
+    const expectedSource = entrypoint === 'public'
+      ? './shared/order-velocity-overrides.js'
+      : '../shared/order-velocity-overrides.js';
+    assert.match(html, new RegExp(`<script type="module" src="${expectedSource.replaceAll('.', '\\.')}"`));
+
+    const addProductSource = extractFunctionSource(html, 'addProduct');
+    const disclosureSource = extractFunctionSource(html, 'renderGeneratorPlanningDetails');
+    const velocitySource = extractFunctionSource(html, 'getPlanningVelocityForProduct');
+    const leadTimeSource = extractFunctionSource(html, 'getLeadTimePlan');
+    const sourceTextSource = extractFunctionSource(html, 'getGeneratorOrderSourceText');
+    assert.match(addProductSource, /renderGeneratorPlanningDetails/);
+    assert.match(disclosureSource, /manual-velocity-input/);
+    assert.match(disclosureSource, /訂單來源/);
+    assert.match(velocitySource, /getOrderVelocityOverride/);
+    assert.match(leadTimeSource, /getPlanningVelocityForProduct/);
+    assert.match(sourceTextSource, /jamOrders|getJamBreakdownForSku/);
+  });
+
   test(`${entrypoint}: generator quantity rows and pallet controls use semantic compact markup`, () => {
     const addProductSource = extractFunctionSource(html, 'addProduct');
     const totalsSource = extractFunctionSource(html, 'updateTotals');
@@ -237,7 +256,7 @@ test('both entrypoints load the same planner Module and contain only thin planne
       assert.equal(html.includes(`function ${removedImplementation}(`), false, `${entrypoint} should not copy ${removedImplementation}`);
     }
     assert.match(extractFunctionSource(html, 'getLeadTimePlan'), /SupplyPlanningLegacy\.planLegacyReplenishment/);
-    assert.match(extractFunctionSource(html, 'getPostArrivalCoverageDays'), /continuousPostOrderCoverageDays/);
+    assert.match(extractFunctionSource(html, 'getPostArrivalCoverageDays'), /newOrderPortArrivalCoverageDays/);
   }
 });
 
@@ -249,6 +268,7 @@ test('public and Boss adapters send the same normalized row to the shared planne
       getJamBreakdownForSku: () => [{ orderName: 'JAM-1', qty: 280, arrivalDate: '2026-10-16', isReceived: false }],
       physicalToAmazonUnits: (_sku, qty) => qty / 2,
       getPlanningAsOfDate: () => '2026-08-27',
+      getPlanningVelocityForProduct: () => 12.5,
       getPlanningPolicy: (targetDays, sku) => ({ targetDays, sku }),
       getProductSpecByCode: sku => ({ productCode: sku }),
       getUnitsPerPallet: () => 840,
@@ -270,6 +290,7 @@ test('public and Boss adapters send the same normalized row to the shared planne
   assert.equal(publicInput.openOrders[0].quantity, 140);
   assert.equal(publicInput.openOrders[0].portArrivalDate, '2026-10-16');
   assert.deepEqual(publicInput.packaging, { unitsPerPallet: 840 });
+  assert.equal(publicInput.row.planningVelocity, 12.5);
   assert.equal(publicInput.orderDraftQuantity, 500);
 });
 

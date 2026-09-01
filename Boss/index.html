@@ -189,6 +189,20 @@
     .edit-pallets-input::-webkit-inner-spin-button, .edit-pallets-input::-webkit-outer-spin-button { appearance:none; margin:0; }
     .pallet-guidance { display:block; max-width:128px; margin-top:4px; color:#92400e; font-size:10px; font-weight:750; line-height:1.3; }
     .pallet-guidance[hidden] { display:none; }
+    .palletDaysCell { min-width:126px; }
+    .pallet-days-value { display:block; white-space:nowrap; font-weight:750; }
+    .generatorPlanningDetails { margin-top:5px; color:#64748b; font-size:10px; }
+    .generatorPlanningDetails > summary { display:inline-flex; align-items:center; gap:4px; padding:2px 6px; border:1px solid #dbe5f2; border-radius:999px; background:#f8fafc; color:#475569; cursor:pointer; font-size:10px; font-weight:800; list-style:none; white-space:nowrap; }
+    .generatorPlanningDetails > summary::-webkit-details-marker { display:none; }
+    .generatorPlanningDetails[open] > summary { background:#dbeafe; border-color:#bfdbfe; color:#1d4ed8; }
+    .generatorPlanningBody { display:grid; gap:6px; min-width:188px; margin-top:6px; padding:8px; border:1px solid #dbe5f2; border-radius:10px; background:#fff; box-shadow:0 8px 24px rgba(15,23,42,.08); }
+    .generatorVelocityField { display:grid; grid-template-columns:1fr 76px; align-items:center; gap:6px; color:#334155; font-weight:800; }
+    .generatorVelocityField input { width:76px; min-width:0; padding:5px 6px; }
+    .generatorVelocityStatus { color:#64748b; line-height:1.35; }
+    .generatorVelocityReset, .generatorSourceButton { justify-self:start; padding:3px 7px; border:1px solid #cbd5e1; border-radius:7px; background:#fff; color:#2563eb; box-shadow:none; font-size:10px; }
+    .generatorOrderSource { display:grid; gap:3px; padding-top:5px; border-top:1px solid #e2e8f0; line-height:1.35; }
+    .generatorOrderSource b { color:#334155; }
+    .generatorOrderSourceText { max-width:188px; overflow-wrap:anywhere; }
     .coverageHealthCell, .estimated-days, .arrival-days { min-width:148px; }
     .order-generator tr.locked td, .order-generator tr.locked:hover td { background:#dcfce7 !important; color:#166534; border-bottom-color:#86efac; }
     .order-generator tr.locked input { background:#f0fdf4; color:#166534; border-color:#86efac; font-weight:800; }
@@ -1101,7 +1115,7 @@
                   <tbody></tbody>
                 </table>
               </div>
-              <div class="hint" style="text-align:right;margin-top:10px;">含舊訂單可售天數會包含 JAM/FY 的預計補貨；新訂單到港後總可售天數會先扣前置期銷售，納入已下單舊單，並排除「還沒下單／STOP」。血條固定為：低於 180 天黃色、180–365 天綠色、超過 365 天紅色；上方到港後目標仍只影響建議量。建議會優先使用整板，只有下一整板會從低於目標跳到超過 365 天時，才依最小箱數顯示零散板。按住拖曳圖示可調整順序，草稿會自動保存。</div>
+              <div class="hint" style="text-align:right;margin-top:10px;">含舊訂單可售天數會包含 JAM/FY 的預計補貨；新訂單到港後總可售天數只扣新單前置期銷售，納入已下單舊單；對不到明細的既有訂單會依規則假設比新單早到，但仍顯示追貨提醒。「還沒下單／STOP」不納入。血條固定為：低於 180 天黃色、180–365 天綠色、超過 365 天紅色；上方到港後目標仍只影響建議量。建議會優先使用整板，只有下一整板會從低於目標跳到超過 365 天時，才依最小箱數顯示零散板。按住拖曳圖示可調整順序，草稿會自動保存。</div>
               <div class="totals-container">
                 <div class="total"><i class="fa-solid fa-boxes-stacked"></i> 總包數: <span id="totalQuantity">0</span> | 總箱數: <span id="totalCartons">0</span> | 總棧板數: <span id="totalPallets">0</span></div>
                 <div class="box-counts" id="boxCounts"></div>
@@ -1433,6 +1447,7 @@
   <script src="../shared/shared-product-catalog.js"></script>
   <script src="../shared/catalog-update-baseline.js"></script>
   <script type="module" src="../shared/legacy-planning-adapter.js"></script>
+  <script type="module" src="../shared/order-velocity-overrides.js"></script>
   <script type="module" src="../shared/order-draft-state.js"></script>
   <script type="module" src="../shared/workspace-snapshot.js"></script>
   <script type="module" src="../shared/workspace-navigation.js"></script>
@@ -2338,9 +2353,10 @@
     function getLeadTimePlan(row, targetDays = getReorderTargetDays(), orderDraftQuantity = null) {
       if (!window.SupplyPlanningLegacy) throw new Error('共用補貨核心尚未載入');
       const openOrders = getJamBreakdownForSku(row?.sku).filter(item => !item.isReceived).map(item => ({ ...item, id:item.orderName || 'JAM', quantity:Math.max(0, physicalToAmazonUnits(row?.sku, item.qty)), portArrivalDate:item.arrivalDate }));
+      const planningRow = { ...row, planningVelocity:getPlanningVelocityForProduct(row?.sku) };
       return window.SupplyPlanningLegacy.planLegacyReplenishment({
         asOfDate:getPlanningAsOfDate(),
-        row,
+        row:planningRow,
         readiness:{ amazonInventory:row?.usAmz !== null && row?.usAmz !== undefined, jspInventory:row?.usJsp !== null && row?.usJsp !== undefined, openOrders:Boolean(ordersEl?.value.trim()) || metaIsReady('jamMetaBox') },
         openOrders,
         policy:getPlanningPolicy(targetDays, row?.sku),
@@ -2483,7 +2499,7 @@
       if (plan.plannedNotPlaced > 0) lines.push(`<span class="leadTimeRisk">${fmtQty(plan.plannedNotPlaced)} 還沒下單，未納入</span>`);
       if (plan.stoppedInbound > 0) lines.push(`<span class="leadTimeRisk">${fmtQty(plan.stoppedInbound)} STOP，未納入</span>`);
       if (plan.conflictingScheduleInbound > 0) lines.push(`<span class="leadTimeRisk">${fmtQty(plan.conflictingScheduleInbound)} 排程晚於新單，未納入</span>`);
-      if (plan.unmatchedInbound > 0) lines.push(`<span class="leadTimeRisk">${fmtQty(plan.unmatchedInbound)} 對不到明細，未納入</span>`);
+      if (plan.unmatchedInbound > 0) lines.push(`<span class="leadTimeRisk">${fmtQty(plan.unmatchedInbound)} 對不到明細，已假設比新單早到</span>`);
       if (plan.amzInboundNoEta > 0) lines.push(`<span class="leadTimeRisk">AMZ Inbound ${fmtQty(plan.amzInboundNoEta)} 未納入</span><br><span class="miniMetric">避免與 JAM/FY 重複計算</span>`);
       return lines.join('<br>') || '0';
     }
@@ -2516,7 +2532,7 @@
       const arrival = formatDateYMD(addDays(new Date(), leadDays));
       const sellable = formatDateYMD(addDays(new Date(), leadDays + transferDays));
       const insight = document.getElementById('leadTimeInsight');
-      if (insight) { insight.innerHTML = `<div class="leadTimeInsightTitle"><i class="fa-solid fa-route"></i> 既有已下單貨，預設排在今天新單之前</div><div class="leadTimeInsightText">所有數量先統一成 Amazon 可售單位。JAM/FY 舊單若已有數量，且不是「還沒下單／STOP」，即使 ETA 空白或逾期，也會依你的規則預設早於本次新單並納入建議量；但 ETA 未確認，仍會另外顯示斷貨風險。尚未下單、STOP、對不到明細及可能與 JAM 重複的 AMZ Inbound 都不納入。建議量最後依完整外箱倍數向上取整。</div><div class="leadTimeSteps"><div class="leadTimeStep"><div class="leadTimeStepLabel">今天</div><div class="leadTimeStepValue">先用 AMZ 可售庫存</div></div><div class="leadTimeStep"><div class="leadTimeStepLabel">既有舊單</div><div class="leadTimeStepValue">假設早於本次新單</div></div><div class="leadTimeStep"><div class="leadTimeStepLabel">新單 ${leadDays} 天到港</div><div class="leadTimeStepValue">${arrival}</div></div><div class="leadTimeStep"><div class="leadTimeStepLabel">再轉入 FBA ${transferDays} 天</div><div class="leadTimeStepValue">${sellable} 可售，目標 ${targetDays} 天</div></div></div><div class="leadTimeExample"><b>風險與建議量分開：</b>舊單會降低本次新單建議量；如果舊單沒有 ETA，系統不會假裝它已確認接得上，仍會提醒你追貨。</div>`; }
+      if (insight) { insight.innerHTML = `<div class="leadTimeInsightTitle"><i class="fa-solid fa-route"></i> 既有已下單貨，預設排在今天新單之前</div><div class="leadTimeInsightText">所有數量先統一成 Amazon 可售單位。JAM/FY 舊單若已有數量，且不是「還沒下單／STOP」，即使 ETA 空白、逾期或總數對不到明細，也會依你的規則預設早於本次新單並納入建議量；但 ETA 未確認，仍會另外顯示追貨風險。尚未下單、STOP 及可能與 JAM 重複的 AMZ Inbound 不納入。建議量最後依完整外箱倍數向上取整。</div><div class="leadTimeSteps"><div class="leadTimeStep"><div class="leadTimeStepLabel">今天</div><div class="leadTimeStepValue">先用 AMZ 可售庫存</div></div><div class="leadTimeStep"><div class="leadTimeStepLabel">既有舊單</div><div class="leadTimeStepValue">假設早於本次新單</div></div><div class="leadTimeStep"><div class="leadTimeStepLabel">新單 ${leadDays} 天到港</div><div class="leadTimeStepValue">${arrival}</div></div><div class="leadTimeStep"><div class="leadTimeStepLabel">再轉入 FBA ${transferDays} 天</div><div class="leadTimeStepValue">${sellable} 可售，目標 ${targetDays} 天</div></div></div><div class="leadTimeExample"><b>風險與建議量分開：</b>舊單會降低本次新單建議量；如果舊單沒有 ETA，系統不會假裝它已確認接得上，仍會提醒你追貨。</div>`; }
       document.getElementById('countReorder').textContent = String(rows.length);
       if (!rows.length) { reorderWrap.innerHTML = `<div class="hint" style="padding:24px;text-align:center;">${document.getElementById('reorderVelocityRiskOnly')?.checked ? '目前的建議下單品項中，沒有 Velocity Risk。' : '依目前前置期與目標天數，沒有需要新增訂單的品項。'}</div>`; return; }
       const body = rows.map((r, idx) => {
@@ -3463,6 +3479,7 @@
         setGeneratorDraftStatus('訂單草稿模組未載入，無法建立空白草稿。', 'error');
       }
       velocityHistoryFailureSignature = '';
+      orderVelocityOverridesCache = null;
       restoredWorkspacePreference = null;
       workspaceUiController?.activate('data', { historyMode:'replace' });
       updateSortButtons();
@@ -4345,7 +4362,7 @@
     function exportReorderRowsFiltered() {
       const target = getReorderTargetDays();
       const transfer = getFbaTransferDays();
-      const headers = ['SKU','ASIN','H10 Source Velocity','Planning Velocity','採用證據','調高原因','Velocity Risk','AMZ現在可售','JSP後備_AMZ單位','可售日前確定到貨','舊單假設早於新單_已納入合計_勿與其中欄重複加總','還沒下單_未納入','STOP_未納入','其中_狀態空白_已納入但警示','其中_逾期ETA_已納入但警示','排程晚於新單_未納入','對不到JAM明細_未納入','AMZ_Inbound_未納入避免重複','可售前需求','新單真正可售時預估剩餘','ETA未確認風險空窗天數','處理期限','理論建議量','可執行建議量_AMZ單位','完整箱規增量','真正可售後天數','目標期內已排到貨_已扣除','全部待確認供給_含已納入與未納入_僅供追蹤勿橫向加總','待確認供給追貨期限','目標期後到貨_AMZ單位','新單預計到港日',`新單真正可售日_到港加${transfer}天`,'JAM/FY訂單來源','原訂單預計到港日'];
+      const headers = ['SKU','ASIN','H10 Source Velocity','Planning Velocity','採用證據','調高原因','Velocity Risk','AMZ現在可售','JSP後備_AMZ單位','可售日前確定到貨','舊單假設早於新單_已納入合計_勿與其中欄重複加總','還沒下單_未納入','STOP_未納入','其中_狀態空白_已納入但警示','其中_逾期ETA_已納入但警示','排程晚於新單_未納入','對不到JAM明細_已假設先到','AMZ_Inbound_未納入避免重複','可售前需求','新單真正可售時預估剩餘','ETA未確認風險空窗天數','處理期限','理論建議量','可執行建議量_AMZ單位','完整箱規增量','真正可售後天數','目標期內已排到貨_已扣除','全部待確認供給_含已納入與未納入_僅供追蹤勿橫向加總','待確認供給追貨期限','目標期後到貨_AMZ單位','新單預計到港日',`新單真正可售日_到港加${transfer}天`,'JAM/FY訂單來源','原訂單預計到港日'];
       const body = getReorderRowsForAction()
         .map(r => ({ row:r, plan:getLeadTimePlan(r,target) }))
         .filter(x => x.plan.suggestedQty > 0)
@@ -4479,7 +4496,67 @@
     function reloadData() { document.getElementById('searchInput').value = ''; document.getElementById('searchResults').innerHTML = ''; document.getElementById('searchResults').style.display = 'none'; restoreGeneratorDraft(currentOrderGroup); }
     function clearTable() { document.querySelector('#productTable tbody').innerHTML = ''; }
     function getProductSpecByCode(code) { return productMap.get(normalizeSkuKey(code)) || null; }
-    function getPlanningVelocityForProduct(code) { return window.planningVelocityMap?.get(getCanonicalSku(code)) ?? window.planningVelocityMap?.get(normalizeSkuKey(code)) ?? null; }
+    let orderVelocityOverridesCache = null;
+    let orderVelocityOverrideWarningShown = false;
+    function getOrderVelocityStorage() { try { return localStorage; } catch (error) { return { getItem(){ throw error; }, setItem(){ throw error; } }; } }
+    function loadOrderVelocityOverrides() {
+      if (orderVelocityOverridesCache) return orderVelocityOverridesCache;
+      const api = window.SupplyOrderVelocity;
+      if (!api?.readOrderVelocityOverrides) return {};
+      const result = api.readOrderVelocityOverrides(getOrderVelocityStorage());
+      if (!result.ok && !orderVelocityOverrideWarningShown) { orderVelocityOverrideWarningShown = true; showTip('手動速度資料無法讀取；本次未套用任何隱藏值。', 'error', true); }
+      orderVelocityOverridesCache = result.ok ? result.overrides : {};
+      return orderVelocityOverridesCache;
+    }
+    function getOrderVelocityOverride(code) { const value = loadOrderVelocityOverrides()[getCanonicalSku(code)]; return Number.isFinite(Number(value)) && Number(value) > 0 ? Number(value) : null; }
+    function getBasePlanningVelocityForProduct(code) { return window.planningVelocityMap?.get(getCanonicalSku(code)) ?? window.planningVelocityMap?.get(normalizeSkuKey(code)) ?? null; }
+    function getPlanningVelocityForProduct(code) { return getOrderVelocityOverride(code) ?? getBasePlanningVelocityForProduct(code); }
+    function getGeneratorOrderSourceText(code) {
+      const canonical = getCanonicalSku(code);
+      const sourceRow = mainRowsAll.find(row => getCanonicalSku(row.sku) === canonical);
+      const named = String(sourceRow?.jamOrders || '').trim();
+      if (named && named !== 'N/A') return named;
+      const names = Array.from(new Set(getJamBreakdownForSku(canonical).map(item => String(item?.orderName || '').trim()).filter(Boolean)));
+      return names.length ? names.join('、') : '目前沒有對應的 JAM／FY 訂單';
+    }
+    function renderGeneratorPlanningDetails(prod) {
+      const code = getCanonicalSku(prod.productCode), manual = getOrderVelocityOverride(code), base = getBasePlanningVelocityForProduct(code);
+      const summary = manual ? '手動速度／來源' : '速度／來源';
+      const source = getGeneratorOrderSourceText(code);
+      const hasDetails = getJamBreakdownForSku(code).length > 0;
+      return `<details class="generatorPlanningDetails"><summary>${summary}</summary><div class="generatorPlanningBody"><label class="generatorVelocityField"><span>自訂每日速度</span><input type="number" class="manual-velocity-input" min="0.01" step="0.01" value="${manual === null ? '' : escapeHtml(formatVelocityNumber(manual))}" placeholder="${escapeHtml(formatVelocityNumber(base))}" onchange="updateGeneratorManualVelocity(this)"></label><span class="generatorVelocityStatus">${manual === null ? `系統速度 ${escapeHtml(formatVelocityNumber(base))}` : `使用手動 ${escapeHtml(formatVelocityNumber(manual))}；系統 ${escapeHtml(formatVelocityNumber(base))}`}</span><button type="button" class="generatorVelocityReset" onclick="resetGeneratorManualVelocity(this)"${manual === null ? ' hidden' : ''}>恢復系統速度</button><div class="generatorOrderSource"><b>訂單來源</b><span class="generatorOrderSourceText">${escapeHtml(source)}</span>${hasDetails ? '<button type="button" class="generatorSourceButton" onclick="showGeneratorOrderSources(this)">查看明細</button>' : ''}</div></div></details>`;
+    }
+    function refreshGeneratorRowPlanningInfo(row, prod) {
+      if (!row || !prod) return;
+      const code = getCanonicalSku(prod.productCode), manual = getOrderVelocityOverride(code), base = getBasePlanningVelocityForProduct(code);
+      const value = row.querySelector('.pallet-days-value');
+      if (value) value.textContent = formatPalletDays(prod);
+      const input = row.querySelector('.manual-velocity-input');
+      if (input) { input.value = manual === null ? '' : formatVelocityNumber(manual); input.placeholder = formatVelocityNumber(base); }
+      const summary = row.querySelector('.generatorPlanningDetails > summary');
+      if (summary) summary.textContent = manual === null ? '速度／來源' : '手動速度／來源';
+      const status = row.querySelector('.generatorVelocityStatus');
+      if (status) status.textContent = manual === null ? `系統速度 ${formatVelocityNumber(base)}` : `使用手動 ${formatVelocityNumber(manual)}；系統 ${formatVelocityNumber(base)}`;
+      const reset = row.querySelector('.generatorVelocityReset');
+      if (reset) reset.hidden = manual === null;
+      const source = row.querySelector('.generatorOrderSourceText');
+      if (source) source.textContent = getGeneratorOrderSourceText(code);
+      updateEstimatedDays(row, prod);
+    }
+    function updateGeneratorManualVelocity(input) {
+      const row = input?.closest('tr'), code = row?.dataset.product, api = window.SupplyOrderVelocity;
+      if (!row || !code || !api?.setOrderVelocityOverride) { showTip('手動速度模組尚未載入。', 'error'); return; }
+      const result = api.setOrderVelocityOverride(getOrderVelocityStorage(), { productSku:code, value:input.value });
+      if (!result.ok) { input.value = getOrderVelocityOverride(code) ?? ''; showTip(input.value === '' ? '請輸入大於 0 的每日速度。' : '手動速度無法保存，原值未變更。', 'error'); return; }
+      orderVelocityOverridesCache = result.overrides;
+      refreshGeneratorRowPlanningInfo(row, getGeneratorProductSpecForRowElement(row));
+      showTip(getOrderVelocityOverride(code) === null ? `${code} 已恢復系統速度` : `${code} 已使用手動速度 ${formatVelocityNumber(getOrderVelocityOverride(code))}`, 'success');
+    }
+    function resetGeneratorManualVelocity(control) { const row = control?.closest('tr'), input = row?.querySelector('.manual-velocity-input'); if (!input) return; input.value = ''; updateGeneratorManualVelocity(input); }
+    function showGeneratorOrderSources(control) { const code = control?.closest('tr')?.dataset.product; if (!code || !getJamBreakdownForSku(code).length) { showTip('目前沒有可顯示的訂單來源明細。', 'error'); return; } showSkuJamBreakdown(code); }
+    window.updateGeneratorManualVelocity = updateGeneratorManualVelocity;
+    window.resetGeneratorManualVelocity = resetGeneratorManualVelocity;
+    window.showGeneratorOrderSources = showGeneratorOrderSources;
     function getUnitsPerPallet(prod) { const perCarton = Number(prod?.perCarton), perPallet = Number(prod?.perPallet), factor = Number(prod?.perPack) > 1 ? Number(prod.perPack) : 1; if (![perCarton, perPallet, factor].every(value => Number.isFinite(value) && value > 0)) return 0; const units = (perCarton * perPallet) / factor; return Number.isFinite(units) && units > 0 ? units : 0; }
     function getProductPalletCatalogIssue(prod) { if (!window.SupplyPlanningLegacy) return { code:'INVALID_PALLET_CATALOG' }; const perCarton = Math.max(1, Math.round(Number(prod?.perCarton || 1))), factor = Math.max(1, Math.round(Number(prod?.perPack) > 1 ? Number(prod.perPack) : 1)), cartonsNeeded = factor / greatestCommonDivisor(perCarton, factor), executableOrderIncrement = (perCarton * cartonsNeeded) / factor; return window.SupplyPlanningLegacy.getPalletCatalogIssue({ unitsPerPallet:getUnitsPerPallet(prod), executableOrderIncrement }); }
     function formatPalletDays(prod) { const planningVelocity = getPlanningVelocityForProduct(prod.productCode); if (!planningVelocity || planningVelocity <= 0) return '—'; const days = getUnitsPerPallet(prod) / planningVelocity; return Number.isFinite(days) ? `${days.toFixed(1)} 天` : '—'; }
@@ -4492,7 +4569,7 @@
       const newOrderUnits = (Number.isFinite(units) && units > 0) ? units : (Number(quantity) || 0);
       const sourceRow = mainRowsAll.find(row => getCanonicalSku(row.sku) === code);
       if (!sourceRow) return null;
-      const days = getLeadTimePlan(sourceRow, 365, Math.max(0, newOrderUnits)).continuousPostOrderCoverageDays;
+      const days = getLeadTimePlan(sourceRow, 365, Math.max(0, newOrderUnits)).newOrderPortArrivalCoverageDays;
       return Number.isFinite(days) ? days : null;
     }
     function renderGeneratorArrivalCoverage(prod, quantity, units) {
@@ -4503,7 +4580,7 @@
       const plan = getLeadTimePlan(sourceRow, 365);
       return renderCoverageMeterHtml(days, plan.canRecommend === false ? 'unavailable' : 'ready');
     }
-    window.refreshGeneratorSpeedMetrics = function() { document.querySelectorAll('#productTable tbody tr').forEach(row => { const prod = getGeneratorProductSpecForRowElement(row); if (!prod) return; row.querySelector('.pallet-days').textContent = formatPalletDays(prod); updateEstimatedDays(row, prod); }); };
+    window.refreshGeneratorSpeedMetrics = function() { document.querySelectorAll('#productTable tbody tr').forEach(row => { const prod = getGeneratorProductSpecForRowElement(row); if (!prod) return; refreshGeneratorRowPlanningInfo(row, prod); }); };
     function searchProduct() { const raw = document.getElementById('searchInput').value.trim(); const val = normalizeSkuKey(raw); const nameVal = raw.toLocaleLowerCase('zh-Hant'); const res = document.getElementById('searchResults'); res.innerHTML = ''; if (!val) { res.style.display = 'none'; return; } const matched = getFilteredProducts().filter(p => normalizeSkuKey(p.productCode).includes(val) || String(p.productName || '').toLocaleLowerCase('zh-Hant').includes(nameVal)).slice(0, 40); if (matched.length) { res.style.display = 'block'; matched.forEach(prod => { const item = document.createElement('div'); item.className = 'search-result-item'; item.textContent = `${prod.productCode} - ${prod.productName}`; item.onclick = () => { addProduct(prod); document.getElementById('searchInput').value = ''; res.innerHTML = ''; res.style.display = 'none'; }; res.appendChild(item); }); } else res.style.display = 'none'; }
     window.searchProduct = searchProduct;
     function useNativePalletStepper(row) { const input = row?.querySelector('.edit-pallets-input'); if (!input) return; input.step = '0.5'; input.removeAttribute('onkeydown'); row.querySelector('.palletStepButtons')?.remove(); }
@@ -4547,7 +4624,7 @@
       const quantityInputs = `<div class="generatorQuantityGroup${unitInput ? '' : ' single'}"><label class="generatorQuantityField"><span>包</span><input type="number" class="edit-quantity-input" placeholder="包數" oninput="updateFields(this,'${code}')"></label>${unitInput ? `<label class="generatorQuantityField"><span>${unitLabel}</span>${unitInput}</label>` : ''}</div>`;
       const targetPlaceholder = hasPack ? '目標袋數' : (hasBox ? '目標盒數' : '目標包數');
       const orderCode = draftRow.orderSku || code;
-      const rowHTML = `<tr data-product="${escapeHtml(code)}" data-order-code="${escapeHtml(orderCode)}"><td></td><td class="skuIdentityCell"><div class="skuIdentity"><span class="order-code-label">${escapeHtml(orderCode)}</span><span class="skuIdentityActions">${renderEquivalentOrderToggle(code, orderCode)}</span><span class="packagingAssignmentSlot">${renderPackagingAssignmentStatus(draftRow)}</span></div></td><td>${quantityInputs}</td><td data-generator-col="target"><input type="number" class="target-input" placeholder="${targetPlaceholder}" oninput="checkTarget(this)"></td><td data-generator-col="cartons"><input type="number" class="edit-cartons-input" placeholder="箱數" oninput="updateFields(this,'${code}')"></td><td><div class="palletStepControl"><input type="number" class="edit-pallets-input" step="any" min="0" aria-label="${escapeHtml(code)} 棧板數" placeholder="棧板數" oninput="updateFields(this,'${code}')" onchange="normalizeGeneratorPallets(this,'${code}')" onkeydown="handleGeneratorPalletKey(event)"><span class="palletStepButtons"><button type="button" class="palletStepButton" onclick="stepGeneratorPallets(this,1)" aria-label="增加 1 棧板" title="增加 1 棧板">▲</button><button type="button" class="palletStepButton" onclick="stepGeneratorPallets(this,-1)" aria-label="減少 1 棧板" title="減少 1 棧板">▼</button></span></div><span class="pallet-guidance" hidden></span></td><td class="box-size-cell" data-generator-col="box">${escapeHtml(prod.boxSize || '')} cm</td><td class="pallet-days">${formatPalletDays(prod)}</td><td class="estimated-days" data-generator-col="estimated">${renderGeneratorBookCoverage(prod)}</td><td class="arrival-days" data-generator-col="arrival">${renderGeneratorArrivalCoverage(prod, 0, 0)}</td><td class="generatorActions"><span class="generatorActionGroup"><button type="button" class="drag-handle" aria-label="按住拖曳排序" title="按住拖曳排序"><i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button><button type="button" class="lock-button" onclick="toggleLock(this)" aria-label="鎖定這列" aria-pressed="false" title="鎖定這列"><i class="fa-solid fa-lock" aria-hidden="true"></i></button><button type="button" class="remove-button" onclick="removeRow(this)" aria-label="刪除這列" title="刪除這列"><i class="fa-solid fa-trash" aria-hidden="true"></i></button></span></td></tr>`;
+      const rowHTML = `<tr data-product="${escapeHtml(code)}" data-order-code="${escapeHtml(orderCode)}"><td></td><td class="skuIdentityCell"><div class="skuIdentity"><span class="order-code-label">${escapeHtml(orderCode)}</span><span class="skuIdentityActions">${renderEquivalentOrderToggle(code, orderCode)}</span><span class="packagingAssignmentSlot">${renderPackagingAssignmentStatus(draftRow)}</span></div></td><td>${quantityInputs}</td><td data-generator-col="target"><input type="number" class="target-input" placeholder="${targetPlaceholder}" oninput="checkTarget(this)"></td><td data-generator-col="cartons"><input type="number" class="edit-cartons-input" placeholder="箱數" oninput="updateFields(this,'${code}')"></td><td><div class="palletStepControl"><input type="number" class="edit-pallets-input" step="any" min="0" aria-label="${escapeHtml(code)} 棧板數" placeholder="棧板數" oninput="updateFields(this,'${code}')" onchange="normalizeGeneratorPallets(this,'${code}')" onkeydown="handleGeneratorPalletKey(event)"><span class="palletStepButtons"><button type="button" class="palletStepButton" onclick="stepGeneratorPallets(this,1)" aria-label="增加 1 棧板" title="增加 1 棧板">▲</button><button type="button" class="palletStepButton" onclick="stepGeneratorPallets(this,-1)" aria-label="減少 1 棧板" title="減少 1 棧板">▼</button></span></div><span class="pallet-guidance" hidden></span></td><td class="box-size-cell" data-generator-col="box">${escapeHtml(prod.boxSize || '')} cm</td><td class="pallet-days palletDaysCell"><span class="pallet-days-value">${formatPalletDays(prod)}</span>${renderGeneratorPlanningDetails(prod)}</td><td class="estimated-days" data-generator-col="estimated">${renderGeneratorBookCoverage(prod)}</td><td class="arrival-days" data-generator-col="arrival">${renderGeneratorArrivalCoverage(prod, 0, 0)}</td><td class="generatorActions"><span class="generatorActionGroup"><button type="button" class="drag-handle" aria-label="按住拖曳排序" title="按住拖曳排序"><i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button><button type="button" class="lock-button" onclick="toggleLock(this)" aria-label="鎖定這列" aria-pressed="false" title="鎖定這列"><i class="fa-solid fa-lock" aria-hidden="true"></i></button><button type="button" class="remove-button" onclick="removeRow(this)" aria-label="刪除這列" title="刪除這列"><i class="fa-solid fa-trash" aria-hidden="true"></i></button></span></td></tr>`;
       tbody.insertAdjacentHTML('beforeend', rowHTML);
       const row = tbody.lastElementChild;
       useNativePalletStepper(row);
@@ -4795,7 +4872,7 @@
         if (leadPlan.canRecommend !== false && leadPlan.plannedNotPlaced > 0) issues.push({ sku:r.sku, type:'預計補貨還沒下單', detail:`${fmtQty(leadPlan.plannedNotPlaced)} 未納入建議量` });
         if (leadPlan.canRecommend !== false && leadPlan.stoppedInbound > 0) issues.push({ sku:r.sku, type:'STOP 供給', detail:`${fmtQty(leadPlan.stoppedInbound)} 未納入建議量` });
         if (leadPlan.canRecommend !== false && leadPlan.conflictingScheduleInbound > 0) issues.push({ sku:r.sku, type:'舊單排程衝突', detail:`${fmtQty(leadPlan.conflictingScheduleInbound)} 的裝櫃日晚於本次新單預計到港日，因此未納入` });
-        if (leadPlan.canRecommend !== false && leadPlan.unmatchedInbound > 0) issues.push({ sku:r.sku, type:'訂單總數對不到明細', detail:`${fmtQty(leadPlan.unmatchedInbound)} 未納入，請檢查 JAM/FY 欄位` });
+        if (leadPlan.canRecommend !== false && leadPlan.unmatchedInbound > 0) issues.push({ sku:r.sku, type:'訂單總數對不到明細', detail:`${fmtQty(leadPlan.unmatchedInbound)} 已依既有訂單假設比新單早到，請追蹤 JAM/FY 明細` });
         if (r.usJsp === null || r.usJsp === undefined) issues.push({ sku:r.sku, type:'缺 JSP 庫存', detail:'JSP 檔案沒有此 SKU，不能直接當成 0' });
         if (r.planningVelocity > 0 && r.order <= 0) issues.push({ sku:r.sku, type:'有速度但無訂單', detail:`速度 ${r.planningVelocity}，未到貨訂單為 0` });
         if (r.planningVelocity <= 0 && (r.amz + r.jsp) > 0) issues.push({ sku:r.sku, type:'有庫存但無速度', detail:`AMZ+JSP ${fmtQty(r.amz + r.jsp)}` });

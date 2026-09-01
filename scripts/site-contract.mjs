@@ -25,6 +25,7 @@ export const runtimeFiles = Object.freeze([
   'shared/legacy-planning-adapter.js',
   'shared/order-draft-quantity.js',
   'shared/order-draft-state.js',
+  'shared/order-velocity-overrides.js',
   'shared/planning-velocity-history.js',
   'shared/planning-velocity.js',
   'shared/product-update-entry.css',
