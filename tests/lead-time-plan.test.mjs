@@ -65,7 +65,7 @@ for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
     assert.match(generatorMarkup, /新訂單到港後總可售天數/);
   });
 
-  test(`${entrypoint}: Order Draft keeps manual speed and order sources behind one compact disclosure`, () => {
+  test(`${entrypoint}: Order Draft separates SKU sources from the pallet-day velocity editor`, () => {
     const expectedSource = entrypoint === 'public'
       ? './shared/order-velocity-overrides.js'
       : '../shared/order-velocity-overrides.js';
@@ -75,13 +75,15 @@ for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
     const disclosureSource = extractFunctionSource(html, 'renderGeneratorPlanningDetails');
     const velocitySource = extractFunctionSource(html, 'getPlanningVelocityForProduct');
     const leadTimeSource = extractFunctionSource(html, 'getLeadTimePlan');
-    const sourceTextSource = extractFunctionSource(html, 'getGeneratorOrderSourceText');
+    const sourceClickSource = extractFunctionSource(html, 'showGeneratorOrderSources');
     assert.match(addProductSource, /renderGeneratorPlanningDetails/);
+    assert.match(addProductSource, /generatorSkuSourceButton/);
     assert.match(disclosureSource, /manual-velocity-input/);
-    assert.match(disclosureSource, /訂單來源/);
+    assert.match(disclosureSource, /pallet-days-value/);
+    assert.doesNotMatch(disclosureSource, /訂單來源|generatorOrderSource/);
     assert.match(velocitySource, /getOrderVelocityOverride/);
     assert.match(leadTimeSource, /getPlanningVelocityForProduct/);
-    assert.match(sourceTextSource, /jamOrders|getJamBreakdownForSku/);
+    assert.match(sourceClickSource, /showSkuJamBreakdown/);
   });
 
   test(`${entrypoint}: generator quantity rows and pallet controls use semantic compact markup`, () => {

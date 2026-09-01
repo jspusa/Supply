@@ -551,15 +551,23 @@ export async function buildThreeGroupOrderScenario(page) {
   }
   expect(compactControls.actionGroup.width).toBeLessThanOrEqual(94);
 
+  const skuSourceButton = palletRow.locator('.generatorSkuSourceButton');
+  await expect(skuSourceButton).toHaveText('7GTSD017AB');
+  await skuSourceButton.click();
+  await expect(page.locator('#jamBreakdownModal')).toBeVisible();
+  await expect(page.locator('#jamBreakdownTitle')).toContainText('GTSL01 訂單來源');
+  await page.locator('#jamBreakdownModal .close-modal').click();
+
   const planningDetails = palletRow.locator('.generatorPlanningDetails');
-  await expect(planningDetails.locator('summary')).toHaveText('速度／來源');
-  await planningDetails.locator('summary').click();
-  await expect(planningDetails.locator('.generatorOrderSourceText')).not.toHaveText('目前沒有對應的 JAM／FY 訂單');
   const systemPalletDays = Number((await palletRow.locator('.pallet-days-value').innerText()).match(/[\d.]+/)?.[0]);
+  await expect(planningDetails.locator('summary')).toContainText(`${systemPalletDays.toFixed(1)} 天`);
+  await planningDetails.locator('summary').click();
+  await expect(planningDetails.locator('.manual-velocity-input')).toBeVisible();
+  await expect(planningDetails.locator('.generatorOrderSource')).toHaveCount(0);
   const manualVelocity = planningDetails.locator('.manual-velocity-input');
   await manualVelocity.fill('50');
   await manualVelocity.press('Tab');
-  await expect(planningDetails.locator('summary')).toHaveText('手動速度／來源');
+  await expect(planningDetails).toHaveClass(/hasManualVelocity/);
   await expect.poll(() => page.evaluate(() => {
     const saved = JSON.parse(localStorage.getItem('supply-order-velocity-overrides-v1') || '{}');
     return saved.overrides?.GTSL01;
@@ -567,7 +575,7 @@ export async function buildThreeGroupOrderScenario(page) {
   const manualPalletDays = Number((await palletRow.locator('.pallet-days-value').innerText()).match(/[\d.]+/)?.[0]);
   expect(manualPalletDays).toBeLessThan(systemPalletDays);
   await planningDetails.locator('.generatorVelocityReset').click();
-  await expect(planningDetails.locator('summary')).toHaveText('速度／來源');
+  await expect(planningDetails).not.toHaveClass(/hasManualVelocity/);
   await expect.poll(() => page.evaluate(() => {
     const saved = JSON.parse(localStorage.getItem('supply-order-velocity-overrides-v1') || '{}');
     return saved.overrides?.GTSL01 ?? null;

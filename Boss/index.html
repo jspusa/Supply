@@ -190,19 +190,20 @@
     .pallet-guidance { display:block; max-width:128px; margin-top:4px; color:#92400e; font-size:10px; font-weight:750; line-height:1.3; }
     .pallet-guidance[hidden] { display:none; }
     .palletDaysCell { min-width:126px; }
+    .generatorSkuSourceButton { appearance:none; padding:0; border:0; border-bottom:1px dashed #93a9c5; background:transparent; color:inherit; cursor:pointer; font:inherit; font-weight:inherit; text-align:left; }
+    .generatorSkuSourceButton:hover { color:#1d4ed8; border-bottom-color:#2563eb; }
+    .generatorSkuSourceButton:focus-visible { outline:2px solid #2563eb; outline-offset:3px; border-radius:3px; }
     .pallet-days-value { display:block; white-space:nowrap; font-weight:750; }
-    .generatorPlanningDetails { margin-top:5px; color:#64748b; font-size:10px; }
-    .generatorPlanningDetails > summary { display:inline-flex; align-items:center; gap:4px; padding:2px 6px; border:1px solid #dbe5f2; border-radius:999px; background:#f8fafc; color:#475569; cursor:pointer; font-size:10px; font-weight:800; list-style:none; white-space:nowrap; }
+    .generatorPlanningDetails { color:#334155; font-size:13px; }
+    .generatorPlanningDetails > summary { display:inline-flex; align-items:center; gap:4px; padding:1px 2px; border:0; border-bottom:1px dashed #93a9c5; background:transparent; color:inherit; cursor:pointer; font:inherit; font-weight:750; list-style:none; white-space:nowrap; }
     .generatorPlanningDetails > summary::-webkit-details-marker { display:none; }
-    .generatorPlanningDetails[open] > summary { background:#dbeafe; border-color:#bfdbfe; color:#1d4ed8; }
+    .generatorPlanningDetails > summary:hover, .generatorPlanningDetails[open] > summary { color:#1d4ed8; border-bottom-color:#2563eb; }
+    .generatorPlanningDetails.hasManualVelocity > summary::after { content:'●'; color:#f59e0b; font-size:7px; }
     .generatorPlanningBody { display:grid; gap:6px; min-width:188px; margin-top:6px; padding:8px; border:1px solid #dbe5f2; border-radius:10px; background:#fff; box-shadow:0 8px 24px rgba(15,23,42,.08); }
     .generatorVelocityField { display:grid; grid-template-columns:1fr 76px; align-items:center; gap:6px; color:#334155; font-weight:800; }
     .generatorVelocityField input { width:76px; min-width:0; padding:5px 6px; }
     .generatorVelocityStatus { color:#64748b; line-height:1.35; }
-    .generatorVelocityReset, .generatorSourceButton { justify-self:start; padding:3px 7px; border:1px solid #cbd5e1; border-radius:7px; background:#fff; color:#2563eb; box-shadow:none; font-size:10px; }
-    .generatorOrderSource { display:grid; gap:3px; padding-top:5px; border-top:1px solid #e2e8f0; line-height:1.35; }
-    .generatorOrderSource b { color:#334155; }
-    .generatorOrderSourceText { max-width:188px; overflow-wrap:anywhere; }
+    .generatorVelocityReset { justify-self:start; padding:3px 7px; border:1px solid #cbd5e1; border-radius:7px; background:#fff; color:#2563eb; box-shadow:none; font-size:10px; }
     .coverageHealthCell, .estimated-days, .arrival-days { min-width:148px; }
     .order-generator tr.locked td, .order-generator tr.locked:hover td { background:#dcfce7 !important; color:#166534; border-bottom-color:#86efac; }
     .order-generator tr.locked input { background:#f0fdf4; color:#166534; border-color:#86efac; font-weight:800; }
@@ -4511,20 +4512,10 @@
     function getOrderVelocityOverride(code) { const value = loadOrderVelocityOverrides()[getCanonicalSku(code)]; return Number.isFinite(Number(value)) && Number(value) > 0 ? Number(value) : null; }
     function getBasePlanningVelocityForProduct(code) { return window.planningVelocityMap?.get(getCanonicalSku(code)) ?? window.planningVelocityMap?.get(normalizeSkuKey(code)) ?? null; }
     function getPlanningVelocityForProduct(code) { return getOrderVelocityOverride(code) ?? getBasePlanningVelocityForProduct(code); }
-    function getGeneratorOrderSourceText(code) {
-      const canonical = getCanonicalSku(code);
-      const sourceRow = mainRowsAll.find(row => getCanonicalSku(row.sku) === canonical);
-      const named = String(sourceRow?.jamOrders || '').trim();
-      if (named && named !== 'N/A') return named;
-      const names = Array.from(new Set(getJamBreakdownForSku(canonical).map(item => String(item?.orderName || '').trim()).filter(Boolean)));
-      return names.length ? names.join('、') : '目前沒有對應的 JAM／FY 訂單';
-    }
     function renderGeneratorPlanningDetails(prod) {
       const code = getCanonicalSku(prod.productCode), manual = getOrderVelocityOverride(code), base = getBasePlanningVelocityForProduct(code);
-      const summary = manual ? '手動速度／來源' : '速度／來源';
-      const source = getGeneratorOrderSourceText(code);
-      const hasDetails = getJamBreakdownForSku(code).length > 0;
-      return `<details class="generatorPlanningDetails"><summary>${summary}</summary><div class="generatorPlanningBody"><label class="generatorVelocityField"><span>自訂每日速度</span><input type="number" class="manual-velocity-input" min="0.01" step="0.01" value="${manual === null ? '' : escapeHtml(formatVelocityNumber(manual))}" placeholder="${escapeHtml(formatVelocityNumber(base))}" onchange="updateGeneratorManualVelocity(this)"></label><span class="generatorVelocityStatus">${manual === null ? `系統速度 ${escapeHtml(formatVelocityNumber(base))}` : `使用手動 ${escapeHtml(formatVelocityNumber(manual))}；系統 ${escapeHtml(formatVelocityNumber(base))}`}</span><button type="button" class="generatorVelocityReset" onclick="resetGeneratorManualVelocity(this)"${manual === null ? ' hidden' : ''}>恢復系統速度</button><div class="generatorOrderSource"><b>訂單來源</b><span class="generatorOrderSourceText">${escapeHtml(source)}</span>${hasDetails ? '<button type="button" class="generatorSourceButton" onclick="showGeneratorOrderSources(this)">查看明細</button>' : ''}</div></div></details>`;
+      const manualClass = manual === null ? '' : ' hasManualVelocity';
+      return `<details class="generatorPlanningDetails${manualClass}"><summary aria-label="編輯 ${escapeHtml(code)} 每日速度" title="點此編輯每日速度"><span class="pallet-days-value">${formatPalletDays(prod)}</span></summary><div class="generatorPlanningBody"><label class="generatorVelocityField"><span>自訂每日速度</span><input type="number" class="manual-velocity-input" min="0.01" step="0.01" value="${manual === null ? '' : escapeHtml(formatVelocityNumber(manual))}" placeholder="${escapeHtml(formatVelocityNumber(base))}" onchange="updateGeneratorManualVelocity(this)"></label><span class="generatorVelocityStatus">${manual === null ? `系統速度 ${escapeHtml(formatVelocityNumber(base))}` : `使用手動 ${escapeHtml(formatVelocityNumber(manual))}；系統 ${escapeHtml(formatVelocityNumber(base))}`}</span><button type="button" class="generatorVelocityReset" onclick="resetGeneratorManualVelocity(this)"${manual === null ? ' hidden' : ''}>恢復系統速度</button></div></details>`;
     }
     function refreshGeneratorRowPlanningInfo(row, prod) {
       if (!row || !prod) return;
@@ -4533,14 +4524,12 @@
       if (value) value.textContent = formatPalletDays(prod);
       const input = row.querySelector('.manual-velocity-input');
       if (input) { input.value = manual === null ? '' : formatVelocityNumber(manual); input.placeholder = formatVelocityNumber(base); }
-      const summary = row.querySelector('.generatorPlanningDetails > summary');
-      if (summary) summary.textContent = manual === null ? '速度／來源' : '手動速度／來源';
+      const details = row.querySelector('.generatorPlanningDetails');
+      if (details) details.classList.toggle('hasManualVelocity', manual !== null);
       const status = row.querySelector('.generatorVelocityStatus');
       if (status) status.textContent = manual === null ? `系統速度 ${formatVelocityNumber(base)}` : `使用手動 ${formatVelocityNumber(manual)}；系統 ${formatVelocityNumber(base)}`;
       const reset = row.querySelector('.generatorVelocityReset');
       if (reset) reset.hidden = manual === null;
-      const source = row.querySelector('.generatorOrderSourceText');
-      if (source) source.textContent = getGeneratorOrderSourceText(code);
       updateEstimatedDays(row, prod);
     }
     function updateGeneratorManualVelocity(input) {
@@ -4553,7 +4542,7 @@
       showTip(getOrderVelocityOverride(code) === null ? `${code} 已恢復系統速度` : `${code} 已使用手動速度 ${formatVelocityNumber(getOrderVelocityOverride(code))}`, 'success');
     }
     function resetGeneratorManualVelocity(control) { const row = control?.closest('tr'), input = row?.querySelector('.manual-velocity-input'); if (!input) return; input.value = ''; updateGeneratorManualVelocity(input); }
-    function showGeneratorOrderSources(control) { const code = control?.closest('tr')?.dataset.product; if (!code || !getJamBreakdownForSku(code).length) { showTip('目前沒有可顯示的訂單來源明細。', 'error'); return; } showSkuJamBreakdown(code); }
+    function showGeneratorOrderSources(control) { const code = control?.closest('tr')?.dataset.product; if (!code) return; showSkuJamBreakdown(code); }
     window.updateGeneratorManualVelocity = updateGeneratorManualVelocity;
     window.resetGeneratorManualVelocity = resetGeneratorManualVelocity;
     window.showGeneratorOrderSources = showGeneratorOrderSources;
@@ -4624,7 +4613,7 @@
       const quantityInputs = `<div class="generatorQuantityGroup${unitInput ? '' : ' single'}"><label class="generatorQuantityField"><span>包</span><input type="number" class="edit-quantity-input" placeholder="包數" oninput="updateFields(this,'${code}')"></label>${unitInput ? `<label class="generatorQuantityField"><span>${unitLabel}</span>${unitInput}</label>` : ''}</div>`;
       const targetPlaceholder = hasPack ? '目標袋數' : (hasBox ? '目標盒數' : '目標包數');
       const orderCode = draftRow.orderSku || code;
-      const rowHTML = `<tr data-product="${escapeHtml(code)}" data-order-code="${escapeHtml(orderCode)}"><td></td><td class="skuIdentityCell"><div class="skuIdentity"><span class="order-code-label">${escapeHtml(orderCode)}</span><span class="skuIdentityActions">${renderEquivalentOrderToggle(code, orderCode)}</span><span class="packagingAssignmentSlot">${renderPackagingAssignmentStatus(draftRow)}</span></div></td><td>${quantityInputs}</td><td data-generator-col="target"><input type="number" class="target-input" placeholder="${targetPlaceholder}" oninput="checkTarget(this)"></td><td data-generator-col="cartons"><input type="number" class="edit-cartons-input" placeholder="箱數" oninput="updateFields(this,'${code}')"></td><td><div class="palletStepControl"><input type="number" class="edit-pallets-input" step="any" min="0" aria-label="${escapeHtml(code)} 棧板數" placeholder="棧板數" oninput="updateFields(this,'${code}')" onchange="normalizeGeneratorPallets(this,'${code}')" onkeydown="handleGeneratorPalletKey(event)"><span class="palletStepButtons"><button type="button" class="palletStepButton" onclick="stepGeneratorPallets(this,1)" aria-label="增加 1 棧板" title="增加 1 棧板">▲</button><button type="button" class="palletStepButton" onclick="stepGeneratorPallets(this,-1)" aria-label="減少 1 棧板" title="減少 1 棧板">▼</button></span></div><span class="pallet-guidance" hidden></span></td><td class="box-size-cell" data-generator-col="box">${escapeHtml(prod.boxSize || '')} cm</td><td class="pallet-days palletDaysCell"><span class="pallet-days-value">${formatPalletDays(prod)}</span>${renderGeneratorPlanningDetails(prod)}</td><td class="estimated-days" data-generator-col="estimated">${renderGeneratorBookCoverage(prod)}</td><td class="arrival-days" data-generator-col="arrival">${renderGeneratorArrivalCoverage(prod, 0, 0)}</td><td class="generatorActions"><span class="generatorActionGroup"><button type="button" class="drag-handle" aria-label="按住拖曳排序" title="按住拖曳排序"><i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button><button type="button" class="lock-button" onclick="toggleLock(this)" aria-label="鎖定這列" aria-pressed="false" title="鎖定這列"><i class="fa-solid fa-lock" aria-hidden="true"></i></button><button type="button" class="remove-button" onclick="removeRow(this)" aria-label="刪除這列" title="刪除這列"><i class="fa-solid fa-trash" aria-hidden="true"></i></button></span></td></tr>`;
+      const rowHTML = `<tr data-product="${escapeHtml(code)}" data-order-code="${escapeHtml(orderCode)}"><td></td><td class="skuIdentityCell"><div class="skuIdentity"><button type="button" class="order-code-label generatorSkuSourceButton" onclick="showGeneratorOrderSources(this)" title="查看 ${escapeHtml(code)} 訂單來源">${escapeHtml(orderCode)}</button><span class="skuIdentityActions">${renderEquivalentOrderToggle(code, orderCode)}</span><span class="packagingAssignmentSlot">${renderPackagingAssignmentStatus(draftRow)}</span></div></td><td>${quantityInputs}</td><td data-generator-col="target"><input type="number" class="target-input" placeholder="${targetPlaceholder}" oninput="checkTarget(this)"></td><td data-generator-col="cartons"><input type="number" class="edit-cartons-input" placeholder="箱數" oninput="updateFields(this,'${code}')"></td><td><div class="palletStepControl"><input type="number" class="edit-pallets-input" step="any" min="0" aria-label="${escapeHtml(code)} 棧板數" placeholder="棧板數" oninput="updateFields(this,'${code}')" onchange="normalizeGeneratorPallets(this,'${code}')" onkeydown="handleGeneratorPalletKey(event)"><span class="palletStepButtons"><button type="button" class="palletStepButton" onclick="stepGeneratorPallets(this,1)" aria-label="增加 1 棧板" title="增加 1 棧板">▲</button><button type="button" class="palletStepButton" onclick="stepGeneratorPallets(this,-1)" aria-label="減少 1 棧板" title="減少 1 棧板">▼</button></span></div><span class="pallet-guidance" hidden></span></td><td class="box-size-cell" data-generator-col="box">${escapeHtml(prod.boxSize || '')} cm</td><td class="pallet-days palletDaysCell">${renderGeneratorPlanningDetails(prod)}</td><td class="estimated-days" data-generator-col="estimated">${renderGeneratorBookCoverage(prod)}</td><td class="arrival-days" data-generator-col="arrival">${renderGeneratorArrivalCoverage(prod, 0, 0)}</td><td class="generatorActions"><span class="generatorActionGroup"><button type="button" class="drag-handle" aria-label="按住拖曳排序" title="按住拖曳排序"><i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button><button type="button" class="lock-button" onclick="toggleLock(this)" aria-label="鎖定這列" aria-pressed="false" title="鎖定這列"><i class="fa-solid fa-lock" aria-hidden="true"></i></button><button type="button" class="remove-button" onclick="removeRow(this)" aria-label="刪除這列" title="刪除這列"><i class="fa-solid fa-trash" aria-hidden="true"></i></button></span></td></tr>`;
       tbody.insertAdjacentHTML('beforeend', rowHTML);
       const row = tbody.lastElementChild;
       useNativePalletStepper(row);
