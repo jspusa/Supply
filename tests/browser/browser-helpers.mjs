@@ -288,9 +288,9 @@ export async function readWorkspaceSnapshot(page) {
 export async function expectOnlyWorkspace(page, workspace) {
   await expect(page.locator(`.workspaceNavTab[data-workspace="${workspace}"]`)).toHaveAttribute('aria-selected', 'true');
   await expect(page.locator('.workspaceNavTab[aria-selected="true"]')).toHaveCount(1);
-  const visibleGroups = await page.locator('[data-workspace-panel]').evaluateAll(elements => Array.from(new Set(elements
+  const visibleGroups = await page.locator('[data-workspace-panel]').evaluateAll((elements, activeWorkspace) => Array.from(new Set(elements
     .filter(element => !element.hidden && getComputedStyle(element).display !== 'none')
-    .map(element => element.dataset.workspacePanel))));
+    .map(element => String(element.dataset.workspacePanelAlso || '').split(/\s+/).includes(activeWorkspace) ? activeWorkspace : element.dataset.workspacePanel))), workspace);
   expect(visibleGroups).toEqual([workspace]);
 }
 

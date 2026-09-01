@@ -61,6 +61,14 @@ test('public sanitized data flows through planning, shared navigation, three gro
 
   await exerciseWorkspaceNavigationAndLayout(page);
   await buildThreeGroupOrderScenario(page);
+  await expect(page.locator('#controlDock')).toBeVisible();
+  await page.locator('#leadTimeDays').fill('120');
+  await page.locator('#leadTimeDays').press('Tab');
+  await expect(page.locator('#leadTimeDays')).toHaveValue('120');
+  await expect(page.locator('#leadTimeInsight')).toContainText('新單 120 天到港');
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('supply-lead-time-days'))).toBe('120');
+  await page.locator('#leadTimeDays').fill('90');
+  await page.locator('#leadTimeDays').press('Tab');
   await downloadAndAssertOrderWorkbook(page);
   const draftBeforeRefresh = await readOrderDraft(page);
   const historyBeforeRefresh = await page.evaluate(() => localStorage.getItem('supply-velocity-history-v1'));

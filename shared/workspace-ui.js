@@ -142,7 +142,8 @@ export function createWorkspaceUi({
       if (selected) selectedTab = button;
     });
     documentRef.querySelectorAll('[data-workspace-panel]').forEach(panel => {
-      panel.hidden = panel.dataset.workspacePanel !== workspace;
+      const additionalWorkspaces = String(panel.dataset.workspacePanelAlso || '').split(/\s+/).filter(Boolean);
+      panel.hidden = panel.dataset.workspacePanel !== workspace && !additionalWorkspaces.includes(workspace);
     });
     const canonicalHash = workspaceHash(workspace);
     if (historyMode !== 'none') {

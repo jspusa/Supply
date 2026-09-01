@@ -93,6 +93,7 @@ for (const { entrypoint, html } of pages) {
     assert.equal(panelForId(html, 'workflowHealth'), 'data');
     assert.equal(panelForId(html, 'uploadCard'), 'data');
     assert.equal(panelForId(html, 'controlDock'), 'recommendations');
+    assert.match(openingTagForId(html, 'controlDock'), /data-workspace-panel-also="orders"/);
     assert.equal(panelForId(html, 'decisionDashboard'), 'recommendations');
     assert.equal(panelForId(html, 'reorderCard'), 'recommendations');
     assert.equal(panelForId(html, 'generatorCard'), 'orders');
@@ -144,6 +145,7 @@ test('shared controller owns activation, URL history, keyboard focus, reduced mo
   assert.match(workspaceUiSource, /canonicalWorkspaceId\(workspace\) \|\| 'data'/);
   assert.match(workspaceUiSource, /projectTodaySummary\(getSummaryInput\(\) \|\| \{\}\)/);
   assert.match(workspaceUiSource, /querySelectorAll\('\[data-workspace-panel\]'\)/);
+  assert.match(workspaceUiSource, /workspacePanelAlso/);
   assert.match(workspaceUiSource, /panel\.hidden = panel\.dataset\.workspacePanel !== workspace/);
   assert.match(workspaceUiSource, /resolveInitialWorkspace\(\{/);
   assert.match(workspaceUiSource, /pushState/);

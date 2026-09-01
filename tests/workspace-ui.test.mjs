@@ -65,6 +65,7 @@ function createWorkspaceUiHarness(initialSummary, { href = 'https://supply.test/
     element.dataset.workspacePanel = workspace;
     return element;
   });
+  panels[1].dataset.workspacePanelAlso = 'orders';
   const nav = createElement();
   const navTabsContainer = createElement();
   const documentRef = {
@@ -114,6 +115,7 @@ function createWorkspaceUiHarness(initialSummary, { href = 'https://supply.test/
     controller,
     elements,
     location,
+    panels,
     setSummaryInput(value) { summaryInput = value; },
   };
 }
@@ -158,6 +160,19 @@ test('shared UI canonicalizes the old Today hash and preference and defaults inv
   assert.equal(legacyPreference.controller.activate('unknown'), 'data');
   assert.equal(legacyPreference.controller.getActiveWorkspace(), 'data');
   assert.equal(legacyPreference.location.hash, '#data');
+});
+
+test('the planning controls are visible in both Recommendations and Orders without duplicating their state', () => {
+  const harness = createWorkspaceUiHarness({});
+  harness.controller.start();
+  assert.equal(harness.controller.getActiveWorkspace(), 'recommendations');
+  assert.equal(harness.panels[1].hidden, false);
+  harness.controller.activate('orders');
+  assert.equal(harness.controller.getActiveWorkspace(), 'orders');
+  assert.equal(harness.panels[1].hidden, false);
+  assert.equal(harness.panels[3].hidden, false);
+  harness.controller.activate('data');
+  assert.equal(harness.panels[1].hidden, true);
 });
 
 test('shared Today renders one next action and honest empty, loading, warning, and invalid states', () => {
