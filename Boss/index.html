@@ -1092,7 +1092,7 @@
                   <label><input type="radio" name="orderGroupSelect" value="subcontract"><span>委外</span></label>
                 </div>
                 <h2><i class="fa-solid fa-cube"></i> 訂單產生器 <span style="font-size: 1rem; color:#8ab2e0; margin-left:12px;font-weight:400;">Order Generator</span></h2>
-                <button class="secondary" onclick="openModal()"><i class="fa-solid fa-ruler-combined"></i> 紙箱尺寸</button>
+                <a class="secondaryAction" href="https://members.helium10.com/inventory-management/restock-suggestions-new/index?accountId=1547156136" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-chart-line"></i> H10銷售速度查詢</a>
               </div>
               <div class="search-container">
                 <input type="text" id="searchInput" class="search-input" placeholder="🔎 搜尋品號或品名／快速加入" oninput="searchProduct()">
@@ -1103,20 +1103,20 @@
                 <label class="generatorColumnToggle"><input type="checkbox" data-generator-column-toggle="target">目標數量</label>
                 <label class="generatorColumnToggle"><input type="checkbox" data-generator-column-toggle="cartons">箱數</label>
                 <label class="generatorColumnToggle"><input type="checkbox" data-generator-column-toggle="box">紙箱尺寸</label>
-                <label class="generatorColumnToggle"><input type="checkbox" data-generator-column-toggle="estimated" checked>含舊訂單可售天數</label>
+                <label class="generatorColumnToggle"><input type="checkbox" data-generator-column-toggle="estimated" checked>舊訂單可售天數</label>
                 <label class="generatorColumnToggle"><input type="checkbox" data-generator-column-toggle="arrival" checked>新訂單到港後總可售天數</label>
               </div>
               <div class="table-responsive">
                 <table id="productTable" class="hide-col-target hide-col-cartons hide-col-box">
                   <thead>
                     <tr>
-                      <th>序號</th><th>品號</th><th>數量</th><th data-generator-col="target">目標數量</th><th data-generator-col="cartons">箱數</th><th>棧板數</th><th data-generator-col="box">紙箱尺寸 (cm)</th><th>每棧板可售天數</th><th data-generator-col="estimated">含舊訂單可售天數</th><th data-generator-col="arrival">新訂單到港後總可售天數</th><th>操作</th>
+                      <th>序號</th><th>品號</th><th>數量</th><th data-generator-col="target">目標數量</th><th data-generator-col="cartons">箱數</th><th>棧板數</th><th data-generator-col="box">紙箱尺寸 (cm)</th><th>每棧板可售天數</th><th data-generator-col="estimated">舊訂單可售天數</th><th data-generator-col="arrival">新訂單到港後總可售天數</th><th>操作</th>
                     </tr>
                   </thead>
                   <tbody></tbody>
                 </table>
               </div>
-              <div class="hint" style="text-align:right;margin-top:10px;">含舊訂單可售天數會包含 JAM/FY 的預計補貨；新訂單到港後總可售天數只扣新單前置期銷售，納入已下單舊單；對不到明細的既有訂單會依規則假設比新單早到，但仍顯示追貨提醒。「還沒下單／STOP」不納入。血條固定為：低於 180 天黃色、180–365 天綠色、超過 365 天紅色；上方到港後目標仍只影響建議量。建議會優先使用整板，只有下一整板會從低於目標跳到超過 365 天時，才依最小箱數顯示零散板。按住拖曳圖示可調整順序，草稿會自動保存。</div>
+              <div class="hint" style="text-align:right;margin-top:10px;">舊訂單可售天數會包含 JAM/FY 的預計補貨；新訂單到港後總可售天數只扣新單前置期銷售，納入已下單舊單；對不到明細的既有訂單會依規則假設比新單早到，但仍顯示追貨提醒。「還沒下單／STOP」不納入。血條固定為：低於 180 天黃色、180–365 天綠色、超過 365 天紅色；上方到港後目標仍只影響建議量。建議會優先使用整板，只有下一整板會從低於目標跳到超過 365 天時，才依最小箱數顯示零散板。按住拖曳圖示可調整順序，草稿會自動保存。</div>
               <div class="totals-container">
                 <div class="total"><i class="fa-solid fa-boxes-stacked"></i> 總包數: <span id="totalQuantity">0</span> | 總箱數: <span id="totalCartons">0</span> | 總棧板數: <span id="totalPallets">0</span></div>
                 <div class="box-counts" id="boxCounts"></div>

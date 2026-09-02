@@ -61,8 +61,21 @@ for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
     const generatorMarkup = html.slice(html.lastIndexOf('id="generatorColumnBar"', tableStart), tableEnd);
     assert.match(generatorMarkup, /<th>序號<\/th><th>品號<\/th><th>數量<\/th>/);
     assert.doesNotMatch(generatorMarkup, /品號 \/ 下單品號|<th>包數<\/th><th>袋數\/盒數<\/th>/);
-    assert.match(generatorMarkup, /含舊訂單可售天數/);
+    assert.match(generatorMarkup, /舊訂單可售天數/);
+    assert.doesNotMatch(generatorMarkup, /含舊訂單可售天數/);
     assert.match(generatorMarkup, /新訂單到港後總可售天數/);
+  });
+
+  test(`${entrypoint}: order generator links to the configured H10 sales velocity page`, () => {
+    const generatorStart = html.indexOf('class="order-generator"');
+    const generatorEnd = html.indexOf('</section>', generatorStart);
+    assert.notEqual(generatorStart, -1);
+    assert.notEqual(generatorEnd, -1);
+    const generatorMarkup = html.slice(generatorStart, generatorEnd);
+    assert.match(generatorMarkup, /href="https:\/\/members\.helium10\.com\/inventory-management\/restock-suggestions-new\/index\?accountId=1547156136"/);
+    assert.match(generatorMarkup, /target="_blank" rel="noopener noreferrer"/);
+    assert.match(generatorMarkup, /> H10銷售速度查詢<\/a>/);
+    assert.doesNotMatch(generatorMarkup, /onclick="openModal\(\)"/);
   });
 
   test(`${entrypoint}: Order Draft separates SKU sources from the pallet-day velocity editor`, () => {
