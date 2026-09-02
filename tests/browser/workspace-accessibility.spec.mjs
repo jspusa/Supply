@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { expect, test } from '@playwright/test';
 
 import {
@@ -9,6 +11,13 @@ import {
 } from './browser-helpers.mjs';
 
 const NOW = '2026-08-28T08:30:00.000Z';
+const repoRoot = path.resolve(import.meta.dirname, '..', '..');
+const supplyCatalog = JSON.parse(fs.readFileSync(path.join(repoRoot, 'catalog', 'product-catalog.json'), 'utf8'));
+const gtsl01 = supplyCatalog.products.find(product => product.productSku === 'GTSL01');
+const gtsl01DefaultPackaging = gtsl01.packagingVersions.find(
+  packaging => packaging.version === gtsl01.newOrderPackagingDefaultVersion,
+);
+const GTSL01_UNITS_PER_PALLET = gtsl01DefaultPackaging.unitsPerCarton * gtsl01DefaultPackaging.cartonsPerPallet;
 const KEYBOARD_DRAFT = {
   schemaVersion:2,
   createdAt:NOW,
@@ -148,13 +157,14 @@ test('keyboard alone operates Order groups and exact pallet stepping', async ({ 
   await expect(pallet).toHaveValue('0.5');
   await page.keyboard.press('ArrowUp');
   await expect(pallet).toHaveValue('1');
-  await expect.poll(async () => (await readOrderDraft(page)).rowsByProductSku.GTSL01.quantities.orderDraft).toBe(900);
+  await expect.poll(async () => (await readOrderDraft(page)).rowsByProductSku.GTSL01.quantities.orderDraft)
+    .toBe(GTSL01_UNITS_PER_PALLET);
   await page.keyboard.press('ArrowDown');
   await expect(pallet).toHaveValue('0.5');
   await expect.poll(async () => {
     const row = (await readOrderDraft(page)).rowsByProductSku.GTSL01;
     return { quantity:row.quantities.orderDraft, mode:row.pallet.mode, authoritativeField:row.pallet.authoritativeField };
-  }).toEqual({ quantity:450, mode:'manual', authoritativeField:'pallets' });
+  }).toEqual({ quantity:GTSL01_UNITS_PER_PALLET / 2, mode:'manual', authoritativeField:'pallets' });
 
   expect(unexpectedRequests).toEqual([]);
 });
