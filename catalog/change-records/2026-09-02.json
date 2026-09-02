@@ -1,0 +1,1101 @@
+{
+  "schemaVersion": 1,
+  "previousCatalogVersion": "2026-08-28.4",
+  "catalogVersion": "2026-09-02",
+  "baselineSha256": "41893fd83e87dd91051b65351058756d2f0e57843b2994620ccaba1f18a0f48d",
+  "catalogSha256": "9bbb6b6f223a15274f4b262f86c29c3eadb35a1b993f6a01019875c65dd7c16b",
+  "planSha256": "fcfdafd7506d6904795f8a53c45e951445ebdf821a92f16d70d5be1a93898bb7",
+  "appliedAt": "2026-09-02T04:46:48.505Z",
+  "selectedEntryIds": [
+    "product:1ABRD002A0",
+    "product:GTAL01",
+    "product:GTB05",
+    "product:GTBL01",
+    "product:GTBL03",
+    "product:GTBL05",
+    "product:GTCL01",
+    "product:GTP03",
+    "product:GTP05",
+    "product:GTPL01",
+    "product:GTPL03",
+    "product:GTPL05",
+    "product:GTRL01",
+    "product:GTRL03",
+    "product:GTSL01"
+  ],
+  "duplicateResolution": {
+    "schemaVersion": 1,
+    "policy": {
+      "schemaVersion": 1,
+      "match": {
+        "cartonDimensionsCm": [
+          50,
+          40,
+          30
+        ]
+      },
+      "overrides": {
+        "1ABRD002A0": {
+          "unitsPerCarton": 36
+        }
+      },
+      "replacePackagingHistory": true
+    },
+    "resolutions": [
+      {
+        "sku": "GTP03",
+        "criteria": {
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ]
+        },
+        "sourceSheet": "AMZ 所有SKU",
+        "sourceRow": 7,
+        "removedVersionIds": [
+          "supply-2026-07-19",
+          "2026-08-25",
+          "2026-08-28.4"
+        ]
+      },
+      {
+        "sku": "GTPL03",
+        "criteria": {
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ]
+        },
+        "sourceSheet": "AMZ 所有SKU",
+        "sourceRow": 13,
+        "removedVersionIds": [
+          "supply-2026-07-19",
+          "2026-08-25",
+          "2026-08-28.4"
+        ]
+      },
+      {
+        "sku": "GTBL03",
+        "criteria": {
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ]
+        },
+        "sourceSheet": "AMZ 所有SKU",
+        "sourceRow": 15,
+        "removedVersionIds": [
+          "supply-2026-07-19",
+          "2026-08-25",
+          "2026-08-28.4"
+        ]
+      },
+      {
+        "sku": "GTRL03",
+        "criteria": {
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ]
+        },
+        "sourceSheet": "AMZ 所有SKU",
+        "sourceRow": 17,
+        "removedVersionIds": [
+          "supply-2026-07-19",
+          "2026-08-25",
+          "2026-08-28.4"
+        ]
+      },
+      {
+        "sku": "GTCL01",
+        "criteria": {
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ]
+        },
+        "sourceSheet": "AMZ 所有SKU",
+        "sourceRow": 20,
+        "removedVersionIds": [
+          "supply-2026-07-19",
+          "2026-08-25",
+          "2026-08-28.4"
+        ]
+      },
+      {
+        "sku": "GTAL01",
+        "criteria": {
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ]
+        },
+        "sourceSheet": "AMZ 所有SKU",
+        "sourceRow": 22,
+        "removedVersionIds": [
+          "supply-2026-07-19",
+          "2026-08-25",
+          "2026-08-28.4"
+        ]
+      },
+      {
+        "sku": "GTP05",
+        "criteria": {
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ]
+        },
+        "sourceSheet": "AMZ 所有SKU",
+        "sourceRow": 25,
+        "removedVersionIds": [
+          "supply-2026-07-19",
+          "2026-08-25",
+          "2026-08-28.4"
+        ]
+      },
+      {
+        "sku": "GTPL05",
+        "criteria": {
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ]
+        },
+        "sourceSheet": "AMZ 所有SKU",
+        "sourceRow": 27,
+        "removedVersionIds": [
+          "supply-2026-07-19",
+          "2026-08-25",
+          "2026-08-28.4"
+        ]
+      },
+      {
+        "sku": "GTB05",
+        "criteria": {
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ]
+        },
+        "sourceSheet": "AMZ 所有SKU",
+        "sourceRow": 29,
+        "removedVersionIds": [
+          "supply-2026-07-19",
+          "2026-08-25",
+          "2026-08-28.4"
+        ]
+      },
+      {
+        "sku": "GTBL05",
+        "criteria": {
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ]
+        },
+        "sourceSheet": "AMZ 所有SKU",
+        "sourceRow": 31,
+        "removedVersionIds": [
+          "supply-2026-07-19",
+          "2026-08-25",
+          "2026-08-28.4"
+        ]
+      },
+      {
+        "sku": "GTSL01",
+        "criteria": {
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ]
+        },
+        "sourceSheet": "AMZ 所有SKU",
+        "sourceRow": 40,
+        "removedVersionIds": [
+          "supply-2026-07-19",
+          "2026-08-25",
+          "2026-08-28.4"
+        ]
+      },
+      {
+        "sku": "GTPL01",
+        "criteria": {
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ]
+        },
+        "sourceSheet": "AMZ 所有SKU",
+        "sourceRow": 42,
+        "removedVersionIds": [
+          "supply-2026-07-19",
+          "2026-08-25",
+          "2026-08-28.4"
+        ]
+      },
+      {
+        "sku": "GTBL01",
+        "criteria": {
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ]
+        },
+        "sourceSheet": "AMZ 所有SKU",
+        "sourceRow": 45,
+        "removedVersionIds": [
+          "supply-2026-07-19",
+          "2026-08-25",
+          "2026-08-28.4"
+        ]
+      },
+      {
+        "sku": "GTRL01",
+        "criteria": {
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ]
+        },
+        "sourceSheet": "AMZ 所有SKU",
+        "sourceRow": 47,
+        "removedVersionIds": [
+          "supply-2026-07-19",
+          "2026-08-25",
+          "2026-08-28.4"
+        ]
+      },
+      {
+        "sku": "1ABRD002A0",
+        "criteria": {
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ],
+          "unitsPerCarton": 36
+        },
+        "sourceSheet": "AMZ 所有SKU",
+        "sourceRow": 210,
+        "removedVersionIds": [
+          "supply-2026-07-19",
+          "2026-08-25",
+          "2026-08-28.4"
+        ]
+      }
+    ]
+  },
+  "changes": [
+    {
+      "id": "product:1ABRD002A0",
+      "entryType": "product",
+      "sku": "1ABRD002A0",
+      "changeType": "updated",
+      "risk": "review",
+      "fields": [
+        {
+          "field": "packagingVersion",
+          "before": "2026-08-28.4",
+          "after": "2026-09-02"
+        },
+        {
+          "field": "unitsPerCarton",
+          "before": 42,
+          "after": 36
+        },
+        {
+          "field": "grossWeightLb",
+          "before": 37,
+          "after": 32
+        },
+        {
+          "field": "packagingHistoryVersions",
+          "before": [
+            "supply-2026-07-19",
+            "2026-08-25",
+            "2026-08-28.4"
+          ],
+          "after": [
+            "2026-09-02"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "product:GTAL01",
+      "entryType": "product",
+      "sku": "GTAL01",
+      "changeType": "updated",
+      "risk": "review",
+      "fields": [
+        {
+          "field": "packagingVersion",
+          "before": "2026-08-28.4",
+          "after": "2026-09-02"
+        },
+        {
+          "field": "unitsPerCarton",
+          "before": 38,
+          "after": 30
+        },
+        {
+          "field": "cartonsPerPallet",
+          "before": 30,
+          "after": 42
+        },
+        {
+          "field": "cartonDimensionsIn",
+          "before": [
+            20,
+            16,
+            16
+          ],
+          "after": [
+            20,
+            16,
+            12
+          ]
+        },
+        {
+          "field": "grossWeightLb",
+          "before": 44,
+          "after": 35
+        },
+        {
+          "field": "packagingHistoryVersions",
+          "before": [
+            "supply-2026-07-19",
+            "2026-08-25",
+            "2026-08-28.4"
+          ],
+          "after": [
+            "2026-09-02"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "product:GTB05",
+      "entryType": "product",
+      "sku": "GTB05",
+      "changeType": "updated",
+      "risk": "review",
+      "fields": [
+        {
+          "field": "packagingVersion",
+          "before": "2026-08-28.4",
+          "after": "2026-09-02"
+        },
+        {
+          "field": "unitsPerCarton",
+          "before": 100,
+          "after": 90
+        },
+        {
+          "field": "cartonsPerPallet",
+          "before": 36,
+          "after": 42
+        },
+        {
+          "field": "cartonDimensionsIn",
+          "before": [
+            23,
+            14,
+            14
+          ],
+          "after": [
+            20,
+            16,
+            12
+          ]
+        },
+        {
+          "field": "grossWeightLb",
+          "before": 29,
+          "after": 26
+        },
+        {
+          "field": "packagingHistoryVersions",
+          "before": [
+            "supply-2026-07-19",
+            "2026-08-25",
+            "2026-08-28.4"
+          ],
+          "after": [
+            "2026-09-02"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "product:GTBL01",
+      "entryType": "product",
+      "sku": "GTBL01",
+      "changeType": "updated",
+      "risk": "review",
+      "fields": [
+        {
+          "field": "packagingVersion",
+          "before": "2026-08-28.4",
+          "after": "2026-09-02"
+        },
+        {
+          "field": "unitsPerCarton",
+          "before": 30,
+          "after": 26
+        },
+        {
+          "field": "cartonsPerPallet",
+          "before": 30,
+          "after": 42
+        },
+        {
+          "field": "cartonDimensionsIn",
+          "before": [
+            20,
+            16,
+            16
+          ],
+          "after": [
+            20,
+            16,
+            12
+          ]
+        },
+        {
+          "field": "grossWeightLb",
+          "before": 35,
+          "after": 31
+        },
+        {
+          "field": "packagingHistoryVersions",
+          "before": [
+            "supply-2026-07-19",
+            "2026-08-25",
+            "2026-08-28.4"
+          ],
+          "after": [
+            "2026-09-02"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "product:GTBL03",
+      "entryType": "product",
+      "sku": "GTBL03",
+      "changeType": "updated",
+      "risk": "review",
+      "fields": [
+        {
+          "field": "packagingVersion",
+          "before": "2026-08-28.4",
+          "after": "2026-09-02"
+        },
+        {
+          "field": "unitsPerCarton",
+          "before": 30,
+          "after": 28
+        },
+        {
+          "field": "cartonsPerPallet",
+          "before": 30,
+          "after": 42
+        },
+        {
+          "field": "cartonDimensionsIn",
+          "before": [
+            20,
+            16,
+            16
+          ],
+          "after": [
+            20,
+            16,
+            12
+          ]
+        },
+        {
+          "field": "grossWeightLb",
+          "before": 35,
+          "after": 33
+        },
+        {
+          "field": "packagingHistoryVersions",
+          "before": [
+            "supply-2026-07-19",
+            "2026-08-25",
+            "2026-08-28.4"
+          ],
+          "after": [
+            "2026-09-02"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "product:GTBL05",
+      "entryType": "product",
+      "sku": "GTBL05",
+      "changeType": "updated",
+      "risk": "review",
+      "fields": [
+        {
+          "field": "packagingVersion",
+          "before": "2026-08-28.4",
+          "after": "2026-09-02"
+        },
+        {
+          "field": "unitsPerCarton",
+          "before": 30,
+          "after": 24
+        },
+        {
+          "field": "cartonsPerPallet",
+          "before": 30,
+          "after": 42
+        },
+        {
+          "field": "cartonDimensionsIn",
+          "before": [
+            20,
+            16,
+            16
+          ],
+          "after": [
+            20,
+            16,
+            12
+          ]
+        },
+        {
+          "field": "grossWeightLb",
+          "before": 35,
+          "after": 29
+        },
+        {
+          "field": "packagingHistoryVersions",
+          "before": [
+            "supply-2026-07-19",
+            "2026-08-25",
+            "2026-08-28.4"
+          ],
+          "after": [
+            "2026-09-02"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "product:GTCL01",
+      "entryType": "product",
+      "sku": "GTCL01",
+      "changeType": "updated",
+      "risk": "review",
+      "fields": [
+        {
+          "field": "packagingVersion",
+          "before": "2026-08-28.4",
+          "after": "2026-09-02"
+        },
+        {
+          "field": "unitsPerCarton",
+          "before": 30,
+          "after": 28
+        },
+        {
+          "field": "cartonsPerPallet",
+          "before": 30,
+          "after": 42
+        },
+        {
+          "field": "cartonDimensionsIn",
+          "before": [
+            20,
+            16,
+            16
+          ],
+          "after": [
+            20,
+            16,
+            12
+          ]
+        },
+        {
+          "field": "grossWeightLb",
+          "before": 35,
+          "after": 33
+        },
+        {
+          "field": "packagingHistoryVersions",
+          "before": [
+            "supply-2026-07-19",
+            "2026-08-25",
+            "2026-08-28.4"
+          ],
+          "after": [
+            "2026-09-02"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "product:GTP03",
+      "entryType": "product",
+      "sku": "GTP03",
+      "changeType": "updated",
+      "risk": "review",
+      "fields": [
+        {
+          "field": "packagingVersion",
+          "before": "2026-08-28.4",
+          "after": "2026-09-02"
+        },
+        {
+          "field": "unitsPerCarton",
+          "before": 100,
+          "after": 90
+        },
+        {
+          "field": "cartonsPerPallet",
+          "before": 36,
+          "after": 42
+        },
+        {
+          "field": "cartonDimensionsIn",
+          "before": [
+            23,
+            14,
+            14
+          ],
+          "after": [
+            20,
+            16,
+            12
+          ]
+        },
+        {
+          "field": "grossWeightLb",
+          "before": 26,
+          "after": 24
+        },
+        {
+          "field": "packagingHistoryVersions",
+          "before": [
+            "supply-2026-07-19",
+            "2026-08-25",
+            "2026-08-28.4"
+          ],
+          "after": [
+            "2026-09-02"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "product:GTP05",
+      "entryType": "product",
+      "sku": "GTP05",
+      "changeType": "updated",
+      "risk": "review",
+      "fields": [
+        {
+          "field": "packagingVersion",
+          "before": "2026-08-28.4",
+          "after": "2026-09-02"
+        },
+        {
+          "field": "unitsPerCarton",
+          "before": 100,
+          "after": 90
+        },
+        {
+          "field": "cartonsPerPallet",
+          "before": 36,
+          "after": 42
+        },
+        {
+          "field": "cartonDimensionsIn",
+          "before": [
+            23,
+            14,
+            14
+          ],
+          "after": [
+            20,
+            16,
+            12
+          ]
+        },
+        {
+          "field": "grossWeightLb",
+          "before": 29,
+          "after": 26
+        },
+        {
+          "field": "packagingHistoryVersions",
+          "before": [
+            "supply-2026-07-19",
+            "2026-08-25",
+            "2026-08-28.4"
+          ],
+          "after": [
+            "2026-09-02"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "product:GTPL01",
+      "entryType": "product",
+      "sku": "GTPL01",
+      "changeType": "updated",
+      "risk": "review",
+      "fields": [
+        {
+          "field": "packagingVersion",
+          "before": "2026-08-28.4",
+          "after": "2026-09-02"
+        },
+        {
+          "field": "unitsPerCarton",
+          "before": 30,
+          "after": 24
+        },
+        {
+          "field": "cartonsPerPallet",
+          "before": 30,
+          "after": 42
+        },
+        {
+          "field": "cartonDimensionsIn",
+          "before": [
+            20,
+            16,
+            16
+          ],
+          "after": [
+            20,
+            16,
+            12
+          ]
+        },
+        {
+          "field": "grossWeightLb",
+          "before": 35,
+          "after": 29
+        },
+        {
+          "field": "packagingHistoryVersions",
+          "before": [
+            "supply-2026-07-19",
+            "2026-08-25",
+            "2026-08-28.4"
+          ],
+          "after": [
+            "2026-09-02"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "product:GTPL03",
+      "entryType": "product",
+      "sku": "GTPL03",
+      "changeType": "updated",
+      "risk": "review",
+      "fields": [
+        {
+          "field": "packagingVersion",
+          "before": "2026-08-28.4",
+          "after": "2026-09-02"
+        },
+        {
+          "field": "unitsPerCarton",
+          "before": 30,
+          "after": 24
+        },
+        {
+          "field": "cartonsPerPallet",
+          "before": 30,
+          "after": 42
+        },
+        {
+          "field": "cartonDimensionsIn",
+          "before": [
+            20,
+            16,
+            16
+          ],
+          "after": [
+            20,
+            16,
+            12
+          ]
+        },
+        {
+          "field": "grossWeightLb",
+          "before": 35,
+          "after": 29
+        },
+        {
+          "field": "packagingHistoryVersions",
+          "before": [
+            "supply-2026-07-19",
+            "2026-08-25",
+            "2026-08-28.4"
+          ],
+          "after": [
+            "2026-09-02"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "product:GTPL05",
+      "entryType": "product",
+      "sku": "GTPL05",
+      "changeType": "updated",
+      "risk": "review",
+      "fields": [
+        {
+          "field": "packagingVersion",
+          "before": "2026-08-28.4",
+          "after": "2026-09-02"
+        },
+        {
+          "field": "unitsPerCarton",
+          "before": 30,
+          "after": 24
+        },
+        {
+          "field": "cartonsPerPallet",
+          "before": 30,
+          "after": 42
+        },
+        {
+          "field": "cartonDimensionsIn",
+          "before": [
+            20,
+            16,
+            16
+          ],
+          "after": [
+            20,
+            16,
+            12
+          ]
+        },
+        {
+          "field": "grossWeightLb",
+          "before": 35,
+          "after": 29
+        },
+        {
+          "field": "packagingHistoryVersions",
+          "before": [
+            "supply-2026-07-19",
+            "2026-08-25",
+            "2026-08-28.4"
+          ],
+          "after": [
+            "2026-09-02"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "product:GTRL01",
+      "entryType": "product",
+      "sku": "GTRL01",
+      "changeType": "updated",
+      "risk": "review",
+      "fields": [
+        {
+          "field": "packagingVersion",
+          "before": "2026-08-28.4",
+          "after": "2026-09-02"
+        },
+        {
+          "field": "unitsPerCarton",
+          "before": 30,
+          "after": 22
+        },
+        {
+          "field": "cartonsPerPallet",
+          "before": 30,
+          "after": 42
+        },
+        {
+          "field": "cartonDimensionsIn",
+          "before": [
+            20,
+            16,
+            16
+          ],
+          "after": [
+            20,
+            16,
+            12
+          ]
+        },
+        {
+          "field": "grossWeightLb",
+          "before": 35,
+          "after": 26
+        },
+        {
+          "field": "packagingHistoryVersions",
+          "before": [
+            "supply-2026-07-19",
+            "2026-08-25",
+            "2026-08-28.4"
+          ],
+          "after": [
+            "2026-09-02"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "product:GTRL03",
+      "entryType": "product",
+      "sku": "GTRL03",
+      "changeType": "updated",
+      "risk": "review",
+      "fields": [
+        {
+          "field": "packagingVersion",
+          "before": "2026-08-28.4",
+          "after": "2026-09-02"
+        },
+        {
+          "field": "unitsPerCarton",
+          "before": 30,
+          "after": 28
+        },
+        {
+          "field": "cartonsPerPallet",
+          "before": 30,
+          "after": 42
+        },
+        {
+          "field": "cartonDimensionsIn",
+          "before": [
+            20,
+            16,
+            16
+          ],
+          "after": [
+            20,
+            16,
+            12
+          ]
+        },
+        {
+          "field": "grossWeightLb",
+          "before": 35,
+          "after": 33
+        },
+        {
+          "field": "packagingHistoryVersions",
+          "before": [
+            "supply-2026-07-19",
+            "2026-08-25",
+            "2026-08-28.4"
+          ],
+          "after": [
+            "2026-09-02"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "product:GTSL01",
+      "entryType": "product",
+      "sku": "GTSL01",
+      "changeType": "updated",
+      "risk": "review",
+      "fields": [
+        {
+          "field": "packagingVersion",
+          "before": "2026-08-28.4",
+          "after": "2026-09-02"
+        },
+        {
+          "field": "unitsPerCarton",
+          "before": 30,
+          "after": 24
+        },
+        {
+          "field": "cartonsPerPallet",
+          "before": 30,
+          "after": 42
+        },
+        {
+          "field": "cartonDimensionsIn",
+          "before": [
+            20,
+            16,
+            16
+          ],
+          "after": [
+            20,
+            16,
+            12
+          ]
+        },
+        {
+          "field": "grossWeightLb",
+          "before": 35,
+          "after": 29
+        },
+        {
+          "field": "packagingHistoryVersions",
+          "before": [
+            "supply-2026-07-19",
+            "2026-08-25",
+            "2026-08-28.4"
+          ],
+          "after": [
+            "2026-09-02"
+          ]
+        }
+      ]
+    }
+  ],
+  "catalogAlignment": {
+    "state": "pending",
+    "expectedPublicContentHashes": {
+      "supply": "c96c665b5e3b651d0e8ddcff7f33f5f743d1503b8c6046c00f9d1323d84defd6",
+      "fba": "e1a35c5251359c9695587bd8d526c650eac86f06aca4d4ae1032f094de6fca8d"
+    },
+    "evidenceStages": [
+      "local",
+      "repositoryCi",
+      "deployment",
+      "liveHash",
+      "liveBrowser"
+    ]
+  },
+  "stats": {
+    "selected": 15,
+    "safe": 0,
+    "reviewed": 15
+  }
+}

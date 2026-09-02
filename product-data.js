@@ -1,7 +1,7 @@
 // Generated from catalog/product-catalog.json. Do not edit by hand.
 window.SUPPLY_PRODUCT_CATALOG_META = Object.freeze({
   "schemaVersion": 3,
-  "catalogVersion": "2026-08-28.4"
+  "catalogVersion": "2026-09-02"
 });
 window.SUPPLY_EQUIVALENT_SKU_PAIRS = Object.freeze([
   [
@@ -377,8 +377,8 @@ window.SUPPLY_ORDER_SKU_PACKAGING = Object.freeze([
   {
     "orderSku": "1ABRD002A0",
     "canonicalProductSku": "1ABRD002A0",
-    "packagingVersion": "2026-08-28.4",
-    "perCarton": 42,
+    "packagingVersion": "2026-09-02",
+    "perCarton": 36,
     "perPack": null,
     "perBox": null,
     "perPallet": 42,
@@ -697,12 +697,12 @@ window.SUPPLY_ORDER_SKU_PACKAGING = Object.freeze([
   {
     "orderSku": "GTP03",
     "canonicalProductSku": "GTP03",
-    "packagingVersion": "2026-08-28.4",
-    "perCarton": 100,
+    "packagingVersion": "2026-09-02",
+    "perCarton": 90,
     "perPack": null,
     "perBox": null,
-    "perPallet": 36,
-    "boxSize": "58.5*34.5*35"
+    "perPallet": 42,
+    "boxSize": "50*40*30"
   },
   {
     "orderSku": "GTS03",
@@ -727,22 +727,22 @@ window.SUPPLY_ORDER_SKU_PACKAGING = Object.freeze([
   {
     "orderSku": "GTB05",
     "canonicalProductSku": "GTB05",
-    "packagingVersion": "2026-08-28.4",
-    "perCarton": 100,
+    "packagingVersion": "2026-09-02",
+    "perCarton": 90,
     "perPack": null,
     "perBox": null,
-    "perPallet": 36,
-    "boxSize": "58.5*34.5*35"
+    "perPallet": 42,
+    "boxSize": "50*40*30"
   },
   {
     "orderSku": "GTP05",
     "canonicalProductSku": "GTP05",
-    "packagingVersion": "2026-08-28.4",
-    "perCarton": 100,
+    "packagingVersion": "2026-09-02",
+    "perCarton": 90,
     "perPack": null,
     "perBox": null,
-    "perPallet": 36,
-    "boxSize": "58.5*34.5*35"
+    "perPallet": 42,
+    "boxSize": "50*40*30"
   },
   {
     "orderSku": "GTB07",
@@ -777,92 +777,92 @@ window.SUPPLY_ORDER_SKU_PACKAGING = Object.freeze([
   {
     "orderSku": "GTSL01",
     "canonicalProductSku": "GTSL01",
-    "packagingVersion": "2026-08-28.4",
-    "perCarton": 30,
+    "packagingVersion": "2026-09-02",
+    "perCarton": 24,
     "perPack": null,
     "perBox": null,
-    "perPallet": 30,
-    "boxSize": "50*40*40"
+    "perPallet": 42,
+    "boxSize": "50*40*30"
   },
   {
     "orderSku": "GTRL01",
     "canonicalProductSku": "GTRL01",
-    "packagingVersion": "2026-08-28.4",
-    "perCarton": 30,
+    "packagingVersion": "2026-09-02",
+    "perCarton": 22,
     "perPack": null,
     "perBox": null,
-    "perPallet": 30,
-    "boxSize": "50*40*40"
+    "perPallet": 42,
+    "boxSize": "50*40*30"
   },
   {
     "orderSku": "GTPL01",
     "canonicalProductSku": "GTPL01",
-    "packagingVersion": "2026-08-28.4",
-    "perCarton": 30,
+    "packagingVersion": "2026-09-02",
+    "perCarton": 24,
     "perPack": null,
     "perBox": null,
-    "perPallet": 30,
-    "boxSize": "50*40*40"
+    "perPallet": 42,
+    "boxSize": "50*40*30"
   },
   {
     "orderSku": "GTBL01",
     "canonicalProductSku": "GTBL01",
-    "packagingVersion": "2026-08-28.4",
-    "perCarton": 30,
+    "packagingVersion": "2026-09-02",
+    "perCarton": 26,
     "perPack": null,
     "perBox": null,
-    "perPallet": 30,
-    "boxSize": "50*40*40"
+    "perPallet": 42,
+    "boxSize": "50*40*30"
   },
   {
     "orderSku": "GTAL01",
     "canonicalProductSku": "GTAL01",
-    "packagingVersion": "2026-08-28.4",
-    "perCarton": 38,
+    "packagingVersion": "2026-09-02",
+    "perCarton": 30,
     "perPack": null,
     "perBox": null,
-    "perPallet": 30,
-    "boxSize": "50*40*40"
+    "perPallet": 42,
+    "boxSize": "50*40*30"
   },
   {
     "orderSku": "GTCL01",
     "canonicalProductSku": "GTCL01",
-    "packagingVersion": "2026-08-28.4",
-    "perCarton": 30,
+    "packagingVersion": "2026-09-02",
+    "perCarton": 28,
     "perPack": null,
     "perBox": null,
-    "perPallet": 30,
-    "boxSize": "50*40*40"
+    "perPallet": 42,
+    "boxSize": "50*40*30"
   },
   {
     "orderSku": "GTRL03",
     "canonicalProductSku": "GTRL03",
-    "packagingVersion": "2026-08-28.4",
-    "perCarton": 30,
+    "packagingVersion": "2026-09-02",
+    "perCarton": 28,
     "perPack": null,
     "perBox": null,
-    "perPallet": 30,
-    "boxSize": "50*40*40"
+    "perPallet": 42,
+    "boxSize": "50*40*30"
   },
   {
     "orderSku": "GTPL03",
     "canonicalProductSku": "GTPL03",
-    "packagingVersion": "2026-08-28.4",
-    "perCarton": 30,
+    "packagingVersion": "2026-09-02",
+    "perCarton": 24,
     "perPack": null,
     "perBox": null,
-    "perPallet": 30,
-    "boxSize": "50*40*40"
+    "perPallet": 42,
+    "boxSize": "50*40*30"
   },
   {
     "orderSku": "GTBL03",
     "canonicalProductSku": "GTBL03",
-    "packagingVersion": "2026-08-28.4",
-    "perCarton": 30,
+    "packagingVersion": "2026-09-02",
+    "perCarton": 28,
     "perPack": null,
     "perBox": null,
-    "perPallet": 30,
-    "boxSize": "50*40*40"
+    "perPallet": 42,
+    "boxSize": "50*40*30"
   },
   {
     "orderSku": "GTZL03",
@@ -877,22 +877,22 @@ window.SUPPLY_ORDER_SKU_PACKAGING = Object.freeze([
   {
     "orderSku": "GTPL05",
     "canonicalProductSku": "GTPL05",
-    "packagingVersion": "2026-08-28.4",
-    "perCarton": 30,
+    "packagingVersion": "2026-09-02",
+    "perCarton": 24,
     "perPack": null,
     "perBox": null,
-    "perPallet": 30,
-    "boxSize": "50*40*40"
+    "perPallet": 42,
+    "boxSize": "50*40*30"
   },
   {
     "orderSku": "GTBL05",
     "canonicalProductSku": "GTBL05",
-    "packagingVersion": "2026-08-28.4",
-    "perCarton": 30,
+    "packagingVersion": "2026-09-02",
+    "perCarton": 24,
     "perPack": null,
     "perBox": null,
-    "perPallet": 30,
-    "boxSize": "50*40*40"
+    "perPallet": 42,
+    "boxSize": "50*40*30"
   },
   {
     "orderSku": "GSFL01",
@@ -4116,10 +4116,10 @@ window.allProductsData = [
   },
   {
     "productCode": "1ABRD002A0",
-    "packagingVersion": "2026-08-28.4",
+    "packagingVersion": "2026-09-02",
     "productName": "A Freschi  Buffalo Jerky Dog Treats , 12oz",
     "boxSize": "50*40*30",
-    "perCarton": 42,
+    "perCarton": 36,
     "perPack": null,
     "perBox": null,
     "perPallet": 42,
@@ -4468,13 +4468,13 @@ window.allProductsData = [
   },
   {
     "productCode": "GTP03",
-    "packagingVersion": "2026-08-28.4",
+    "packagingVersion": "2026-09-02",
     "productName": "Gootoe - Turkey Tendon Rope_M(90g x 100)",
-    "boxSize": "58.5*34.5*35",
-    "perCarton": 100,
+    "boxSize": "50*40*30",
+    "perCarton": 90,
     "perPack": null,
     "perBox": null,
-    "perPallet": 36,
+    "perPallet": 42,
     "country": "VN"
   },
   {
@@ -4501,24 +4501,24 @@ window.allProductsData = [
   },
   {
     "productCode": "GTB05",
-    "packagingVersion": "2026-08-28.4",
+    "packagingVersion": "2026-09-02",
     "productName": "Gootoe - Turkey Tendon Bone_L(100g x 100)",
-    "boxSize": "58.5*34.5*35",
-    "perCarton": 100,
+    "boxSize": "50*40*30",
+    "perCarton": 90,
     "perPack": null,
     "perBox": null,
-    "perPallet": 36,
+    "perPallet": 42,
     "country": "VN"
   },
   {
     "productCode": "GTP05",
-    "packagingVersion": "2026-08-28.4",
+    "packagingVersion": "2026-09-02",
     "productName": "Gootoe - Turkey Tendon Rope_L(100g x 100)",
-    "boxSize": "58.5*34.5*35",
-    "perCarton": 100,
+    "boxSize": "50*40*30",
+    "perCarton": 90,
     "perPack": null,
     "perBox": null,
-    "perPallet": 36,
+    "perPallet": 42,
     "country": "VN"
   },
   {
@@ -4556,101 +4556,101 @@ window.allProductsData = [
   },
   {
     "productCode": "GTSL01",
-    "packagingVersion": "2026-08-28.4",
+    "packagingVersion": "2026-09-02",
     "productName": "Gootoe - Turkey Tendon Strip (454g x 30)",
-    "boxSize": "50*40*40",
-    "perCarton": 30,
+    "boxSize": "50*40*30",
+    "perCarton": 24,
     "perPack": null,
     "perBox": null,
-    "perPallet": 30,
+    "perPallet": 42,
     "country": "VN"
   },
   {
     "productCode": "GTRL01",
-    "packagingVersion": "2026-08-28.4",
+    "packagingVersion": "2026-09-02",
     "productName": "Gootoe - Turkey Tendon Ring_S (454g x 30)",
-    "boxSize": "50*40*40",
-    "perCarton": 30,
+    "boxSize": "50*40*30",
+    "perCarton": 22,
     "perPack": null,
     "perBox": null,
-    "perPallet": 30,
+    "perPallet": 42,
     "country": "VN"
   },
   {
     "productCode": "GTPL01",
-    "packagingVersion": "2026-08-28.4",
+    "packagingVersion": "2026-09-02",
     "productName": "Gootoe - Turkey Tendon Rope_S (454g x 30)",
-    "boxSize": "50*40*40",
-    "perCarton": 30,
+    "boxSize": "50*40*30",
+    "perCarton": 24,
     "perPack": null,
     "perBox": null,
-    "perPallet": 30,
+    "perPallet": 42,
     "country": "VN"
   },
   {
     "productCode": "GTBL01",
-    "packagingVersion": "2026-08-28.4",
+    "packagingVersion": "2026-09-02",
     "productName": "Gootoe - Turkey Tendon Bone_S (454g x 30)",
-    "boxSize": "50*40*40",
-    "perCarton": 30,
+    "boxSize": "50*40*30",
+    "perCarton": 26,
     "perPack": null,
     "perBox": null,
-    "perPallet": 30,
+    "perPallet": 42,
     "country": "VN"
   },
   {
     "productCode": "GTAL01",
-    "packagingVersion": "2026-08-28.4",
+    "packagingVersion": "2026-09-02",
     "productName": "Gootoe - Turkey Tendon Braid_S (454g x 38)",
-    "boxSize": "50*40*40",
-    "perCarton": 38,
+    "boxSize": "50*40*30",
+    "perCarton": 30,
     "perPack": null,
     "perBox": null,
-    "perPallet": 30,
+    "perPallet": 42,
     "country": "VN"
   },
   {
     "productCode": "GTCL01",
-    "packagingVersion": "2026-08-28.4",
+    "packagingVersion": "2026-09-02",
     "productName": "Gootoe - Turkey Tendon Sliced (454g x 30)",
-    "boxSize": "50*40*40",
-    "perCarton": 30,
+    "boxSize": "50*40*30",
+    "perCarton": 28,
     "perPack": null,
     "perBox": null,
-    "perPallet": 30,
+    "perPallet": 42,
     "country": "VN"
   },
   {
     "productCode": "GTRL03",
-    "packagingVersion": "2026-08-28.4",
+    "packagingVersion": "2026-09-02",
     "productName": "Gootoe - Turkey Tendon Ring_M (454g x 30)",
-    "boxSize": "50*40*40",
-    "perCarton": 30,
+    "boxSize": "50*40*30",
+    "perCarton": 28,
     "perPack": null,
     "perBox": null,
-    "perPallet": 30,
+    "perPallet": 42,
     "country": "VN"
   },
   {
     "productCode": "GTPL03",
-    "packagingVersion": "2026-08-28.4",
+    "packagingVersion": "2026-09-02",
     "productName": "Gootoe - Turkey Tendon Rope_M (454g x 30)",
-    "boxSize": "50*40*40",
-    "perCarton": 30,
+    "boxSize": "50*40*30",
+    "perCarton": 24,
     "perPack": null,
     "perBox": null,
-    "perPallet": 30,
+    "perPallet": 42,
     "country": "VN"
   },
   {
     "productCode": "GTBL03",
-    "packagingVersion": "2026-08-28.4",
+    "packagingVersion": "2026-09-02",
     "productName": "Gootoe - Turkey Tendon Bone_M (454g x 30)",
-    "boxSize": "50*40*40",
-    "perCarton": 30,
+    "boxSize": "50*40*30",
+    "perCarton": 28,
     "perPack": null,
     "perBox": null,
-    "perPallet": 30,
+    "perPallet": 42,
     "country": "VN"
   },
   {
@@ -4666,24 +4666,24 @@ window.allProductsData = [
   },
   {
     "productCode": "GTPL05",
-    "packagingVersion": "2026-08-28.4",
+    "packagingVersion": "2026-09-02",
     "productName": "Gootoe - Turkey Tendon Rope_L (454g x 30)",
-    "boxSize": "50*40*40",
-    "perCarton": 30,
+    "boxSize": "50*40*30",
+    "perCarton": 24,
     "perPack": null,
     "perBox": null,
-    "perPallet": 30,
+    "perPallet": 42,
     "country": "VN"
   },
   {
     "productCode": "GTBL05",
-    "packagingVersion": "2026-08-28.4",
+    "packagingVersion": "2026-09-02",
     "productName": "Gootoe - Turkey Tendon Bone_L(454g x 30)",
-    "boxSize": "50*40*40",
-    "perCarton": 30,
+    "boxSize": "50*40*30",
+    "perCarton": 24,
     "perPack": null,
     "perBox": null,
-    "perPallet": 30,
+    "perPallet": 42,
     "country": "VN"
   },
   {

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 3,
-  "catalogVersion": "2026-08-28.4",
+  "catalogVersion": "2026-09-02",
   "products": [
     {
       "productSku": "1GBRD019A0",
@@ -881,9 +881,9 @@
       ],
       "packagingVersions": [
         {
-          "version": "supply-2026-07-19",
-          "effectiveFrom": "2026-07-19",
-          "effectiveTo": "2026-08-24",
+          "version": "2026-09-02",
+          "effectiveFrom": "2026-09-02",
+          "effectiveTo": null,
           "unitsPerCarton": 36,
           "cartonsPerPallet": 42,
           "cartonDimensionsCm": [
@@ -892,58 +892,18 @@
             30
           ],
           "grossWeightKg": null,
-          "grossWeightLb": null,
-          "orderUnit": {
-            "kind": "single",
-            "units": 1
-          }
-        },
-        {
-          "version": "2026-08-25",
-          "effectiveFrom": "2026-08-25",
-          "effectiveTo": "2026-08-27",
-          "unitsPerCarton": 42,
-          "cartonsPerPallet": 42,
-          "cartonDimensionsCm": [
-            50,
-            40,
-            30
-          ],
-          "grossWeightKg": 16.9,
-          "grossWeightLb": 37.25812230924431,
+          "grossWeightLb": 32,
           "orderUnit": {
             "kind": "single",
             "units": 1
           },
           "source": {
             "sheet": "AMZ 所有SKU",
-            "row": 209
-          }
-        },
-        {
-          "version": "2026-08-28.4",
-          "effectiveFrom": "2026-08-28",
-          "effectiveTo": null,
-          "unitsPerCarton": 42,
-          "cartonsPerPallet": 42,
-          "cartonDimensionsCm": [
-            50,
-            40,
-            30
-          ],
-          "grossWeightKg": null,
-          "grossWeightLb": 37,
-          "orderUnit": {
-            "kind": "single",
-            "units": 1
-          },
-          "source": {
-            "sheet": "AMZ 所有SKU",
-            "row": 209
+            "row": 210
           }
         }
       ],
-      "newOrderPackagingDefaultVersion": "2026-08-28.4"
+      "newOrderPackagingDefaultVersion": "2026-09-02"
     },
     {
       "productSku": "1ABRD003A0",
@@ -1921,9 +1881,9 @@
       ],
       "packagingVersions": [
         {
-          "version": "supply-2026-07-19",
-          "effectiveFrom": "2026-07-19",
-          "effectiveTo": "2026-08-24",
+          "version": "2026-09-02",
+          "effectiveFrom": "2026-09-02",
+          "effectiveTo": null,
           "unitsPerCarton": 90,
           "cartonsPerPallet": 42,
           "cartonDimensionsCm": [
@@ -1932,58 +1892,18 @@
             30
           ],
           "grossWeightKg": null,
-          "grossWeightLb": null,
-          "orderUnit": {
-            "kind": "single",
-            "units": 1
-          }
-        },
-        {
-          "version": "2026-08-25",
-          "effectiveFrom": "2026-08-25",
-          "effectiveTo": "2026-08-27",
-          "unitsPerCarton": 100,
-          "cartonsPerPallet": 36,
-          "cartonDimensionsCm": [
-            58.5,
-            34.5,
-            35
-          ],
-          "grossWeightKg": 12,
-          "grossWeightLb": 26.455471462185308,
+          "grossWeightLb": 24,
           "orderUnit": {
             "kind": "single",
             "units": 1
           },
           "source": {
             "sheet": "AMZ 所有SKU",
-            "row": 6
-          }
-        },
-        {
-          "version": "2026-08-28.4",
-          "effectiveFrom": "2026-08-28",
-          "effectiveTo": null,
-          "unitsPerCarton": 100,
-          "cartonsPerPallet": 36,
-          "cartonDimensionsCm": [
-            58.5,
-            34.5,
-            35
-          ],
-          "grossWeightKg": null,
-          "grossWeightLb": 26,
-          "orderUnit": {
-            "kind": "single",
-            "units": 1
-          },
-          "source": {
-            "sheet": "AMZ 所有SKU",
-            "row": 6
+            "row": 7
           }
         }
       ],
-      "newOrderPackagingDefaultVersion": "2026-08-28.4"
+      "newOrderPackagingDefaultVersion": "2026-09-02"
     },
     {
       "productSku": "GTS03",
@@ -2059,9 +1979,9 @@
       ],
       "packagingVersions": [
         {
-          "version": "supply-2026-07-19",
-          "effectiveFrom": "2026-07-19",
-          "effectiveTo": "2026-08-24",
+          "version": "2026-09-02",
+          "effectiveFrom": "2026-09-02",
+          "effectiveTo": null,
           "unitsPerCarton": 90,
           "cartonsPerPallet": 42,
           "cartonDimensionsCm": [
@@ -2070,58 +1990,18 @@
             30
           ],
           "grossWeightKg": null,
-          "grossWeightLb": null,
-          "orderUnit": {
-            "kind": "single",
-            "units": 1
-          }
-        },
-        {
-          "version": "2026-08-25",
-          "effectiveFrom": "2026-08-25",
-          "effectiveTo": "2026-08-27",
-          "unitsPerCarton": 100,
-          "cartonsPerPallet": 36,
-          "cartonDimensionsCm": [
-            58.5,
-            34.5,
-            35
-          ],
-          "grossWeightKg": 13,
-          "grossWeightLb": 28.660094084034085,
+          "grossWeightLb": 26,
           "orderUnit": {
             "kind": "single",
             "units": 1
           },
           "source": {
             "sheet": "AMZ 所有SKU",
-            "row": 28
-          }
-        },
-        {
-          "version": "2026-08-28.4",
-          "effectiveFrom": "2026-08-28",
-          "effectiveTo": null,
-          "unitsPerCarton": 100,
-          "cartonsPerPallet": 36,
-          "cartonDimensionsCm": [
-            58.5,
-            34.5,
-            35
-          ],
-          "grossWeightKg": null,
-          "grossWeightLb": 29,
-          "orderUnit": {
-            "kind": "single",
-            "units": 1
-          },
-          "source": {
-            "sheet": "AMZ 所有SKU",
-            "row": 28
+            "row": 29
           }
         }
       ],
-      "newOrderPackagingDefaultVersion": "2026-08-28.4"
+      "newOrderPackagingDefaultVersion": "2026-09-02"
     },
     {
       "productSku": "GTP05",
@@ -2135,9 +2015,9 @@
       ],
       "packagingVersions": [
         {
-          "version": "supply-2026-07-19",
-          "effectiveFrom": "2026-07-19",
-          "effectiveTo": "2026-08-24",
+          "version": "2026-09-02",
+          "effectiveFrom": "2026-09-02",
+          "effectiveTo": null,
           "unitsPerCarton": 90,
           "cartonsPerPallet": 42,
           "cartonDimensionsCm": [
@@ -2146,58 +2026,18 @@
             30
           ],
           "grossWeightKg": null,
-          "grossWeightLb": null,
-          "orderUnit": {
-            "kind": "single",
-            "units": 1
-          }
-        },
-        {
-          "version": "2026-08-25",
-          "effectiveFrom": "2026-08-25",
-          "effectiveTo": "2026-08-27",
-          "unitsPerCarton": 100,
-          "cartonsPerPallet": 36,
-          "cartonDimensionsCm": [
-            58.5,
-            34.5,
-            35
-          ],
-          "grossWeightKg": 13,
-          "grossWeightLb": 28.660094084034085,
+          "grossWeightLb": 26,
           "orderUnit": {
             "kind": "single",
             "units": 1
           },
           "source": {
             "sheet": "AMZ 所有SKU",
-            "row": 24
-          }
-        },
-        {
-          "version": "2026-08-28.4",
-          "effectiveFrom": "2026-08-28",
-          "effectiveTo": null,
-          "unitsPerCarton": 100,
-          "cartonsPerPallet": 36,
-          "cartonDimensionsCm": [
-            58.5,
-            34.5,
-            35
-          ],
-          "grossWeightKg": null,
-          "grossWeightLb": 29,
-          "orderUnit": {
-            "kind": "single",
-            "units": 1
-          },
-          "source": {
-            "sheet": "AMZ 所有SKU",
-            "row": 24
+            "row": 25
           }
         }
       ],
-      "newOrderPackagingDefaultVersion": "2026-08-28.4"
+      "newOrderPackagingDefaultVersion": "2026-09-02"
     },
     {
       "productSku": "GTB07",
@@ -2304,9 +2144,9 @@
       ],
       "packagingVersions": [
         {
-          "version": "supply-2026-07-19",
-          "effectiveFrom": "2026-07-19",
-          "effectiveTo": "2026-08-24",
+          "version": "2026-09-02",
+          "effectiveFrom": "2026-09-02",
+          "effectiveTo": null,
           "unitsPerCarton": 24,
           "cartonsPerPallet": 42,
           "cartonDimensionsCm": [
@@ -2315,58 +2155,18 @@
             30
           ],
           "grossWeightKg": null,
-          "grossWeightLb": null,
-          "orderUnit": {
-            "kind": "single",
-            "units": 1
-          }
-        },
-        {
-          "version": "2026-08-25",
-          "effectiveFrom": "2026-08-25",
-          "effectiveTo": "2026-08-27",
-          "unitsPerCarton": 30,
-          "cartonsPerPallet": 30,
-          "cartonDimensionsCm": [
-            50,
-            40,
-            40
-          ],
-          "grossWeightKg": 16,
-          "grossWeightLb": 35.27396194958041,
+          "grossWeightLb": 29,
           "orderUnit": {
             "kind": "single",
             "units": 1
           },
           "source": {
             "sheet": "AMZ 所有SKU",
-            "row": 39
-          }
-        },
-        {
-          "version": "2026-08-28.4",
-          "effectiveFrom": "2026-08-28",
-          "effectiveTo": null,
-          "unitsPerCarton": 30,
-          "cartonsPerPallet": 30,
-          "cartonDimensionsCm": [
-            50,
-            40,
-            40
-          ],
-          "grossWeightKg": null,
-          "grossWeightLb": 35,
-          "orderUnit": {
-            "kind": "single",
-            "units": 1
-          },
-          "source": {
-            "sheet": "AMZ 所有SKU",
-            "row": 39
+            "row": 40
           }
         }
       ],
-      "newOrderPackagingDefaultVersion": "2026-08-28.4"
+      "newOrderPackagingDefaultVersion": "2026-09-02"
     },
     {
       "productSku": "GTRL01",
@@ -2380,9 +2180,9 @@
       ],
       "packagingVersions": [
         {
-          "version": "supply-2026-07-19",
-          "effectiveFrom": "2026-07-19",
-          "effectiveTo": "2026-08-24",
+          "version": "2026-09-02",
+          "effectiveFrom": "2026-09-02",
+          "effectiveTo": null,
           "unitsPerCarton": 22,
           "cartonsPerPallet": 42,
           "cartonDimensionsCm": [
@@ -2391,58 +2191,18 @@
             30
           ],
           "grossWeightKg": null,
-          "grossWeightLb": null,
-          "orderUnit": {
-            "kind": "single",
-            "units": 1
-          }
-        },
-        {
-          "version": "2026-08-25",
-          "effectiveFrom": "2026-08-25",
-          "effectiveTo": "2026-08-27",
-          "unitsPerCarton": 30,
-          "cartonsPerPallet": 30,
-          "cartonDimensionsCm": [
-            50,
-            40,
-            40
-          ],
-          "grossWeightKg": 16,
-          "grossWeightLb": 35.27396194958041,
+          "grossWeightLb": 26,
           "orderUnit": {
             "kind": "single",
             "units": 1
           },
           "source": {
             "sheet": "AMZ 所有SKU",
-            "row": 46
-          }
-        },
-        {
-          "version": "2026-08-28.4",
-          "effectiveFrom": "2026-08-28",
-          "effectiveTo": null,
-          "unitsPerCarton": 30,
-          "cartonsPerPallet": 30,
-          "cartonDimensionsCm": [
-            50,
-            40,
-            40
-          ],
-          "grossWeightKg": null,
-          "grossWeightLb": 35,
-          "orderUnit": {
-            "kind": "single",
-            "units": 1
-          },
-          "source": {
-            "sheet": "AMZ 所有SKU",
-            "row": 46
+            "row": 47
           }
         }
       ],
-      "newOrderPackagingDefaultVersion": "2026-08-28.4"
+      "newOrderPackagingDefaultVersion": "2026-09-02"
     },
     {
       "productSku": "GTPL01",
@@ -2456,9 +2216,9 @@
       ],
       "packagingVersions": [
         {
-          "version": "supply-2026-07-19",
-          "effectiveFrom": "2026-07-19",
-          "effectiveTo": "2026-08-24",
+          "version": "2026-09-02",
+          "effectiveFrom": "2026-09-02",
+          "effectiveTo": null,
           "unitsPerCarton": 24,
           "cartonsPerPallet": 42,
           "cartonDimensionsCm": [
@@ -2467,58 +2227,18 @@
             30
           ],
           "grossWeightKg": null,
-          "grossWeightLb": null,
-          "orderUnit": {
-            "kind": "single",
-            "units": 1
-          }
-        },
-        {
-          "version": "2026-08-25",
-          "effectiveFrom": "2026-08-25",
-          "effectiveTo": "2026-08-27",
-          "unitsPerCarton": 30,
-          "cartonsPerPallet": 30,
-          "cartonDimensionsCm": [
-            50,
-            40,
-            40
-          ],
-          "grossWeightKg": 16,
-          "grossWeightLb": 35.27396194958041,
+          "grossWeightLb": 29,
           "orderUnit": {
             "kind": "single",
             "units": 1
           },
           "source": {
             "sheet": "AMZ 所有SKU",
-            "row": 41
-          }
-        },
-        {
-          "version": "2026-08-28.4",
-          "effectiveFrom": "2026-08-28",
-          "effectiveTo": null,
-          "unitsPerCarton": 30,
-          "cartonsPerPallet": 30,
-          "cartonDimensionsCm": [
-            50,
-            40,
-            40
-          ],
-          "grossWeightKg": null,
-          "grossWeightLb": 35,
-          "orderUnit": {
-            "kind": "single",
-            "units": 1
-          },
-          "source": {
-            "sheet": "AMZ 所有SKU",
-            "row": 41
+            "row": 42
           }
         }
       ],
-      "newOrderPackagingDefaultVersion": "2026-08-28.4"
+      "newOrderPackagingDefaultVersion": "2026-09-02"
     },
     {
       "productSku": "GTBL01",
@@ -2532,9 +2252,9 @@
       ],
       "packagingVersions": [
         {
-          "version": "supply-2026-07-19",
-          "effectiveFrom": "2026-07-19",
-          "effectiveTo": "2026-08-24",
+          "version": "2026-09-02",
+          "effectiveFrom": "2026-09-02",
+          "effectiveTo": null,
           "unitsPerCarton": 26,
           "cartonsPerPallet": 42,
           "cartonDimensionsCm": [
@@ -2543,58 +2263,18 @@
             30
           ],
           "grossWeightKg": null,
-          "grossWeightLb": null,
-          "orderUnit": {
-            "kind": "single",
-            "units": 1
-          }
-        },
-        {
-          "version": "2026-08-25",
-          "effectiveFrom": "2026-08-25",
-          "effectiveTo": "2026-08-27",
-          "unitsPerCarton": 30,
-          "cartonsPerPallet": 30,
-          "cartonDimensionsCm": [
-            50,
-            40,
-            40
-          ],
-          "grossWeightKg": 16,
-          "grossWeightLb": 35.27396194958041,
+          "grossWeightLb": 31,
           "orderUnit": {
             "kind": "single",
             "units": 1
           },
           "source": {
             "sheet": "AMZ 所有SKU",
-            "row": 44
-          }
-        },
-        {
-          "version": "2026-08-28.4",
-          "effectiveFrom": "2026-08-28",
-          "effectiveTo": null,
-          "unitsPerCarton": 30,
-          "cartonsPerPallet": 30,
-          "cartonDimensionsCm": [
-            50,
-            40,
-            40
-          ],
-          "grossWeightKg": null,
-          "grossWeightLb": 35,
-          "orderUnit": {
-            "kind": "single",
-            "units": 1
-          },
-          "source": {
-            "sheet": "AMZ 所有SKU",
-            "row": 44
+            "row": 45
           }
         }
       ],
-      "newOrderPackagingDefaultVersion": "2026-08-28.4"
+      "newOrderPackagingDefaultVersion": "2026-09-02"
     },
     {
       "productSku": "GTAL01",
@@ -2607,9 +2287,9 @@
       ],
       "packagingVersions": [
         {
-          "version": "supply-2026-07-19",
-          "effectiveFrom": "2026-07-19",
-          "effectiveTo": "2026-08-24",
+          "version": "2026-09-02",
+          "effectiveFrom": "2026-09-02",
+          "effectiveTo": null,
           "unitsPerCarton": 30,
           "cartonsPerPallet": 42,
           "cartonDimensionsCm": [
@@ -2618,58 +2298,18 @@
             30
           ],
           "grossWeightKg": null,
-          "grossWeightLb": null,
-          "orderUnit": {
-            "kind": "single",
-            "units": 1
-          }
-        },
-        {
-          "version": "2026-08-25",
-          "effectiveFrom": "2026-08-25",
-          "effectiveTo": "2026-08-27",
-          "unitsPerCarton": 38,
-          "cartonsPerPallet": 30,
-          "cartonDimensionsCm": [
-            50,
-            40,
-            40
-          ],
-          "grossWeightKg": 20,
-          "grossWeightLb": 44.09245243697551,
+          "grossWeightLb": 35,
           "orderUnit": {
             "kind": "single",
             "units": 1
           },
           "source": {
             "sheet": "AMZ 所有SKU",
-            "row": 21
-          }
-        },
-        {
-          "version": "2026-08-28.4",
-          "effectiveFrom": "2026-08-28",
-          "effectiveTo": null,
-          "unitsPerCarton": 38,
-          "cartonsPerPallet": 30,
-          "cartonDimensionsCm": [
-            50,
-            40,
-            40
-          ],
-          "grossWeightKg": null,
-          "grossWeightLb": 44,
-          "orderUnit": {
-            "kind": "single",
-            "units": 1
-          },
-          "source": {
-            "sheet": "AMZ 所有SKU",
-            "row": 21
+            "row": 22
           }
         }
       ],
-      "newOrderPackagingDefaultVersion": "2026-08-28.4"
+      "newOrderPackagingDefaultVersion": "2026-09-02"
     },
     {
       "productSku": "GTCL01",
@@ -2682,9 +2322,9 @@
       ],
       "packagingVersions": [
         {
-          "version": "supply-2026-07-19",
-          "effectiveFrom": "2026-07-19",
-          "effectiveTo": "2026-08-24",
+          "version": "2026-09-02",
+          "effectiveFrom": "2026-09-02",
+          "effectiveTo": null,
           "unitsPerCarton": 28,
           "cartonsPerPallet": 42,
           "cartonDimensionsCm": [
@@ -2693,58 +2333,18 @@
             30
           ],
           "grossWeightKg": null,
-          "grossWeightLb": null,
-          "orderUnit": {
-            "kind": "single",
-            "units": 1
-          }
-        },
-        {
-          "version": "2026-08-25",
-          "effectiveFrom": "2026-08-25",
-          "effectiveTo": "2026-08-27",
-          "unitsPerCarton": 30,
-          "cartonsPerPallet": 30,
-          "cartonDimensionsCm": [
-            50,
-            40,
-            40
-          ],
-          "grossWeightKg": 16,
-          "grossWeightLb": 35.27396194958041,
+          "grossWeightLb": 33,
           "orderUnit": {
             "kind": "single",
             "units": 1
           },
           "source": {
             "sheet": "AMZ 所有SKU",
-            "row": 19
-          }
-        },
-        {
-          "version": "2026-08-28.4",
-          "effectiveFrom": "2026-08-28",
-          "effectiveTo": null,
-          "unitsPerCarton": 30,
-          "cartonsPerPallet": 30,
-          "cartonDimensionsCm": [
-            50,
-            40,
-            40
-          ],
-          "grossWeightKg": null,
-          "grossWeightLb": 35,
-          "orderUnit": {
-            "kind": "single",
-            "units": 1
-          },
-          "source": {
-            "sheet": "AMZ 所有SKU",
-            "row": 19
+            "row": 20
           }
         }
       ],
-      "newOrderPackagingDefaultVersion": "2026-08-28.4"
+      "newOrderPackagingDefaultVersion": "2026-09-02"
     },
     {
       "productSku": "GTRL03",
@@ -2758,9 +2358,9 @@
       ],
       "packagingVersions": [
         {
-          "version": "supply-2026-07-19",
-          "effectiveFrom": "2026-07-19",
-          "effectiveTo": "2026-08-24",
+          "version": "2026-09-02",
+          "effectiveFrom": "2026-09-02",
+          "effectiveTo": null,
           "unitsPerCarton": 28,
           "cartonsPerPallet": 42,
           "cartonDimensionsCm": [
@@ -2769,58 +2369,18 @@
             30
           ],
           "grossWeightKg": null,
-          "grossWeightLb": null,
-          "orderUnit": {
-            "kind": "single",
-            "units": 1
-          }
-        },
-        {
-          "version": "2026-08-25",
-          "effectiveFrom": "2026-08-25",
-          "effectiveTo": "2026-08-27",
-          "unitsPerCarton": 30,
-          "cartonsPerPallet": 30,
-          "cartonDimensionsCm": [
-            50,
-            40,
-            40
-          ],
-          "grossWeightKg": 16,
-          "grossWeightLb": 35.27396194958041,
+          "grossWeightLb": 33,
           "orderUnit": {
             "kind": "single",
             "units": 1
           },
           "source": {
             "sheet": "AMZ 所有SKU",
-            "row": 16
-          }
-        },
-        {
-          "version": "2026-08-28.4",
-          "effectiveFrom": "2026-08-28",
-          "effectiveTo": null,
-          "unitsPerCarton": 30,
-          "cartonsPerPallet": 30,
-          "cartonDimensionsCm": [
-            50,
-            40,
-            40
-          ],
-          "grossWeightKg": null,
-          "grossWeightLb": 35,
-          "orderUnit": {
-            "kind": "single",
-            "units": 1
-          },
-          "source": {
-            "sheet": "AMZ 所有SKU",
-            "row": 16
+            "row": 17
           }
         }
       ],
-      "newOrderPackagingDefaultVersion": "2026-08-28.4"
+      "newOrderPackagingDefaultVersion": "2026-09-02"
     },
     {
       "productSku": "GTPL03",
@@ -2834,9 +2394,9 @@
       ],
       "packagingVersions": [
         {
-          "version": "supply-2026-07-19",
-          "effectiveFrom": "2026-07-19",
-          "effectiveTo": "2026-08-24",
+          "version": "2026-09-02",
+          "effectiveFrom": "2026-09-02",
+          "effectiveTo": null,
           "unitsPerCarton": 24,
           "cartonsPerPallet": 42,
           "cartonDimensionsCm": [
@@ -2845,58 +2405,18 @@
             30
           ],
           "grossWeightKg": null,
-          "grossWeightLb": null,
-          "orderUnit": {
-            "kind": "single",
-            "units": 1
-          }
-        },
-        {
-          "version": "2026-08-25",
-          "effectiveFrom": "2026-08-25",
-          "effectiveTo": "2026-08-27",
-          "unitsPerCarton": 30,
-          "cartonsPerPallet": 30,
-          "cartonDimensionsCm": [
-            50,
-            40,
-            40
-          ],
-          "grossWeightKg": 16,
-          "grossWeightLb": 35.27396194958041,
+          "grossWeightLb": 29,
           "orderUnit": {
             "kind": "single",
             "units": 1
           },
           "source": {
             "sheet": "AMZ 所有SKU",
-            "row": 12
-          }
-        },
-        {
-          "version": "2026-08-28.4",
-          "effectiveFrom": "2026-08-28",
-          "effectiveTo": null,
-          "unitsPerCarton": 30,
-          "cartonsPerPallet": 30,
-          "cartonDimensionsCm": [
-            50,
-            40,
-            40
-          ],
-          "grossWeightKg": null,
-          "grossWeightLb": 35,
-          "orderUnit": {
-            "kind": "single",
-            "units": 1
-          },
-          "source": {
-            "sheet": "AMZ 所有SKU",
-            "row": 12
+            "row": 13
           }
         }
       ],
-      "newOrderPackagingDefaultVersion": "2026-08-28.4"
+      "newOrderPackagingDefaultVersion": "2026-09-02"
     },
     {
       "productSku": "GTBL03",
@@ -2910,9 +2430,9 @@
       ],
       "packagingVersions": [
         {
-          "version": "supply-2026-07-19",
-          "effectiveFrom": "2026-07-19",
-          "effectiveTo": "2026-08-24",
+          "version": "2026-09-02",
+          "effectiveFrom": "2026-09-02",
+          "effectiveTo": null,
           "unitsPerCarton": 28,
           "cartonsPerPallet": 42,
           "cartonDimensionsCm": [
@@ -2921,58 +2441,18 @@
             30
           ],
           "grossWeightKg": null,
-          "grossWeightLb": null,
-          "orderUnit": {
-            "kind": "single",
-            "units": 1
-          }
-        },
-        {
-          "version": "2026-08-25",
-          "effectiveFrom": "2026-08-25",
-          "effectiveTo": "2026-08-27",
-          "unitsPerCarton": 30,
-          "cartonsPerPallet": 30,
-          "cartonDimensionsCm": [
-            50,
-            40,
-            40
-          ],
-          "grossWeightKg": 16,
-          "grossWeightLb": 35.27396194958041,
+          "grossWeightLb": 33,
           "orderUnit": {
             "kind": "single",
             "units": 1
           },
           "source": {
             "sheet": "AMZ 所有SKU",
-            "row": 14
-          }
-        },
-        {
-          "version": "2026-08-28.4",
-          "effectiveFrom": "2026-08-28",
-          "effectiveTo": null,
-          "unitsPerCarton": 30,
-          "cartonsPerPallet": 30,
-          "cartonDimensionsCm": [
-            50,
-            40,
-            40
-          ],
-          "grossWeightKg": null,
-          "grossWeightLb": 35,
-          "orderUnit": {
-            "kind": "single",
-            "units": 1
-          },
-          "source": {
-            "sheet": "AMZ 所有SKU",
-            "row": 14
+            "row": 15
           }
         }
       ],
-      "newOrderPackagingDefaultVersion": "2026-08-28.4"
+      "newOrderPackagingDefaultVersion": "2026-09-02"
     },
     {
       "productSku": "GTZL03",
@@ -3017,9 +2497,9 @@
       ],
       "packagingVersions": [
         {
-          "version": "supply-2026-07-19",
-          "effectiveFrom": "2026-07-19",
-          "effectiveTo": "2026-08-24",
+          "version": "2026-09-02",
+          "effectiveFrom": "2026-09-02",
+          "effectiveTo": null,
           "unitsPerCarton": 24,
           "cartonsPerPallet": 42,
           "cartonDimensionsCm": [
@@ -3028,58 +2508,18 @@
             30
           ],
           "grossWeightKg": null,
-          "grossWeightLb": null,
-          "orderUnit": {
-            "kind": "single",
-            "units": 1
-          }
-        },
-        {
-          "version": "2026-08-25",
-          "effectiveFrom": "2026-08-25",
-          "effectiveTo": "2026-08-27",
-          "unitsPerCarton": 30,
-          "cartonsPerPallet": 30,
-          "cartonDimensionsCm": [
-            50,
-            40,
-            40
-          ],
-          "grossWeightKg": 16,
-          "grossWeightLb": 35.27396194958041,
+          "grossWeightLb": 29,
           "orderUnit": {
             "kind": "single",
             "units": 1
           },
           "source": {
             "sheet": "AMZ 所有SKU",
-            "row": 26
-          }
-        },
-        {
-          "version": "2026-08-28.4",
-          "effectiveFrom": "2026-08-28",
-          "effectiveTo": null,
-          "unitsPerCarton": 30,
-          "cartonsPerPallet": 30,
-          "cartonDimensionsCm": [
-            50,
-            40,
-            40
-          ],
-          "grossWeightKg": null,
-          "grossWeightLb": 35,
-          "orderUnit": {
-            "kind": "single",
-            "units": 1
-          },
-          "source": {
-            "sheet": "AMZ 所有SKU",
-            "row": 26
+            "row": 27
           }
         }
       ],
-      "newOrderPackagingDefaultVersion": "2026-08-28.4"
+      "newOrderPackagingDefaultVersion": "2026-09-02"
     },
     {
       "productSku": "GTBL05",
@@ -3093,9 +2533,9 @@
       ],
       "packagingVersions": [
         {
-          "version": "supply-2026-07-19",
-          "effectiveFrom": "2026-07-19",
-          "effectiveTo": "2026-08-24",
+          "version": "2026-09-02",
+          "effectiveFrom": "2026-09-02",
+          "effectiveTo": null,
           "unitsPerCarton": 24,
           "cartonsPerPallet": 42,
           "cartonDimensionsCm": [
@@ -3104,58 +2544,18 @@
             30
           ],
           "grossWeightKg": null,
-          "grossWeightLb": null,
-          "orderUnit": {
-            "kind": "single",
-            "units": 1
-          }
-        },
-        {
-          "version": "2026-08-25",
-          "effectiveFrom": "2026-08-25",
-          "effectiveTo": "2026-08-27",
-          "unitsPerCarton": 30,
-          "cartonsPerPallet": 30,
-          "cartonDimensionsCm": [
-            50,
-            40,
-            40
-          ],
-          "grossWeightKg": 16,
-          "grossWeightLb": 35.27396194958041,
+          "grossWeightLb": 29,
           "orderUnit": {
             "kind": "single",
             "units": 1
           },
           "source": {
             "sheet": "AMZ 所有SKU",
-            "row": 30
-          }
-        },
-        {
-          "version": "2026-08-28.4",
-          "effectiveFrom": "2026-08-28",
-          "effectiveTo": null,
-          "unitsPerCarton": 30,
-          "cartonsPerPallet": 30,
-          "cartonDimensionsCm": [
-            50,
-            40,
-            40
-          ],
-          "grossWeightKg": null,
-          "grossWeightLb": 35,
-          "orderUnit": {
-            "kind": "single",
-            "units": 1
-          },
-          "source": {
-            "sheet": "AMZ 所有SKU",
-            "row": 30
+            "row": 31
           }
         }
       ],
-      "newOrderPackagingDefaultVersion": "2026-08-28.4"
+      "newOrderPackagingDefaultVersion": "2026-09-02"
     },
     {
       "productSku": "GSFL01",

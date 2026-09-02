@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "catalogVersion": "2026-09-02",
+  "expectedPublicContentHashes": {
+    "supply": "c96c665b5e3b651d0e8ddcff7f33f5f743d1503b8c6046c00f9d1323d84defd6",
+    "fba": "e1a35c5251359c9695587bd8d526c650eac86f06aca4d4ae1032f094de6fca8d"
+  },
+  "state": "pending",
+  "sites": {
+    "supply": {
+      "recoveryAttempts": 0,
+      "evidence": {
+        "local": {
+          "state": "passed",
+          "checkedAt": "2026-09-02T04:46:48.499Z",
+          "revision": null,
+          "catalogVersion": "2026-09-02",
+          "publicContentHash": "c96c665b5e3b651d0e8ddcff7f33f5f743d1503b8c6046c00f9d1323d84defd6"
+        },
+        "repositoryCi": {
+          "state": "pending",
+          "checkedAt": null,
+          "revision": null,
+          "catalogVersion": null,
+          "publicContentHash": null
+        },
+        "deployment": {
+          "state": "pending",
+          "checkedAt": null,
+          "revision": null,
+          "catalogVersion": null,
+          "publicContentHash": null
+        },
+        "liveHash": {
+          "state": "pending",
+          "checkedAt": null,
+          "revision": null,
+          "catalogVersion": null,
+          "publicContentHash": null
+        },
+        "liveBrowser": {
+          "state": "pending",
+          "checkedAt": null,
+          "revision": null,
+          "catalogVersion": null,
+          "publicContentHash": null
+        }
+      }
+    },
+    "fba": {
+      "recoveryAttempts": 0,
+      "evidence": {
+        "local": {
+          "state": "passed",
+          "checkedAt": "2026-09-02T04:46:48.499Z",
+          "revision": null,
+          "catalogVersion": "2026-09-02",
+          "publicContentHash": "e1a35c5251359c9695587bd8d526c650eac86f06aca4d4ae1032f094de6fca8d"
+        },
+        "repositoryCi": {
+          "state": "pending",
+          "checkedAt": null,
+          "revision": null,
+          "catalogVersion": null,
+          "publicContentHash": null
+        },
+        "deployment": {
+          "state": "pending",
+          "checkedAt": null,
+          "revision": null,
+          "catalogVersion": null,
+          "publicContentHash": null
+        },
+        "liveHash": {
+          "state": "pending",
+          "checkedAt": null,
+          "revision": null,
+          "catalogVersion": null,
+          "publicContentHash": null
+        },
+        "liveBrowser": {
+          "state": "pending",
+          "checkedAt": null,
+          "revision": null,
+          "catalogVersion": null,
+          "publicContentHash": null
+        }
+      }
+    }
+  }
+}
