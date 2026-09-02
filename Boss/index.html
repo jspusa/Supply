@@ -3517,6 +3517,11 @@
       }
     }
 
+    function isUserInitiatedDetailsToggle(element) {
+      const summary = element?.querySelector(':scope > summary');
+      return Boolean(summary && document.activeElement === summary);
+    }
+
     function wireWorkspacePersistence() {
       if (IS_BOSS_PORTAL) return;
       const preferenceInputIds = new Set([
@@ -3554,7 +3559,9 @@
           scheduleFromUserEvent(event);
         }
       });
-      document.querySelectorAll('details[id]').forEach(element => element.addEventListener('toggle', scheduleFromUserEvent));
+      document.querySelectorAll('details[id]').forEach(element => element.addEventListener('toggle', () => {
+        scheduleWorkspaceAutoSave({ userInitiated:isUserInitiatedDetailsToggle(element) });
+      }));
       window.addEventListener('hashchange', scheduleFromUserEvent);
       window.addEventListener('pagehide', () => {
         if (!workspaceSaveTimer) return;

@@ -248,6 +248,7 @@ test('Clear is confirmed, cancels pending writes, uses the exact store clear, an
   assert.match(issueFormatter, /issue\.status === 'corrupt'[\s\S]*按上方「清空」後重建/);
   const persistenceWiring = extractFunctionSource(publicHtml, 'wireWorkspacePersistence');
   assert.match(persistenceWiring, /event\?\.isTrusted/);
+  assert.match(persistenceWiring, /details\[id\][\s\S]*isUserInitiatedDetailsToggle\(element\)/);
   assert.match(persistenceWiring, /workspaceH10SelectedAt = new Date\(\)\.toISOString\(\)/);
   assert.match(persistenceWiring, /stageWorkspaceH10Draft\(\)/);
   assert.match(extractFunctionSource(publicHtml, 'restorePublicWorkspace'), /result\.recoveredH10Draft[\s\S]*persistWorkspaceSnapshot\(\{ force:true \}\)/);
@@ -272,6 +273,21 @@ test('Clear is confirmed, cancels pending writes, uses the exact store clear, an
   assert.doesNotMatch(bossDelete, /BOSS_TOKEN_KEY|sessionStorage\.removeItem/);
   assert.ok(WORKSPACE_CLEAR_LOCAL_STORAGE_KEYS.length > 0);
   assert.ok(!WORKSPACE_CLEAR_LOCAL_STORAGE_KEYS.includes('supply-boss-session'));
+});
+
+test('programmatic details resets cannot revive an empty Snapshot after Clear', () => {
+  for (const html of [publicHtml, bossHtml]) {
+    const context = vm.createContext({ document:{ activeElement:null } });
+    vm.runInContext(
+      `${extractFunctionSource(html, 'isUserInitiatedDetailsToggle')}; globalThis.isUserToggle = isUserInitiatedDetailsToggle;`,
+      context,
+    );
+    const summary = {};
+    const details = { querySelector:selector => selector === ':scope > summary' ? summary : null };
+    assert.equal(context.isUserToggle(details), false);
+    context.document.activeElement = summary;
+    assert.equal(context.isUserToggle(details), true);
+  }
 });
 
 test('Boss cloud restore never presents parser failures or unrecognized files as ready', () => {
