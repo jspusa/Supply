@@ -10,6 +10,7 @@ const HIGH_RISK_FIELDS = new Set([
   'canonicalProductSku',
   'lifecycle',
   'origin',
+  'packagingHistoryVersions',
   'standardFactory',
 ]);
 
@@ -116,6 +117,7 @@ function evidenceForChange(change, candidateCatalog, rawSourcesBySku = new Map()
   if (fields.has('approvedOrderSkus') || fields.has('canonicalProductSku')) impact.push('sku-identity-mapping');
   if (fields.has('lifecycle')) impact.push('catalog-availability-and-history');
   if ((change.fields || []).some(explicitDataLoss)) impact.push('explicit-data-clear');
+  if (fields.has('packagingHistoryVersions')) impact.push('packaging-history-replaced');
   return { sources, impact:[...new Set(impact)] };
 }
 
@@ -137,6 +139,47 @@ function changeEntry(change, candidateCatalog, rawSourcesBySku) {
   };
 }
 
+function normalizedDuplicateResolution(value, beforeCatalog, candidateCatalog) {
+  if (value === null || value === undefined) return null;
+  if (!value || Number(value.schemaVersion) !== 1 || !value.policy || !Array.isArray(value.resolutions)) {
+    throw new Error('重複 SKU 解決決策格式不正確');
+  }
+  const policy = clone(value.policy);
+  if (Number(policy.schemaVersion) !== 1 || !policy.match || !policy.overrides
+    || (policy.replacePackagingHistory !== true && policy.replacePackagingHistory !== false)) {
+    throw new Error('重複 SKU 解決規則格式不正確');
+  }
+  const seen = new Set();
+  const resolutions = value.resolutions.map(item => {
+    const sku = String(item?.sku || '').trim().toUpperCase();
+    if (!sku || seen.has(sku)) throw new Error(`重複 SKU 解決決策含有重複或無效 SKU：${sku || '(空白)'}`);
+    seen.add(sku);
+    const criteria = clone(item.criteria || {});
+    const expectedCriteria = { ...policy.match, ...(policy.overrides[sku] || {}) };
+    if (!Object.keys(criteria).length || stableJson(criteria) !== stableJson(expectedCriteria)) {
+      throw new Error(`${sku} 的來源列條件與核准規則不一致`);
+    }
+    const sourceSheet = String(item.sourceSheet || '').slice(0, 100);
+    const sourceRow = Number(item.sourceRow);
+    if (!sourceSheet || !Number.isInteger(sourceRow) || sourceRow < 1) throw new Error(`${sku} 的核准來源列不完整`);
+    const entryType = sku.startsWith('7') ? 'order-sku-alias' : 'product';
+    const beforeOwner = ownerForChange(beforeCatalog, { entryType, sku });
+    const afterOwner = ownerForChange(candidateCatalog, { entryType, sku });
+    if (!beforeOwner || !afterOwner) throw new Error(`${sku} 的重複資料決策找不到既有產品`);
+    const removedVersionIds = [...new Set((item.removedVersionIds || []).map(String))];
+    const afterVersions = new Set(afterOwner.packagingVersions.map(version => version.version));
+    const actualRemovedVersionIds = beforeOwner.packagingVersions
+      .map(version => version.version)
+      .filter(version => !afterVersions.has(version));
+    const expectedRemovedVersionIds = policy.replacePackagingHistory ? actualRemovedVersionIds : [];
+    if (stableJson([...removedVersionIds].sort()) !== stableJson([...expectedRemovedVersionIds].sort())) {
+      throw new Error(`${sku} 的舊箱規版本與候選資料不一致`);
+    }
+    return { sku, criteria, sourceSheet, sourceRow, removedVersionIds };
+  });
+  return { schemaVersion:1, policy, resolutions };
+}
+
 export async function createCatalogChangePlan(beforeCatalog, candidateCatalog, metadata = {}) {
   validateCatalog(beforeCatalog);
   validateCatalog(candidateCatalog);
@@ -147,6 +190,25 @@ export async function createCatalogChangePlan(beforeCatalog, candidateCatalog, m
     generatedAt,
     sourceFile:basename(metadata.sourceFile),
   });
+  const duplicateResolution = normalizedDuplicateResolution(
+    metadata.duplicateResolution,
+    normalizedBefore,
+    normalizedCandidate,
+  );
+  for (const resolution of duplicateResolution?.resolutions || []) {
+    if (!resolution.removedVersionIds.length) continue;
+    const sku = resolution.sku;
+    const entryType = sku.startsWith('7') ? 'order-sku-alias' : 'product';
+    const change = report.changes.find(item => item.entryType === entryType && item.sku === sku);
+    const beforeOwner = ownerForChange(normalizedBefore, { entryType, sku });
+    const afterOwner = ownerForChange(normalizedCandidate, { entryType, sku });
+    if (!change || !beforeOwner || !afterOwner) throw new Error(`${sku} 的舊箱規清除沒有對應的產品變更`);
+    change.fields.push({
+      field:'packagingHistoryVersions',
+      before:resolution.removedVersionIds,
+      after:afterOwner.packagingVersions.map(item => item.version),
+    });
+  }
   const rawSourcesBySku = new Map();
   for (const source of metadata.rawSources || []) {
     const sku = String(source?.sku || '').trim().toUpperCase();
@@ -189,6 +251,7 @@ export async function createCatalogChangePlan(beforeCatalog, candidateCatalog, m
       catalogVersion:candidateCatalog.catalogVersion,
       sha256:await publicCatalogSha256(candidateCatalog),
     },
+    duplicateResolution,
     stats:{
       ...clone(report.stats),
       safe:entries.filter(entry => entry.risk === 'safe').length,
@@ -239,11 +302,32 @@ export async function applyCatalogChangePlan(beforeCatalog, candidateCatalog, pl
   if (plan.blockers?.length) throw new Error(`產品資料發布被阻擋：\n- ${plan.blockers.join('\n- ')}`);
 
   const chosen = selectedIds(plan, options.selectedEntryIds);
+  if (options.replacePackagingHistoryForSkus) {
+    throw new Error('歷史箱規清除授權必須由已簽署的變更計畫提供');
+  }
+  const replacementBySku = new Map((plan.duplicateResolution?.resolutions || [])
+    .filter(item => item.removedVersionIds?.length)
+    .map(item => [item.sku, {
+      sku:item.sku,
+      removedVersionIds:item.removedVersionIds,
+    }]));
   const byId = new Map(plan.entries.map(entry => [entry.id, entry]));
   for (const id of chosen) {
     const entry = byId.get(id);
     if (!entry) throw new Error(`變更計畫不包含 ${id}`);
     if (!entry.selectable || entry.risk === 'blocking') throw new Error(`${id} 不可套用`);
+  }
+  for (const sku of replacementBySku.keys()) {
+    const entry = [...byId.values()].find(item => item.sku === sku && item.kind === 'catalog-change');
+    if (!entry || !chosen.includes(entry.id) || !entry.fields.some(field => field.field === 'packagingHistoryVersions')) {
+      throw new Error(`${sku} history replacement / 歷史箱規清除未在已選取的審核計畫中`);
+    }
+  }
+  for (const id of chosen) {
+    const entry = byId.get(id);
+    if (entry.fields?.some(field => field.field === 'packagingHistoryVersions') && !replacementBySku.has(entry.sku)) {
+      throw new Error(`${entry.sku} history replacement / 歷史箱規清除缺少明確授權`);
+    }
   }
 
   const catalog = migrateCatalog(beforeCatalog);
@@ -256,7 +340,9 @@ export async function applyCatalogChangePlan(beforeCatalog, candidateCatalog, pl
     replaceOwner(catalog, entry, owner);
   }
   try {
-    assertCatalogHistoryPreserved(beforeCatalog, catalog);
+    assertCatalogHistoryPreserved(beforeCatalog, catalog, {
+      packagingHistoryReplacements:[...replacementBySku.values()],
+    });
     validateCatalog(catalog);
   } catch (error) {
     throw new Error(`選取的變更無法獨立套用，請一併選取相依資料：${error.message}`);
@@ -291,6 +377,7 @@ export async function createCatalogChangeRecord(plan, appliedCatalog, selectedEn
     planSha256:plan.planSha256,
     appliedAt:metadata.appliedAt || new Date().toISOString(),
     selectedEntryIds:selected,
+    duplicateResolution:clone(plan.duplicateResolution),
     changes,
     catalogAlignment:metadata.catalogAlignment ? clone(metadata.catalogAlignment) : null,
     stats:{

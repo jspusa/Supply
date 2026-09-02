@@ -167,6 +167,18 @@ function appendDefaultPackaging(owner, record, { catalogVersion, effectiveFrom }
   return true;
 }
 
+function replacePackagingHistory(owner, record, { catalogVersion, effectiveFrom }) {
+  const facts = packagingFromRecord(record, defaultPackaging(owner));
+  owner.packagingVersions = [{
+    version:catalogVersion,
+    effectiveFrom,
+    effectiveTo:null,
+    ...facts,
+  }];
+  owner.newOrderPackagingDefaultVersion = catalogVersion;
+  return true;
+}
+
 function productCanBeActive(product) {
   const packaging = defaultPackaging(product);
   return Boolean(
@@ -196,6 +208,27 @@ export function overlayRawProductCatalog(canonicalCatalog, rawPayload, options =
   catalog.catalogVersion = catalogVersion;
   const products = new Map(catalog.products.map(product => [product.productSku, product]));
   const aliases = new Map(catalog.orderSkuAliases.map(alias => [alias.orderSku, alias]));
+  if (options.replacePackagingHistoryForSkus) {
+    throw new Error('舊箱規清除必須包含已選來源列與精確版本 ID');
+  }
+  const replacementDecisions = new Map();
+  for (const item of options.packagingHistoryReplacements || []) {
+    const sku = String(item?.sku || '').trim().toUpperCase();
+    if (!sku || replacementDecisions.has(sku)) throw new Error(`舊箱規清除含有重複或無效 SKU：${sku || '(空白)'}`);
+    const owner = sku.startsWith('7') ? aliases.get(sku) : products.get(sku);
+    if (!owner) throw new Error(`${sku} 的舊箱規清除找不到既有產品`);
+    const removedVersionIds = [...new Set((item?.removedVersionIds || []).map(String))];
+    if (JSON.stringify([...removedVersionIds].sort()) !== JSON.stringify(owner.packagingVersions.map(version => version.version).sort())) {
+      throw new Error(`${sku} 的舊箱規清除版本與目前資料不一致`);
+    }
+    replacementDecisions.set(sku, {
+      sku,
+      sourceSheet:String(item?.sourceSheet || ''),
+      sourceRow:Number(item?.sourceRow),
+      removedVersionIds,
+    });
+  }
+  const replacedPackagingHistory = new Set();
   const stats = {
     addedProducts:0,
     updatedProducts:0,
@@ -226,6 +259,14 @@ export function overlayRawProductCatalog(canonicalCatalog, rawPayload, options =
         aliases.set(sku, alias);
         appendDefaultPackaging(alias, record, { catalogVersion, effectiveFrom });
         stats.addedAliases += 1;
+      } else if (replacementDecisions.has(sku)) {
+        const decision = replacementDecisions.get(sku);
+        if (record.sourceSheet !== decision.sourceSheet || record.sourceRow !== decision.sourceRow) {
+          throw new Error(`${sku} 的舊箱規清除來源列與衝突選擇不一致`);
+        }
+        replacePackagingHistory(alias, record, { catalogVersion, effectiveFrom });
+        replacedPackagingHistory.add(sku);
+        stats.updatedAliases += 1;
       } else if (appendDefaultPackaging(alias, record, { catalogVersion, effectiveFrom })) {
         stats.updatedAliases += 1;
       }
@@ -275,7 +316,15 @@ export function overlayRawProductCatalog(canonicalCatalog, rawPayload, options =
         changed = true;
       }
     }
-    if (appendDefaultPackaging(product, record, { catalogVersion, effectiveFrom })) changed = true;
+    if (replacementDecisions.has(sku)) {
+      const decision = replacementDecisions.get(sku);
+      if (record.sourceSheet !== decision.sourceSheet || record.sourceRow !== decision.sourceRow) {
+        throw new Error(`${sku} 的舊箱規清除來源列與衝突選擇不一致`);
+      }
+      replacePackagingHistory(product, record, { catalogVersion, effectiveFrom });
+      replacedPackagingHistory.add(sku);
+      changed = true;
+    } else if (appendDefaultPackaging(product, record, { catalogVersion, effectiveFrom })) changed = true;
     if (product.lifecycle === 'active' && !productCanBeActive(product)) {
       product.lifecycle = 'incomplete';
       changed = true;
@@ -288,7 +337,11 @@ export function overlayRawProductCatalog(canonicalCatalog, rawPayload, options =
     if (changed) stats.updatedProducts += 1;
   }
 
-  assertCatalogHistoryPreserved(baseline, catalog);
+  const missingReplacements = [...replacementDecisions.keys()].filter(sku => !replacedPackagingHistory.has(sku));
+  if (missingReplacements.length) throw new Error(`找不到要清除舊箱規的衝突 SKU：${missingReplacements.join(', ')}`);
+  assertCatalogHistoryPreserved(baseline, catalog, {
+    packagingHistoryReplacements:[...replacedPackagingHistory].map(sku => replacementDecisions.get(sku)),
+  });
   validateCatalog(catalog);
   return { catalog, stats };
 }

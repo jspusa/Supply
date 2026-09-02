@@ -133,9 +133,62 @@
     'cartonDimensionsCm',
     'grossWeightLb',
   ];
+  const CONFLICT_FIELD_SET = new Set(CONFLICT_FIELDS);
 
   function comparableValue(value) {
     return JSON.stringify(value);
+  }
+
+  function normalizedResolutionCriterion(field, value) {
+    if (!CONFLICT_FIELD_SET.has(field)) throw new Error(`不支援的衝突選擇欄位：${field}`);
+    if (field === 'origin') {
+      const origin = originCode(value);
+      if (!origin) throw new Error(`衝突選擇條件 ${field} 無法辨識`);
+      return origin;
+    }
+    if (field === 'cartonDimensionsCm') {
+      const dimensions = Array.isArray(value) ? value.map(Number) : parseDimensionsCm(value);
+      if (!dimensions || dimensions.length !== 3 || dimensions.some(number => !Number.isFinite(number) || number <= 0)) {
+        throw new Error(`衝突選擇條件 ${field} 必須有三個正數`);
+      }
+      return dimensions;
+    }
+    const number = positiveNumber(value);
+    if (!number) throw new Error(`衝突選擇條件 ${field} 必須是正數`);
+    return number;
+  }
+
+  function normalizedResolutionCriteria(value, label) {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error(`${label} 必須是欄位條件物件`);
+    return Object.fromEntries(Object.entries(value).map(([field, criterion]) => [
+      field,
+      normalizedResolutionCriterion(field, criterion),
+    ]));
+  }
+
+  function normalizedConflictResolution(value) {
+    if (value === null || value === undefined) return null;
+    if (!value || typeof value !== 'object' || Array.isArray(value) || Number(value.schemaVersion) !== 1) {
+      throw new Error('衝突選擇規則格式不相容');
+    }
+    const allowed = new Set(['schemaVersion', 'match', 'overrides']);
+    const unsupported = Object.keys(value).filter(key => !allowed.has(key));
+    if (unsupported.length) throw new Error(`衝突選擇規則含有不支援欄位：${unsupported.join(', ')}`);
+    const match = normalizedResolutionCriteria(value.match || {}, '共用衝突選擇條件');
+    const overridesInput = value.overrides || {};
+    if (!overridesInput || typeof overridesInput !== 'object' || Array.isArray(overridesInput)) {
+      throw new Error('SKU 衝突選擇條件必須是物件');
+    }
+    const overrides = {};
+    for (const [rawSku, criteria] of Object.entries(overridesInput)) {
+      const sku = normalizeSku(rawSku);
+      if (!/^[0-9A-Z][0-9A-Z-]{2,19}$/.test(sku) || Object.hasOwn(overrides, sku)) {
+        throw new Error(`SKU 衝突選擇條件含有重複或無效 SKU：${sku || '(空白)'}`);
+      }
+      overrides[sku] = normalizedResolutionCriteria(criteria, `${sku} 衝突選擇條件`);
+    }
+    if (!Object.keys(match).length && !Object.keys(overrides).length) throw new Error('衝突選擇規則至少需要一個條件');
+    return { match, overrides };
   }
 
   function sourceConflicts(recordsBySku) {
@@ -162,6 +215,35 @@
       if (fields.length) conflicts.push({ sku, fields });
     }
     return conflicts;
+  }
+
+  function resolveSourceConflicts(recordsBySku, input) {
+    const conflicts = sourceConflicts(recordsBySku);
+    const resolution = normalizedConflictResolution(input);
+    if (!resolution) return { conflicts, resolutions:[] };
+    const conflictSkus = new Set(conflicts.map(conflict => conflict.sku));
+    for (const sku of Object.keys(resolution.overrides)) {
+      if (!conflictSkus.has(sku)) throw new Error(`SKU 衝突選擇條件找不到重複衝突：${sku}`);
+    }
+    const unresolved = [];
+    const resolutions = [];
+    for (const conflict of conflicts) {
+      const criteria = { ...resolution.match, ...(resolution.overrides[conflict.sku] || {}) };
+      const candidates = (recordsBySku.get(conflict.sku) || []).filter(record => Object.entries(criteria)
+        .every(([field, criterion]) => comparableValue(record[field]) === comparableValue(criterion)));
+      if (!Object.keys(criteria).length || candidates.length !== 1) {
+        unresolved.push(conflict);
+        continue;
+      }
+      const chosen = candidates[0];
+      resolutions.push({
+        sku:conflict.sku,
+        criteria,
+        sourceSheet:chosen.sourceSheet,
+        sourceRow:chosen.sourceRow,
+      });
+    }
+    return { conflicts:unresolved, resolutions };
   }
 
   function isRawWorkbook(workbook) {
@@ -208,7 +290,12 @@
       }
     }
 
-    const conflicts = sourceConflicts(recordsBySku);
+    const { conflicts, resolutions } = resolveSourceConflicts(recordsBySku, options.conflictResolution);
+    for (const resolution of resolutions) {
+      const records = recordsBySku.get(resolution.sku) || [];
+      const chosen = records.find(record => record.sourceSheet === resolution.sourceSheet && record.sourceRow === resolution.sourceRow);
+      if (chosen) bySku.set(resolution.sku, chosen);
+    }
 
     return validatePayload({
       schemaVersion:SCHEMA_VERSION,
@@ -216,8 +303,9 @@
       sourceFile:text(options.sourceFile || '產品資訊 Excel').slice(0, 200),
       updatedAt:options.updatedAt || new Date().toISOString(),
       matchedSheets:matchedSheets.map(text),
-      stats:{ skipped, duplicateConflicts:conflicts.length },
+      stats:{ skipped, duplicateConflicts:conflicts.length, resolvedDuplicateConflicts:resolutions.length },
       conflicts,
+      resolutions,
       records:[...bySku.values()],
     });
   }
@@ -264,6 +352,16 @@
         })) : [],
       })) : [],
     })) : [];
+    const resolutions = Array.isArray(payload.resolutions) ? payload.resolutions.slice(0, 5000).map(resolution => {
+      const sku = normalizeSku(resolution?.sku);
+      if (!/^[0-9A-Z][0-9A-Z-]{2,19}$/.test(sku)) throw new Error(`共用產品資料含有無效的衝突選擇 SKU：${sku || '(空白)'}`);
+      return {
+        sku,
+        criteria:normalizedResolutionCriteria(resolution?.criteria || {}, `${sku} 衝突選擇條件`),
+        sourceSheet:text(resolution?.sourceSheet).slice(0, 100),
+        sourceRow:Number.isInteger(Number(resolution?.sourceRow)) && Number(resolution.sourceRow) > 0 ? Number(resolution.sourceRow) : null,
+      };
+    }) : [];
     return {
       schemaVersion:SCHEMA_VERSION,
       baseCatalogVersion:text(payload.baseCatalogVersion).slice(0, 40),
@@ -273,8 +371,10 @@
       stats:{
         skipped:Math.max(0, Number(payload.stats?.skipped) || 0),
         duplicateConflicts:Math.max(conflicts.length, Math.max(0, Number(payload.stats?.duplicateConflicts) || 0)),
+        resolvedDuplicateConflicts:Math.max(resolutions.length, Math.max(0, Number(payload.stats?.resolvedDuplicateConflicts) || 0)),
       },
       conflicts,
+      resolutions,
       records,
     };
   }
@@ -386,6 +486,7 @@
     SCHEMA_VERSION,
     isRawWorkbook,
     createPayload,
+    normalizeConflictResolution:normalizedConflictResolution,
     validatePayload,
     saveToStorage,
     loadFromStorage,

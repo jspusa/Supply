@@ -280,6 +280,21 @@ test('released packaging history is immutable while a correction may append and 
     error => error instanceof CatalogValidationError && /is immutable; create another version/.test(error.message),
   );
 
+  const replacement = structuredClone(after);
+  replacement.products[0].packagingVersions = [replacement.products[0].packagingVersions.at(-1)];
+  assert.equal(assertCatalogHistoryPreserved(before, replacement, {
+    packagingHistoryReplacements:[{ sku:'GTP01', removedVersionIds:['2026-08-25'] }],
+  }), true);
+
+  const replacementWithMutation = structuredClone(replacement);
+  replacementWithMutation.products[0].packagingVersions[0].unitsPerCarton = 97;
+  assert.throws(
+    () => assertCatalogHistoryPreserved(after, replacementWithMutation, {
+      packagingHistoryReplacements:[{ sku:'GTP01', removedVersionIds:['2026-08-25'] }],
+    }),
+    error => error instanceof CatalogValidationError && /is immutable/.test(error.message),
+  );
+
   const removed = structuredClone(after);
   removed.products = removed.products.filter(product => product.productSku !== 'GTP01');
   removed.orderSkuAliases = [];
@@ -574,52 +589,38 @@ test('checked canonical catalog and generated Supply snapshot stay in sync', () 
 
   assert.equal(actual, expected);
   assert.equal(canonical.schemaVersion, 3);
-  assert.equal(canonical.catalogVersion, '2026-08-28.4');
+  assert.match(canonical.catalogVersion, /^(?:2026-08-28\.4|2026-09-02)$/);
   assert.match(canonical.catalogVersion, /^\d{4}-\d{2}-\d{2}(?:\.\d+)?$/);
 });
 
-test('raw release preserves the 15 legacy Supply packages and makes 2026-08-28.4 current', () => {
+test('the 15 duplicate SKUs match the exact packaging facts for the checked release', () => {
   const canonical = JSON.parse(fs.readFileSync(path.join(repoRoot, 'catalog', 'product-catalog.json'), 'utf8'));
-  const expectedUnits = new Map(Object.entries({
-    '1ABRD002A0':[36, 42],
-    GTAL01:[30, 38],
-    GTB05:[90, 100],
-    GTBL01:[26, 30],
-    GTBL03:[28, 30],
-    GTBL05:[24, 30],
-    GTCL01:[28, 30],
-    GTP03:[90, 100],
-    GTP05:[90, 100],
-    GTPL01:[24, 30],
-    GTPL03:[24, 30],
-    GTPL05:[24, 30],
-    GTRL01:[22, 30],
-    GTRL03:[28, 30],
-    GTSL01:[24, 30],
+  const cleaned = canonical.catalogVersion === '2026-09-02';
+  const expectedUnits = new Map(Object.entries(cleaned ? {
+    '1ABRD002A0':36, GTAL01:30, GTB05:90, GTBL01:26, GTBL03:28,
+    GTBL05:24, GTCL01:28, GTP03:90, GTP05:90, GTPL01:24,
+    GTPL03:24, GTPL05:24, GTRL01:22, GTRL03:28, GTSL01:24,
+  } : {
+    '1ABRD002A0':42, GTAL01:38, GTB05:100, GTBL01:30, GTBL03:30,
+    GTBL05:30, GTCL01:30, GTP03:100, GTP05:100, GTPL01:30,
+    GTPL03:30, GTPL05:30, GTRL01:30, GTRL03:30, GTSL01:30,
   }));
-  const versioned = canonical.products.filter(product => product.packagingVersions.length > 1);
 
-  assert.ok(versioned.length >= expectedUnits.size);
-  for (const [productSku, expected] of expectedUnits) {
+  for (const [productSku, expectedUnitsPerCarton] of expectedUnits) {
     const product = canonical.products.find(item => item.productSku === productSku);
-    const historical = product.packagingVersions[0];
     const current = product.packagingVersions.find(packaging => packaging.version === product.newOrderPackagingDefaultVersion);
-    assert.deepEqual(
-      [historical.unitsPerCarton, current.unitsPerCarton],
-      expected,
-      product.productSku,
-    );
-    assert.equal(historical.effectiveFrom, '2026-07-19', product.productSku);
-    assert.equal(historical.effectiveTo, '2026-08-24', product.productSku);
-    assert.equal(current.effectiveFrom, '2026-08-28', product.productSku);
+    assert.equal(current.unitsPerCarton, expectedUnitsPerCarton, product.productSku);
+    if (cleaned) assert.equal(product.packagingVersions.length, 1, product.productSku);
+    else assert.ok(product.packagingVersions.length >= 2, product.productSku);
+    assert.equal(current.effectiveFrom, cleaned ? '2026-09-02' : '2026-08-28', product.productSku);
     assert.equal(current.effectiveTo, null, product.productSku);
     assert.equal(current.source.sheet, 'AMZ 所有SKU', product.productSku);
   }
 
   const gtp03 = canonical.products.find(product => product.productSku === 'GTP03').packagingVersions.at(-1);
-  assert.deepEqual(gtp03.cartonDimensionsCm, [58.5, 34.5, 35]);
-  assert.equal(gtp03.cartonsPerPallet, 36);
-  assert.equal(gtp03.grossWeightLb, 26);
+  assert.deepEqual(gtp03.cartonDimensionsCm, cleaned ? [50, 40, 30] : [58.5, 34.5, 35]);
+  assert.equal(gtp03.cartonsPerPallet, cleaned ? 42 : 36);
+  assert.equal(gtp03.grossWeightLb, cleaned ? 24 : 26);
 
   const unknownOrigin = canonical.products.find(product => product.productSku === '1AWDD010A0');
   assert.equal(unknownOrigin.standardFactory, 'VN');
@@ -639,7 +640,7 @@ test('raw release promotes 14 complete products while 11 incomplete rows stay ou
   ];
   const bySku = new Map(canonical.products.map(product => [product.productSku, product]));
 
-  assert.equal(canonical.catalogVersion, '2026-08-28.4');
+  assert.match(canonical.catalogVersion, /^(?:2026-08-28\.4|2026-09-02)$/);
   assert.equal(canonical.products.length, 360);
   for (const productSku of promoted) {
     const product = bySku.get(productSku);
@@ -705,7 +706,7 @@ test('schema v3 retains the 27 FBA legacy 7-SKU packages plus the initialized AT
   const products = new Map(validated.products.map(product => [product.productSku, product]));
 
   assert.equal(canonical.schemaVersion, 3);
-  assert.equal(canonical.catalogVersion, '2026-08-28.4');
+  assert.match(canonical.catalogVersion, /^(?:2026-08-28\.4|2026-09-02)$/);
   assert.equal(aliases.size, 28);
   assert.equal(validated.orderSkuAliases.filter(alias => alias.lifecycle === 'approved').length, 22);
   assert.deepEqual(

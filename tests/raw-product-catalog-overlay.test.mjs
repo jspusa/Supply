@@ -198,3 +198,27 @@ test('a correction appends a new version and refuses to rewrite a released versi
     /already a released immutable packaging version/,
   );
 });
+
+test('an explicitly approved conflict replacement removes old packaging only for named SKUs', () => {
+  const result = overlayRawProductCatalog(baseCatalog(), { records:[{
+    sku:'GTP01', unitsPerCarton:96, cartonsPerPallet:42,
+    cartonDimensionsCm:[50, 40, 30], grossWeightLb:24,
+    sourceSheet:'2026', sourceRow:91,
+  }] }, {
+    catalogVersion:'2026-08-28.4',
+    packagingHistoryReplacements:[{
+      sku:'GTP01',
+      sourceSheet:'2026',
+      sourceRow:91,
+      removedVersionIds:['2026-08-25'],
+    }],
+  });
+  const replaced = result.catalog.products.find(product => product.productSku === 'GTP01');
+  const untouched = result.catalog.products.find(product => product.productSku === 'NEW01');
+
+  assert.equal(replaced.packagingVersions.length, 1);
+  assert.equal(replaced.packagingVersions[0].version, '2026-08-28.4');
+  assert.equal(replaced.packagingVersions[0].unitsPerCarton, 96);
+  assert.deepEqual(replaced.packagingVersions[0].source, { sheet:'2026', row:91 });
+  assert.equal(untouched.packagingVersions[0].version, '2026-08-25');
+});

@@ -91,3 +91,83 @@ test('a public Product Update Entry handoff can choose an exact subset but canno
   tampered.selectedEntryIds = ['source-conflict:ABC01:1'];
   assert.throws(() => selectionsFromHandoff(tampered, reviewed), /not a selectable|不可套用|INVALID_SELECTION|不包含/i);
 });
+
+test('packaging history replacement is visible, review-only, and requires the exact selected SKU exception', async () => {
+  const before = catalog('2026-08-28.4');
+  const candidate = catalog('2026-08-28.5', 30);
+  candidate.products[0].packagingVersions = [candidate.products[0].packagingVersions.at(-1)];
+  const reviewed = await createCatalogChangePlan(before, candidate, {
+    generatedAt:'2026-08-28T01:02:03.000Z',
+    duplicateResolution:{
+      schemaVersion:1,
+      policy:{
+        schemaVersion:1,
+        match:{ cartonDimensionsCm:[50.8, 40.64, 30.48] },
+        overrides:{},
+        replacePackagingHistory:true,
+      },
+      resolutions:[{
+        sku:'ABC01',
+        criteria:{ cartonDimensionsCm:[50.8, 40.64, 30.48] },
+        sourceSheet:'2026',
+        sourceRow:7,
+        removedVersionIds:['2026-08-28.4'],
+      }],
+    },
+  });
+  const entry = reviewed.entries.find(item => item.id === 'product:ABC01');
+
+  assert.equal(entry.risk, 'review');
+  assert.equal(entry.selected, false);
+  assert.deepEqual(entry.fields.find(field => field.field === 'packagingHistoryVersions'), {
+    field:'packagingHistoryVersions',
+    before:['2026-08-28.4'],
+    after:['2026-08-28.5'],
+  });
+  await assert.rejects(
+    () => import('../catalog/catalog-change-plan.js').then(({ applyCatalogChangePlan }) => applyCatalogChangePlan(before, candidate, reviewed, {
+      selectedEntryIds:[],
+    })),
+    /history replacement|歷史箱規/i,
+  );
+  const { applyCatalogChangePlan } = await import('../catalog/catalog-change-plan.js');
+  const applied = await applyCatalogChangePlan(before, candidate, reviewed, {
+    selectedEntryIds:['product:ABC01'],
+  });
+  assert.deepEqual(applied.catalog.products[0].packagingVersions.map(item => item.version), ['2026-08-28.5']);
+});
+
+test('apply revalidation compares the exact signed duplicate-resolution policy', async () => {
+  const before = catalog('2026-08-28.4');
+  const candidate = catalog('2026-08-28.5', 30);
+  candidate.products[0].packagingVersions = [candidate.products[0].packagingVersions.at(-1)];
+  const decision = criterion => ({
+    schemaVersion:1,
+    policy:{
+      schemaVersion:1,
+      match:{ cartonDimensionsCm:criterion },
+      overrides:{},
+      replacePackagingHistory:true,
+    },
+    resolutions:[{
+      sku:'ABC01',
+      criteria:{ cartonDimensionsCm:criterion },
+      sourceSheet:'2026',
+      sourceRow:7,
+      removedVersionIds:['2026-08-28.4'],
+    }],
+  });
+  const reviewed = await createCatalogChangePlan(before, candidate, {
+    generatedAt:'2026-08-28T01:02:03.000Z',
+    duplicateResolution:decision([50.8, 40.64, 30.48]),
+  });
+  const regeneratedWithDifferentPolicy = await createCatalogChangePlan(before, candidate, {
+    generatedAt:'2026-08-28T02:03:04.000Z',
+    duplicateResolution:decision([50, 40, 30]),
+  });
+
+  await assert.rejects(
+    () => assertReviewedPlan(reviewed, regeneratedWithDifferentPolicy),
+    /衝突資料已變更/,
+  );
+});

@@ -23,7 +23,9 @@ const validLock = {
   publicContentHash,
 };
 
-test('checked-in peer lock pins one exact FBA commit and matches Catalog Alignment', () => {
+test('checked-in peer lock pins one exact FBA commit and matches Catalog Alignment', {
+  skip:process.env.CATALOG_RELEASE_IN_PROGRESS === '1' ? 'peer lock is written after the FBA release commit' : false,
+}, () => {
   const lock = readCatalogPeerLock();
   assert.match(lock.revision, /^[a-f0-9]{40}$/);
   assert.equal(lock.repository, 'jspusa/FBA');
