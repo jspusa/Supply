@@ -95,8 +95,13 @@ function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
 }
 
-function run(command, args, cwd) {
-  const result = spawnSync(command, args, { cwd, encoding:'utf8', stdio:'pipe' });
+function run(command, args, cwd, extraEnv = {}) {
+  const result = spawnSync(command, args, {
+    cwd,
+    encoding:'utf8',
+    stdio:'pipe',
+    env:{ ...process.env, ...extraEnv },
+  });
   if (result.stdout) process.stdout.write(result.stdout);
   if (result.stderr) process.stderr.write(result.stderr);
   if (result.status !== 0) throw new Error(`${command} ${args.join(' ')} failed in ${cwd}`);
@@ -162,7 +167,7 @@ function recordLocalAlignmentEvidence(release, checkedAt = new Date().toISOStrin
 }
 
 function verifyRelease({ fbaRepo }) {
-  run('npm', ['test'], supplyRepo);
+  run('npm', ['test'], supplyRepo, { CATALOG_RELEASE_IN_PROGRESS:'1', FBA_REPO:fbaRepo });
   run('npm', ['run', 'catalog:check'], supplyRepo);
   run('npm', ['run', 'build'], supplyRepo);
   run('npm', ['run', 'verify:dist'], supplyRepo);
@@ -176,6 +181,7 @@ function reviewedPlanEvidence(plan) {
   return {
     baseline:plan.baseline,
     candidate:plan.candidate,
+    duplicateResolution:plan.duplicateResolution,
     blockers:plan.blockers,
     entries:plan.entries,
   };
@@ -211,7 +217,7 @@ export function selectionsFromHandoff(handoffInput, reviewedPlan) {
   return [...handoff.selectedEntryIds];
 }
 
-async function revalidateInput({ inputPath, beforeCatalog, version, explicitClears, expectedHash, temporaryDirectory }) {
+async function revalidateInput({ inputPath, beforeCatalog, version, explicitClears, conflictResolution, expectedHash, temporaryDirectory }) {
   const baselinePath = path.join(temporaryDirectory, 'baseline.json');
   const revalidatedPath = path.join(temporaryDirectory, 'revalidated-product-catalog.json');
   fs.writeFileSync(baselinePath, `${JSON.stringify(beforeCatalog, null, 2)}\n`);
@@ -221,6 +227,7 @@ async function revalidateInput({ inputPath, beforeCatalog, version, explicitClea
     basePath:baselinePath,
     version,
     explicitClears,
+    conflictResolution,
   });
   if (await publicCatalogSha256(catalog) !== expectedHash) {
     throw new Error('原始 Excel 重新驗證的結果不一致，未套用任何變更');
@@ -240,6 +247,9 @@ async function main() {
   assertRepo(fbaRepo, 'fba-workspace');
 
   const beforeCatalog = readJson(canonicalPath);
+  const conflictResolution = args['conflict-resolution']
+    ? readJson(path.resolve(args['conflict-resolution']))
+    : null;
   const reviewedPlanInput = args.apply ? readJson(path.resolve(args['reviewed-plan'])) : null;
   const version = resolveCatalogReleaseVersion(beforeCatalog.catalogVersion, {
     requestedVersion:args.version,
@@ -255,12 +265,14 @@ async function main() {
       basePath:canonicalPath,
       version,
       explicitClears,
+      conflictResolution,
     });
     const generatedPlan = await createCatalogChangePlan(beforeCatalog, catalog, {
       sourceFile:path.basename(inputPath),
       conflicts:importStats?.sourceConflicts || [],
       duplicateConflicts:importStats?.duplicateConflicts || 0,
       rawSources:importStats?.sourceRecords || [],
+      duplicateResolution:importStats?.duplicateResolution || null,
     });
     writeJson(generatedPlan, args.report);
     process.stdout.write(renderCatalogChangePlan(generatedPlan));
@@ -287,6 +299,7 @@ async function main() {
       beforeCatalog,
       version,
       explicitClears,
+      conflictResolution,
       expectedHash:generatedPlan.candidate.sha256,
       temporaryDirectory,
     });
@@ -324,7 +337,14 @@ async function main() {
       fs.writeFileSync(canonicalPath, `${JSON.stringify(applied.catalog, null, 2)}\n`);
       writeCatalogUpdateRuntime({ catalogPath:canonicalPath, fbaRepo });
       writeSupplyProductData({ catalogPath:canonicalPath, outputPath:supplySnapshotPath });
-      run(process.execPath, ['scripts/generate-product-catalog.mjs', '--source', canonicalPath], fbaRepo);
+      const fbaGenerateArgs = ['scripts/generate-product-catalog.mjs', '--source', canonicalPath];
+      if (importStats?.replacedPackagingHistorySkus?.length) {
+        fbaGenerateArgs.push(
+          '--reviewed-plan', path.resolve(args['reviewed-plan']),
+          '--selected-entry-ids', applied.selectedEntryIds.join(','),
+        );
+      }
+      run(process.execPath, fbaGenerateArgs, fbaRepo);
       const alignment = writeCatalogAlignmentManifests({ catalogPath:canonicalPath, fbaRepo });
       verifyRelease({ fbaRepo });
       const alignmentRecord = recordLocalAlignmentEvidence(alignment.release);

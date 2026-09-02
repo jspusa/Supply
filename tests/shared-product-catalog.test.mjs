@@ -64,6 +64,58 @@ test('raw workbook parser keeps the first complete duplicate and reads origin an
   });
 });
 
+test('an explicit carton rule resolves duplicate rows without weakening the default blocker', () => {
+  const payload = api.createPayload(rawWorkbook(), xlsx, {
+    sourceFile:'raw.xlsx',
+    updatedAt:'2026-08-28T00:00:00Z',
+    baseCatalogVersion:'2026-08-28.4',
+    conflictResolution:{
+      schemaVersion:1,
+      match:{ cartonDimensionsCm:[50, 40, 30] },
+      overrides:{},
+    },
+  });
+  const gtp03 = payload.records.find(record => record.sku === 'GTP03');
+
+  assert.equal(payload.stats.duplicateConflicts, 0);
+  assert.equal(payload.stats.resolvedDuplicateConflicts, 1);
+  assert.deepEqual(payload.conflicts, []);
+  assert.deepEqual(payload.resolutions, [{
+    sku:'GTP03',
+    criteria:{ cartonDimensionsCm:[50, 40, 30] },
+    sourceSheet:'AMZ 所有SKU',
+    sourceRow:4,
+  }]);
+  assert.equal(gtp03.unitsPerCarton, 90);
+  assert.deepEqual(gtp03.cartonDimensionsCm, [50, 40, 30]);
+});
+
+test('a same-size duplicate stays blocked until its SKU override chooses one exact row', () => {
+  const workbook = rawWorkbook();
+  const first = Array(23).fill('');
+  const second = Array(23).fill('');
+  first[1] = '1ABRD002A0'; first[2] = '越南'; first[4] = 42; first[17] = '50*40*30'; first[18] = 42; first[22] = 37;
+  second[1] = '1ABRD002A0'; second[2] = '越南'; second[4] = 36; second[17] = '50*40*30'; second[18] = 42; second[22] = 27;
+  workbook.Sheets['AMZ 所有SKU'].rows.push(first, second);
+
+  const sizeOnly = api.createPayload(workbook, xlsx, {
+    conflictResolution:{ schemaVersion:1, match:{ cartonDimensionsCm:[50, 40, 30] }, overrides:{} },
+  });
+  assert.equal(sizeOnly.stats.duplicateConflicts, 1);
+  assert.equal(sizeOnly.conflicts[0].sku, '1ABRD002A0');
+
+  const exact = api.createPayload(workbook, xlsx, {
+    conflictResolution:{
+      schemaVersion:1,
+      match:{ cartonDimensionsCm:[50, 40, 30] },
+      overrides:{ '1ABRD002A0':{ unitsPerCarton:36 } },
+    },
+  });
+  assert.equal(exact.stats.duplicateConflicts, 0);
+  assert.equal(exact.records.find(record => record.sku === '1ABRD002A0').unitsPerCarton, 36);
+  assert.equal(exact.resolutions.find(item => item.sku === '1ABRD002A0').sourceRow, 8);
+});
+
 test('one browser payload overlays Supply, excludes 7-prefixed aliases, and persists safely', () => {
   const payload = api.createPayload(rawWorkbook(), xlsx, { sourceFile:'raw.xlsx', updatedAt:'2026-08-28T00:00:00Z', baseCatalogVersion:'2026-08-28.4' });
   const storage = new Map();

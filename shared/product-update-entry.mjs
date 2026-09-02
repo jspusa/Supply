@@ -7,7 +7,7 @@ import {
 } from './catalog-update-planner.mjs';
 
 const PLAN_KEYS = Object.freeze([
-  'baseline', 'blockers', 'candidate', 'entries', 'generatedAt', 'planSha256',
+  'baseline', 'blockers', 'candidate', 'duplicateResolution', 'entries', 'generatedAt', 'planSha256',
   'schemaVersion', 'sourceFile', 'stats',
 ]);
 const SNAPSHOT_KEYS = Object.freeze(['catalogVersion', 'sha256']);
@@ -47,6 +47,7 @@ const FIELD_COPY = Object.freeze({
   lifecycle:'使用狀態',
   origin:'產地',
   packagingVersion:'包裝版本',
+  packagingHistoryVersions:'歷史包裝版本',
   productName:'品名',
   standardFactory:'標準代工廠',
   unitsPerCarton:'每箱數量',
@@ -278,6 +279,7 @@ export async function validateCatalogChangePlanForReview(input, { cryptoRef = gl
     sourceFile:input.sourceFile,
     baseline:snapshot(input.baseline, 'baseline'),
     candidate:snapshot(input.candidate, 'candidate'),
+    duplicateResolution:jsonValue(input.duplicateResolution, 'duplicateResolution'),
     stats,
     blockers:input.blockers.map(item => item.trim()),
     entries,

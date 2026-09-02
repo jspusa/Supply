@@ -76,6 +76,8 @@ _Avoid_: Cloud backup, exported order
 An immutable, source-attributed set of carton, pallet, weight, dimension, and order-unit facts for one Product SKU or Order SKU Alias. An unpublished version may be corrected; once released or assigned to work, a correction creates another version instead of rewriting history.
 _Avoid_: Current box spec, overwritten carton data
 
+An explicitly approved duplicate-source cleanup may replace packaging history only for the conflict SKUs named by the signed release plan. This is a narrow exception: the exact source-row criteria and removed version IDs must be reviewed, while every other SKU keeps normal immutability.
+
 **Packaging Assignment**:
 The explicit choice of one Packaging Specification Version for an Order Draft row or an FBA inbound or expiry row. The assignment stays pinned when a later version becomes the default.
 _Avoid_: Global current packaging, latest-SKU lookup

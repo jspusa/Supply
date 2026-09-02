@@ -102,7 +102,7 @@ function writeRawWorkbook(filePath, units = [30]) {
   XLSX.writeFile(workbook, filePath);
 }
 
-function compileRawFixture(t, units = [30]) {
+function compileRawFixture(t, units = [30], conflictResolution = null) {
   const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'catalog-release-seam-'));
   t.after(() => fs.rmSync(temporary, { recursive:true, force:true }));
   const inputPath = path.join(temporary, 'raw-product-information.xlsx');
@@ -115,6 +115,7 @@ function compileRawFixture(t, units = [30]) {
     outputPath,
     basePath,
     version:NEW_VERSION,
+    conflictResolution,
   });
   return { ...compiled, inputPath };
 }
@@ -126,6 +127,7 @@ function planMetadata(compiled, inputPath) {
     duplicateConflicts:compiled.importStats.duplicateConflicts,
     conflicts:compiled.importStats.sourceConflicts,
     rawSources:compiled.importStats.sourceRecords,
+    duplicateResolution:compiled.importStats.duplicateResolution,
   };
 }
 
@@ -219,6 +221,33 @@ test('conflicting duplicate source rows retain exact row/value evidence and bloc
     () => applyCatalogChangePlan(before, compiled.catalog, plan, { selectedEntryIds:['product:SEAM01'] }),
     /產品資料發布被阻擋/,
   );
+});
+
+test('an approved row rule resolves the real workbook seam and replaces only that SKU history', async t => {
+  const before = baselineCatalog();
+  const conflictResolution = {
+    schemaVersion:1,
+    match:{ cartonDimensionsCm:[50.8, 40.64, 30.48] },
+    overrides:{ SEAM01:{ unitsPerCarton:31 } },
+    replacePackagingHistory:true,
+  };
+  const compiled = compileRawFixture(t, [30, 31], conflictResolution);
+  const plan = await createCatalogChangePlan(before, compiled.catalog, {
+    ...planMetadata(compiled, compiled.inputPath),
+    duplicateResolution:compiled.importStats.duplicateResolution,
+  });
+
+  assert.equal(compiled.importStats.duplicateConflicts, 0);
+  assert.equal(compiled.importStats.resolvedDuplicateConflicts, 1);
+  assert.deepEqual(compiled.importStats.replacedPackagingHistorySkus, ['SEAM01']);
+  assert.deepEqual(compiled.catalog.products[0].packagingVersions.map(item => item.version), [NEW_VERSION]);
+  assert.equal(plan.stats.blocking, 0);
+  assert.equal(plan.entries[0].risk, 'review');
+  const applied = await applyCatalogChangePlan(before, compiled.catalog, plan, {
+    selectedEntryIds:['product:SEAM01'],
+  });
+  assert.deepEqual(applied.catalog.products[0].packagingVersions.map(item => item.version), [NEW_VERSION]);
+  assert.deepEqual(applied.catalog.products[1].packagingVersions.map(item => item.version), [OLD_VERSION]);
 });
 
 test('the real raw release seam blocks a stale plan, persists one-site failure, and recovers only that projection', async t => {

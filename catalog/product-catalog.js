@@ -385,27 +385,49 @@ function canonicalOwnerMap(catalog) {
   return owners;
 }
 
-export function assertCatalogHistoryPreserved(previousCatalog, nextCatalog) {
+export function assertCatalogHistoryPreserved(previousCatalog, nextCatalog, options = {}) {
   const previous = migrateCatalog(previousCatalog);
   const next = migrateCatalog(nextCatalog);
   validateCatalog(previous);
   validateCatalog(next);
+  if (options.replacePackagingHistoryForSkus) {
+    throw new CatalogValidationError(['packaging history replacement requires exact removed version IDs']);
+  }
+  const replacements = new Map((options.packagingHistoryReplacements || []).map(item => {
+    const sku = String(item?.sku || '').trim().toUpperCase();
+    const removedVersionIds = [...new Set((item?.removedVersionIds || []).map(String))];
+    return [sku, removedVersionIds];
+  }));
+  const previousOwners = canonicalOwnerMap(previous);
   const nextOwners = canonicalOwnerMap(next);
   const issues = [];
-  for (const [sku, previousOwner] of canonicalOwnerMap(previous)) {
+  for (const [sku, previousOwner] of previousOwners) {
     const nextOwner = nextOwners.get(sku);
     if (!nextOwner) {
       issues.push(`${sku} released identity must be retired instead of removed`);
       continue;
     }
+    const removedVersionIds = replacements.get(sku) || [];
+    const actualRemovedVersionIds = [];
     const nextVersions = new Map(nextOwner.packagingVersions.map(packaging => [packaging.version, packaging]));
     for (const previousPackaging of previousOwner.packagingVersions) {
       const nextPackaging = nextVersions.get(previousPackaging.version);
       if (!nextPackaging) {
-        issues.push(`${sku} released packaging version ${previousPackaging.version} must not be removed`);
+        actualRemovedVersionIds.push(previousPackaging.version);
+        if (!removedVersionIds.includes(previousPackaging.version)) {
+          issues.push(`${sku} released packaging version ${previousPackaging.version} must not be removed`);
+        }
       } else if (JSON.stringify(nextPackaging) !== JSON.stringify(previousPackaging)) {
         issues.push(`${sku} released packaging version ${previousPackaging.version} is immutable; create another version`);
       }
+    }
+    if (JSON.stringify([...actualRemovedVersionIds].sort()) !== JSON.stringify([...removedVersionIds].sort())) {
+      issues.push(`${sku} removed packaging versions must exactly match the reviewed IDs`);
+    }
+  }
+  for (const sku of replacements.keys()) {
+    if (!previousOwners.has(sku) || !nextOwners.has(sku)) {
+      issues.push(`${sku} packaging history replacement must name one existing identity`);
     }
   }
   if (issues.length) throw new CatalogValidationError(issues);

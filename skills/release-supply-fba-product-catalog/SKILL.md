@@ -38,7 +38,7 @@ Read the signed report and account for every changed Product SKU and Order SKU A
 - an active product becomes incomplete without an explicitly reviewed clear that necessarily causes that lifecycle change;
 - either worktree is dirty, behind its remote default branch, or contains unrelated changes.
 
-Complete duplicate rows may merge only when their public values agree. Competing complete rows block the release with every sheet, row, and value shown; never choose the first or last row. Never infer a 7-prefixed alias owner.
+Complete duplicate rows may merge only when their public values agree. Competing complete rows block the release with every sheet, row, and value shown; never choose the first or last row. A user-approved cleanup may pass `--conflict-resolution <policy.json>` in both plan and apply: normalized shared criteria plus SKU overrides must identify exactly one row, while unresolved or ambiguous matches remain blocking. `replacePackagingHistory: true` may remove old versions only for successfully resolved SKUs; the plan must expose `packagingHistoryVersions` as review-risk and each entry requires explicit selection. Never infer a 7-prefixed alias owner.
 
 ## Apply and verify
 

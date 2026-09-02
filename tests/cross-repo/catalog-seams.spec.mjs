@@ -239,7 +239,10 @@ test('FBA export keeps an existing assignment after a later default and gives on
 
   await page.goto(`${origin}/FBA/inbound-plan.html?catalog=next`);
   await expect(page.locator('.packaging-badge')).toHaveText(`包裝 ${OLD_VERSION}`);
-  await expect(page.locator('.packaging-newer')).toContainText(`有新版 ${NEW_VERSION}`);
+  const versionDetails = page.locator('.sku-packaging-details');
+  await expect(versionDetails).toHaveCount(1);
+  await versionDetails.locator('summary').click();
+  await expect(versionDetails.locator('.sku-packaging-help')).toContainText(`產品資料庫目前另有新版 ${NEW_VERSION}`);
   await page.locator('#pasteInput').fill('GTBL05\t2\t12/31/2027\nGTBL05\t2\t11/30/2027');
   await expect(page.locator('.packaging-badge')).toHaveText([
     `包裝 ${OLD_VERSION}`,
