@@ -13,6 +13,14 @@ import {
 
 const repoRoot = path.resolve(import.meta.dirname, '..', '..');
 const supplyManifest = JSON.parse(fs.readFileSync(path.join(repoRoot, 'catalog-alignment.json'), 'utf8'));
+const supplyCatalog = JSON.parse(fs.readFileSync(path.join(repoRoot, 'catalog', 'product-catalog.json'), 'utf8'));
+const rawExcelReleaseDate = new Date(`${supplyCatalog.catalogVersion.slice(0, 10)}T08:30:00.000Z`);
+rawExcelReleaseDate.setUTCDate(rawExcelReleaseDate.getUTCDate() + 1);
+const rawExcelReleaseVersion = rawExcelReleaseDate.toISOString().slice(0, 10);
+const gtp03 = supplyCatalog.products.find(product => product.productSku === 'GTP03');
+const gtp03DefaultPackaging = gtp03.packagingVersions.find(
+  packaging => packaging.version === gtp03.newOrderPackagingDefaultVersion,
+);
 const fbaManifest = {
   ...supplyManifest,
   site:'fba',
@@ -172,7 +180,7 @@ test('blocking conflict is disabled, cannot be bypassed, and mobile dialog stays
 });
 
 test('raw Excel creates the signed plan in memory and explicit clear is review-only', async ({ page, context }) => {
-  await freezeBrowserTime(page);
+  await page.clock.setFixedTime(rawExcelReleaseDate);
   const browserErrors = monitorBrowserErrors(page);
   const unexpectedRequests = [];
   await installAlignmentRoutes(context);
@@ -189,7 +197,9 @@ test('raw Excel creates the signed plan in memory and explicit clear is review-o
     buffer:rawProductWorkbookBuffer(),
   });
   await expect(dialog.locator('[data-product-update-message]')).toContainText('已在記憶體解析 1 筆');
-  await expect(dialog.locator('[data-product-update-versions]')).toHaveText('2026-08-28.4 → 2026-08-28.5');
+  await expect(dialog.locator('[data-product-update-versions]')).toHaveText(
+    `${supplyCatalog.catalogVersion} → ${rawExcelReleaseVersion}`,
+  );
   await expect(dialog.locator('[data-product-update-clears]')).toBeVisible();
   await dialog.locator('[data-product-update-clears] summary').click();
   const clearCartons = dialog.locator('[data-clear-sku="GTP03"][data-clear-field="cartonsPerPallet"]');
@@ -210,7 +220,7 @@ test('raw Excel creates the signed plan in memory and explicit clear is review-o
     sourceFile:'raw-product.xlsx',
     risk:'review',
     selected:false,
-    clear:{ field:'cartonsPerPallet', before:36, after:null },
+    clear:{ field:'cartonsPerPallet', before:gtp03DefaultPackaging.cartonsPerPallet, after:null },
   });
 
   const planDownloadPromise = page.waitForEvent('download');
