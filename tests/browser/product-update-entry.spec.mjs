@@ -59,6 +59,7 @@ function signedPlan({ blocked = false } = {}) {
     sourceFile:'raw-product.xlsx',
     baseline:{ catalogVersion:'2026-08-28.4', sha256:'a'.repeat(64) },
     candidate:{ catalogVersion:'2026-08-28.5', sha256:'b'.repeat(64) },
+    duplicateResolution:null,
     stats:{
       productsBefore:1, productsAfter:1, aliasesBefore:1, aliasesAfter:1,
       added:0, updated:2, removed:0, changedEntries:2,
