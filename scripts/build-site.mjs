@@ -69,7 +69,7 @@ for (const relativePath of runtimeFiles) {
   fs.copyFileSync(source, destination);
 }
 
-for (const relativePath of ['index.html', 'Boss/index.html']) {
+for (const relativePath of ['index.html', 'Boss/index.html', 'shared/workspace-ui.js']) {
   const destination = path.join(output, relativePath);
   const source = fs.readFileSync(destination, 'utf8');
   fs.writeFileSync(destination, replaceAppVersionToken(source, appVersion, relativePath));

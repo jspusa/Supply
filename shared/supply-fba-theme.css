@@ -201,22 +201,6 @@
 .fba-visual-system .workflowHealth{gap:10px;margin-bottom:18px}
 .fba-visual-system .healthItem{background:rgba(255,255,255,.9)}
 
-/* Make manually overridden sales velocity unmistakable in the planning table. */
-.fba-visual-system .generatorPlanningDetails.hasManualVelocity > summary{
-  padding:3px 7px;
-  border:1px solid #f59e0b;
-  border-radius:8px;
-  background:#fef3c7;
-  color:#92400e;
-  box-shadow:0 0 0 2px rgba(245,158,11,.14);
-}
-.fba-visual-system .generatorPlanningDetails.hasManualVelocity > summary:hover,
-.fba-visual-system .generatorPlanningDetails.hasManualVelocity[open] > summary{
-  border-color:#d97706;
-  background:#fde68a;
-  color:#78350f;
-}
-
 /* Data workspace. */
 .fba-visual-system .uploadWorkspace{gap:16px}
 .fba-visual-system .uploadPrimaryPanel,
@@ -357,9 +341,18 @@
 .fba-visual-system .order-generator table{
   min-width:1120px;
   margin:0;
+  overflow:visible;
   border-radius:0;
   background:#fff;
   box-shadow:none;
+}
+.fba-visual-system .order-generator .table-responsive{isolation:isolate}
+.fba-visual-system .order-generator .table-responsive thead th{
+  position:sticky;
+  top:0;
+  z-index:5;
+  background:#f7f7f9;
+  box-shadow:0 1px 0 #d8d8dd,0 5px 12px rgba(0,0,0,.06);
 }
 .fba-visual-system .order-generator th,
 .fba-visual-system .order-generator td{padding:8px 7px;border-bottom:1px solid #ececf0;font-size:12px}
@@ -384,6 +377,35 @@
   appearance:auto;
 }
 .fba-visual-system .palletStepButtons{display:none}
+.fba-visual-system .order-generator .palletDaysCell{text-align:center;}
+.fba-visual-system .order-generator .generatorPlanningDetails{
+  display:inline-block;
+  inline-size:84px;
+  max-inline-size:100%;
+}
+.fba-visual-system .order-generator .generatorPlanningDetails > summary{
+  box-sizing:border-box;
+  justify-content:center;
+  inline-size:100%;
+  min-block-size:30px;
+  padding:3px 7px;
+  border:1px solid transparent;
+  border-bottom-color:#93a9c5;
+  border-radius:8px;
+}
+/* Keep manual and system velocity values on the same center line and dimensions. */
+.fba-visual-system .generatorPlanningDetails.hasManualVelocity > summary{
+  border:1px solid #f59e0b;
+  background:#fef3c7;
+  color:#92400e;
+  box-shadow:0 0 0 2px rgba(245,158,11,.14);
+}
+.fba-visual-system .generatorPlanningDetails.hasManualVelocity > summary:hover,
+.fba-visual-system .generatorPlanningDetails.hasManualVelocity[open] > summary{
+  border-color:#d97706;
+  background:#fde68a;
+  color:#78350f;
+}
 .fba-visual-system .order-generator .action-button,
 .fba-visual-system .order-generator .remove-button,
 .fba-visual-system .order-generator .lock-button,
@@ -403,6 +425,12 @@
 .fba-visual-system .order-generator .skuIdentityActions:empty,
 .fba-visual-system .order-generator .packagingAssignmentSlot:empty{display:none}
 .fba-visual-system .order-generator .packagingAssignmentSlot{display:block;max-inline-size:100%}
+.fba-visual-system .app-header .brand-version{
+  margin-inline-start:4px;
+  color:var(--workspace-muted);
+  font-size:11px;
+  font-weight:700;
+}
 .fba-visual-system .order-generator .packagingAssignmentStatus{display:block;color:#6e6e73;font-size:10px;line-height:1.25;white-space:nowrap}
 .fba-visual-system .order-generator .packagingReassignButton{
   display:inline-flex;

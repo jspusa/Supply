@@ -158,6 +158,10 @@ test('site build emits the exact deterministic deployment artifact', t => {
     assert.doesNotMatch(html, /__SUPPLY_APP_VERSION__/, `${relativePath} should not retain a version token`);
     assert.doesNotMatch(html, /訂單分析器\s*V2/, `${relativePath} should not retain the stale V2 label`);
   }
+  const workspaceUi = fs.readFileSync(path.join(firstDist, 'shared', 'workspace-ui.js'), 'utf8');
+  assert.match(workspaceUi, /aria-label="訂單工作台 V1\.5"/);
+  assert.match(workspaceUi, /<strong>訂單工作台 <small class="brand-version">V1\.5<\/small><\/strong>/);
+  assert.doesNotMatch(workspaceUi, /__SUPPLY_APP_VERSION__/);
 });
 
 test('artifact verifier accepts a complete unmodified site build', t => {

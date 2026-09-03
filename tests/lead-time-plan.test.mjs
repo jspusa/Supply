@@ -11,6 +11,14 @@ const sharedThemeCss = fs.readFileSync(path.join(repoRoot, 'shared', 'supply-fba
 
 test('manual sales velocity highlights the entire planning value instead of a small dot', () => {
   assert.match(sharedThemeCss, /\.generatorPlanningDetails\.hasManualVelocity > summary\s*\{[^}]*border:1px solid #f59e0b;[^}]*background:#fef3c7;/s);
+  assert.match(sharedThemeCss, /\.order-generator \.palletDaysCell\s*\{[^}]*text-align:center;/s);
+  assert.match(sharedThemeCss, /\.order-generator \.generatorPlanningDetails\s*\{[^}]*inline-size:84px;/s);
+  assert.match(sharedThemeCss, /\.order-generator \.generatorPlanningDetails > summary\s*\{[^}]*justify-content:center;[^}]*inline-size:100%;/s);
+});
+
+test('order table header remains frozen inside the vertical scroll area', () => {
+  assert.match(sharedThemeCss, /\.order-generator table\s*\{[^}]*overflow:visible;/s);
+  assert.match(sharedThemeCss, /\.order-generator \.table-responsive thead th\s*\{[^}]*position:sticky;[^}]*top:0;[^}]*z-index:5;/s);
 });
 
 function extractFunctionSource(html, name) {

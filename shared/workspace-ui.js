@@ -18,9 +18,9 @@ const NAV_ITEMS = Object.freeze(WORKSPACE_IDS.map(id => Object.freeze({ id, labe
 function navigationMarkup() {
   return `<header class="app-header supplyWorkspaceHeader">
     <div class="header-inner">
-      <div class="brand" aria-label="補貨工作台">
+      <div class="brand" aria-label="訂單工作台 __SUPPLY_APP_VERSION__">
         <div class="brand-mark" aria-hidden="true">J</div>
-        <div class="brand-copy"><strong>補貨工作台</strong><span>Jasper Pet Care Products, Inc.</span></div>
+        <div class="brand-copy"><strong>訂單工作台 <small class="brand-version">__SUPPLY_APP_VERSION__</small></strong><span>Jasper Pet Care Products, Inc.</span></div>
       </div>
       <nav class="workspaceTopNav top-tabs" aria-label="主要工作區">
         <div class="workspaceNavTabs" role="tablist" aria-label="Supply 工作區">

@@ -17,7 +17,7 @@ test('desktop Supply uses the FBA Jasper shell without reloading workspace state
 
   const header = page.locator('.app-header');
   await expect(header).toBeVisible();
-  await expect(header.locator('.brand-copy strong')).toHaveText('補貨工作台');
+  await expect(header.locator('.brand-copy strong')).toHaveText(/訂單工作台 V\d+\.\d+/);
   await expect(header.locator('.brand-copy span')).toHaveText('Jasper Pet Care Products, Inc.');
   await expect(header.locator('.workspaceNavTab')).toHaveCount(5);
   const shell = await page.evaluate(() => {

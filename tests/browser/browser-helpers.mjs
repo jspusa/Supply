@@ -559,6 +559,8 @@ export async function buildThreeGroupOrderScenario(page) {
   await page.locator('#jamBreakdownModal .close-modal').click();
 
   const planningDetails = palletRow.locator('.generatorPlanningDetails');
+  const systemPlanningBox = await planningDetails.locator('summary').boundingBox();
+  expect(systemPlanningBox).not.toBeNull();
   const systemPalletDays = Number((await palletRow.locator('.pallet-days-value').innerText()).match(/[\d.]+/)?.[0]);
   await expect(planningDetails.locator('summary')).toContainText(`${systemPalletDays.toFixed(1)} 天`);
   await planningDetails.locator('summary').click();
@@ -570,6 +572,10 @@ export async function buildThreeGroupOrderScenario(page) {
   await expect(planningDetails).toHaveClass(/hasManualVelocity/);
   await expect(planningDetails.locator('summary')).toHaveCSS('border-top-color', 'rgb(245, 158, 11)');
   await expect(planningDetails.locator('summary')).toHaveCSS('background-color', 'rgb(254, 243, 199)');
+  const manualPlanningBox = await planningDetails.locator('summary').boundingBox();
+  expect(manualPlanningBox).not.toBeNull();
+  expect(manualPlanningBox.x).toBeCloseTo(systemPlanningBox.x, 1);
+  expect(manualPlanningBox.width).toBeCloseTo(systemPlanningBox.width, 1);
   await expect.poll(() => page.evaluate(() => {
     const saved = JSON.parse(localStorage.getItem('supply-order-velocity-overrides-v1') || '{}');
     return saved.overrides?.GTSL01;

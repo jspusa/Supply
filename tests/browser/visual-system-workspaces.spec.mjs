@@ -86,6 +86,34 @@ test('1440 desktop applies white-card production components to every workspace',
 
   await expect(page.locator('#productTable th')).toHaveCount(11);
   expect(await page.locator('.order-generator .table-responsive').evaluate(element => getComputedStyle(element).overflowX)).toBe('auto');
+  const frozenHeader = await page.locator('.order-generator .table-responsive').evaluate(async element => {
+    const table = element.querySelector('table');
+    const tbody = table.querySelector('tbody');
+    const header = table.querySelector('thead th');
+    element.style.maxHeight = '150px';
+    for (let index = 0; index < 18; index += 1) {
+      const row = document.createElement('tr');
+      row.innerHTML = '<td>&nbsp;</td>'.repeat(11);
+      tbody.append(row);
+    }
+    const before = header.getBoundingClientRect().top;
+    element.scrollTop = 120;
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    const style = getComputedStyle(header);
+    return {
+      before,
+      after:header.getBoundingClientRect().top,
+      position:style.position,
+      top:style.top,
+      scrollTop:element.scrollTop,
+      tableOverflow:getComputedStyle(table).overflow,
+    };
+  });
+  expect(frozenHeader.position).toBe('sticky');
+  expect(frozenHeader.top).toBe('0px');
+  expect(frozenHeader.scrollTop).toBeGreaterThan(0);
+  expect(frozenHeader.after).toBeCloseTo(frozenHeader.before, 0);
+  expect(frozenHeader.tableOverflow).toBe('visible');
   expect(unexpectedRequests).toEqual([]);
 });
 

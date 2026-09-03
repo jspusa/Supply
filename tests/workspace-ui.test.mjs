@@ -12,6 +12,13 @@ const pages = Object.freeze([
   Object.freeze({ name:'Boss', source:fs.readFileSync(path.join(repoRoot, 'Boss', 'index.html'), 'utf8') }),
 ]);
 
+test('workspace brand names the Order workspace and reserves the generated app version', () => {
+  assert.match(workspaceUiSource, /aria-label="訂單工作台 __SUPPLY_APP_VERSION__"/);
+  assert.match(workspaceUiSource, /<strong>訂單工作台 <small class="brand-version">__SUPPLY_APP_VERSION__<\/small><\/strong>/);
+  assert.equal((workspaceUiSource.match(/__SUPPLY_APP_VERSION__/g) || []).length, 2);
+  assert.doesNotMatch(workspaceUiSource, /補貨工作台/);
+});
+
 function elementSourceById(source, id) {
   const opening = new RegExp(`<([a-z][a-z0-9-]*)\\b[^>]*\\bid="${id}"[^>]*>`, 'i').exec(source);
   assert.ok(opening, `${id} should exist`);
