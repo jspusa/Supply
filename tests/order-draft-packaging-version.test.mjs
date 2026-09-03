@@ -39,6 +39,7 @@ test('a catalog product without a Packaging Specification Version cannot create 
     assignedVersion:null,
     currentVersion:null,
     newerAvailable:false,
+    reassignmentRecommended:false,
     reviewRequired:false,
     assigned:null,
     current:null,

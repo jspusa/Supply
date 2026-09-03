@@ -220,6 +220,7 @@ test('selected catalog update flows through Supply while floating, pinned, revie
       assignedVersion:OLD_VERSION,
       currentVersion:NEW_VERSION,
       newerAvailable:true,
+      reassignmentRecommended:true,
       reviewRequired:false,
       assigned:draft.rowsByProductSku.PIN01.packagingAssignment,
       current:{

@@ -201,6 +201,22 @@
 .fba-visual-system .workflowHealth{gap:10px;margin-bottom:18px}
 .fba-visual-system .healthItem{background:rgba(255,255,255,.9)}
 
+/* Make manually overridden sales velocity unmistakable in the planning table. */
+.fba-visual-system .generatorPlanningDetails.hasManualVelocity > summary{
+  padding:3px 7px;
+  border:1px solid #f59e0b;
+  border-radius:8px;
+  background:#fef3c7;
+  color:#92400e;
+  box-shadow:0 0 0 2px rgba(245,158,11,.14);
+}
+.fba-visual-system .generatorPlanningDetails.hasManualVelocity > summary:hover,
+.fba-visual-system .generatorPlanningDetails.hasManualVelocity[open] > summary{
+  border-color:#d97706;
+  background:#fde68a;
+  color:#78350f;
+}
+
 /* Data workspace. */
 .fba-visual-system .uploadWorkspace{gap:16px}
 .fba-visual-system .uploadPrimaryPanel,

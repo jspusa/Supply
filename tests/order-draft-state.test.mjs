@@ -675,7 +675,7 @@ test('v2 migration keeps ambiguous populated rows for one explicit batch review 
   assert.equal(exported.draft.rowsByProductSku['VN-03'].packagingAssignment.state, 'pinned');
 });
 
-test('loading v3 auto-pins only identical legacy packaging and keeps a real version difference for review', () => {
+test('loading v3 auto-pins version-only legacy changes and keeps a real packaging difference for review', () => {
   const reviewIssue = (productSku, packagingVersion = `${productSku}-v1`) => ({
     code:'PACKAGING_ASSIGNMENT_REVIEW_REQUIRED',
     productSku,
@@ -723,7 +723,10 @@ test('loading v3 auto-pins only identical legacy packaging and keeps a real vers
         quantities:{ packages:55.5, cartons:5.55, orderDraft:55.5 },
         pallet:{ value:0.14, mode:'manual', authoritativeField:'pallets', strategy:'' },
         locked:false,
-        packagingAssignment:assignment('TW-01', 'TW-01-v0'),
+        packagingAssignment:{
+          ...assignment('TW-01', 'TW-01-v0'),
+          perCarton:catalog.get('TW-01').perCarton + 1,
+        },
         createdAt:NOW,
         updatedAt:NOW,
         issues:[reviewIssue('TW-01', 'TW-01-v0')],
@@ -908,6 +911,83 @@ test('an identical saved legacy packaging review pins without asking for a no-op
     hiddenPackagingDifference.draft.rowsByProductSku['VN-03'].packagingAssignment.state,
     'review-required',
   );
+});
+
+test('a version-only packaging change does not surface a no-op reassignment', () => {
+  const currentProduct = {
+    ...catalog.get('VN-03'),
+    productCode:'GTAL01',
+    productName:'GTAL01',
+    packagingVersion:'2026-09-02',
+  };
+  const versionOnlyContext = {
+    ...context,
+    getProduct:productSku => productSku === 'GTAL01' ? currentProduct : context.getProduct(productSku),
+  };
+  const reviewIssue = {
+    code:'PACKAGING_ASSIGNMENT_REVIEW_REQUIRED',
+    productSku:'GTAL01',
+    orderSku:'GTAL01',
+    packagingVersion:'2026-08-28.4',
+    advisory:true,
+  };
+  const assignment = {
+    state:'review-required',
+    reason:'legacy-migration',
+    assignedAt:NOW,
+    orderSku:'GTAL01',
+    canonicalProductSku:'GTAL01',
+    packagingVersion:'2026-08-28.4',
+    catalogVersion:'2026-08-28.4',
+    perCarton:currentProduct.perCarton,
+    perPack:currentProduct.perPack,
+    perBox:currentProduct.perBox,
+    perPallet:currentProduct.perPallet,
+    boxSize:currentProduct.boxSize,
+    productName:currentProduct.productName,
+  };
+  const draft = {
+    schemaVersion:ORDER_DRAFT_SCHEMA_VERSION,
+    createdAt:NOW,
+    updatedAt:NOW,
+    rowsByProductSku:{
+      GTAL01:{
+        productSku:'GTAL01', orderSku:'GTAL01', standardFactory:'vietnam', orderGroup:'vietnam',
+        quantities:{ packages:0, cartons:84, orderDraft:0 },
+        pallet:{ value:2, mode:'manual', authoritativeField:'pallets', strategy:'' },
+        locked:false,
+        packagingAssignment:assignment,
+        createdAt:NOW,
+        updatedAt:NOW,
+        issues:[reviewIssue],
+      },
+    },
+    groupOrder:{ vietnam:['GTAL01'], taiwan:[], subcontract:[] },
+    repairOrder:[],
+    issues:[reviewIssue],
+  };
+
+  const preview = previewPackagingReassignment(draft, {
+    productSku:'GTAL01',
+    orderSku:'GTAL01',
+  }, versionOnlyContext);
+  assert.equal(preview.ok, true);
+  assert.equal(preview.changes.packagingVersion, true);
+  assert.equal(preview.before.cartons, preview.after.cartons);
+  assert.equal(preview.before.pallets, preview.after.pallets);
+
+  const loaded = loadOrderDraft({
+    storage:createMemoryStorage({ [ORDER_DRAFT_STORAGE_KEY]:JSON.stringify(draft) }),
+    context:versionOnlyContext,
+  });
+  const resolvedRow = loaded.draft.rowsByProductSku.GTAL01;
+  assert.equal(loaded.status, 'loaded');
+  assert.equal(loaded.needsSave, true);
+  assert.equal(resolvedRow.packagingAssignment.state, 'pinned');
+  assert.equal(resolvedRow.packagingAssignment.reason, 'legacy-identical-packaging');
+  const resolvedStatus = getPackagingAssignmentStatus(resolvedRow, versionOnlyContext);
+  assert.equal(resolvedStatus.newerAvailable, true);
+  assert.equal(resolvedStatus.reassignmentRecommended, false);
 });
 
 test('a later Standard Factory change warns but never moves a pinned row to another Order Group', () => {

@@ -7,6 +7,11 @@ import vm from 'node:vm';
 const repoRoot = path.resolve(import.meta.dirname, '..');
 const indexHtml = fs.readFileSync(path.join(repoRoot, 'index.html'), 'utf8');
 const bossHtml = fs.readFileSync(path.join(repoRoot, 'Boss', 'index.html'), 'utf8');
+const sharedThemeCss = fs.readFileSync(path.join(repoRoot, 'shared', 'supply-fba-theme.css'), 'utf8');
+
+test('manual sales velocity highlights the entire planning value instead of a small dot', () => {
+  assert.match(sharedThemeCss, /\.generatorPlanningDetails\.hasManualVelocity > summary\s*\{[^}]*border:1px solid #f59e0b;[^}]*background:#fef3c7;/s);
+});
 
 function extractFunctionSource(html, name) {
   const marker = `function ${name}(`;
@@ -93,6 +98,7 @@ for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
     assert.match(addProductSource, /generatorSkuSourceButton/);
     assert.match(disclosureSource, /manual-velocity-input/);
     assert.match(disclosureSource, /pallet-days-value/);
+    assert.doesNotMatch(html, /hasManualVelocity > summary::after/);
     assert.doesNotMatch(disclosureSource, /訂單來源|generatorOrderSource/);
     assert.match(velocitySource, /getOrderVelocityOverride/);
     assert.match(leadTimeSource, /getPlanningVelocityForProduct/);
@@ -168,7 +174,7 @@ for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
     assert.match(confirmPackagingSource, /到港覆蓋/);
     assert.match(confirmPackagingSource, /訂單群組/);
     assert.match(reassignPackagingSource, /type:'reassign-packaging'/);
-    assert.match(assignmentStatusSource, /newerAvailable/);
+    assert.match(assignmentStatusSource, /reassignmentRecommended/);
     assert.match(assignmentStatusSource, /reviewRequired/);
     assert.match(persistDraftSource, /saveOrderDraft/);
     assert.match(loadDraftSource, /loadOrderDraft/);

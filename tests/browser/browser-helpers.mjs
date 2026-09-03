@@ -568,6 +568,8 @@ export async function buildThreeGroupOrderScenario(page) {
   await manualVelocity.fill('50');
   await manualVelocity.press('Tab');
   await expect(planningDetails).toHaveClass(/hasManualVelocity/);
+  await expect(planningDetails.locator('summary')).toHaveCSS('border-top-color', 'rgb(245, 158, 11)');
+  await expect(planningDetails.locator('summary')).toHaveCSS('background-color', 'rgb(254, 243, 199)');
   await expect.poll(() => page.evaluate(() => {
     const saved = JSON.parse(localStorage.getItem('supply-order-velocity-overrides-v1') || '{}');
     return saved.overrides?.GTSL01;

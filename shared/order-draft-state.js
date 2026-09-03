@@ -382,18 +382,37 @@ export function resolveOrderDraftRowPackaging(row, context = {}) {
   return current ? { ...current, assignmentState:'floating', assignedAt:null, reason:null } : null;
 }
 
+const OPERATIONAL_PACKAGING_FIELDS = Object.freeze([
+  'orderSku',
+  'canonicalProductSku',
+  'perCarton',
+  'perPack',
+  'perBox',
+  'perPallet',
+  'boxSize',
+]);
+
+function hasSameOperationalPackaging(left, right) {
+  if (!left || !right) return false;
+  return OPERATIONAL_PACKAGING_FIELDS.every(field => (
+    (left[field] ?? null) === (right[field] ?? null)
+  ));
+}
+
 export function getPackagingAssignmentStatus(row, context = {}) {
   const assigned = row?.packagingAssignment || null;
   const current = currentPackagingSnapshot(row?.productSku, row?.orderSku, context);
+  const versionChanged = Boolean(
+    assigned?.packagingVersion
+    && current?.packagingVersion
+    && assigned.packagingVersion !== current.packagingVersion
+  );
   return {
     state:assigned?.state || 'floating',
     assignedVersion:assigned?.packagingVersion || null,
     currentVersion:current?.packagingVersion || null,
-    newerAvailable:Boolean(
-      assigned?.packagingVersion
-      && current?.packagingVersion
-      && assigned.packagingVersion !== current.packagingVersion
-    ),
+    newerAvailable:versionChanged,
+    reassignmentRecommended:versionChanged && !hasSameOperationalPackaging(assigned, current),
     reviewRequired:assigned?.state === 'review-required',
     assigned:assigned ? clone(assigned) : null,
     current:current ? clone(current) : null,
@@ -468,23 +487,10 @@ export function previewPackagingReassignment(draft, command, context = {}) {
   };
 }
 
-const LEGACY_NOOP_PACKAGING_FIELDS = Object.freeze([
-  'orderSku',
-  'canonicalProductSku',
-  'packagingVersion',
-  'perCarton',
-  'perPack',
-  'perBox',
-  'perPallet',
-  'boxSize',
-]);
-
 function isNoopPackagingReassignment(preview) {
   if (!preview?.ok) return false;
-  if (Object.values(preview.changes || {}).some(Boolean)) return false;
-  if (!LEGACY_NOOP_PACKAGING_FIELDS.every(field => (
-    (preview.before.packaging?.[field] ?? null) === (preview.after.packaging?.[field] ?? null)
-  ))) return false;
+  if (preview.changes?.orderSku || preview.changes?.orderGroup) return false;
+  if (!hasSameOperationalPackaging(preview.before.packaging, preview.after.packaging)) return false;
   return ['cartons', 'pallets', 'coverageDays'].every(field => (
     (preview.before?.[field] ?? null) === (preview.after?.[field] ?? null)
   ));
