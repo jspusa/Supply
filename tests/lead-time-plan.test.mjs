@@ -10,7 +10,7 @@ const bossHtml = fs.readFileSync(path.join(repoRoot, 'Boss', 'index.html'), 'utf
 const sharedThemeCss = fs.readFileSync(path.join(repoRoot, 'shared', 'supply-fba-theme.css'), 'utf8');
 
 test('manual sales velocity highlights the entire planning value instead of a small dot', () => {
-  assert.match(sharedThemeCss, /\.generatorPlanningDetails\.hasManualVelocity > summary\s*\{[^}]*border:1px solid #f59e0b;[^}]*background:#fef3c7;/s);
+  assert.match(sharedThemeCss, /\.generatorPlanningDetails\.hasManualVelocity > summary\s*\{[^}]*border:1px solid #f59e0b!important;[^}]*background:#fef3c7!important;/s);
   assert.match(sharedThemeCss, /\.order-generator \.palletDaysCell\s*\{[^}]*text-align:center;/s);
   assert.match(sharedThemeCss, /\.order-generator \.generatorPlanningDetails\s*\{[^}]*inline-size:84px;/s);
   assert.match(sharedThemeCss, /\.order-generator \.generatorPlanningDetails > summary\s*\{[^}]*justify-content:center;[^}]*inline-size:100%;/s);

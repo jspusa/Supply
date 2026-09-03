@@ -395,8 +395,8 @@
 }
 /* Keep manual and system velocity values on the same center line and dimensions. */
 .fba-visual-system .generatorPlanningDetails.hasManualVelocity > summary{
-  border:1px solid #f59e0b;
-  background:#fef3c7;
+  border:1px solid #f59e0b!important;
+  background:#fef3c7!important;
   color:#92400e;
   box-shadow:0 0 0 2px rgba(245,158,11,.14);
 }
