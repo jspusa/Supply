@@ -400,12 +400,6 @@
   color:#92400e;
   box-shadow:0 0 0 2px rgba(245,158,11,.14);
 }
-.fba-visual-system .generatorPlanningDetails.hasManualVelocity > summary:hover,
-.fba-visual-system .generatorPlanningDetails.hasManualVelocity[open] > summary{
-  border-color:#d97706;
-  background:#fde68a;
-  color:#78350f;
-}
 .fba-visual-system .order-generator .action-button,
 .fba-visual-system .order-generator .remove-button,
 .fba-visual-system .order-generator .lock-button,
