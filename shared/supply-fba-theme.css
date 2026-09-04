@@ -413,6 +413,40 @@
 }
 .fba-visual-system .generatorActionGroup{inline-size:87px}
 .fba-visual-system .order-generator .equivalentOrderToggle{inline-size:auto;max-inline-size:128px;background:#ececf0}
+.fba-visual-system .order-generator .generatorRowNumberCell{text-align:center}
+.fba-visual-system .order-generator .generatorRowNumberButton,
+.fba-visual-system .order-generator .generatorSkuCopyButton{
+  min-block-size:24px;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:inherit;
+  box-shadow:none;
+  transform:none;
+}
+.fba-visual-system .order-generator .generatorRowNumberButton{
+  min-inline-size:24px;
+  border-radius:7px;
+  color:var(--workspace-blue);
+  text-decoration:underline;
+  text-decoration-style:dashed;
+  text-underline-offset:3px;
+}
+.fba-visual-system .order-generator .generatorSkuPrimary{display:inline-flex;align-items:center;gap:5px}
+.fba-visual-system .order-generator .generatorSkuCopyButton{border-radius:3px;font-weight:800;text-align:left}
+.fba-visual-system .order-generator .generatorRowNumberButton:hover,
+.fba-visual-system .order-generator .generatorSkuCopyButton:hover{background:transparent;color:var(--workspace-blue-hover);box-shadow:none;transform:none}
+.fba-visual-system .order-generator .generatorInventoryLink{
+  display:inline-grid;
+  place-items:center;
+  inline-size:20px;
+  block-size:20px;
+  border-radius:6px;
+  color:#64748b;
+  font-size:10px;
+  text-decoration:none;
+}
+.fba-visual-system .order-generator .generatorInventoryLink:hover{background:#ececf0;color:var(--workspace-blue-hover)}
 .fba-visual-system .order-generator .skuIdentityCell{min-width:166px;vertical-align:middle}
 .fba-visual-system .order-generator .skuIdentity{display:grid;justify-items:start;gap:5px;min-width:0}
 .fba-visual-system .order-generator .order-code-label{font-weight:800;white-space:nowrap}

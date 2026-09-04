@@ -91,7 +91,7 @@ for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
     assert.doesNotMatch(generatorMarkup, /onclick="openModal\(\)"/);
   });
 
-  test(`${entrypoint}: Order Draft separates SKU sources from the pallet-day velocity editor`, () => {
+  test(`${entrypoint}: Order Draft gives row number, SKU copy, and Seller Central distinct actions`, () => {
     const expectedSource = entrypoint === 'public'
       ? './shared/order-velocity-overrides.js'
       : '../shared/order-velocity-overrides.js';
@@ -102,8 +102,14 @@ for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
     const velocitySource = extractFunctionSource(html, 'getPlanningVelocityForProduct');
     const leadTimeSource = extractFunctionSource(html, 'getLeadTimePlan');
     const sourceClickSource = extractFunctionSource(html, 'showGeneratorOrderSources');
+    const copySkuSource = extractFunctionSource(html, 'copyGeneratorOrderCode');
+    const numberingSource = extractFunctionSource(html, 'updateRowNumbers');
     assert.match(addProductSource, /renderGeneratorPlanningDetails/);
-    assert.match(addProductSource, /generatorSkuSourceButton/);
+    assert.match(addProductSource, /generatorRowNumberButton/);
+    assert.match(addProductSource, /generatorSkuCopyButton/);
+    assert.match(addProductSource, /generatorInventoryLink/);
+    assert.match(addProductSource, /sellercentral\.amazon\.com\/myinventory\/inventory\?fulfilledBy=all&amp;searchTerm=/);
+    assert.doesNotMatch(addProductSource, /generatorSkuSourceButton/);
     assert.match(disclosureSource, /manual-velocity-input/);
     assert.match(disclosureSource, /pallet-days-value/);
     assert.doesNotMatch(html, /hasManualVelocity > summary::after/);
@@ -111,6 +117,10 @@ for (const [entrypoint, html] of [['public', indexHtml], ['Boss', bossHtml]]) {
     assert.match(velocitySource, /getOrderVelocityOverride/);
     assert.match(leadTimeSource, /getPlanningVelocityForProduct/);
     assert.match(sourceClickSource, /showSkuJamBreakdown/);
+    assert.match(copySkuSource, /navigator\.clipboard\?\.writeText/);
+    assert.match(copySkuSource, /dataset\.orderCode/);
+    assert.match(numberingSource, /generatorRowNumberButton/);
+    assert.match(html, /點序號查看訂單來源；點品號直接複製；右上箭頭前往 Seller Central。/);
   });
 
   test(`${entrypoint}: generator quantity rows and pallet controls use semantic compact markup`, () => {

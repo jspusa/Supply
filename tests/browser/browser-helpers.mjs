@@ -551,9 +551,25 @@ export async function buildThreeGroupOrderScenario(page) {
   }
   expect(compactControls.actionGroup.width).toBeLessThanOrEqual(94);
 
-  const skuSourceButton = palletRow.locator('.generatorSkuSourceButton');
-  await expect(skuSourceButton).toHaveText('7GTSD017AB');
-  await skuSourceButton.click();
+  await page.evaluate(() => {
+    window.__copiedGeneratorSku = '';
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable:true,
+      value:{ writeText:async value => { window.__copiedGeneratorSku = value; } },
+    });
+  });
+  const skuCopyButton = palletRow.locator('.generatorSkuCopyButton');
+  await expect(skuCopyButton).toHaveText('7GTSD017AB');
+  await skuCopyButton.click();
+  await expect.poll(() => page.evaluate(() => window.__copiedGeneratorSku)).toBe('7GTSD017AB');
+  await expect(page.locator('#jamBreakdownModal')).not.toBeVisible();
+  await expect(palletRow.locator('.generatorInventoryLink')).toHaveAttribute(
+    'href',
+    'https://sellercentral.amazon.com/myinventory/inventory?fulfilledBy=all&searchTerm=7GTSD017AB',
+  );
+  const rowNumberButton = palletRow.locator('.generatorRowNumberButton');
+  await expect(rowNumberButton).toHaveText(/^\d+$/);
+  await rowNumberButton.click();
   await expect(page.locator('#jamBreakdownModal')).toBeVisible();
   await expect(page.locator('#jamBreakdownTitle')).toContainText('GTSL01 訂單來源');
   await page.locator('#jamBreakdownModal .close-modal').click();

@@ -190,9 +190,11 @@
     .pallet-guidance { display:block; max-width:128px; margin-top:4px; color:#92400e; font-size:10px; font-weight:750; line-height:1.3; }
     .pallet-guidance[hidden] { display:none; }
     .palletDaysCell { min-width:126px; }
-    .generatorSkuSourceButton { appearance:none; padding:0; border:0; border-bottom:1px dashed #93a9c5; background:transparent; color:inherit; cursor:pointer; font:inherit; font-weight:inherit; text-align:left; }
-    .generatorSkuSourceButton:hover { color:#1d4ed8; border-bottom-color:#2563eb; }
-    .generatorSkuSourceButton:focus-visible { outline:2px solid #2563eb; outline-offset:3px; border-radius:3px; }
+    .generatorRowNumberCell { text-align:center; }
+    .generatorRowNumberButton, .generatorSkuCopyButton { appearance:none; border:0; background:transparent; color:inherit; cursor:pointer; font:inherit; font-weight:inherit; }
+    .generatorSkuPrimary { display:inline-flex; align-items:center; gap:5px; }
+    .generatorSkuCopyButton { padding:0; border-bottom:1px dashed #93a9c5; text-align:left; }
+    .generatorInventoryLink { display:inline-grid; place-items:center; color:#64748b; font-size:10px; text-decoration:none; }
     .pallet-days-value { display:block; white-space:nowrap; font-weight:750; }
     .generatorPlanningDetails { color:#334155; font-size:13px; }
     .generatorPlanningDetails > summary { display:inline-flex; align-items:center; gap:4px; padding:1px 2px; border:0; border-bottom:1px dashed #93a9c5; background:transparent; color:inherit; cursor:pointer; font:inherit; font-weight:750; list-style:none; white-space:nowrap; }
@@ -1033,7 +1035,7 @@
                   <tbody></tbody>
                 </table>
               </div>
-              <div class="hint" style="text-align:right;margin-top:10px;">舊訂單可售天數會包含 JAM/FY 的預計補貨；新訂單到港後總可售天數只扣新單前置期銷售，納入已下單舊單；對不到明細的既有訂單會依規則假設比新單早到，但仍顯示追貨提醒。「還沒下單／STOP」不納入。血條固定為：低於 180 天黃色、180–365 天綠色、超過 365 天紅色；上方到港後目標仍只影響建議量。建議會優先使用整板，只有下一整板會從低於目標跳到超過 365 天時，才依最小箱數顯示零散板。按住拖曳圖示可調整順序，草稿會自動保存。</div>
+              <div class="hint" style="text-align:right;margin-top:10px;">點序號查看訂單來源；點品號直接複製；右上箭頭前往 Seller Central。舊訂單可售天數會包含 JAM/FY 的預計補貨；新訂單到港後總可售天數只扣新單前置期銷售，納入已下單舊單；對不到明細的既有訂單會依規則假設比新單早到，但仍顯示追貨提醒。「還沒下單／STOP」不納入。血條固定為：低於 180 天黃色、180–365 天綠色、超過 365 天紅色；上方到港後目標仍只影響建議量。建議會優先使用整板，只有下一整板會從低於目標跳到超過 365 天時，才依最小箱數顯示零散板。按住拖曳圖示可調整順序，草稿會自動保存。</div>
               <div class="totals-container">
                 <div class="total"><i class="fa-solid fa-boxes-stacked"></i> 總包數: <span id="totalQuantity">0</span> | 總箱數: <span id="totalCartons">0</span> | 總棧板數: <span id="totalPallets">0</span></div>
                 <div class="box-counts" id="boxCounts"></div>
@@ -4021,9 +4023,33 @@
     }
     function resetGeneratorManualVelocity(control) { const row = control?.closest('tr'), input = row?.querySelector('.manual-velocity-input'); if (!input) return; input.value = ''; updateGeneratorManualVelocity(input); }
     function showGeneratorOrderSources(control) { const code = control?.closest('tr')?.dataset.product; if (!code) return; showSkuJamBreakdown(code); }
+    async function copyGeneratorOrderCode(control) {
+      const orderCode = normalizeSkuKey(control?.closest('tr')?.dataset.orderCode || '');
+      if (!orderCode) return;
+      try {
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(orderCode);
+        } else {
+          const fallback = document.createElement('textarea');
+          fallback.value = orderCode;
+          fallback.setAttribute('readonly', '');
+          fallback.style.position = 'fixed';
+          fallback.style.opacity = '0';
+          document.body.append(fallback);
+          fallback.select();
+          const copied = document.execCommand('copy');
+          fallback.remove();
+          if (!copied) throw new Error('copy failed');
+        }
+        showTip(`已複製品號 ${orderCode}`, 'success');
+      } catch (_) {
+        showTip(`無法自動複製，品號：${orderCode}`, 'error');
+      }
+    }
     window.updateGeneratorManualVelocity = updateGeneratorManualVelocity;
     window.resetGeneratorManualVelocity = resetGeneratorManualVelocity;
     window.showGeneratorOrderSources = showGeneratorOrderSources;
+    window.copyGeneratorOrderCode = copyGeneratorOrderCode;
     function getUnitsPerPallet(prod) { const perCarton = Number(prod?.perCarton), perPallet = Number(prod?.perPallet), factor = Number(prod?.perPack) > 1 ? Number(prod.perPack) : 1; if (![perCarton, perPallet, factor].every(value => Number.isFinite(value) && value > 0)) return 0; const units = (perCarton * perPallet) / factor; return Number.isFinite(units) && units > 0 ? units : 0; }
     function getProductPalletCatalogIssue(prod) { if (!window.SupplyPlanningLegacy) return { code:'INVALID_PALLET_CATALOG' }; const perCarton = Math.max(1, Math.round(Number(prod?.perCarton || 1))), factor = Math.max(1, Math.round(Number(prod?.perPack) > 1 ? Number(prod.perPack) : 1)), cartonsNeeded = factor / greatestCommonDivisor(perCarton, factor), executableOrderIncrement = (perCarton * cartonsNeeded) / factor; return window.SupplyPlanningLegacy.getPalletCatalogIssue({ unitsPerPallet:getUnitsPerPallet(prod), executableOrderIncrement }); }
     function formatPalletDays(prod) { const planningVelocity = getPlanningVelocityForProduct(prod.productCode); if (!planningVelocity || planningVelocity <= 0) return '—'; const days = getUnitsPerPallet(prod) / planningVelocity; return Number.isFinite(days) ? `${days.toFixed(1)} 天` : '—'; }
@@ -4091,7 +4117,7 @@
       const quantityInputs = `<div class="generatorQuantityGroup${unitInput ? '' : ' single'}"><label class="generatorQuantityField"><span>包</span><input type="number" class="edit-quantity-input" placeholder="包數" oninput="updateFields(this,'${code}')"></label>${unitInput ? `<label class="generatorQuantityField"><span>${unitLabel}</span>${unitInput}</label>` : ''}</div>`;
       const targetPlaceholder = hasPack ? '目標袋數' : (hasBox ? '目標盒數' : '目標包數');
       const orderCode = draftRow.orderSku || code;
-      const rowHTML = `<tr data-product="${escapeHtml(code)}" data-order-code="${escapeHtml(orderCode)}"><td></td><td class="skuIdentityCell"><div class="skuIdentity"><button type="button" class="order-code-label generatorSkuSourceButton" onclick="showGeneratorOrderSources(this)" title="查看 ${escapeHtml(code)} 訂單來源">${escapeHtml(orderCode)}</button><span class="skuIdentityActions">${renderEquivalentOrderToggle(code, orderCode)}</span><span class="packagingAssignmentSlot">${renderPackagingAssignmentStatus(draftRow)}</span></div></td><td>${quantityInputs}</td><td data-generator-col="target"><input type="number" class="target-input" placeholder="${targetPlaceholder}" oninput="checkTarget(this)"></td><td data-generator-col="cartons"><input type="number" class="edit-cartons-input" placeholder="箱數" oninput="updateFields(this,'${code}')"></td><td><div class="palletStepControl"><input type="number" class="edit-pallets-input" step="any" min="0" aria-label="${escapeHtml(code)} 棧板數" placeholder="棧板數" oninput="updateFields(this,'${code}')" onchange="normalizeGeneratorPallets(this,'${code}')" onkeydown="handleGeneratorPalletKey(event)"><span class="palletStepButtons"><button type="button" class="palletStepButton" onclick="stepGeneratorPallets(this,1)" aria-label="增加 1 棧板" title="增加 1 棧板">▲</button><button type="button" class="palletStepButton" onclick="stepGeneratorPallets(this,-1)" aria-label="減少 1 棧板" title="減少 1 棧板">▼</button></span></div><span class="pallet-guidance" hidden></span></td><td class="box-size-cell" data-generator-col="box">${escapeHtml(prod.boxSize || '')} cm</td><td class="pallet-days palletDaysCell">${renderGeneratorPlanningDetails(prod)}</td><td class="estimated-days" data-generator-col="estimated">${renderGeneratorBookCoverage(prod)}</td><td class="arrival-days" data-generator-col="arrival">${renderGeneratorArrivalCoverage(prod, 0, 0)}</td><td class="generatorActions"><span class="generatorActionGroup"><button type="button" class="drag-handle" aria-label="按住拖曳排序" title="按住拖曳排序"><i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button><button type="button" class="lock-button" onclick="toggleLock(this)" aria-label="鎖定這列" aria-pressed="false" title="鎖定這列"><i class="fa-solid fa-lock" aria-hidden="true"></i></button><button type="button" class="remove-button" onclick="removeRow(this)" aria-label="刪除這列" title="刪除這列"><i class="fa-solid fa-trash" aria-hidden="true"></i></button></span></td></tr>`;
+      const rowHTML = `<tr data-product="${escapeHtml(code)}" data-order-code="${escapeHtml(orderCode)}"><td class="generatorRowNumberCell"><button type="button" class="generatorRowNumberButton" onclick="showGeneratorOrderSources(this)" title="查看 ${escapeHtml(code)} 訂單來源"></button></td><td class="skuIdentityCell"><div class="skuIdentity"><span class="generatorSkuPrimary"><button type="button" class="order-code-label generatorSkuCopyButton" onclick="copyGeneratorOrderCode(this)" title="複製品號 ${escapeHtml(orderCode)}">${escapeHtml(orderCode)}</button><a class="generatorInventoryLink" href="https://sellercentral.amazon.com/myinventory/inventory?fulfilledBy=all&amp;searchTerm=${escapeHtml(encodeURIComponent(orderCode))}" target="_blank" rel="noopener noreferrer" aria-label="在 Seller Central 查看 ${escapeHtml(orderCode)}" title="在 Seller Central 查看 ${escapeHtml(orderCode)}"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a></span><span class="skuIdentityActions">${renderEquivalentOrderToggle(code, orderCode)}</span><span class="packagingAssignmentSlot">${renderPackagingAssignmentStatus(draftRow)}</span></div></td><td>${quantityInputs}</td><td data-generator-col="target"><input type="number" class="target-input" placeholder="${targetPlaceholder}" oninput="checkTarget(this)"></td><td data-generator-col="cartons"><input type="number" class="edit-cartons-input" placeholder="箱數" oninput="updateFields(this,'${code}')"></td><td><div class="palletStepControl"><input type="number" class="edit-pallets-input" step="any" min="0" aria-label="${escapeHtml(code)} 棧板數" placeholder="棧板數" oninput="updateFields(this,'${code}')" onchange="normalizeGeneratorPallets(this,'${code}')" onkeydown="handleGeneratorPalletKey(event)"><span class="palletStepButtons"><button type="button" class="palletStepButton" onclick="stepGeneratorPallets(this,1)" aria-label="增加 1 棧板" title="增加 1 棧板">▲</button><button type="button" class="palletStepButton" onclick="stepGeneratorPallets(this,-1)" aria-label="減少 1 棧板" title="減少 1 棧板">▼</button></span></div><span class="pallet-guidance" hidden></span></td><td class="box-size-cell" data-generator-col="box">${escapeHtml(prod.boxSize || '')} cm</td><td class="pallet-days palletDaysCell">${renderGeneratorPlanningDetails(prod)}</td><td class="estimated-days" data-generator-col="estimated">${renderGeneratorBookCoverage(prod)}</td><td class="arrival-days" data-generator-col="arrival">${renderGeneratorArrivalCoverage(prod, 0, 0)}</td><td class="generatorActions"><span class="generatorActionGroup"><button type="button" class="drag-handle" aria-label="按住拖曳排序" title="按住拖曳排序"><i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button><button type="button" class="lock-button" onclick="toggleLock(this)" aria-label="鎖定這列" aria-pressed="false" title="鎖定這列"><i class="fa-solid fa-lock" aria-hidden="true"></i></button><button type="button" class="remove-button" onclick="removeRow(this)" aria-label="刪除這列" title="刪除這列"><i class="fa-solid fa-trash" aria-hidden="true"></i></button></span></td></tr>`;
       tbody.insertAdjacentHTML('beforeend', rowHTML);
       const row = tbody.lastElementChild;
       useNativePalletStepper(row);
@@ -4137,7 +4163,7 @@
     function toggleLock(btn) { const row = btn.closest('tr'); const isLocked = row.classList.contains('locked'); row.classList.toggle('locked', !isLocked); row.querySelectorAll('input').forEach(control => { control.disabled = !isLocked; }); setGeneratorPalletState(row, { warningCode:row.dataset.palletWarningCode || '', strategy:row.dataset.palletStrategy || '', message:row.querySelector('.pallet-guidance')?.textContent || '' }); syncGeneratorLockButton(row); saveGeneratorDraft({ pinProductSku:row.dataset.product }); }
     function removeRow(btn) { const row = btn.closest('tr'); if (!row) return; const result = applyGeneratorDraftCommand({ type:'remove-row', productSku:row.dataset.product }); if (!result) return; persistGeneratorDraft(); renderActiveOrderGroup(); }
     window.toggleLock = toggleLock; window.removeRow = removeRow;
-    function updateRowNumbers() { document.querySelectorAll('#productTable tbody tr').forEach((r, i) => { r.cells[0].textContent = i + 1; }); }
+    function updateRowNumbers() { document.querySelectorAll('#productTable tbody tr').forEach((row, index) => { const control = row.querySelector('.generatorRowNumberButton'); if (!control) return; control.textContent = index + 1; control.setAttribute('aria-label', `查看第 ${index + 1} 列 ${row.dataset.product || ''} 訂單來源`); }); }
     function updateTotals() { let totalQuantity = 0, totalCartons = 0; const palletCounts = {}; document.querySelectorAll('#productTable tbody tr').forEach(row => { const metrics = getRowExactMetrics(row); totalQuantity += metrics.quantity; totalCartons += metrics.cartons; const boxSize = row.querySelector('.box-size-cell')?.textContent.replace(" cm", "").trim() || ''; if (boxSize) palletCounts[boxSize] = (palletCounts[boxSize] || 0) + metrics.pallets; }); const totalPallets = Object.values(palletCounts).reduce((a, b) => a + b, 0); document.getElementById('totalQuantity').textContent = formatDraftNumber(totalQuantity); document.getElementById('totalCartons').textContent = formatDraftNumber(totalCartons); document.getElementById('totalPallets').textContent = formatPalletValue(totalPallets); document.getElementById('boxCounts').innerHTML = Object.entries(palletCounts).map(([size, cnt]) => `<span style="font-weight:bold;">${escapeHtml(size)}cm</span>: <span>${formatPalletValue(cnt)}</span>`).join(' '); updateContainerInfo(totalPallets); updateWorkflowUi(); }
     function updateContainerInfo(totalPallets) { const infoDiv = document.getElementById('containerInfo'); infoDiv.innerHTML = ''; let remaining = totalPallets, containerCount = 1; while (remaining > 0) { const type = remaining <= 10 ? '20 尺貨櫃' : '40 尺貨櫃'; const cap = remaining <= 10 ? 10 : 20; const use = Math.min(remaining, cap); const fillRate = (use / cap) * 100; const cDiv = document.createElement('div'); cDiv.innerHTML = `<strong>貨櫃 ${containerCount}：${type}（${fillRate.toFixed(0)}%）</strong><div class="progress-container"><div class="progress-bar" style="width:${fillRate}%">${use.toFixed(2)} / ${cap} 棧板</div></div>`; infoDiv.appendChild(cDiv); remaining -= use; containerCount++; } }
     function formatDraftNumber(value) { const rounded = Math.round(Math.max(0, Number(value) || 0) * 100) / 100; return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2).replace(/0+$/, '').replace(/\.$/, ''); }
