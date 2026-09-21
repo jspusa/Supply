@@ -1,0 +1,111 @@
+name: Prepare approved product name repair
+on:
+  push:
+    branches: [fix/product-names-20260921]
+    paths: [.github/workflows/prepare-product-name-repair.yml]
+permissions:
+  contents: write
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GIT_AUTHOR_NAME: 'github-actions[bot]'
+      GIT_AUTHOR_EMAIL: '41898282+github-actions[bot]@users.noreply.github.com'
+      GIT_COMMITTER_NAME: 'github-actions[bot]'
+      GIT_COMMITTER_EMAIL: '41898282+github-actions[bot]@users.noreply.github.com'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/checkout@v4
+        with:
+          repository: jspusa/FBA
+          ref: 55dd70bbc46efdf11bdf8cc2d339c326f50e2f03
+          path: .catalog-peer/FBA
+          persist-credentials: false
+      - name: Generate reviewed names in a clean release worktree
+        env:
+          FBA_REPO: ${{ github.workspace }}/.catalog-peer/FBA
+        run: |
+          test "$(git rev-parse origin/main)" = 91f3e3226e9ed53f526614d4a5d88035e55d0d54
+          git worktree add /tmp/name-release/Supply 91f3e3226e9ed53f526614d4a5d88035e55d0d54
+          ln -s "$FBA_REPO" /tmp/name-release/FBA
+          node scripts/repair-approved-product-names.mjs /tmp/name-release/Supply
+          cd /tmp/name-release/Supply
+          node scripts/compile-product-catalog.mjs
+          node scripts/generate-catalog-update-runtime.mjs --fba-repo "$FBA_REPO"
+          node scripts/generate-catalog-alignment.mjs --fba-repo "$FBA_REPO"
+          git -C "$FBA_REPO" diff --exit-code
+          node scripts/catalog-peer-lock.mjs --write-peer "$FBA_REPO"
+          cat > tests/product-name-audit.test.mjs <<'JS'
+          import fs from 'node:fs';
+          import assert from 'node:assert/strict';
+          import test from 'node:test';
+          const catalog=JSON.parse(fs.readFileSync(new URL('../catalog/product-catalog.json',import.meta.url),'utf8'));
+          const products=new Map(catalog.products.map(p=>[p.productSku,p]));
+          const expected={GTAL01:30,GTP03:90,GTB05:90,GTP05:90,GTSL01:24,GTRL01:22,GTPL01:24,GTBL01:26,GTCL01:28,GTRL03:28,GTPL03:24,GTBL03:28,GTPL05:24,GTBL05:24,ACTL08:28,ACTL09:36};
+          for(const [sku,count] of Object.entries(expected))test('approved name and unchanged carton count: '+sku,()=>{const p=products.get(sku);const v=p.packagingVersions.find(v=>v.version===p.newOrderPackagingDefaultVersion);const m=p.productName.match(/\d+(?:\.\d+)?\s*g\s*[x*\u00d7]\s*(\d+)(?=\s*(?:\)|$))/i);assert.ok(m);assert.equal(Number(m[1]),count);assert.equal(v.unitsPerCarton,count);});
+          test('approved spelling corrections',()=>{assert.match(products.get('GTB07').productName,/lollipop/);for(const sku of ['EPD021J','EPD041J','EPD061J','EPD020J','EPD040J','EPD060J']){assert.match(products.get(sku).productName,/Recipe/);assert.doesNotMatch(products.get(sku).productName,/Ricipe/);}});
+          JS
+          cat > tests/browser/product-name-fixes.spec.mjs <<'JS'
+          import {expect,test} from '@playwright/test';
+          import {installOfflineAssetRoutes,monitorBrowserErrors,waitForSupplyApp} from './browser-helpers.mjs';
+          for(const viewport of [{width:1280,height:900},{width:390,height:844}])test('correct GTAL01 search and selection '+viewport.width,async({page,context},testInfo)=>{await page.setViewportSize(viewport);const requests=[];await installOfflineAssetRoutes(context,requests);const errors=monitorBrowserErrors(page);await page.goto('/#orders');await waitForSupplyApp(page);await page.locator('#searchInput').fill('GTA');const item=page.locator('#searchResults .search-result-item').filter({hasText:'GTAL01'});await expect(item).toHaveText('GTAL01 - Gootoe - Turkey Tendon Braid_S (454g x 30)');await page.screenshot({path:testInfo.outputPath('gtal01-search-'+viewport.width+'.png')});await item.click();await expect(page.locator('#productTable tbody tr[data-product="GTAL01"]')).toContainText('454g x 30');expect(errors).toEqual([]);});
+          JS
+      - name: Install project test dependencies
+        working-directory: /tmp/name-release/Supply
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium > /tmp/name-browser-install.log 2>&1 || { tail -80 /tmp/name-browser-install.log; exit 1; }
+      - name: Verify both sites and cross-repository compatibility
+        working-directory: /tmp/name-release/Supply
+        env:
+          FBA_REPO: ${{ github.workspace }}/.catalog-peer/FBA
+          CATALOG_RELEASE_IN_PROGRESS: '1'
+        run: |
+          npm run verify > /tmp/name-verify.log 2>&1 || { grep -n -A 35 -B 3 'not ok\|Error:\|failed\|FAIL' /tmp/name-verify.log | tail -200; tail -35 /tmp/name-verify.log; exit 1; }
+          tail -15 /tmp/name-verify.log
+          npm run catalog:check
+          node scripts/verify-catalog-seams.mjs --fba-repo "$FBA_REPO" --require-pinned-peer --reuse-verified-dist > /tmp/name-seams.log 2>&1 || { tail -100 /tmp/name-seams.log; exit 1; }
+          tail -15 /tmp/name-seams.log
+          npm --prefix "$FBA_REPO" test > /tmp/name-fba.log 2>&1 || { tail -100 /tmp/name-fba.log; exit 1; }
+          tail -10 /tmp/name-fba.log
+      - name: Record real passing checks and push clean release branch
+        working-directory: /tmp/name-release/Supply
+        env:
+          FBA_REPO: ${{ github.workspace }}/.catalog-peer/FBA
+        run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          import {writeCatalogAlignmentManifests} from './scripts/generate-catalog-alignment.mjs';
+          import {recordCatalogAlignmentEvidence} from './catalog/catalog-alignment.js';
+          let record=writeCatalogAlignmentManifests({fbaRepo:process.env.FBA_REPO}).release.record;
+          for(const site of ['supply','fba'])record=recordCatalogAlignmentEvidence(record,{site,stage:'local',outcome:'passed',checkedAt:new Date().toISOString(),catalogVersion:record.catalogVersion,publicContentHash:record.expectedPublicContentHashes[site]});
+          const write=(p,v)=>fs.writeFileSync(p,JSON.stringify(v,null,2)+'\n');
+          write('catalog/alignment-records/2026-09-21.json',record);write('catalog/alignment-records/latest.json',record);
+          const change=JSON.parse(fs.readFileSync('catalog/change-records/2026-09-21.json','utf8'));
+          change.catalogAlignment={state:record.state,expectedPublicContentHashes:record.expectedPublicContentHashes,evidenceStages:['local','repositoryCi','deployment','liveHash','liveBrowser']};
+          write('catalog/change-records/2026-09-21.json',change);
+          JS
+          git add catalog/product-catalog.json product-data.js catalog-alignment.json shared/catalog-update-baseline.js shared/catalog-update-runtime-lock.json .github/catalog-peer-lock.json catalog/change-records/2026-09-21.json catalog/alignment-records/2026-09-21.json catalog/alignment-records/latest.json tests/product-name-audit.test.mjs tests/browser/product-name-fixes.spec.mjs
+          git diff --cached --stat
+          git commit -m 'fix: correct 16 stale carton names and 7 product-name typos'
+          git push origin HEAD:refs/heads/fix/product-names-release-20260921
+          git rev-parse HEAD
+      - name: Preserve test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: product-name-repair-evidence
+          path: |
+            /tmp/supply-playwright-output
+            /tmp/name-verify.log
+            /tmp/name-seams.log
+            /tmp/name-fba.log
+            /tmp/name-release/Supply/catalog/change-records/2026-09-21.json
+          if-no-files-found: ignore
+          retention-days: 7
