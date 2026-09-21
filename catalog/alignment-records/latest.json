@@ -5,7 +5,7 @@
     "supply": "13ce0abdc927313383148dd53efd49fbd8703ac88b3d3297a0f9dd894cf19d8f",
     "fba": "699cd6d566faf3cce756b7d27a30b23f24c3ae260c4a9fb8ff26862dbcb14a14"
   },
-  "state": "pending",
+  "state": "aligned",
   "sites": {
     "supply": {
       "recoveryAttempts": 0,
@@ -18,30 +18,30 @@
           "publicContentHash": "13ce0abdc927313383148dd53efd49fbd8703ac88b3d3297a0f9dd894cf19d8f"
         },
         "repositoryCi": {
-          "state": "pending",
-          "checkedAt": null,
-          "revision": null,
+          "state": "passed",
+          "checkedAt": "2026-09-21T06:25:30.000Z",
+          "revision": "4c9c4839e1713cd066c716dec2c159d2ecfa4625",
           "catalogVersion": null,
           "publicContentHash": null
         },
         "deployment": {
-          "state": "pending",
-          "checkedAt": null,
-          "revision": null,
+          "state": "passed",
+          "checkedAt": "2026-09-21T06:25:30.000Z",
+          "revision": "4c9c4839e1713cd066c716dec2c159d2ecfa4625",
           "catalogVersion": null,
           "publicContentHash": null
         },
         "liveHash": {
-          "state": "pending",
-          "checkedAt": null,
-          "revision": null,
-          "catalogVersion": null,
-          "publicContentHash": null
+          "state": "passed",
+          "checkedAt": "2026-09-21T06:25:39.777Z",
+          "revision": "4c9c4839e1713cd066c716dec2c159d2ecfa4625",
+          "catalogVersion": "2026-09-21",
+          "publicContentHash": "13ce0abdc927313383148dd53efd49fbd8703ac88b3d3297a0f9dd894cf19d8f"
         },
         "liveBrowser": {
-          "state": "pending",
-          "checkedAt": null,
-          "revision": null,
+          "state": "passed",
+          "checkedAt": "2026-09-21T06:25:39.777Z",
+          "revision": "4c9c4839e1713cd066c716dec2c159d2ecfa4625",
           "catalogVersion": null,
           "publicContentHash": null
         }
@@ -58,30 +58,30 @@
           "publicContentHash": "699cd6d566faf3cce756b7d27a30b23f24c3ae260c4a9fb8ff26862dbcb14a14"
         },
         "repositoryCi": {
-          "state": "pending",
-          "checkedAt": null,
-          "revision": null,
+          "state": "passed",
+          "checkedAt": "2026-09-21T06:21:27.000Z",
+          "revision": "8113edac7c427281669d95bd3f3860342a1a554f",
           "catalogVersion": null,
           "publicContentHash": null
         },
         "deployment": {
-          "state": "pending",
-          "checkedAt": null,
-          "revision": null,
+          "state": "passed",
+          "checkedAt": "2026-09-21T06:21:49.000Z",
+          "revision": "8113edac7c427281669d95bd3f3860342a1a554f",
           "catalogVersion": null,
           "publicContentHash": null
         },
         "liveHash": {
-          "state": "pending",
-          "checkedAt": null,
-          "revision": null,
-          "catalogVersion": null,
-          "publicContentHash": null
+          "state": "passed",
+          "checkedAt": "2026-09-21T06:25:39.777Z",
+          "revision": "8113edac7c427281669d95bd3f3860342a1a554f",
+          "catalogVersion": "2026-09-21",
+          "publicContentHash": "699cd6d566faf3cce756b7d27a30b23f24c3ae260c4a9fb8ff26862dbcb14a14"
         },
         "liveBrowser": {
-          "state": "pending",
-          "checkedAt": null,
-          "revision": null,
+          "state": "passed",
+          "checkedAt": "2026-09-21T06:25:39.777Z",
+          "revision": "8113edac7c427281669d95bd3f3860342a1a554f",
           "catalogVersion": null,
           "publicContentHash": null
         }
