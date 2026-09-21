@@ -1,6 +1,6 @@
 {
   "schemaVersion": 3,
-  "catalogVersion": "2026-09-02",
+  "catalogVersion": "2026-09-21",
   "products": [
     {
       "productSku": "1GBRD019A0",
@@ -1872,7 +1872,7 @@
     },
     {
       "productSku": "GTP03",
-      "productName": "Gootoe - Turkey Tendon Rope_M(90g x 100)",
+      "productName": "Gootoe - Turkey Tendon Rope_M(90g x 90)",
       "origin": "VN",
       "standardFactory": "VN",
       "lifecycle": "active",
@@ -1969,7 +1969,7 @@
     },
     {
       "productSku": "GTB05",
-      "productName": "Gootoe - Turkey Tendon Bone_L(100g x 100)",
+      "productName": "Gootoe - Turkey Tendon Bone_L(100g x 90)",
       "origin": "VN",
       "standardFactory": "VN",
       "lifecycle": "active",
@@ -2005,7 +2005,7 @@
     },
     {
       "productSku": "GTP05",
-      "productName": "Gootoe - Turkey Tendon Rope_L(100g x 100)",
+      "productName": "Gootoe - Turkey Tendon Rope_L(100g x 90)",
       "origin": "VN",
       "standardFactory": "VN",
       "lifecycle": "active",
@@ -2041,7 +2041,7 @@
     },
     {
       "productSku": "GTB07",
-      "productName": "Gootoe - Turkey tendon lolipop 15g x 5pcs (75g x 100)",
+      "productName": "Gootoe - Turkey tendon lollipop 15g x 5pcs (75g x 100)",
       "origin": "VN",
       "standardFactory": "VN",
       "lifecycle": "active",
@@ -2134,7 +2134,7 @@
     },
     {
       "productSku": "GTSL01",
-      "productName": "Gootoe - Turkey Tendon Strip (454g x 30)",
+      "productName": "Gootoe - Turkey Tendon Strip (454g x 24)",
       "origin": "VN",
       "standardFactory": "VN",
       "lifecycle": "active",
@@ -2170,7 +2170,7 @@
     },
     {
       "productSku": "GTRL01",
-      "productName": "Gootoe - Turkey Tendon Ring_S (454g x 30)",
+      "productName": "Gootoe - Turkey Tendon Ring_S (454g x 22)",
       "origin": "VN",
       "standardFactory": "VN",
       "lifecycle": "active",
@@ -2206,7 +2206,7 @@
     },
     {
       "productSku": "GTPL01",
-      "productName": "Gootoe - Turkey Tendon Rope_S (454g x 30)",
+      "productName": "Gootoe - Turkey Tendon Rope_S (454g x 24)",
       "origin": "VN",
       "standardFactory": "VN",
       "lifecycle": "active",
@@ -2242,7 +2242,7 @@
     },
     {
       "productSku": "GTBL01",
-      "productName": "Gootoe - Turkey Tendon Bone_S (454g x 30)",
+      "productName": "Gootoe - Turkey Tendon Bone_S (454g x 26)",
       "origin": "VN",
       "standardFactory": "VN",
       "lifecycle": "active",
@@ -2278,7 +2278,7 @@
     },
     {
       "productSku": "GTAL01",
-      "productName": "Gootoe - Turkey Tendon Braid_S (454g x 38)",
+      "productName": "Gootoe - Turkey Tendon Braid_S (454g x 30)",
       "origin": "VN",
       "standardFactory": "VN",
       "lifecycle": "active",
@@ -2313,7 +2313,7 @@
     },
     {
       "productSku": "GTCL01",
-      "productName": "Gootoe - Turkey Tendon Sliced (454g x 30)",
+      "productName": "Gootoe - Turkey Tendon Sliced (454g x 28)",
       "origin": "VN",
       "standardFactory": "VN",
       "lifecycle": "active",
@@ -2348,7 +2348,7 @@
     },
     {
       "productSku": "GTRL03",
-      "productName": "Gootoe - Turkey Tendon Ring_M (454g x 30)",
+      "productName": "Gootoe - Turkey Tendon Ring_M (454g x 28)",
       "origin": "VN",
       "standardFactory": "VN",
       "lifecycle": "active",
@@ -2384,7 +2384,7 @@
     },
     {
       "productSku": "GTPL03",
-      "productName": "Gootoe - Turkey Tendon Rope_M (454g x 30)",
+      "productName": "Gootoe - Turkey Tendon Rope_M (454g x 24)",
       "origin": "VN",
       "standardFactory": "VN",
       "lifecycle": "active",
@@ -2420,7 +2420,7 @@
     },
     {
       "productSku": "GTBL03",
-      "productName": "Gootoe - Turkey Tendon Bone_M (454g x 30)",
+      "productName": "Gootoe - Turkey Tendon Bone_M (454g x 28)",
       "origin": "VN",
       "standardFactory": "VN",
       "lifecycle": "active",
@@ -2487,7 +2487,7 @@
     },
     {
       "productSku": "GTPL05",
-      "productName": "Gootoe - Turkey Tendon Rope_L (454g x 30)",
+      "productName": "Gootoe - Turkey Tendon Rope_L (454g x 24)",
       "origin": "VN",
       "standardFactory": "VN",
       "lifecycle": "active",
@@ -2523,7 +2523,7 @@
     },
     {
       "productSku": "GTBL05",
-      "productName": "Gootoe - Turkey Tendon Bone_L(454g x 30)",
+      "productName": "Gootoe - Turkey Tendon Bone_L(454g x 24)",
       "origin": "VN",
       "standardFactory": "VN",
       "lifecycle": "active",
@@ -6254,7 +6254,7 @@
     },
     {
       "productSku": "ACTL08",
-      "productName": "AFreschi - Natural Chicken Sliced 681g*24",
+      "productName": "AFreschi - Natural Chicken Sliced 681g*28",
       "origin": "VN",
       "standardFactory": "VN",
       "lifecycle": "active",
@@ -6285,7 +6285,7 @@
     },
     {
       "productSku": "ACTL09",
-      "productName": "AFreschi - Natural Chicken Dipped Rice Bone 454g*28",
+      "productName": "AFreschi - Natural Chicken Dipped Rice Bone 454g*36",
       "origin": "VN",
       "standardFactory": "VN",
       "lifecycle": "active",
@@ -7060,7 +7060,7 @@
     },
     {
       "productSku": "EPD021J",
-      "productName": "Premium Canine Cuisine-Lamb with Duck Liver Ricipe-1kg",
+      "productName": "Premium Canine Cuisine-Lamb with Duck Liver Recipe-1kg",
       "origin": null,
       "standardFactory": "TW",
       "lifecycle": "active",
@@ -7091,7 +7091,7 @@
     },
     {
       "productSku": "EPD041J",
-      "productName": "Premium Canine Cuisine-Beef with Duck Liver Ricipe-1kg",
+      "productName": "Premium Canine Cuisine-Beef with Duck Liver Recipe-1kg",
       "origin": null,
       "standardFactory": "TW",
       "lifecycle": "active",
@@ -7122,7 +7122,7 @@
     },
     {
       "productSku": "EPD061J",
-      "productName": "Premium Canine Cuisine-Chicken with Duck Liver Ricipe-1kg",
+      "productName": "Premium Canine Cuisine-Chicken with Duck Liver Recipe-1kg",
       "origin": null,
       "standardFactory": "TW",
       "lifecycle": "active",
@@ -7184,7 +7184,7 @@
     },
     {
       "productSku": "EPD020J",
-      "productName": "Premium Canine Cuisine-Lamb with Duck Liver Ricipe-454g",
+      "productName": "Premium Canine Cuisine-Lamb with Duck Liver Recipe-454g",
       "origin": null,
       "standardFactory": "TW",
       "lifecycle": "active",
@@ -7215,7 +7215,7 @@
     },
     {
       "productSku": "EPD040J",
-      "productName": "Premium Canine Cuisine-Beef with Duck Liver Ricipe-454g",
+      "productName": "Premium Canine Cuisine-Beef with Duck Liver Recipe-454g",
       "origin": null,
       "standardFactory": "TW",
       "lifecycle": "active",
@@ -7246,7 +7246,7 @@
     },
     {
       "productSku": "EPD060J",
-      "productName": "Premium Canine Cuisine-Chicken with Duck Liver Ricipe-454g",
+      "productName": "Premium Canine Cuisine-Chicken with Duck Liver Recipe-454g",
       "origin": null,
       "standardFactory": "TW",
       "lifecycle": "active",

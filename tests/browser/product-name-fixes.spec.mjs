@@ -1,0 +1,21 @@
+import {expect,test} from '@playwright/test';
+import {installOfflineAssetRoutes,monitorBrowserErrors,waitForSupplyApp} from './browser-helpers.mjs';
+for(const viewport of [{width:1280,height:900},{width:390,height:844}])test('correct GTAL01 search and selection '+viewport.width,async({page,context},testInfo)=>{
+  await page.setViewportSize(viewport);
+  const requests=[];await installOfflineAssetRoutes(context,requests);
+  const errors=monitorBrowserErrors(page);
+  await page.goto('/#orders');await waitForSupplyApp(page);
+  await page.locator('#searchInput').fill('GTA');
+  const item=page.locator('#searchResults .search-result-item').filter({hasText:'GTAL01'});
+  await expect(item).toHaveText('GTAL01 - Gootoe - Turkey Tendon Braid_S (454g x 30)');
+  await page.screenshot({path:testInfo.outputPath('gtal01-search-'+viewport.width+'.png')});
+  await item.click();
+  const row=page.locator('#productTable tbody tr[data-product="GTAL01"]');
+  await expect(row).toBeVisible();
+  await expect(row).toHaveAttribute('data-order-code','GTAL01');
+  await expect(page.locator('#searchInput')).toHaveValue('');
+  const product=await page.evaluate(()=>window.allProductsData.find(p=>p.productCode==='GTAL01'));
+  expect(product.productName).toBe('Gootoe - Turkey Tendon Braid_S (454g x 30)');
+  expect(product.perCarton).toBe(30);
+  expect(requests).toEqual([]);expect(errors).toEqual([]);
+});

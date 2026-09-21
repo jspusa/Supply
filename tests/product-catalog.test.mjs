@@ -589,13 +589,13 @@ test('checked canonical catalog and generated Supply snapshot stay in sync', () 
 
   assert.equal(actual, expected);
   assert.equal(canonical.schemaVersion, 3);
-  assert.match(canonical.catalogVersion, /^(?:2026-08-28\.4|2026-09-02)$/);
+  assert.match(canonical.catalogVersion, /^(?:2026-08-28\.4|2026-09-02|2026-09-21)$/);
   assert.match(canonical.catalogVersion, /^\d{4}-\d{2}-\d{2}(?:\.\d+)?$/);
 });
 
 test('the 15 duplicate SKUs match the exact packaging facts for the checked release', () => {
   const canonical = JSON.parse(fs.readFileSync(path.join(repoRoot, 'catalog', 'product-catalog.json'), 'utf8'));
-  const cleaned = canonical.catalogVersion === '2026-09-02';
+  const cleaned = ['2026-09-02', '2026-09-21'].includes(canonical.catalogVersion);
   const expectedUnits = new Map(Object.entries(cleaned ? {
     '1ABRD002A0':36, GTAL01:30, GTB05:90, GTBL01:26, GTBL03:28,
     GTBL05:24, GTCL01:28, GTP03:90, GTP05:90, GTPL01:24,
@@ -640,7 +640,7 @@ test('raw release promotes 14 complete products while 11 incomplete rows stay ou
   ];
   const bySku = new Map(canonical.products.map(product => [product.productSku, product]));
 
-  assert.match(canonical.catalogVersion, /^(?:2026-08-28\.4|2026-09-02)$/);
+  assert.match(canonical.catalogVersion, /^(?:2026-08-28\.4|2026-09-02|2026-09-21)$/);
   assert.equal(canonical.products.length, 360);
   for (const productSku of promoted) {
     const product = bySku.get(productSku);
@@ -706,7 +706,7 @@ test('schema v3 retains the 27 FBA legacy 7-SKU packages plus the initialized AT
   const products = new Map(validated.products.map(product => [product.productSku, product]));
 
   assert.equal(canonical.schemaVersion, 3);
-  assert.match(canonical.catalogVersion, /^(?:2026-08-28\.4|2026-09-02)$/);
+  assert.match(canonical.catalogVersion, /^(?:2026-08-28\.4|2026-09-02|2026-09-21)$/);
   assert.equal(aliases.size, 28);
   assert.equal(validated.orderSkuAliases.filter(alias => alias.lifecycle === 'approved').length, 22);
   assert.deepEqual(
