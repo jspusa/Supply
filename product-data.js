@@ -1,7 +1,7 @@
 // Generated from catalog/product-catalog.json. Do not edit by hand.
 window.SUPPLY_PRODUCT_CATALOG_META = Object.freeze({
   "schemaVersion": 3,
-  "catalogVersion": "2026-09-02"
+  "catalogVersion": "2026-09-21"
 });
 window.SUPPLY_EQUIVALENT_SKU_PAIRS = Object.freeze([
   [
@@ -4469,7 +4469,7 @@ window.allProductsData = [
   {
     "productCode": "GTP03",
     "packagingVersion": "2026-09-02",
-    "productName": "Gootoe - Turkey Tendon Rope_M(90g x 100)",
+    "productName": "Gootoe - Turkey Tendon Rope_M(90g x 90)",
     "boxSize": "50*40*30",
     "perCarton": 90,
     "perPack": null,
@@ -4502,7 +4502,7 @@ window.allProductsData = [
   {
     "productCode": "GTB05",
     "packagingVersion": "2026-09-02",
-    "productName": "Gootoe - Turkey Tendon Bone_L(100g x 100)",
+    "productName": "Gootoe - Turkey Tendon Bone_L(100g x 90)",
     "boxSize": "50*40*30",
     "perCarton": 90,
     "perPack": null,
@@ -4513,7 +4513,7 @@ window.allProductsData = [
   {
     "productCode": "GTP05",
     "packagingVersion": "2026-09-02",
-    "productName": "Gootoe - Turkey Tendon Rope_L(100g x 100)",
+    "productName": "Gootoe - Turkey Tendon Rope_L(100g x 90)",
     "boxSize": "50*40*30",
     "perCarton": 90,
     "perPack": null,
@@ -4524,7 +4524,7 @@ window.allProductsData = [
   {
     "productCode": "GTB07",
     "packagingVersion": "2026-08-25",
-    "productName": "Gootoe - Turkey tendon lolipop 15g x 5pcs (75g x 100)",
+    "productName": "Gootoe - Turkey tendon lollipop 15g x 5pcs (75g x 100)",
     "boxSize": "50*40*30",
     "perCarton": 100,
     "perPack": null,
@@ -4557,7 +4557,7 @@ window.allProductsData = [
   {
     "productCode": "GTSL01",
     "packagingVersion": "2026-09-02",
-    "productName": "Gootoe - Turkey Tendon Strip (454g x 30)",
+    "productName": "Gootoe - Turkey Tendon Strip (454g x 24)",
     "boxSize": "50*40*30",
     "perCarton": 24,
     "perPack": null,
@@ -4568,7 +4568,7 @@ window.allProductsData = [
   {
     "productCode": "GTRL01",
     "packagingVersion": "2026-09-02",
-    "productName": "Gootoe - Turkey Tendon Ring_S (454g x 30)",
+    "productName": "Gootoe - Turkey Tendon Ring_S (454g x 22)",
     "boxSize": "50*40*30",
     "perCarton": 22,
     "perPack": null,
@@ -4579,7 +4579,7 @@ window.allProductsData = [
   {
     "productCode": "GTPL01",
     "packagingVersion": "2026-09-02",
-    "productName": "Gootoe - Turkey Tendon Rope_S (454g x 30)",
+    "productName": "Gootoe - Turkey Tendon Rope_S (454g x 24)",
     "boxSize": "50*40*30",
     "perCarton": 24,
     "perPack": null,
@@ -4590,7 +4590,7 @@ window.allProductsData = [
   {
     "productCode": "GTBL01",
     "packagingVersion": "2026-09-02",
-    "productName": "Gootoe - Turkey Tendon Bone_S (454g x 30)",
+    "productName": "Gootoe - Turkey Tendon Bone_S (454g x 26)",
     "boxSize": "50*40*30",
     "perCarton": 26,
     "perPack": null,
@@ -4601,7 +4601,7 @@ window.allProductsData = [
   {
     "productCode": "GTAL01",
     "packagingVersion": "2026-09-02",
-    "productName": "Gootoe - Turkey Tendon Braid_S (454g x 38)",
+    "productName": "Gootoe - Turkey Tendon Braid_S (454g x 30)",
     "boxSize": "50*40*30",
     "perCarton": 30,
     "perPack": null,
@@ -4612,7 +4612,7 @@ window.allProductsData = [
   {
     "productCode": "GTCL01",
     "packagingVersion": "2026-09-02",
-    "productName": "Gootoe - Turkey Tendon Sliced (454g x 30)",
+    "productName": "Gootoe - Turkey Tendon Sliced (454g x 28)",
     "boxSize": "50*40*30",
     "perCarton": 28,
     "perPack": null,
@@ -4623,7 +4623,7 @@ window.allProductsData = [
   {
     "productCode": "GTRL03",
     "packagingVersion": "2026-09-02",
-    "productName": "Gootoe - Turkey Tendon Ring_M (454g x 30)",
+    "productName": "Gootoe - Turkey Tendon Ring_M (454g x 28)",
     "boxSize": "50*40*30",
     "perCarton": 28,
     "perPack": null,
@@ -4634,7 +4634,7 @@ window.allProductsData = [
   {
     "productCode": "GTPL03",
     "packagingVersion": "2026-09-02",
-    "productName": "Gootoe - Turkey Tendon Rope_M (454g x 30)",
+    "productName": "Gootoe - Turkey Tendon Rope_M (454g x 24)",
     "boxSize": "50*40*30",
     "perCarton": 24,
     "perPack": null,
@@ -4645,7 +4645,7 @@ window.allProductsData = [
   {
     "productCode": "GTBL03",
     "packagingVersion": "2026-09-02",
-    "productName": "Gootoe - Turkey Tendon Bone_M (454g x 30)",
+    "productName": "Gootoe - Turkey Tendon Bone_M (454g x 28)",
     "boxSize": "50*40*30",
     "perCarton": 28,
     "perPack": null,
@@ -4667,7 +4667,7 @@ window.allProductsData = [
   {
     "productCode": "GTPL05",
     "packagingVersion": "2026-09-02",
-    "productName": "Gootoe - Turkey Tendon Rope_L (454g x 30)",
+    "productName": "Gootoe - Turkey Tendon Rope_L (454g x 24)",
     "boxSize": "50*40*30",
     "perCarton": 24,
     "perPack": null,
@@ -4678,7 +4678,7 @@ window.allProductsData = [
   {
     "productCode": "GTBL05",
     "packagingVersion": "2026-09-02",
-    "productName": "Gootoe - Turkey Tendon Bone_L(454g x 30)",
+    "productName": "Gootoe - Turkey Tendon Bone_L(454g x 24)",
     "boxSize": "50*40*30",
     "perCarton": 24,
     "perPack": null,
@@ -5998,7 +5998,7 @@ window.allProductsData = [
   {
     "productCode": "ACTL08",
     "packagingVersion": "2026-08-25",
-    "productName": "AFreschi - Natural Chicken Sliced 681g*24",
+    "productName": "AFreschi - Natural Chicken Sliced 681g*28",
     "boxSize": "50*40*30",
     "perCarton": 28,
     "perPack": null,
@@ -6009,7 +6009,7 @@ window.allProductsData = [
   {
     "productCode": "ACTL09",
     "packagingVersion": "2026-08-25",
-    "productName": "AFreschi - Natural Chicken Dipped Rice Bone 454g*28",
+    "productName": "AFreschi - Natural Chicken Dipped Rice Bone 454g*36",
     "boxSize": "50*40*30",
     "perCarton": 36,
     "perPack": null,
@@ -6284,7 +6284,7 @@ window.allProductsData = [
   {
     "productCode": "EPD021J",
     "packagingVersion": "2026-08-25",
-    "productName": "Premium Canine Cuisine-Lamb with Duck Liver Ricipe-1kg",
+    "productName": "Premium Canine Cuisine-Lamb with Duck Liver Recipe-1kg",
     "boxSize": "48*38*28",
     "perCarton": 18,
     "perPack": null,
@@ -6295,7 +6295,7 @@ window.allProductsData = [
   {
     "productCode": "EPD041J",
     "packagingVersion": "2026-08-25",
-    "productName": "Premium Canine Cuisine-Beef with Duck Liver Ricipe-1kg",
+    "productName": "Premium Canine Cuisine-Beef with Duck Liver Recipe-1kg",
     "boxSize": "48*38*28",
     "perCarton": 18,
     "perPack": null,
@@ -6306,7 +6306,7 @@ window.allProductsData = [
   {
     "productCode": "EPD061J",
     "packagingVersion": "2026-08-25",
-    "productName": "Premium Canine Cuisine-Chicken with Duck Liver Ricipe-1kg",
+    "productName": "Premium Canine Cuisine-Chicken with Duck Liver Recipe-1kg",
     "boxSize": "48*38*28",
     "perCarton": 18,
     "perPack": null,
@@ -6328,7 +6328,7 @@ window.allProductsData = [
   {
     "productCode": "EPD020J",
     "packagingVersion": "2026-08-25",
-    "productName": "Premium Canine Cuisine-Lamb with Duck Liver Ricipe-454g",
+    "productName": "Premium Canine Cuisine-Lamb with Duck Liver Recipe-454g",
     "boxSize": "48*38*28",
     "perCarton": 30,
     "perPack": null,
@@ -6339,7 +6339,7 @@ window.allProductsData = [
   {
     "productCode": "EPD040J",
     "packagingVersion": "2026-08-25",
-    "productName": "Premium Canine Cuisine-Beef with Duck Liver Ricipe-454g",
+    "productName": "Premium Canine Cuisine-Beef with Duck Liver Recipe-454g",
     "boxSize": "48*38*28",
     "perCarton": 30,
     "perPack": null,
@@ -6350,7 +6350,7 @@ window.allProductsData = [
   {
     "productCode": "EPD060J",
     "packagingVersion": "2026-08-25",
-    "productName": "Premium Canine Cuisine-Chicken with Duck Liver Ricipe-454g",
+    "productName": "Premium Canine Cuisine-Chicken with Duck Liver Recipe-454g",
     "boxSize": "48*38*28",
     "perCarton": 30,
     "perPack": null,

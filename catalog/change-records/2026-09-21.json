@@ -1,0 +1,378 @@
+{
+  "schemaVersion": 1,
+  "previousCatalogVersion": "2026-09-02",
+  "catalogVersion": "2026-09-21",
+  "baselineSha256": "45904588e8628c34db60f99f5296e8362145ce7cdda75d9c1d274f0b9a1ef224",
+  "catalogSha256": "7bd0c80147470f41d8e6f5e4aab35df51555f1e0d6e63212433dd6b514304561",
+  "planSha256": "0c76d75b85ce22a962d6b22a2c87465b119c79f7d0d7955ff53edb1271aac9a0",
+  "appliedAt": "2026-09-21T06:14:00.181Z",
+  "selectedEntryIds": [
+    "product:ACTL08",
+    "product:ACTL09",
+    "product:EPD020J",
+    "product:EPD021J",
+    "product:EPD040J",
+    "product:EPD041J",
+    "product:EPD060J",
+    "product:EPD061J",
+    "product:GTAL01",
+    "product:GTB05",
+    "product:GTB07",
+    "product:GTBL01",
+    "product:GTBL03",
+    "product:GTBL05",
+    "product:GTCL01",
+    "product:GTP03",
+    "product:GTP05",
+    "product:GTPL01",
+    "product:GTPL03",
+    "product:GTPL05",
+    "product:GTRL01",
+    "product:GTRL03",
+    "product:GTSL01"
+  ],
+  "duplicateResolution": null,
+  "changes": [
+    {
+      "id": "product:ACTL08",
+      "entryType": "product",
+      "sku": "ACTL08",
+      "changeType": "updated",
+      "risk": "safe",
+      "fields": [
+        {
+          "field": "productName",
+          "before": "AFreschi - Natural Chicken Sliced 681g*24",
+          "after": "AFreschi - Natural Chicken Sliced 681g*28"
+        }
+      ]
+    },
+    {
+      "id": "product:ACTL09",
+      "entryType": "product",
+      "sku": "ACTL09",
+      "changeType": "updated",
+      "risk": "safe",
+      "fields": [
+        {
+          "field": "productName",
+          "before": "AFreschi - Natural Chicken Dipped Rice Bone 454g*28",
+          "after": "AFreschi - Natural Chicken Dipped Rice Bone 454g*36"
+        }
+      ]
+    },
+    {
+      "id": "product:EPD020J",
+      "entryType": "product",
+      "sku": "EPD020J",
+      "changeType": "updated",
+      "risk": "safe",
+      "fields": [
+        {
+          "field": "productName",
+          "before": "Premium Canine Cuisine-Lamb with Duck Liver Ricipe-454g",
+          "after": "Premium Canine Cuisine-Lamb with Duck Liver Recipe-454g"
+        }
+      ]
+    },
+    {
+      "id": "product:EPD021J",
+      "entryType": "product",
+      "sku": "EPD021J",
+      "changeType": "updated",
+      "risk": "safe",
+      "fields": [
+        {
+          "field": "productName",
+          "before": "Premium Canine Cuisine-Lamb with Duck Liver Ricipe-1kg",
+          "after": "Premium Canine Cuisine-Lamb with Duck Liver Recipe-1kg"
+        }
+      ]
+    },
+    {
+      "id": "product:EPD040J",
+      "entryType": "product",
+      "sku": "EPD040J",
+      "changeType": "updated",
+      "risk": "safe",
+      "fields": [
+        {
+          "field": "productName",
+          "before": "Premium Canine Cuisine-Beef with Duck Liver Ricipe-454g",
+          "after": "Premium Canine Cuisine-Beef with Duck Liver Recipe-454g"
+        }
+      ]
+    },
+    {
+      "id": "product:EPD041J",
+      "entryType": "product",
+      "sku": "EPD041J",
+      "changeType": "updated",
+      "risk": "safe",
+      "fields": [
+        {
+          "field": "productName",
+          "before": "Premium Canine Cuisine-Beef with Duck Liver Ricipe-1kg",
+          "after": "Premium Canine Cuisine-Beef with Duck Liver Recipe-1kg"
+        }
+      ]
+    },
+    {
+      "id": "product:EPD060J",
+      "entryType": "product",
+      "sku": "EPD060J",
+      "changeType": "updated",
+      "risk": "safe",
+      "fields": [
+        {
+          "field": "productName",
+          "before": "Premium Canine Cuisine-Chicken with Duck Liver Ricipe-454g",
+          "after": "Premium Canine Cuisine-Chicken with Duck Liver Recipe-454g"
+        }
+      ]
+    },
+    {
+      "id": "product:EPD061J",
+      "entryType": "product",
+      "sku": "EPD061J",
+      "changeType": "updated",
+      "risk": "safe",
+      "fields": [
+        {
+          "field": "productName",
+          "before": "Premium Canine Cuisine-Chicken with Duck Liver Ricipe-1kg",
+          "after": "Premium Canine Cuisine-Chicken with Duck Liver Recipe-1kg"
+        }
+      ]
+    },
+    {
+      "id": "product:GTAL01",
+      "entryType": "product",
+      "sku": "GTAL01",
+      "changeType": "updated",
+      "risk": "safe",
+      "fields": [
+        {
+          "field": "productName",
+          "before": "Gootoe - Turkey Tendon Braid_S (454g x 38)",
+          "after": "Gootoe - Turkey Tendon Braid_S (454g x 30)"
+        }
+      ]
+    },
+    {
+      "id": "product:GTB05",
+      "entryType": "product",
+      "sku": "GTB05",
+      "changeType": "updated",
+      "risk": "safe",
+      "fields": [
+        {
+          "field": "productName",
+          "before": "Gootoe - Turkey Tendon Bone_L(100g x 100)",
+          "after": "Gootoe - Turkey Tendon Bone_L(100g x 90)"
+        }
+      ]
+    },
+    {
+      "id": "product:GTB07",
+      "entryType": "product",
+      "sku": "GTB07",
+      "changeType": "updated",
+      "risk": "safe",
+      "fields": [
+        {
+          "field": "productName",
+          "before": "Gootoe - Turkey tendon lolipop 15g x 5pcs (75g x 100)",
+          "after": "Gootoe - Turkey tendon lollipop 15g x 5pcs (75g x 100)"
+        }
+      ]
+    },
+    {
+      "id": "product:GTBL01",
+      "entryType": "product",
+      "sku": "GTBL01",
+      "changeType": "updated",
+      "risk": "safe",
+      "fields": [
+        {
+          "field": "productName",
+          "before": "Gootoe - Turkey Tendon Bone_S (454g x 30)",
+          "after": "Gootoe - Turkey Tendon Bone_S (454g x 26)"
+        }
+      ]
+    },
+    {
+      "id": "product:GTBL03",
+      "entryType": "product",
+      "sku": "GTBL03",
+      "changeType": "updated",
+      "risk": "safe",
+      "fields": [
+        {
+          "field": "productName",
+          "before": "Gootoe - Turkey Tendon Bone_M (454g x 30)",
+          "after": "Gootoe - Turkey Tendon Bone_M (454g x 28)"
+        }
+      ]
+    },
+    {
+      "id": "product:GTBL05",
+      "entryType": "product",
+      "sku": "GTBL05",
+      "changeType": "updated",
+      "risk": "safe",
+      "fields": [
+        {
+          "field": "productName",
+          "before": "Gootoe - Turkey Tendon Bone_L(454g x 30)",
+          "after": "Gootoe - Turkey Tendon Bone_L(454g x 24)"
+        }
+      ]
+    },
+    {
+      "id": "product:GTCL01",
+      "entryType": "product",
+      "sku": "GTCL01",
+      "changeType": "updated",
+      "risk": "safe",
+      "fields": [
+        {
+          "field": "productName",
+          "before": "Gootoe - Turkey Tendon Sliced (454g x 30)",
+          "after": "Gootoe - Turkey Tendon Sliced (454g x 28)"
+        }
+      ]
+    },
+    {
+      "id": "product:GTP03",
+      "entryType": "product",
+      "sku": "GTP03",
+      "changeType": "updated",
+      "risk": "safe",
+      "fields": [
+        {
+          "field": "productName",
+          "before": "Gootoe - Turkey Tendon Rope_M(90g x 100)",
+          "after": "Gootoe - Turkey Tendon Rope_M(90g x 90)"
+        }
+      ]
+    },
+    {
+      "id": "product:GTP05",
+      "entryType": "product",
+      "sku": "GTP05",
+      "changeType": "updated",
+      "risk": "safe",
+      "fields": [
+        {
+          "field": "productName",
+          "before": "Gootoe - Turkey Tendon Rope_L(100g x 100)",
+          "after": "Gootoe - Turkey Tendon Rope_L(100g x 90)"
+        }
+      ]
+    },
+    {
+      "id": "product:GTPL01",
+      "entryType": "product",
+      "sku": "GTPL01",
+      "changeType": "updated",
+      "risk": "safe",
+      "fields": [
+        {
+          "field": "productName",
+          "before": "Gootoe - Turkey Tendon Rope_S (454g x 30)",
+          "after": "Gootoe - Turkey Tendon Rope_S (454g x 24)"
+        }
+      ]
+    },
+    {
+      "id": "product:GTPL03",
+      "entryType": "product",
+      "sku": "GTPL03",
+      "changeType": "updated",
+      "risk": "safe",
+      "fields": [
+        {
+          "field": "productName",
+          "before": "Gootoe - Turkey Tendon Rope_M (454g x 30)",
+          "after": "Gootoe - Turkey Tendon Rope_M (454g x 24)"
+        }
+      ]
+    },
+    {
+      "id": "product:GTPL05",
+      "entryType": "product",
+      "sku": "GTPL05",
+      "changeType": "updated",
+      "risk": "safe",
+      "fields": [
+        {
+          "field": "productName",
+          "before": "Gootoe - Turkey Tendon Rope_L (454g x 30)",
+          "after": "Gootoe - Turkey Tendon Rope_L (454g x 24)"
+        }
+      ]
+    },
+    {
+      "id": "product:GTRL01",
+      "entryType": "product",
+      "sku": "GTRL01",
+      "changeType": "updated",
+      "risk": "safe",
+      "fields": [
+        {
+          "field": "productName",
+          "before": "Gootoe - Turkey Tendon Ring_S (454g x 30)",
+          "after": "Gootoe - Turkey Tendon Ring_S (454g x 22)"
+        }
+      ]
+    },
+    {
+      "id": "product:GTRL03",
+      "entryType": "product",
+      "sku": "GTRL03",
+      "changeType": "updated",
+      "risk": "safe",
+      "fields": [
+        {
+          "field": "productName",
+          "before": "Gootoe - Turkey Tendon Ring_M (454g x 30)",
+          "after": "Gootoe - Turkey Tendon Ring_M (454g x 28)"
+        }
+      ]
+    },
+    {
+      "id": "product:GTSL01",
+      "entryType": "product",
+      "sku": "GTSL01",
+      "changeType": "updated",
+      "risk": "safe",
+      "fields": [
+        {
+          "field": "productName",
+          "before": "Gootoe - Turkey Tendon Strip (454g x 30)",
+          "after": "Gootoe - Turkey Tendon Strip (454g x 24)"
+        }
+      ]
+    }
+  ],
+  "catalogAlignment": {
+    "state": "pending",
+    "expectedPublicContentHashes": {
+      "supply": "13ce0abdc927313383148dd53efd49fbd8703ac88b3d3297a0f9dd894cf19d8f",
+      "fba": "699cd6d566faf3cce756b7d27a30b23f24c3ae260c4a9fb8ff26862dbcb14a14"
+    },
+    "evidenceStages": [
+      "local",
+      "repositoryCi",
+      "deployment",
+      "liveHash",
+      "liveBrowser"
+    ]
+  },
+  "stats": {
+    "selected": 23,
+    "safe": 23,
+    "reviewed": 0
+  }
+}
