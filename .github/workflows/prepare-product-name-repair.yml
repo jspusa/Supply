@@ -41,6 +41,19 @@ jobs:
           node scripts/generate-catalog-alignment.mjs --fba-repo "$FBA_REPO"
           git -C "$FBA_REPO" diff --exit-code
           node scripts/catalog-peer-lock.mjs --write-peer "$FBA_REPO"
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          import assert from 'node:assert/strict';
+          const file='tests/product-catalog.test.mjs';
+          let text=fs.readFileSync(file,'utf8');
+          const condition="canonical.catalogVersion === '2026-09-02'";
+          assert.equal(text.split(condition).length,2);
+          text=text.replace(condition,"['2026-09-02', '2026-09-21'].includes(canonical.catalogVersion)");
+          const pattern='/^(?:2026-08-28\\.4|2026-09-02)$/';
+          assert.equal(text.split(pattern).length,4);
+          text=text.replaceAll(pattern,'/^(?:2026-08-28\\.4|2026-09-02|2026-09-21)$/');
+          fs.writeFileSync(file,text);
+          JS
           cat > tests/product-name-audit.test.mjs <<'JS'
           import fs from 'node:fs';
           import assert from 'node:assert/strict';
@@ -67,7 +80,7 @@ jobs:
           FBA_REPO: ${{ github.workspace }}/.catalog-peer/FBA
           CATALOG_RELEASE_IN_PROGRESS: '1'
         run: |
-          npm run verify > /tmp/name-verify.log 2>&1 || { grep -n -A 35 -B 3 'not ok\|Error:\|failed\|FAIL' /tmp/name-verify.log | tail -200; tail -35 /tmp/name-verify.log; exit 1; }
+          npm run verify > /tmp/name-verify.log 2>&1 || { grep -n -A 35 -B 3 '^not ok\|Error:\|failed\|FAIL' /tmp/name-verify.log | tail -200; tail -35 /tmp/name-verify.log; exit 1; }
           tail -15 /tmp/name-verify.log
           npm run catalog:check
           node scripts/verify-catalog-seams.mjs --fba-repo "$FBA_REPO" --require-pinned-peer --reuse-verified-dist > /tmp/name-seams.log 2>&1 || { tail -100 /tmp/name-seams.log; exit 1; }
@@ -91,7 +104,7 @@ jobs:
           change.catalogAlignment={state:record.state,expectedPublicContentHashes:record.expectedPublicContentHashes,evidenceStages:['local','repositoryCi','deployment','liveHash','liveBrowser']};
           write('catalog/change-records/2026-09-21.json',change);
           JS
-          git add catalog/product-catalog.json product-data.js catalog-alignment.json shared/catalog-update-baseline.js shared/catalog-update-runtime-lock.json .github/catalog-peer-lock.json catalog/change-records/2026-09-21.json catalog/alignment-records/2026-09-21.json catalog/alignment-records/latest.json tests/product-name-audit.test.mjs tests/browser/product-name-fixes.spec.mjs
+          git add catalog/product-catalog.json product-data.js catalog-alignment.json shared/catalog-update-baseline.js shared/catalog-update-runtime-lock.json .github/catalog-peer-lock.json catalog/change-records/2026-09-21.json catalog/alignment-records/2026-09-21.json catalog/alignment-records/latest.json tests/product-catalog.test.mjs tests/product-name-audit.test.mjs tests/browser/product-name-fixes.spec.mjs
           git diff --cached --stat
           git commit -m 'fix: correct 16 stale carton names and 7 product-name typos'
           git push origin HEAD:refs/heads/fix/product-names-release-20260921
