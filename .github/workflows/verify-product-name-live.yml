@@ -1,0 +1,99 @@
+name: Verify published product name repair
+on:
+  push:
+    branches: [fix/product-names-20260921]
+    paths: [.github/workflows/verify-product-name-live.yml]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify-live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/checkout@v4
+        with:
+          ref: 4c9c4839e1713cd066c716dec2c159d2ecfa4625
+          path: .live/Supply
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: jspusa/FBA
+          ref: 8113edac7c427281669d95bd3f3860342a1a554f
+          path: .live/FBA
+          persist-credentials: false
+      - name: Install existing browser test tools
+        working-directory: .live/Supply
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium > /tmp/name-live-browser-install.log 2>&1 || { tail -70 /tmp/name-live-browser-install.log; exit 1; }
+      - name: Wait for the exact production revisions to pass CI and deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/name-live-evidence
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          import assert from 'node:assert/strict';
+          const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+          async function passedRun(repo,id,revision){
+            for(let attempt=0;attempt<30;attempt++){
+              const headers={Accept:'application/vnd.github+json'};
+              if(repo==='Supply')headers.Authorization='Bearer '+process.env.GH_TOKEN;
+              const response=await fetch(`https://api.github.com/repos/jspusa/${repo}/actions/runs/${id}`,{headers,signal:AbortSignal.timeout(20000)});
+              assert.equal(response.status,200,`${repo} run ${id}`);
+              const run=await response.json();
+              assert.equal(run.head_sha,revision);
+              if(run.status==='completed'){
+                assert.equal(run.conclusion,'success',`${repo}: ${run.name}`);
+                return {id,name:run.name,revision,checkedAt:new Date(run.updated_at).toISOString(),url:run.html_url,outcome:'passed'};
+              }
+              console.log(`${repo} ${run.name}: ${run.status}`);
+              await pause(15000);
+            }
+            throw new Error(`${repo} deployment did not finish within the verification window`);
+          }
+          const fbaRevision='8113edac7c427281669d95bd3f3860342a1a554f';
+          const fbaCi=await passedRun('FBA',35568101957,fbaRevision);
+          const fbaDeployment=await passedRun('FBA',35568101213,fbaRevision);
+          const supply=await passedRun('Supply',35568115137,'4c9c4839e1713cd066c716dec2c159d2ecfa4625');
+          fs.writeFileSync('/tmp/name-live-evidence/ci-evidence.json',JSON.stringify({supply:{ci:supply,deployment:supply},fba:{ci:fbaCi,deployment:fbaDeployment}},null,2)+'\n');
+          JS
+      - name: Verify real live data, desktop, mobile and GTAL01 selection
+        run: node scripts/verify-approved-product-names-live.mjs .live/Supply .live/FBA /tmp/name-live-evidence
+      - name: Build validated completion record from actual passed evidence
+        run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          import assert from 'node:assert/strict';
+          import {recordCatalogAlignmentEvidence} from './.live/Supply/catalog/catalog-alignment.js';
+          const read=p=>JSON.parse(fs.readFileSync(p,'utf8'));
+          const evidence=read('/tmp/name-live-evidence/ci-evidence.json');
+          const live=read('/tmp/name-live-evidence/live-verification.json');
+          assert.equal(live.status,'passed');
+          let record=read('.live/Supply/catalog/alignment-records/2026-09-21.json');
+          for(const site of ['supply','fba']){
+            const proof=evidence[site];
+            record=recordCatalogAlignmentEvidence(record,{site,stage:'repositoryCi',outcome:'passed',checkedAt:proof.ci.checkedAt,revision:proof.ci.revision});
+            record=recordCatalogAlignmentEvidence(record,{site,stage:'deployment',outcome:'passed',checkedAt:proof.deployment.checkedAt,revision:proof.deployment.revision});
+            record=recordCatalogAlignmentEvidence(record,{site,stage:'liveHash',outcome:'passed',checkedAt:live.checkedAt,revision:proof.deployment.revision,catalogVersion:live.catalogVersion,publicContentHash:live.manifests[site].publicContentHash});
+            record=recordCatalogAlignmentEvidence(record,{site,stage:'liveBrowser',outcome:'passed',checkedAt:live.checkedAt,revision:proof.deployment.revision});
+          }
+          assert.equal(record.state,'aligned');
+          fs.writeFileSync('/tmp/name-live-evidence/completed-alignment-record.json',JSON.stringify(record,null,2)+'\n');
+          console.log('Both production websites passed version, hash, name and browser verification.');
+          JS
+      - name: Save verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: product-name-live-evidence
+          path: /tmp/name-live-evidence
+          if-no-files-found: error
+          retention-days: 7
