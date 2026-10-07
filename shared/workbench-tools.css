@@ -1,0 +1,22 @@
+/* Local workflow additions layered on the shared visual system. */
+.workbenchArrival { display:flex; flex-direction:column; gap:5px; min-width:175px; }
+.workbenchArrival input[type="date"] { padding:8px 10px; min-height:38px; border:1px solid #d1d9e5; border-radius:8px; color:inherit; background:#fff; font:inherit; }
+.workbenchArrivalHint { font-size:11px; color:#52677f; line-height:1.5; max-width:245px; }
+.workbenchBulk { margin:12px 0; border:1px solid #dbe5f2; border-radius:12px; background:#f8fafc; }
+.workbenchBulk > summary { padding:11px 14px; cursor:pointer; font-size:13px; font-weight:700; }
+.workbenchBulkBody { padding:0 14px 14px; }
+.workbenchBulk textarea { display:block; width:100%; min-height:100px; margin:10px 0; resize:vertical; }
+.workbenchBulkStatus { white-space:pre-wrap; overflow-wrap:anywhere; font-size:12px; line-height:1.6; margin-top:8px; }
+.workbenchBulkStatus[data-state="warning"] { color:#92400e; }
+.workbenchBulkStatus[data-state="ready"] { color:#166534; }
+.decisionCoverageValue { display:block; font-size:24px; font-weight:800; color:#12315f; margin:6px 0; font-variant-numeric:tabular-nums; }
+.workbenchHelp { margin-top:10px; border-top:1px solid #e5ecf5; }
+.workbenchHelp > summary { justify-content:flex-start; padding:10px 0; font-size:12px; color:#52677f; }
+.workbenchHelp p { font-size:12px; line-height:1.7; color:#52677f; margin:0 0 10px; }
+@media (max-width:640px) { .workbenchArrival { flex:1 1 180px; } .workbenchArrivalHint { max-width:none; } }
+
+.workbenchWorkbookSource { display:inline-block; color:#0b6bcb; font-size:13px; font-weight:700; margin-top:8px; overflow-wrap:anywhere; }
+.workbenchWorkbookDrop { width:100%; min-height:100px; padding:20px; border:2px dashed #a9bfdb; border-radius:14px; background:#f5f9ff; color:#164878; box-shadow:none; margin:0 0 12px; line-height:1.6; }
+.workbenchWorkbookDrop.is-dragging { background:#dbeafe; border-color:#2563eb; }
+.workbenchWorkbookDrop:focus-visible { outline:3px solid #93c5fd; outline-offset:3px; }
+.workbenchWorkbookDrop:disabled { cursor:wait; opacity:.65; }
