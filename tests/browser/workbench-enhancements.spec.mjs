@@ -16,6 +16,7 @@ async function start(page, context) {
 
 test('bulk rows route all groups, keep existing quantities, report unknown SKUs and restore after refresh', async ({ page, context }) => {
   const errors = await start(page, context);
+  await page.locator('#generatorBulkDetails > summary').click();
   await page.locator('#generatorBulkInput').fill('SKU\t數量\nEZD011AM\t120\n1MHTD011A0\t240\n7ATSD010AB\t300\nUNKNOWN999\t10');
   await page.locator('#btnAddGeneratorBulk').click();
   await expect(page.locator('#generatorBulkStatus')).toContainText('已加入 3 個品項');

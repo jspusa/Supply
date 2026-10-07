@@ -1105,7 +1105,7 @@
                 <input type="text" id="searchInput" class="search-input" placeholder="🔎 搜尋品號或品名／快速加入" oninput="searchProduct()">
                 <div id="searchResults" class="search-results"></div>
               </div>
-              <details class="workbenchBulk" id="generatorBulkDetails" open>
+              <details class="workbenchBulk" id="generatorBulkDetails">
                 <summary>批次貼上 SKU／數量</summary>
                 <div class="workbenchBulkBody">
                   <label for="generatorBulkInput" class="hint">可直接貼上 Excel 的整排、整欄或多列。只貼 SKU 會建立空白數量；兩欄請依「SKU、實體包數」排列。</label>
@@ -1180,7 +1180,7 @@
         </div>
       </details>
 
-      <details class="card priority" id="skuDecisionTreeCard" data-workspace-panel="sku-tree" hidden>
+      <details class="card priority" id="skuDecisionTreeCard" data-workspace-panel="sku-tree" hidden open>
         <summary>
           <div>
             <p class="eyebrow">SKU Decision Tree</p>
