@@ -7,6 +7,7 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Ctext x=%278%27 y=%2746%27 font-size=%2742%27%3E📦%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <link rel="stylesheet" href="./shared/coverage-indicator.css">
+  <link rel="stylesheet" href="./shared/workbench-tools.css">
   <style>
     :root { font-family: "Noto Sans TC", system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #0f1d2b; }
     * { box-sizing: border-box; }
@@ -877,6 +878,11 @@
         <span class="controlLabel">新單前置期</span>
         <input id="leadTimeDays" type="number" min="1" max="365" step="1" value="90" title="從今天下單到新訂單抵達美國的預估天數" />
       </div>
+      <div class="controlGroup workbenchArrival">
+        <label class="controlLabel" for="newOrderArrivalDate">新單預計到港日</label>
+        <input id="newOrderArrivalDate" type="date" aria-describedby="newOrderArrivalHint" />
+        <span id="newOrderArrivalHint" class="workbenchArrivalHint" role="status"></span>
+      </div>
       <div class="controlGroup compactNumber">
         <span class="controlLabel">轉入 FBA</span>
         <input id="fbaTransferDays" type="number" min="0" max="90" step="1" value="21" title="貨物位於 JSP 或抵達美國後，到 Amazon FBA 真正可售的預估天數" />
@@ -1017,6 +1023,16 @@
                 <input type="text" id="searchInput" class="search-input" placeholder="🔎 搜尋品號或品名／快速加入" oninput="searchProduct()">
                 <div id="searchResults" class="search-results"></div>
               </div>
+              <details class="workbenchBulk" id="generatorBulkDetails">
+                <summary>批次貼上 SKU／數量</summary>
+                <div class="workbenchBulkBody">
+                  <label for="generatorBulkInput" class="hint">可直接貼上 Excel 的整排、整欄或多列。只貼 SKU 會建立空白數量；兩欄請依「SKU、實體包數」排列。</label>
+                  <textarea id="generatorBulkInput" placeholder="KTB01AM-4&#9;5400&#10;GSCL01&#9;1512" spellcheck="false"></textarea>
+                  <button type="button" id="btnAddGeneratorBulk">批次加入訂單</button>
+                  <span class="hint">自動依工廠分組；已存在的 SKU 保留原數量。⌘／Ctrl + Enter 加入。</span>
+                  <div id="generatorBulkStatus" class="workbenchBulkStatus" role="status" aria-live="polite"></div>
+                </div>
+              </details>
               <div class="generatorColumnBar" id="generatorColumnBar">
                 <span><i class="fa-solid fa-table-columns"></i> 顯示欄位</span>
                 <label class="generatorColumnToggle"><input type="checkbox" data-generator-column-toggle="target">目標數量</label>
@@ -1035,7 +1051,8 @@
                   <tbody></tbody>
                 </table>
               </div>
-              <div class="hint" style="text-align:right;margin-top:10px;">點序號查看訂單來源；點品號直接複製；右上箭頭前往 Seller Central。舊訂單可售天數會包含 JAM/FY 的預計補貨；新訂單到港後總可售天數只扣新單前置期銷售，納入已下單舊單；對不到明細的既有訂單會依規則假設比新單早到，但仍顯示追貨提醒。「還沒下單／STOP」不納入。血條固定為：低於 180 天黃色、180–365 天綠色、超過 365 天紅色；上方到港後目標仍只影響建議量。建議會優先使用整板，只有下一整板會從低於目標跳到超過 365 天時，才依最小箱數顯示零散板。按住拖曳圖示可調整順序，草稿會自動保存。</div>
+              <div class="hint" style="margin-top:10px;">點品號複製；點序號查看來源；按住拖曳圖示排序。草稿會自動保存。</div>
+              <details class="workbenchHelp"><summary>可售天數、建議量與顏色怎麼計算？</summary><p>點序號查看訂單來源；點品號直接複製；右上箭頭前往 Seller Central。舊訂單可售天數會包含 JAM/FY 的預計補貨；新訂單到港後總可售天數只扣新單前置期銷售，納入已下單舊單；對不到明細的既有訂單會依規則假設比新單早到，但仍顯示追貨提醒。「還沒下單／STOP」不納入。血條固定為：低於 180 天黃色、180–365 天綠色、超過 365 天紅色；上方到港後目標仍只影響建議量。建議會優先使用整板，只有下一整板會從低於目標跳到超過 365 天時，才依最小箱數顯示零散板。按住拖曳圖示可調整順序，草稿會自動保存。</p></details>
               <div class="totals-container">
                 <div class="total"><i class="fa-solid fa-boxes-stacked"></i> 總包數: <span id="totalQuantity">0</span> | 總箱數: <span id="totalCartons">0</span> | 總棧板數: <span id="totalPallets">0</span></div>
                 <div class="box-counts" id="boxCounts"></div>
@@ -1081,7 +1098,7 @@
         </div>
       </details>
 
-      <details class="card priority" id="skuDecisionTreeCard" data-workspace-panel="sku-tree" hidden>
+      <details class="card priority" id="skuDecisionTreeCard" data-workspace-panel="sku-tree" hidden open>
         <summary>
           <div>
             <p class="eyebrow">SKU Decision Tree</p>
@@ -1374,6 +1391,8 @@
   <script type="module" src="./shared/workspace-ui.js"></script>
   <script type="module" src="./shared/coverage-indicator.js"></script>
   <script type="module" src="./shared/discontinuation-suggestions.js"></script>
+  <script type="module" src="./shared/workbench-tools.js"></script>
+  <script type="module" src="./shared/decision-coverage.js"></script>
   <script>
     const IS_BOSS_PORTAL = window.__SUPPLY_BOSS_PORTAL__ === true;
     if (IS_BOSS_PORTAL) document.body.classList.add('bossPortal');
@@ -3056,6 +3075,7 @@
         planning:{
           targetDays:getReorderTargetDays(),
           leadTimeDays:getLeadTimeDays(),
+          newOrderArrivalDate:selectedNewOrderArrivalDate,
           fbaTransferDays:getFbaTransferDays()
         },
         filters:{
@@ -3103,6 +3123,7 @@
       setNumber(leadTimeDaysEl, planning.leadTimeDays, 1, 365);
       setNumber(fbaTransferDaysEl, planning.fbaTransferDays, 0, 90);
       normalizePlanningDayInputs();
+      if (typeof planning.newOrderArrivalDate === 'string') restoreNewOrderArrivalDate(planning.newOrderArrivalDate);
       if (['all', 'hideTW', 'onlyTW'].includes(filters.factoryMode)) {
         factoryMode = filters.factoryMode;
         document.getElementById('factoryFilter').value = factoryMode;
@@ -3440,6 +3461,9 @@
       daysThresholdEl.value = '180';
       if (leadTimeDaysEl) leadTimeDaysEl.value = '90';
       if (fbaTransferDaysEl) fbaTransferDaysEl.value = '21';
+      selectedNewOrderArrivalDate = '';
+      try { localStorage.removeItem('supply-new-order-arrival-date'); } catch (_) {}
+      workbenchTools?.updateDate();
       mainSearchQuery = '';
       ['mainSkuSearch', 'searchInput', 'skuTreeInput'].forEach(id => { const element = document.getElementById(id); if (element) element.value = ''; });
       const treeDays = document.getElementById('skuTreeDaysThreshold');
@@ -3514,7 +3538,7 @@
     function wireWorkspacePersistence() {
       if (IS_BOSS_PORTAL) return;
       const preferenceInputIds = new Set([
-        'factoryFilter', 'itemFilter', 'daysThreshold', 'leadTimeDays', 'fbaTransferDays',
+        'factoryFilter', 'itemFilter', 'daysThreshold', 'leadTimeDays', 'fbaTransferDays', 'newOrderArrivalDate',
         'hideDiscontinuedFilter', 'onlyNoOrderFilter', 'reorderVelocityRiskOnly',
         'mainSkuSearch', 'searchInput', 'skuTreeInput', 'skuTreeDaysThreshold', 'skuTreeAlertsOnly',
         'ganttDaysType', 'salesGanttFactory', 'salesGanttItemFilter', 'salesGanttViewType'
@@ -3944,6 +3968,115 @@
       document.addEventListener('pointerup', finishDrag);
       document.addEventListener('pointercancel', finishDrag);
     }
+
+    // Workbench controls delegate all mutations to the versioned draft API.
+    let selectedNewOrderArrivalDate = '';
+    let workbenchTools = null;
+
+    function restoreNewOrderArrivalDate(value) {
+      const api = window.SupplyWorkbenchInput;
+      const [year, month, day] = getPlanningAsOfDate().split('-').map(Number);
+      const days = api?.leadTimeFromArrival(value, new Date(year, month - 1, day));
+      selectedNewOrderArrivalDate = Number.isInteger(days) ? value : '';
+      if (value && !selectedNewOrderArrivalDate) showTip('先前的預計到港日已超出可選範圍，已改用目前設定的新單前置期。', 'error');
+      if (selectedNewOrderArrivalDate) leadTimeDaysEl.value = String(days);
+      workbenchTools?.updateDate();
+    }
+
+    function setNewOrderArrivalDate(value, days = null) {
+      selectedNewOrderArrivalDate = value;
+      if (Number.isInteger(days)) leadTimeDaysEl.value = String(days);
+      try {
+        localStorage.setItem('supply-new-order-arrival-date', value);
+        localStorage.setItem('supply-lead-time-days', String(getLeadTimeDays()));
+      } catch (_) {}
+      buildTables();
+      scheduleWorkspaceAutoSave({ userInitiated:true });
+    }
+
+    function addGeneratorBatchEntries(entries) {
+      if ((!generatorDraft && !loadGeneratorDraftState()) || !saveGeneratorDraft()) {
+        return { ok:false, rejected:entries.length, message:'草稿尚未成功載入或保存，未加入任何品項。' };
+      }
+      const api = getOrderDraftStateApi();
+      const context = getGeneratorDraftContext();
+      const before = generatorDraft;
+      let candidate = before;
+      const groups = { vietnam:0, taiwan:0, subcontract:0 };
+      const skipped = [];
+      const rejected = [];
+      let firstGroup = null;
+      for (const entry of entries) {
+        const productSku = getCanonicalSku(entry.sku);
+        const product = getProductSpecByCode(productSku);
+        if (!product) {
+          rejected.push(entry.sku + '（找不到產品資料）');
+          continue;
+        }
+        if (candidate.rowsByProductSku[productSku]) {
+          skipped.push(entry.sku);
+          continue;
+        }
+        const baseRow = { ...createGeneratorDraftRow(product), orderSku:entry.sku };
+        const initial = api.applyOrderDraftCommand(candidate, { type:'upsert-row', row:baseRow }, context);
+        if (!initial.ok) {
+          rejected.push(entry.sku + '（品號或下單身份未確認）');
+          continue;
+        }
+        let result = initial;
+        if (entry.quantity !== null || entry.sku !== productSku) {
+          const packaging = api.resolveOrderDraftRowPackaging(initial.row, context);
+          if (!packaging) {
+            rejected.push(entry.sku + '（缺少可用箱規）');
+            continue;
+          }
+          const row = createGeneratorDraftRow({ ...product, ...packaging, productCode:productSku }, { quantity:entry.quantity });
+          row.orderSku = entry.sku;
+          row.pinPackaging = true;
+          result = api.applyOrderDraftCommand(initial.draft, { type:'upsert-row', row }, context);
+        }
+        if (!result.ok) {
+          rejected.push(entry.sku + '（數量或箱規無法套用）');
+          continue;
+        }
+        candidate = result.draft;
+        groups[result.row.orderGroup] += 1;
+        firstGroup ||= result.row.orderGroup;
+      }
+      const added = Object.values(groups).reduce((sum, count) => sum + count, 0);
+      if (added) {
+        generatorDraft = candidate;
+        if (!persistGeneratorDraft()) {
+          generatorDraft = before;
+          renderActiveOrderGroup();
+          return { ok:false, rejected:entries.length, message:'瀏覽器無法保存草稿，本次加入已取消。請先處理儲存問題。' };
+        }
+        if (!groups[currentOrderGroup] && firstGroup) setActiveOrderGroup(firstGroup);
+        renderActiveOrderGroup();
+      }
+      const groupText = Object.entries(groups).filter(([, count]) => count).map(([group, count]) => getOrderGroupLabel(group) + ' ' + count + ' 筆').join('、');
+      return {
+        ok:true,
+        rejected:rejected.length,
+        message:[
+          added ? '已加入 ' + added + ' 個品項（' + groupText + '）。草稿已保存。' : '沒有新增品項。',
+          skipped.length ? '已在草稿中，保留原數量：' + skipped.join('、') : '',
+          rejected.length ? '未加入：' + rejected.join('、') : '',
+        ].filter(Boolean).join('\n'),
+      };
+    }
+
+    function initializeWorkbenchTools() {
+      workbenchTools = window.SupplyWorkbenchTools?.mountWorkbenchTools({
+        asOfDate:getPlanningAsOfDate,
+        getLeadDays:getLeadTimeDays,
+        getTransferDays:getFbaTransferDays,
+        getArrivalDate:() => selectedNewOrderArrivalDate,
+        setArrivalDate:setNewOrderArrivalDate,
+        addEntries:addGeneratorBatchEntries,
+      });
+    }
+
     function getOrderDraftStateApi() { return window.SupplyOrderDraftState || null; }
     function getApprovedOrderSkusForProduct(productSku) { const canonical = getCanonicalSku(productSku); const group = getEquivalentSkuGroup(canonical) || []; return group.map(normalizeSkuKey).filter(orderSku => orderSku && orderSku !== canonical); }
     function getOrderSkuPackagingForDraft(orderSku) { const normalized = normalizeSkuKey(orderSku); return (window.SUPPLY_ORDER_SKU_PACKAGING || []).find(item => normalizeSkuKey(item?.orderSku) === normalized) || null; }
@@ -4481,6 +4614,18 @@
     }
     window.expandSingleSkuTree = expandSingleSkuTree;
 
+
+    function getSkuCoverageSummary(sku) {
+      const source = mainRowsAll.find(item => getCanonicalSku(item.sku) === getCanonicalSku(sku));
+      const api = window.SupplyDecisionCoverage;
+      if (!source || !api) return { days:null, currentDays:null, orderDays:null, eligibleOrderUnits:null, excludedOrderUnits:null, title:'含訂單預計可售天數', detail:'資料不足，請先讀取 H10、JSP 庫存及 JAM／FY 訂單。', status:'unavailable' };
+      return api.describeDecisionCoverage(getLeadTimePlan(source, 365), getPlanningVelocityForProduct(source.sku));
+    }
+    function renderSkuCoverageDescription(coverage) {
+      const value = Number.isFinite(coverage.days) ? '約 ' + fmtDays(coverage.days) + ' 天' : '無法計算';
+      return '<strong class="decisionCoverageValue">' + escapeHtml(value) + '</strong><span>' + escapeHtml(coverage.detail) + '</span>';
+    }
+
     function getSkuDecisionTreeAnalysis(sku, treeDaysThreshold, requestedStage = 0) {
       const row = findDecisionRowBySku(sku);
       if (!row) {
@@ -4502,9 +4647,11 @@
         html:`<div class="decisionTree">${nodes.map(n => renderTreeNode(n.kind, n.title, n.descHtml, n.tagText)).join('')}</div>${nextStage ? renderNextStageButton(sku, nextStage) : ''}`
       });
 
+      const coverage = getSkuCoverageSummary(sku);
       const factor = getPhysicalUnitsPerAmazonUnit(sku);
       const unitNote = factor > 1 ? `｜換算：${fmtQty(factor)} 個實體包＝1 個 AMZ 單位` : '';
       addNode('neutralNode', `${sku} 單品診斷`, `速度：${row.planningVelocity || 'N/A'} AMZ單位/天｜AMZ：${fmtQty(row.amz)}｜JSP：${fmtQty(row.jsp)}｜未到貨：${fmtQty(row.order)} AMZ單位${unitNote}｜停產：${discontinued ? '是' : '否'}`, 'SKU');
+      addNode(coverage.status === 'unavailable' ? 'warnNode' : 'neutralNode', coverage.title, (Number.isFinite(coverage.days) ? '約 ' + fmtDays(coverage.days) + ' 天。' : '') + coverage.detail, '含訂單', renderSkuCoverageDescription(coverage));
 
       if (planningVelocity <= 0) {
         addNode('warnNode', '無有效速度證據，無法判斷', '目前不會使用庫存數量單獨推斷缺貨或漏下單；請先補入可用的 H10 Source Velocity、Sellable ÷ DOS 或歷史證據。', '資料不足');
@@ -4627,7 +4774,9 @@
         const amzText = row.amz === null ? '未讀取' : fmtQty(row.amz);
         const daysText = row.amzDays === null ? 'N/A' : fmtDays(row.amzDays);
         const nameText = row.name ? `｜${escapeHtml(row.name)}` : '';
+        const coverage = getSkuCoverageSummary(row.sku);
         const nodes = [
+          renderTreeNode('neutralNode', coverage.title, renderSkuCoverageDescription(coverage), '含訂單'),
           renderTreeNode('badNode', 'JSP Inventory 庫存為 0', `JSP 美國倉明確庫存：<b>0</b>。AMZ 庫存：${escapeHtml(amzText)}，AMZ 可售天數：約 ${escapeHtml(daysText)} 天。`, '缺貨'),
           renderTreeNode('badNode', '沒有 JAM／FY 未到貨訂單', '目前訂單總表與 JAM／FY 明細都沒有可補入美國倉的未到貨數量。', '無訂單'),
           renderTreeNode('okNode', '此 SKU 非停產品', '仍是可補貨品項，不能以停產作為無訂單的原因。', '在售')
@@ -4642,6 +4791,11 @@
     }
     window.renderAutoDecisionTree = renderAutoDecisionTree;
 
+    function getSkuCoverageExportFields(sku) {
+      const coverage = getSkuCoverageSummary(sku);
+      return [Number.isFinite(coverage.days) ? Number(coverage.days.toFixed(1)) : '', coverage.eligibleOrderUnits ?? '', coverage.excludedOrderUnits ?? ''];
+    }
+
     function exportSkuDecisionTreeExcel() {
       const input = document.getElementById('skuTreeInput');
       const skus = parseSkuTreeInput(input?.value);
@@ -4652,8 +4806,8 @@
       const analyses = skus.map(sku => getSkuDecisionTreeAnalysis(sku, treeDaysThreshold, getSkuTreeExpandedStage(sku)));
       const visibleAnalyses = alertsOnly ? analyses.filter(item => item.hasAlert) : analyses;
       if (!visibleAnalyses.length) { showTip('目前沒有可匯出的警報 SKU', 'error'); return; }
-      const headers = ['SKU','步驟','標籤','標題','說明','H10 Source Velocity','Planning Velocity','採用證據','調高原因','Velocity Risk','AMZ','JSP','未到貨','AMZ沒貨天數門檻','已展開至關卡','僅顯示警報'];
-      const body = visibleAnalyses.flatMap(item => item.exportRows.map(row => [item.sku,row.step,row.tag,row.title,row.detail,...getVelocityExportFields(item.row),item.row?.amz ?? '',item.row?.jsp ?? '',item.row?.order ?? '',treeDaysThreshold,getSkuTreeExpandedStage(item.sku),alertsOnly ? '是' : '否']));
+      const headers = ['SKU','步驟','標籤','標題','說明','H10 Source Velocity','Planning Velocity','採用證據','調高原因','Velocity Risk','AMZ','JSP','未到貨','AMZ沒貨天數門檻','已展開至關卡','僅顯示警報','含訂單預計可售天數','納入既有訂單（AMZ單位）','排除訂單（AMZ單位）'];
+      const body = visibleAnalyses.flatMap(item => item.exportRows.map(row => [item.sku,row.step,row.tag,row.title,row.detail,...getVelocityExportFields(item.row),item.row?.amz ?? '',item.row?.jsp ?? '',item.row?.order ?? '',treeDaysThreshold,getSkuTreeExpandedStage(item.sku),alertsOnly ? '是' : '否',...getSkuCoverageExportFields(item.sku)]));
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([headers, ...body]), 'SKU決策樹');
       XLSX.writeFile(wb, `${getDateStamp()}_SKU決策樹.xlsx`);
@@ -4663,7 +4817,7 @@
     function exportAutoDecisionTreeExcel() {
       const rows = getAutoDecisionRows();
       if (!rows.length) { showTip('目前沒有可匯出的自動警示 SKU', 'error'); return; }
-      const headers = ['SKU','產品名稱','H10 Source Velocity','Planning Velocity','採用證據','調高原因','Velocity Risk','AMZ庫存','AMZ可售天數','JSP庫存','JAM／FY未到貨','停產狀態','結論'];
+      const headers = ['SKU','產品名稱','H10 Source Velocity','Planning Velocity','採用證據','調高原因','Velocity Risk','AMZ庫存','AMZ可售天數','JSP庫存','JAM／FY未到貨','停產狀態','結論','含訂單預計可售天數','納入既有訂單（AMZ單位）','排除訂單（AMZ單位）'];
       const body = rows.map(row => [
         row.sku,
         row.name || '',
@@ -4673,7 +4827,8 @@
         0,
         0,
         '非停產',
-        'JSP 庫存為 0、沒有未到貨訂單，可能漏下單'
+        'JSP 庫存為 0、沒有未到貨訂單，可能漏下單',
+        ...getSkuCoverageExportFields(row.sku)
       ]);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([headers, ...body]), 'SKU自動決策樹');
@@ -5140,6 +5295,7 @@
       try { const savedLeadTime = Number(localStorage.getItem('supply-lead-time-days')); if (leadTimeDaysEl && Number.isFinite(savedLeadTime) && savedLeadTime >= 1 && savedLeadTime <= 365) leadTimeDaysEl.value = String(savedLeadTime); } catch (_) {}
       try { const savedTransferRaw = localStorage.getItem('supply-fba-transfer-days'); const savedTransferDays = savedTransferRaw === null ? null : Number(savedTransferRaw); if (fbaTransferDaysEl && savedTransferDays !== null && Number.isFinite(savedTransferDays) && savedTransferDays >= 0 && savedTransferDays <= 90) fbaTransferDaysEl.value = String(savedTransferDays); } catch (_) {}
       normalizePlanningDayInputs();
+      try { restoreNewOrderArrivalDate(localStorage.getItem('supply-new-order-arrival-date') || ''); } catch (_) {}
       document.querySelectorAll('[name="orderGroupSelect"]').forEach(radio => radio.addEventListener('change', e => {
         saveGeneratorDraft();
         setActiveOrderGroup(e.target.value);
@@ -5168,6 +5324,7 @@
       const workspaceRestore = !IS_BOSS_PORTAL ? await restorePublicWorkspace() : null;
       if (!workspaceRestore?.ok || workspaceRestore.status === 'missing') buildTables();
       loadGeneratorDraftState();
+      initializeWorkbenchTools();
       startWorkspaceUi(restoredWorkspacePreference);
       wireWorkspacePersistence();
       updateWorkflowUi();

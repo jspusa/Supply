@@ -82,6 +82,7 @@ export const WORKSPACE_CLEAR_LOCAL_STORAGE_KEYS = Object.freeze([
   PLANNING_VELOCITY_HISTORY_KEY,
   ORDER_VELOCITY_OVERRIDES_KEY,
   'supply-lead-time-days',
+  'supply-new-order-arrival-date',
   'supply-fba-transfer-days',
   'supply-generator-columns-v1',
   'supply-sidebar-collapsed-v2',

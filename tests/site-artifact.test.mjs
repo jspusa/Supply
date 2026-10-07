@@ -74,6 +74,7 @@ test('site build emits the exact deterministic deployment artifact', t => {
     'shared/catalog-update-runtime-lock.json',
     'shared/coverage-indicator.css',
     'shared/coverage-indicator.js',
+    'shared/decision-coverage.js',
     'shared/discontinuation-suggestions.js',
     'shared/fba-visual-system.css',
     'shared/legacy-planning-adapter.js',
@@ -87,6 +88,9 @@ test('site build emits the exact deterministic deployment artifact', t => {
     'shared/shared-product-catalog.js',
     'shared/supply-fba-theme.css',
     'shared/supply-planner.js',
+    'shared/workbench-input.js',
+    'shared/workbench-tools.css',
+    'shared/workbench-tools.js',
     'shared/workspace-navigation.js',
     'shared/workspace-snapshot.js',
     'shared/workspace-ui.js',
@@ -118,6 +122,7 @@ test('site build emits the exact deterministic deployment artifact', t => {
     'shared/catalog-update-runtime-lock.json',
     'shared/coverage-indicator.css',
     'shared/coverage-indicator.js',
+    'shared/decision-coverage.js',
     'shared/discontinuation-suggestions.js',
     'shared/fba-visual-system.css',
     'shared/legacy-planning-adapter.js',
@@ -131,13 +136,16 @@ test('site build emits the exact deterministic deployment artifact', t => {
     'shared/shared-product-catalog.js',
     'shared/supply-fba-theme.css',
     'shared/supply-planner.js',
+    'shared/workbench-input.js',
+    'shared/workbench-tools.css',
+    'shared/workbench-tools.js',
     'shared/workspace-navigation.js',
     'shared/workspace-snapshot.js',
     'shared/workspace-ui.js',
     'vendor/LICENSE.sheetjs.txt',
     'vendor/xlsx.full.min.js',
   ]);
-  assert.equal(Object.keys(manifest.files).length, 36);
+  assert.equal(Object.keys(manifest.files).length, 40);
   for (const relativePath of Object.keys(manifest.files)) {
     assert.match(manifest.files[relativePath], /^[a-f0-9]{64}$/);
     assert.equal(manifest.files[relativePath], sha256(path.join(firstDist, relativePath)));
@@ -173,7 +181,7 @@ test('artifact verifier accepts a complete unmodified site build', t => {
 
   const verified = runNode(verifyScript, ['--dir', dist, '--revision', 'verified-revision']);
   assert.equal(verified.status, 0, verified.stderr || verified.stdout);
-  assert.match(verified.stdout, /Verified 36 hashed site files for verified-revision/);
+  assert.match(verified.stdout, /Verified 40 hashed site files for verified-revision/);
 });
 
 test('artifact verifier rejects repository-only or unexpected files', t => {
