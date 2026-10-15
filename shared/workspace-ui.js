@@ -5,6 +5,7 @@ import {
   resolveInitialWorkspace,
   workspaceHash,
 } from './workspace-navigation.js';
+import { mountDiscontinuedListUi } from './discontinued-list-ui.js';
 
 const WORKSPACE_LABELS = Object.freeze({
   data:'資料',
@@ -27,7 +28,10 @@ function navigationMarkup() {
           ${NAV_ITEMS.map(({ id, label }, index) => `<button type="button" class="workspaceNavTab top-tab" role="tab" data-workspace="${id}" aria-selected="${index === 0 ? 'true' : 'false'}" tabindex="${index === 0 ? '0' : '-1'}">${label}</button>`).join('')}
         </div>
       </nav>
-      <span class="header-meta">Supply</span>
+      <div class="workspace-header-actions" aria-label="工作區操作">
+        <span class="header-meta">Supply</span>
+        <button type="button" class="discontinued-list-trigger" id="discontinuedListTrigger" aria-haspopup="dialog" aria-controls="discontinuedListDialog">停產清單</button>
+      </div>
     </div>
   </header>`;
 }
@@ -74,6 +78,8 @@ export function createWorkspaceUi({
     if (mounted) return;
     requiredElement(documentRef, 'workspaceNavMount').innerHTML = navigationMarkup();
     requiredElement(documentRef, 'todayWorkspaceMount').innerHTML = todayMarkup();
+    const discontinuedTrigger = documentRef.getElementById('discontinuedListTrigger');
+    if (discontinuedTrigger) mountDiscontinuedListUi({ trigger:discontinuedTrigger, documentRef, windowRef });
     mounted = true;
   }
 

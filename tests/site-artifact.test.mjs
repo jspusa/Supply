@@ -76,6 +76,9 @@ test('site build emits the exact deterministic deployment artifact', t => {
     'shared/coverage-indicator.js',
     'shared/decision-coverage.js',
     'shared/discontinuation-suggestions.js',
+    'shared/discontinued-list-ui.js',
+    'shared/discontinued-list.css',
+    'shared/discontinued-products.js',
     'shared/fba-visual-system.css',
     'shared/legacy-planning-adapter.js',
     'shared/order-draft-quantity.js',
@@ -124,6 +127,9 @@ test('site build emits the exact deterministic deployment artifact', t => {
     'shared/coverage-indicator.js',
     'shared/decision-coverage.js',
     'shared/discontinuation-suggestions.js',
+    'shared/discontinued-list-ui.js',
+    'shared/discontinued-list.css',
+    'shared/discontinued-products.js',
     'shared/fba-visual-system.css',
     'shared/legacy-planning-adapter.js',
     'shared/order-draft-quantity.js',
@@ -145,7 +151,7 @@ test('site build emits the exact deterministic deployment artifact', t => {
     'vendor/LICENSE.sheetjs.txt',
     'vendor/xlsx.full.min.js',
   ]);
-  assert.equal(Object.keys(manifest.files).length, 40);
+  assert.equal(Object.keys(manifest.files).length, 43);
   for (const relativePath of Object.keys(manifest.files)) {
     assert.match(manifest.files[relativePath], /^[a-f0-9]{64}$/);
     assert.equal(manifest.files[relativePath], sha256(path.join(firstDist, relativePath)));
@@ -181,7 +187,7 @@ test('artifact verifier accepts a complete unmodified site build', t => {
 
   const verified = runNode(verifyScript, ['--dir', dist, '--revision', 'verified-revision']);
   assert.equal(verified.status, 0, verified.stderr || verified.stdout);
-  assert.match(verified.stdout, /Verified 40 hashed site files for verified-revision/);
+  assert.match(verified.stdout, /Verified 43 hashed site files for verified-revision/);
 });
 
 test('artifact verifier rejects repository-only or unexpected files', t => {

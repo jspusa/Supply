@@ -94,6 +94,10 @@ test('keyboard alone reaches and operates five-workspace navigation and the Toda
   await expect(alignmentStatus).toBeFocused();
   await expectKeyboardFocusRing(alignmentStatus);
   await page.keyboard.press('Tab');
+  const discontinuedList = page.locator('.discontinued-list-trigger');
+  await expect(discontinuedList).toBeFocused();
+  await expectKeyboardFocusRing(discontinuedList);
+  await page.keyboard.press('Tab');
   const todayAction = page.locator('#todayNextAction');
   await expect(todayAction).toBeFocused();
   await expectKeyboardFocusRing(todayAction);
@@ -107,6 +111,8 @@ test('keyboard alone reaches and operates five-workspace navigation and the Toda
   await expect(productUpdate).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(alignmentStatus).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(discontinuedList).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(todayAction).toBeFocused();
   await page.keyboard.press('Space');

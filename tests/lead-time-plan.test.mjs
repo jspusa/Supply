@@ -448,6 +448,7 @@ test('planned quantity application updates the shared Product SKU row without us
   const context = {
     generatorDraft: { rowsByProductSku:{} },
     currentOrderGroup:'subcontract',
+    isDiscontinuedSku: sku => sku === 'STOPPED',
     loadGeneratorDraftState() { throw new Error('already loaded'); },
     normalizeSkuKey: value => value,
     createGeneratorDraftRow(prod, { recommendation }) {
@@ -471,6 +472,8 @@ test('planned quantity application updates the shared Product SKU row without us
   vm.createContext(context);
   vm.runInContext(`${extractFunctionSource(indexHtml, 'applyPlannedQuantityToGenerator')}\nthis.applyPlannedQuantityToGenerator = applyPlannedQuantityToGenerator;`, context);
   assert.equal(context.applyPlannedQuantityToGenerator({ productCode: 'ZERO' }, { quantity: 0, pallets: 0, applyBy: 'none' }), null);
+  assert.equal(commands.length, 0);
+  assert.equal(context.applyPlannedQuantityToGenerator({ productCode:'STOPPED' }, { quantity:100, pallets:1, applyBy:'pallets' }), null);
   assert.equal(commands.length, 0);
   const added = context.applyPlannedQuantityToGenerator({ productCode: 'PLAN' }, { quantity: 2000, pallets: 2, applyBy: 'pallets' });
   assert.equal(commands.length, 1);

@@ -211,12 +211,32 @@ function approvedOrderSkus(productSku, context) {
   return new Set((context?.getApprovedOrderSkus?.(productSku) || []).map(normalizeSku).filter(Boolean));
 }
 
+function discontinuedRowIssue(productSku, orderSku, context = {}) {
+  if (typeof context.isDiscontinuedSku !== 'function') return null;
+  const identities = [...new Set([productSku, orderSku].map(normalizeSku).filter(Boolean))];
+  try {
+    const blockedSkus = identities.filter(sku => context.isDiscontinuedSku(sku));
+    return blockedSkus.length ? { code:'DISCONTINUED_SKU', productSku, orderSku, blockedSkus } : null;
+  } catch (error) {
+    return { code:'DISCONTINUATION_VALIDATION_FAILED', productSku, orderSku, error:errorDetails(error) };
+  }
+}
+
 function resolveIdentity(productSku, requestedOrderSku, context, suppliedFactory = null, { preserveFactory = false } = {}) {
   const product = context?.getProduct?.(productSku) || null;
   const standardFactory = preserveFactory
     ? normalizeFactory(suppliedFactory) || normalizeFactory(product?.country)
     : normalizeFactory(product?.country) || normalizeFactory(suppliedFactory);
   const orderSku = normalizeSku(requestedOrderSku) || productSku;
+  const discontinuedIssue = discontinuedRowIssue(productSku, orderSku, context);
+  if (discontinuedIssue) return {
+    ok:false,
+    status:discontinuedIssue.code === 'DISCONTINUED_SKU' ? 'discontinued-sku' : 'validation-unavailable',
+    product,
+    standardFactory,
+    orderSku,
+    issue:discontinuedIssue,
+  };
   const approved = orderSku === productSku || approvedOrderSkus(productSku, context).has(orderSku);
   if (!approved) return { ok:false, status:'unapproved-order-sku', product, standardFactory, orderSku };
   const orderGroup = orderSku.startsWith('7') ? 'subcontract' : standardFactory;
@@ -335,6 +355,13 @@ function patchRow(draft, command, context) {
   const productSku = normalizeSku(command?.productSku);
   const existing = draft.rowsByProductSku[productSku];
   if (!existing) return { ok:false, status:'missing-row', draft };
+  const discontinuedIssue = discontinuedRowIssue(productSku, existing.orderSku, context);
+  if (discontinuedIssue) return {
+    ok:false,
+    status:discontinuedIssue.code === 'DISCONTINUED_SKU' ? 'discontinued-sku' : 'validation-unavailable',
+    draft,
+    issue:discontinuedIssue,
+  };
   const patch = command?.patch || {};
   const updatedAt = timestamp(context?.now);
   const row = {
@@ -755,8 +782,13 @@ function validateDraftShape(draft) {
 }
 
 function contextualRowIssues(row, context = {}) {
-  if (row.orderGroup === null) return clone(row.issues || []);
-  const issues = [];
+  const discontinuedIssue = discontinuedRowIssue(row.productSku, row.orderSku, context);
+  if (row.orderGroup === null) {
+    const issues = clone(row.issues || []);
+    if (discontinuedIssue && !issues.some(issue => issue.code === discontinuedIssue.code)) issues.push(discontinuedIssue);
+    return issues;
+  }
+  const issues = discontinuedIssue ? [discontinuedIssue] : [];
   const hasHistoricalAssignment = Boolean(row.packagingAssignment);
   let product = null;
   if (typeof context?.getProduct !== 'function') {
@@ -958,12 +990,13 @@ function migrateV2OrderDraft(v2Draft, context) {
       draft:createOrderDraft({ now:context?.now }), needsSave:false, issues:migrationIssues,
     });
   }
+  const repaired = repairContextualRows(draft, context);
   return {
     ok:true,
     status:'migrated',
-    draft,
+    draft:repaired.draft,
     needsSave:true,
-    issues:[...clone(draft.issues || []), ...migrationIssues],
+    issues:[...clone(draft.issues || []), ...migrationIssues, ...repaired.issues],
   };
 }
 
@@ -1009,7 +1042,7 @@ function migrateLegacyOrderDraft(legacy, context) {
       const issues = [];
       if (!product) issues.push({ code:'MISSING_PRODUCT_CATALOG', productSku });
       if (!standardFactory) issues.push({ code:'MISSING_STANDARD_FACTORY', productSku });
-      if (!identity.ok) issues.push({ code:'UNAPPROVED_ORDER_SKU', productSku, orderSku });
+      if (!identity.ok) issues.push(identity.issue || { code:'UNAPPROVED_ORDER_SKU', productSku, orderSku });
       const orderGroup = product && standardFactory && identity.ok ? identity.orderGroup : null;
       const row = {
         productSku,
@@ -1085,6 +1118,7 @@ export function saveOrderDraft({
       'CATALOG_VALIDATION_FAILED',
       'ORDER_SKU_APPROVAL_UNAVAILABLE',
       'ORDER_SKU_APPROVAL_FAILED',
+      'DISCONTINUATION_VALIDATION_FAILED',
     ].includes(issue.code));
     return failure(
       adapterUnavailable ? 'validation-unavailable' : 'invalid',
@@ -1304,12 +1338,12 @@ export function pinOrderDraftForExport(draft, context = {}) {
       });
       continue;
     }
-    if (row.packagingAssignment) continue;
     const prePinIssues = contextualRowIssues(row, context).filter(isBlockingContextualIssue);
     if (prePinIssues.length) {
       issues.push({ code:'ROW_REQUIRES_REPAIR', productSku:row.productSku, rowIssues:prePinIssues });
       continue;
     }
+    if (row.packagingAssignment) continue;
     const assignment = pinRowPackaging(row, context, { reason:'export' });
     if (!assignment) {
       issues.push({ code:'PACKAGING_ASSIGNMENT_UNAVAILABLE', productSku:row.productSku, orderSku:row.orderSku });
