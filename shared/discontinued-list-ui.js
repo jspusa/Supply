@@ -81,6 +81,12 @@ export function mountDiscontinuedListUi({ trigger, documentRef = globalThis.docu
       dialog.querySelector('.discontinued-list-close').addEventListener('click', close);
       dialog.querySelector('#discontinuedListSearch').addEventListener('input', render);
       dialog.querySelector('#discontinuedListFilter').addEventListener('change', render);
+      dialog.addEventListener('keydown', event => {
+        if (event.key !== 'Escape') return;
+        event.preventDefault();
+        event.stopPropagation();
+        close();
+      });
       dialog.addEventListener('close', () => returnFocus?.focus?.({ preventScroll:true }));
     }
     if (dialog.open) return;
