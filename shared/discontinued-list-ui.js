@@ -9,7 +9,7 @@ function dialogMarkup() {
       <p id="discontinuedListDescription">此清單內的 SKU 均不會由本程式下單。Chewy 專售品項仍供其他平台銷售。</p>
       <div class="discontinued-list-fields">
         <label for="discontinuedListSearch">搜尋 SKU／原因<input id="discontinuedListSearch" type="search" placeholder="輸入 SKU 或停產原因" autocomplete="off" spellcheck="false"></label>
-        <label for="discontinuedListFilter">分類<select id="discontinuedListFilter"><option value="all">全部</option><option value="discontinued">停產</option><option value="chewy">Chewy 專售</option></select></label>
+        <label for="discontinuedListFilter">分類<select id="discontinuedListFilter" aria-label="分類"><option value="all">全部</option><option value="discontinued">停產</option><option value="chewy">Chewy 專售</option></select></label>
       </div>
       <p id="discontinuedListCount" class="discontinued-list-count" role="status" aria-live="polite" aria-atomic="true"></p>
     </div>

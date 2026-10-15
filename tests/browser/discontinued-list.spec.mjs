@@ -1,13 +1,23 @@
 import { expect, test } from '@playwright/test';
-import { freezeBrowserTime, installOfflineAssetRoutes, monitorBrowserErrors, waitForSupplyApp } from './browser-helpers.mjs';
+import { BOSS_FIXTURE_TOKEN } from '../fixtures/sanitized-supply-browser.mjs';
+import { createBossCloudMock, freezeBrowserTime, installOfflineAssetRoutes, monitorBrowserErrors, waitForSupplyApp } from './browser-helpers.mjs';
 
 for (const pathname of ['/', '/Boss/']) {
   test(`${pathname} lists discontinued reasons and Chewy exclusions with keyboard dismissal`, async ({ page, context }) => {
     await freezeBrowserTime(page);
     await installOfflineAssetRoutes(context);
     const errors = monitorBrowserErrors(page);
+    const boss = pathname === '/Boss/';
+    if (boss) {
+      const cloud = createBossCloudMock({ cloudFiles:[] });
+      await cloud.install(context);
+      await page.addInitScript(token => {
+        sessionStorage.setItem('supply-boss-session', token);
+      }, BOSS_FIXTURE_TOKEN);
+    }
     await page.goto(`${pathname}#orders`);
     await waitForSupplyApp(page);
+    if (boss) await expect(page.locator('#bossAuthGate')).toBeHidden();
     const trigger = page.getByRole('button', { name:'停產清單', exact:true });
     await expect(trigger).toBeVisible();
     await trigger.click();
