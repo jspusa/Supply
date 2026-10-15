@@ -191,7 +191,9 @@
 }
 
 .fba-visual-system .controlDock{
-  top:84px;
+  position:static;
+  top:auto;
+  z-index:auto;
   padding:13px 16px;
   border-radius:18px;
   background:rgba(255,255,255,.88);
@@ -559,7 +561,7 @@
   .fba-visual-system .cardContent{padding:17px}
   .fba-visual-system .todayWorkspaceSummary{padding:18px}
   .fba-visual-system .todaySummaryGrid{grid-template-columns:1fr 1fr}
-  .fba-visual-system .controlDock{position:static;padding:12px;border-radius:18px}
+  .fba-visual-system .controlDock{padding:12px;border-radius:18px}
   .fba-visual-system .uploadWorkspace{grid-template-columns:1fr}
   .fba-visual-system .uploadStatusRow{grid-template-columns:1fr}
   .fba-visual-system .decisionGrid,

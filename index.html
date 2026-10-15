@@ -297,9 +297,7 @@
     .heroActions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
     .eyebrow { font-size: 11px; letter-spacing: .14em; color: var(--muted-2); font-weight: 750; }
     .controlDock {
-      position: sticky;
-      top: 12px;
-      z-index: 50;
+      position: static;
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
@@ -607,9 +605,13 @@
     .embeddedToolHeader .summary-actions { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; }
     .treeBox { border:1px solid rgba(226,232,240,.9); border-radius:24px; background:rgba(255,255,255,.84); padding:16px; margin-top:10px; overflow:auto; }
     .skuTreeResultCard { margin-top: 14px; border: 2px solid #dbeafe; border-radius: 22px; background: linear-gradient(180deg,#ffffff,#f8fbff); box-shadow: 0 12px 34px rgba(37,99,235,.08); overflow: hidden; }
-    .skuTreeResultHeader { display:flex; align-items:center; justify-content:space-between; gap:10px; padding: 10px 14px; background: #eaf3ff; border-bottom: 1px solid #cfe2ff; color:#12315f; font-weight:850; }
+    .skuTreeResultHeader { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; padding: 10px 14px; background: #eaf3ff; border-bottom: 1px solid #cfe2ff; color:#12315f; font-weight:850; }
     .skuTreeResultIndex { font-size: 12px; color:#4f6b92; font-weight:750; }
     .skuTreeResultHeaderActions { display:flex; align-items:center; gap:8px; }
+    .skuTreeOrderActions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:10px 14px; border-bottom:1px solid #e2e8f0; }
+    .skuTreeOrderActions button { font-size:12px; }
+    .skuTreeOrderStatus { flex:1 1 180px; font-size:12px; color:var(--muted); }
+    .skuTreeOrderStatus:empty { display:none; }
     .skuTreeRemoveButton { display:grid; place-items:center; width:32px; height:32px; padding:0; border:1px solid #fecaca; border-radius:10px; background:#fff; color:#dc2626; font-size:20px; line-height:1; cursor:pointer; }
     .skuTreeRemoveButton:hover { background:#fef2f2; transform:translateY(-1px); }
     .skuTreeResultCard .decisionTree { padding: 14px; }
@@ -4574,10 +4576,62 @@
           return true;
         });
     }
+    function renderSkuTreeOrderActions(sku) {
+      const productSku = getCanonicalSku(sku);
+      const draftRow = generatorDraft?.rowsByProductSku?.[productSku];
+      const blockedReason = isDiscontinuedSku(sku) ? getOrderExclusionMessage(sku)
+        : !getProductSpecByCode(productSku) ? '找不到產品資料，無法加入訂單。' : '';
+      const status = blockedReason || (draftRow ? `已在${getOrderGroupLabel(draftRow.orderGroup)}訂單，保留原數量。` : '');
+      return `<div class="skuTreeOrderActions"><button type="button" data-add-tree-sku="${escapeHtml(sku)}"${blockedReason ? ` disabled title="${escapeHtml(blockedReason)}"` : ''}>加入訂單</button><button type="button" class="secondary" data-view-tree-order="${escapeHtml(sku)}"${draftRow ? '' : ' hidden'}>查看訂單</button><span class="skuTreeOrderStatus" role="status">${escapeHtml(status)}</span></div>`;
+    }
+    function updateSkuTreeOrderStatus(sku, message) {
+      const productSku = getCanonicalSku(sku);
+      const draftRow = generatorDraft?.rowsByProductSku?.[productSku];
+      document.querySelectorAll('[data-sku-tree-card]').forEach(card => {
+        if (getCanonicalSku(card.dataset.skuTreeCard) !== productSku) return;
+        const status = card.querySelector('.skuTreeOrderStatus');
+        if (status) status.textContent = message;
+        const viewButton = card.querySelector('[data-view-tree-order]');
+        if (viewButton) viewButton.hidden = !draftRow;
+      });
+    }
+    function addSkuTreeProductToOrder(rawSku) {
+      const sku = normalizeSkuKey(rawSku);
+      const existed = Boolean(generatorDraft?.rowsByProductSku?.[getCanonicalSku(sku)]);
+      const result = addGeneratorBatchEntries([{ sku, quantity:null }]);
+      const draftRow = generatorDraft?.rowsByProductSku?.[getCanonicalSku(sku)];
+      const succeeded = result.ok && !result.rejected && Boolean(draftRow);
+      const message = succeeded
+        ? `${existed ? '已在' : '已加入'}${getOrderGroupLabel(draftRow.orderGroup)}訂單。${existed ? '保留原數量。' : '可點「查看訂單」填寫數量。'}`
+        : result.message;
+      updateSkuTreeOrderStatus(sku, message);
+      showTip(message, succeeded ? 'success' : 'error');
+    }
+    function viewSkuTreeOrder(rawSku) {
+      const productSku = getCanonicalSku(rawSku);
+      if (!saveGeneratorDraft()) {
+        updateSkuTreeOrderStatus(rawSku, '草稿尚未成功保存，請先處理儲存問題。');
+        return;
+      }
+      const draftRow = generatorDraft?.rowsByProductSku?.[productSku];
+      if (!draftRow) {
+        updateSkuTreeOrderStatus(rawSku, '此品項已不在訂單，請重新加入。');
+        return;
+      }
+      setActiveOrderGroup(draftRow.orderGroup);
+      renderActiveOrderGroup();
+      workspaceUiController?.activate('orders', { userInitiated:true });
+      document.getElementById('generatorCard').open = true;
+      requestAnimationFrame(() => {
+        const row = Array.from(document.querySelectorAll('#productTable tbody tr')).find(item => item.dataset.product === productSku);
+        row?.scrollIntoView({ block:'center' });
+        (row?.querySelector('input:not(:disabled)') || row?.querySelector('button'))?.focus({ preventScroll:true });
+      });
+    }
     function wrapSkuTreeResult(sku, innerHtml, index, total) {
       const positionText = total > 1 ? `<span class="skuTreeResultIndex">${index + 1} / ${total}</span>` : ``;
       const normalizedSku = normalizeSkuKey(sku);
-      return `<section class="skuTreeResultCard" data-sku-tree-card="${escapeHtml(normalizedSku)}"><div class="skuTreeResultHeader"><span>SKU：${escapeHtml(sku)}</span><div class="skuTreeResultHeaderActions">${positionText}<button type="button" class="skuTreeRemoveButton" data-remove-sku="${escapeHtml(normalizedSku)}" aria-label="移除 ${escapeHtml(sku)}" title="看完並從輸入區刪除">&times;</button></div></div>${innerHtml}</section>`;
+      return `<section class="skuTreeResultCard" data-sku-tree-card="${escapeHtml(normalizedSku)}"><div class="skuTreeResultHeader"><span>SKU：${escapeHtml(sku)}</span><div class="skuTreeResultHeaderActions">${positionText}<button type="button" class="skuTreeRemoveButton" data-remove-sku="${escapeHtml(normalizedSku)}" aria-label="移除 ${escapeHtml(sku)}" title="看完並從輸入區刪除">&times;</button></div></div>${renderSkuTreeOrderActions(normalizedSku)}${innerHtml}</section>`;
     }
     function removeSkuFromDecisionTree(sku) {
       const input = document.getElementById('skuTreeInput');
@@ -4876,9 +4930,15 @@
       document.getElementById('btnExportSkuTreeExcel')?.addEventListener('click', exportSkuDecisionTreeExcel);
       document.getElementById('btnExportAutoDecisionTreeExcel')?.addEventListener('click', exportAutoDecisionTreeExcel);
       document.getElementById('btnCopySkuTreeInput')?.addEventListener('click', copySkuTreeInput);
-      document.getElementById('skuDecisionTreeBox')?.addEventListener('click', event => {
-        const button = event.target.closest('[data-remove-sku]');
-        if (button) removeSkuFromDecisionTree(button.dataset.removeSku);
+      ['skuDecisionTreeBox', 'autoDecisionTreeBox'].forEach(id => {
+        document.getElementById(id)?.addEventListener('click', event => {
+          const addButton = event.target.closest('[data-add-tree-sku]');
+          if (addButton) return addSkuTreeProductToOrder(addButton.dataset.addTreeSku);
+          const viewButton = event.target.closest('[data-view-tree-order]');
+          if (viewButton) return viewSkuTreeOrder(viewButton.dataset.viewTreeOrder);
+          const removeButton = event.target.closest('[data-remove-sku]');
+          if (removeButton && id === 'skuDecisionTreeBox') removeSkuFromDecisionTree(removeButton.dataset.removeSku);
+        });
       });
       document.getElementById('skuTreeInput')?.addEventListener('keydown', e => { if (e.key === 'Enter') renderSkuDecisionTree(); });
       document.getElementById('skuTreeDaysThreshold')?.addEventListener('input', () => { const v = document.getElementById('skuTreeInput')?.value?.trim(); if (v) renderSkuDecisionTree(); });
