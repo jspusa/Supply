@@ -1,4 +1,5 @@
-const CHANNEL_LABELS = Object.freeze({ discontinued:'停產', chewy:'Chewy 專售' });
+const CHANNEL_LABELS = Object.freeze({ discontinued:'停產', chewy:'Chewy 專售', special:'特規品' });
+const CHANNEL_RULES = Object.freeze({ discontinued:'不下單', chewy:'本程式不下單', special:'不提醒補貨，可手動下單' });
 
 function dialogMarkup() {
   return `<div class="discontinued-list-header">
@@ -6,16 +7,16 @@ function dialogMarkup() {
       <button type="button" class="discontinued-list-close" aria-label="關閉停產清單">×</button>
     </div>
     <div class="discontinued-list-controls">
-      <p id="discontinuedListDescription">此清單內的 SKU 均不會由本程式下單。Chewy 專售品項仍供其他平台銷售。</p>
+      <p id="discontinuedListDescription">清單內的 SKU 均不會提醒補貨。停產與 Chewy 專售品項不由本程式下單；特規品由工廠不定期生產，仍可手動加入訂單。</p>
       <div class="discontinued-list-fields">
-        <label for="discontinuedListSearch">搜尋 SKU／原因<input id="discontinuedListSearch" type="search" placeholder="輸入 SKU 或停產原因" autocomplete="off" spellcheck="false"></label>
-        <label for="discontinuedListFilter">分類<select id="discontinuedListFilter" aria-label="分類"><option value="all">全部</option><option value="discontinued">停產</option><option value="chewy">Chewy 專售</option></select></label>
+        <label for="discontinuedListSearch">搜尋 SKU／原因<input id="discontinuedListSearch" type="search" placeholder="輸入 SKU、原因或分類" autocomplete="off" spellcheck="false"></label>
+        <label for="discontinuedListFilter">分類<select id="discontinuedListFilter" aria-label="分類"><option value="all">全部</option><option value="discontinued">停產</option><option value="chewy">Chewy 專售</option><option value="special">特規品</option></select></label>
       </div>
       <p id="discontinuedListCount" class="discontinued-list-count" role="status" aria-live="polite" aria-atomic="true"></p>
     </div>
     <div class="discontinued-list-scroll" tabindex="0" role="region" aria-label="停產 SKU 與原因">
       <table class="discontinued-list-table">
-        <caption class="discontinued-list-sr-only">不由本程式下單的 SKU、分類與原因</caption>
+        <caption class="discontinued-list-sr-only">不提醒補貨的 SKU、分類、下單規則與原因</caption>
         <thead><tr><th scope="col">SKU</th><th scope="col">分類</th><th scope="col">原因</th></tr></thead>
         <tbody></tbody>
       </table>
@@ -26,7 +27,7 @@ function dialogMarkup() {
 export function filterDiscontinuedEntries(entries, { query = '', channel = 'all' } = {}) {
   const needle = String(query).trim().toLocaleLowerCase();
   return entries.filter(entry => (channel === 'all' || entry.channel === channel)
-    && (!needle || [entry.sku, entry.reason, CHANNEL_LABELS[entry.channel]]
+    && (!needle || [entry.sku, entry.reason, CHANNEL_LABELS[entry.channel], CHANNEL_RULES[entry.channel]]
       .some(value => String(value || '').toLocaleLowerCase().includes(needle))));
 }
 
@@ -53,7 +54,10 @@ export function mountDiscontinuedListUi({ trigger, documentRef = globalThis.docu
       badge.className = 'discontinued-list-badge';
       badge.dataset.channel = entry.channel;
       badge.textContent = CHANNEL_LABELS[entry.channel] || '停產';
-      channel.append(badge);
+      const rule = documentRef.createElement('span');
+      rule.className = 'discontinued-list-rule';
+      rule.textContent = CHANNEL_RULES[entry.channel] || '不下單';
+      channel.append(badge, rule);
       const reason = documentRef.createElement('td');
       reason.textContent = entry.reason || '未提供原因';
       row.append(sku, channel, reason);
@@ -61,7 +65,9 @@ export function mountDiscontinuedListUi({ trigger, documentRef = globalThis.docu
     }
     dialog.querySelector('tbody').replaceChildren(rows);
     const chewyCount = entries.filter(entry => entry.channel === 'chewy').length;
-    dialog.querySelector('#discontinuedListCount').textContent = `顯示 ${visible.length} / ${entries.length} 個 SKU · 停產 ${entries.length - chewyCount} · Chewy 專售 ${chewyCount}`;
+    const discontinuedCount = entries.filter(entry => entry.channel === 'discontinued').length;
+    const specialCount = entries.filter(entry => entry.channel === 'special').length;
+    dialog.querySelector('#discontinuedListCount').textContent = `顯示 ${visible.length} / ${entries.length} 個 SKU · 停產 ${discontinuedCount} · Chewy 專售 ${chewyCount} · 特規品 ${specialCount}`;
     dialog.querySelector('.discontinued-list-empty').hidden = visible.length !== 0;
   }
 

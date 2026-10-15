@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import vm from 'node:vm';
+import { filterDiscontinuedEntries } from '../shared/discontinued-list-ui.js';
 
 const root = new URL('../', import.meta.url);
 const policySource = readFileSync(new URL('shared/discontinued-products.js', root), 'utf8');
@@ -68,6 +69,8 @@ const requestedChewy = [
   'ATB03', 'ATP05', 'ATR03', '7ATRD013AB', 'ATP03', 'ATZ03',
   'ATZ01', 'ATS01', 'ATB01', 'ATB05', 'ATP01', 'ATR01',
 ];
+const additionalDiscontinued = ['TRPL03', 'TRPL05', 'GSCL03'];
+const requestedSpecial = ['AFML01', 'AFML03', 'AFML05', '1GXXD002A0', '1AXXD001A0', '1GXXD001A0'];
 
 // Existing index.html policy before this change: items absent from the new request.
 const retainedReasons = new Map([
@@ -122,14 +125,51 @@ test('all 12 Chewy SKUs are explicitly labelled and excluded, including the fina
   }
 });
 
+test('the follow-up stops three poor sellers without treating special products as forbidden orders', () => {
+  const policy = loadPolicy().SupplyDiscontinuedProducts;
+  for (const sku of additionalDiscontinued) {
+    assert.equal(policy.isDiscontinued(sku), true, sku);
+    assert.equal(policy.isReplenishmentSuppressed(sku), true, sku);
+    assert.equal(policy.isSpecial(sku), false, sku);
+    assert.equal(policy.get(sku)?.reason, '銷量不佳', sku);
+    assert.equal(policy.get(sku)?.channel, 'discontinued', sku);
+  }
+  assert.deepEqual(
+    Array.from(policy.entries).filter(entry => entry.channel === 'special').map(entry => entry.sku).sort(),
+    requestedSpecial.toSorted(),
+  );
+  for (const sku of requestedSpecial) {
+    assert.equal(policy.isDiscontinued(sku), false, `${sku} allows a manual order`);
+    assert.equal(policy.isReplenishmentSuppressed(sku), true, `${sku} suppresses automatic reminders`);
+    assert.equal(policy.isSpecial(sku), true, sku);
+    assert.equal(policy.get(sku)?.channel, 'special', sku);
+    assert.match(policy.get(sku)?.reason, /不提醒補貨.*可手動下單/, sku);
+  }
+  assert.equal(policy.isSpecial(' afml01 '), true);
+  assert.equal(policy.isReplenishmentSuppressed(' 1gxxd002a0 '), true);
+  assert.equal(policy.isReplenishmentSuppressed('1GXXD003A0'), false, 'do not infer unlisted XX identities');
+});
+
+test('list filters distinguish special products and make manual-order rules searchable', () => {
+  const entries = Array.from(loadPolicy().SupplyDiscontinuedProducts.entries);
+  assert.equal(filterDiscontinuedEntries(entries, { channel:'discontinued' }).length, 74);
+  assert.equal(filterDiscontinuedEntries(entries, { channel:'chewy' }).length, 12);
+  assert.equal(filterDiscontinuedEntries(entries, { channel:'special' }).length, 6);
+  for (const query of ['特規品', '可手動下單']) {
+    assert.deepEqual(filterDiscontinuedEntries(entries, { query }).map(entry => entry.sku).sort(), requestedSpecial.toSorted());
+  }
+  assert.deepEqual(filterDiscontinuedEntries(entries, { query:'afml', channel:'special' }).map(entry => entry.sku), ['AFML01', 'AFML03', 'AFML05']);
+  assert.deepEqual(filterDiscontinuedEntries(entries, { query:'AFML01', channel:'discontinued' }), []);
+});
+
 test('the former policy remains intact outside the request and the combined list has no duplicates', () => {
   const policy = loadPolicy().SupplyDiscontinuedProducts;
   for (const [sku, reason] of retainedReasons) {
     assert.equal(policy.get(sku)?.reason, reason, sku);
     assert.equal(policy.get(sku)?.channel, 'discontinued', sku);
   }
-  const expected = [...requestedReasons.keys(), ...requestedChewy, ...retainedReasons.keys()].sort();
-  assert.equal(expected.length, 83);
+  const expected = [...requestedReasons.keys(), ...requestedChewy, ...retainedReasons.keys(), ...additionalDiscontinued, ...requestedSpecial].sort();
+  assert.equal(expected.length, 92);
   assert.deepEqual(Array.from(policy.entries, entry => entry.sku).sort(), expected);
   assert.equal(new Set(policy.entries.map(entry => entry.sku)).size, policy.entries.length);
 });
@@ -140,6 +180,8 @@ test('exact normalized lookup does not stop the retained 2LB replacement or infe
   assert.equal(policy.get(' atr01 ')?.channel, 'chewy');
   for (const sku of ['1GQRD016A0', 'ADT03AM-2', 'VTB05', 'UNKNOWN', '', null, undefined]) {
     assert.equal(policy.isDiscontinued(sku), false, String(sku));
+    assert.equal(policy.isReplenishmentSuppressed(sku), false, String(sku));
+    assert.equal(policy.isSpecial(sku), false, String(sku));
     assert.equal(policy.get(sku), null, String(sku));
   }
 });
@@ -155,6 +197,7 @@ for (const page of ['index.html', 'Boss/index.html']) {
     // Exercise the real page resolver with the real generated catalog mapping.
     const context = loadPolicy();
     vm.runInContext(catalogSource, context, { filename:'product-data.js' });
+    vm.runInContext(readFileSync(new URL('shared/sku-correspondence.js', root), 'utf8'), context);
     const normalize = html.match(/function normalizeSkuKey\(sku\)\s*\{[^\n]+\}/)?.[0];
     assert.ok(normalize, 'page exposes its normalizer');
     const start = html.indexOf('const equivalentSkuPairs');

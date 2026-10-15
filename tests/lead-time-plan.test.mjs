@@ -306,6 +306,7 @@ test('public and Boss adapters send the same normalized row to the shared planne
       window: { SupplyPlanningLegacy: { planLegacyReplenishment(input) { calls.push(input); return { marker: 'shared-result' }; } } },
       getJamBreakdownForSku: () => [{ orderName: 'JAM-1', qty: 280, arrivalDate: '2026-10-16', isReceived: false }],
       physicalToAmazonUnits: (_sku, qty) => qty / 2,
+      getPhysicalUnitsPerAmazonUnit: () => 2,
       getPlanningAsOfDate: () => '2026-08-27',
       getPlanningVelocityForProduct: () => 12.5,
       getPlanningPolicy: (targetDays, sku) => ({ targetDays, sku }),
@@ -449,6 +450,7 @@ test('planned quantity application updates the shared Product SKU row without us
     generatorDraft: { rowsByProductSku:{} },
     currentOrderGroup:'subcontract',
     isDiscontinuedSku: sku => sku === 'STOPPED',
+    isReplenishmentSuppressed: sku => sku === 'STOPPED',
     loadGeneratorDraftState() { throw new Error('already loaded'); },
     normalizeSkuKey: value => value,
     createGeneratorDraftRow(prod, { recommendation }) {

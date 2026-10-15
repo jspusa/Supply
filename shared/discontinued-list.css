@@ -24,6 +24,8 @@ html:has(.discontinued-list-dialog[open]),body:has(.discontinued-list-dialog[ope
 .discontinued-list-table tbody tr:hover{background:#fafafa}
 .discontinued-list-badge{display:inline-block;padding:2px 7px;border:1px solid #e0e0e5;border-radius:6px;background:#f3f3f5;color:#55555b;font-size:10px;font-weight:700;white-space:nowrap}
 .discontinued-list-badge[data-channel="chewy"]{border-color:#c8def4;background:#ecf5ff;color:#185e9e}
+.discontinued-list-badge[data-channel="special"]{border-color:#ddc9a3;background:#fff6e3;color:#725015}
+.discontinued-list-rule{display:block;margin-top:4px;color:#6e6e73;font-size:10px;line-height:1.5}
 .discontinued-list-empty{margin:36px 16px;color:#6e6e73;font-size:13px;text-align:center}
 .discontinued-list-sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
 @media(max-width:1100px){.supplyWorkspaceHeader .header-inner{grid-template-columns:minmax(0,1fr) auto!important;gap:10px 14px!important}.supplyWorkspaceHeader .workspaceTopNav{grid-column:1 / -1;grid-row:2;justify-self:stretch;width:100%!important}.supplyWorkspaceHeader .workspace-header-actions{grid-column:2;grid-row:1}}

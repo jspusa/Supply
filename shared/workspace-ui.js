@@ -6,6 +6,7 @@ import {
   workspaceHash,
 } from './workspace-navigation.js';
 import { mountDiscontinuedListUi } from './discontinued-list-ui.js';
+import { mountSkuAliasListUi } from './sku-alias-list-ui.js';
 
 const WORKSPACE_LABELS = Object.freeze({
   data:'資料',
@@ -31,6 +32,7 @@ function navigationMarkup() {
       <div class="workspace-header-actions" aria-label="工作區操作">
         <span class="header-meta">Supply</span>
         <button type="button" class="discontinued-list-trigger" id="discontinuedListTrigger" aria-haspopup="dialog" aria-controls="discontinuedListDialog">停產清單</button>
+        <button type="button" class="discontinued-list-trigger sku-alias-list-trigger" id="skuAliasListButton" aria-haspopup="dialog" aria-controls="skuAliasListDialog">SKU 對照表</button>
       </div>
     </div>
   </header>`;
@@ -80,6 +82,8 @@ export function createWorkspaceUi({
     requiredElement(documentRef, 'todayWorkspaceMount').innerHTML = todayMarkup();
     const discontinuedTrigger = documentRef.getElementById('discontinuedListTrigger');
     if (discontinuedTrigger) mountDiscontinuedListUi({ trigger:discontinuedTrigger, documentRef, windowRef });
+    const aliasTrigger = documentRef.getElementById('skuAliasListButton');
+    if (aliasTrigger) mountSkuAliasListUi({ trigger:aliasTrigger, documentRef, windowRef });
     mounted = true;
   }
 

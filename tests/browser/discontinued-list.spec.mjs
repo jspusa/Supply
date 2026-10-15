@@ -26,7 +26,7 @@ for (const pathname of ['/', '/Boss/']) {
     const filter = dialog.getByLabel('分類', { exact:true });
     await expect(dialog).toBeVisible();
     await expect(search).toBeFocused();
-    await expect(dialog.locator('tbody tr')).toHaveCount(83);
+    await expect(dialog.locator('tbody tr')).toHaveCount(92);
     await expect(dialog.locator('[data-discontinued-sku="AFA135AM"]')).toContainText('做工難＋留長版');
     await expect(dialog.locator('[data-discontinued-sku="GCTL06"]')).toHaveCount(1);
     await search.fill('vtr01-4');
@@ -40,6 +40,11 @@ for (const pathname of ['/', '/Boss/']) {
     await expect(dialog.locator('tbody')).toContainText('7ATRD013AB');
     await expect(dialog.locator('tbody')).toContainText('ATR01');
     await expect(dialog.locator('tbody tr').first()).toContainText('Chewy 專售');
+    await filter.selectOption('special');
+    await expect(dialog.locator('tbody tr')).toHaveCount(6);
+    await expect(dialog.locator('tbody')).toContainText('AFML01');
+    await expect(dialog.locator('tbody')).toContainText('1GXXD002A0');
+    await expect(dialog.locator('tbody')).toContainText('可手動下單');
     await search.fill('UNKNOWN-SKU');
     await expect(dialog.locator('.discontinued-list-empty')).toBeVisible();
     await page.keyboard.press('Escape');

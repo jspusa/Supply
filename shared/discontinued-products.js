@@ -1,10 +1,11 @@
-// Supply ordering policy. Chewy items remain on their own platform and are excluded here.
+// Supply ordering policy. Chewy items are excluded; special items allow manual orders only.
 // Updated 2026-10-15; retains earlier discontinued items not replaced by this update.
 (function (root) {
   'use strict';
   const entries = Object.freeze([
     Object.freeze({"sku": "1ABRD001A0", "reason": "停小留大", "channel": "discontinued"}),
     Object.freeze({"sku": "1ABRD003A0", "reason": "停小留大", "channel": "discontinued"}),
+    Object.freeze({"sku": "1AXXD001A0", "reason": "特規品，工廠不定期生產；不提醒補貨，可手動下單", "channel": "special"}),
     Object.freeze({"sku": "1GBRD019A0", "reason": "出3LB版本", "channel": "discontinued"}),
     Object.freeze({"sku": "1GBRD029A0", "reason": "留3LB", "channel": "discontinued"}),
     Object.freeze({"sku": "1GCRD005A0", "reason": "停小留大", "channel": "discontinued"}),
@@ -18,6 +19,8 @@
     Object.freeze({"sku": "1GQRD017A0", "reason": "留2LB（1GQRD016A0）", "channel": "discontinued"}),
     Object.freeze({"sku": "1GQRD027A0", "reason": "改出2LB", "channel": "discontinued"}),
     Object.freeze({"sku": "1GSDD011A0", "reason": "停小留大（維持停產）", "channel": "discontinued"}),
+    Object.freeze({"sku": "1GXXD001A0", "reason": "特規品，工廠不定期生產；不提醒補貨，可手動下單", "channel": "special"}),
+    Object.freeze({"sku": "1GXXD002A0", "reason": "特規品，工廠不定期生產；不提醒補貨，可手動下單", "channel": "special"}),
     Object.freeze({"sku": "7ATRD013AB", "reason": "Chewy 專售，本程式不下單", "channel": "chewy"}),
     Object.freeze({"sku": "ABM01", "reason": "停小留大", "channel": "discontinued"}),
     Object.freeze({"sku": "ACA01", "reason": "銷量不佳", "channel": "discontinued"}),
@@ -28,6 +31,9 @@
     Object.freeze({"sku": "ADT03", "reason": "銷量不佳", "channel": "discontinued"}),
     Object.freeze({"sku": "ADT03AM", "reason": "銷量不佳", "channel": "discontinued"}),
     Object.freeze({"sku": "AFA135AM", "reason": "做工難＋留長版", "channel": "discontinued"}),
+    Object.freeze({"sku": "AFML01", "reason": "特規品，工廠不定期生產；不提醒補貨，可手動下單", "channel": "special"}),
+    Object.freeze({"sku": "AFML03", "reason": "特規品，工廠不定期生產；不提醒補貨，可手動下單", "channel": "special"}),
+    Object.freeze({"sku": "AFML05", "reason": "特規品，工廠不定期生產；不提醒補貨，可手動下單", "channel": "special"}),
     Object.freeze({"sku": "ASA01", "reason": "停小留大", "channel": "discontinued"}),
     Object.freeze({"sku": "ASCL03", "reason": "銷量不佳", "channel": "discontinued"}),
     Object.freeze({"sku": "ASF01", "reason": "停小留大", "channel": "discontinued"}),
@@ -56,6 +62,7 @@
     Object.freeze({"sku": "GCTL02", "reason": "銷量不佳", "channel": "discontinued"}),
     Object.freeze({"sku": "GCTL05", "reason": "銷量不佳", "channel": "discontinued"}),
     Object.freeze({"sku": "GCTL06", "reason": "銷量不佳", "channel": "discontinued"}),
+    Object.freeze({"sku": "GSCL03", "reason": "銷量不佳", "channel": "discontinued"}),
     Object.freeze({"sku": "GTC01", "reason": "維持停產", "channel": "discontinued"}),
     Object.freeze({"sku": "GTCL01", "reason": "成本考量", "channel": "discontinued"}),
     Object.freeze({"sku": "GTRL03", "reason": "銷量不佳", "channel": "discontinued"}),
@@ -72,6 +79,8 @@
     Object.freeze({"sku": "TRP01AM-4", "reason": "銷量不佳", "channel": "discontinued"}),
     Object.freeze({"sku": "TRP05AM", "reason": "銷量不佳", "channel": "discontinued"}),
     Object.freeze({"sku": "TRPL01", "reason": "銷量超不佳", "channel": "discontinued"}),
+    Object.freeze({"sku": "TRPL03", "reason": "銷量不佳", "channel": "discontinued"}),
+    Object.freeze({"sku": "TRPL05", "reason": "銷量不佳", "channel": "discontinued"}),
     Object.freeze({"sku": "TTR03AM", "reason": "銷量不佳", "channel": "discontinued"}),
     Object.freeze({"sku": "TTR05AM", "reason": "銷量不佳", "channel": "discontinued"}),
     Object.freeze({"sku": "TTR05AM-1", "reason": "銷量不佳", "channel": "discontinued"}),
@@ -92,6 +101,8 @@
   root.SupplyDiscontinuedProducts = Object.freeze({
     entries,
     get: sku => bySku.get(normalize(sku)) || null,
-    isDiscontinued: sku => bySku.has(normalize(sku)),
+    isDiscontinued: sku => ['discontinued', 'chewy'].includes(bySku.get(normalize(sku))?.channel),
+    isReplenishmentSuppressed: sku => bySku.has(normalize(sku)),
+    isSpecial: sku => bySku.get(normalize(sku))?.channel === 'special',
   });
 })(globalThis);

@@ -1,0 +1,5 @@
+#skuAliasListDescription{margin:0 0 14px;color:#5f6065;font-size:12px;line-height:1.65}
+.sku-alias-list-dialog .discontinued-list-fields{grid-template-columns:minmax(0,1fr)}
+.sku-alias-list-dialog .discontinued-list-table{table-layout:fixed}
+.sku-alias-list-dialog .discontinued-list-table tbody td{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:650}
+@media(max-width:680px){.supplyWorkspaceHeader .brand{grid-column:1 / -1}.supplyWorkspaceHeader .workspace-header-actions{grid-column:1 / -1;grid-row:2;justify-self:end;grid-template-columns:repeat(3,max-content);max-width:100%}.supplyWorkspaceHeader .workspaceTopNav{grid-row:3}.supplyWorkspaceHeader .workspace-header-actions .sku-alias-list-trigger{grid-column:3;grid-row:1}.sku-alias-list-dialog .discontinued-list-table tbody td{font-size:11px}}

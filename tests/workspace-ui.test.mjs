@@ -285,7 +285,7 @@ test('Data Analysis exposes an advisory one-pallet-over-365-day discontinuation 
     assert.match(page.source, /data-panel="suggestedDiscontinuedPanel"[^>]*>建議停產/);
     assert.match(page.source, /id="suggestedDiscontinuedPanel" class="toolPanel"/);
     assert.match(page.source, /id="suggestedDiscontinuedWrap"/);
-    assert.match(page.source, /function renderSuggestedDiscontinuations\(\)[\s\S]*SupplyDiscontinuationSuggestions[\s\S]*getUnitsPerPallet\(getProductSpecByCode\(row\.sku\)\)[\s\S]*\{ isDiscontinuedSku \}/);
+    assert.match(page.source, /function renderSuggestedDiscontinuations\(\)[\s\S]*SupplyDiscontinuationSuggestions[\s\S]*getUnitsPerPallet\(getProductSpecByCode\(row\.sku\)\)[\s\S]*\{ isDiscontinuedSku:isReplenishmentSuppressed \}/);
     assert.match(page.source, /這只是建議，不會自動把品號改成停產/);
     assert.match(page.source, /function renderOtherTools\(\) \{[\s\S]*renderSuggestedDiscontinuations\(\)/);
   }

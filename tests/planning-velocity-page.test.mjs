@@ -43,7 +43,7 @@ for (const [entrypoint, html] of pages) {
     assert.match(html, /無有效速度證據，無法建議/);
     assert.match(html, /不代表已證實斷貨/);
     assert.match(extractFunctionSource(html, 'getSkuDecisionTreeAnalysis'), /if \(planningVelocity <= 0\)[\s\S]*無有效速度證據，無法判斷[\s\S]*return finish\(\)/);
-    assert.match(extractFunctionSource(html, 'getAutoDecisionRows'), /filter\(row => row\.planningVelocity > 0\)/);
+    assert.match(extractFunctionSource(html, 'getAutoDecisionRows'), /filter\(row => row\.planningVelocity > 0(?: && getPhysicalUnitsPerAmazonUnit\(row\.sku\) !== null)?\)/);
   });
 
   test(`${entrypoint}: H10 inventory import retains row-level DOS evidence`, () => {

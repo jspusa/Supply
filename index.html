@@ -822,6 +822,7 @@
   <link rel="stylesheet" href="./shared/product-update-entry.css">
   <link rel="stylesheet" href="./shared/supply-fba-theme.css">
   <link rel="stylesheet" href="./shared/discontinued-list.css">
+  <link rel="stylesheet" href="./shared/sku-alias-list.css">
 </head>
 <body class="fba-visual-system">
   <div id="workspaceNavMount"></div>
@@ -890,7 +891,7 @@
       </div>
       <label class="togglePill">
         <input id="hideDiscontinuedFilter" type="checkbox" checked />
-        <span>隱藏停產品</span>
+        <span>隱藏停產／特規品</span>
       </label>
       <label class="togglePill">
         <input id="onlyNoOrderFilter" type="checkbox" />
@@ -1326,7 +1327,7 @@
           <a class="toolTab toolDataLink" href="./Boss/" target="_blank" rel="noopener noreferrer" aria-label="開啟資料補充登入頁">資料補充</a>
         </div>
         <div id="amzOver180Panel" class="toolPanel active">
-          <div class="hint">以 AMZ 庫存 ÷ H10 速度估算。此清單不受「隱藏停產品」影響，避免漏掉長期倉儲費風險。</div>
+          <div class="hint">以 AMZ 庫存 ÷ H10 速度估算。此清單不受「隱藏停產／特規品」影響，避免漏掉長期倉儲費風險。</div>
           <div class="tableWrap" id="amzOver180Wrap"></div>
         </div>
         <div id="suggestedDiscontinuedPanel" class="toolPanel">
@@ -1334,7 +1335,7 @@
           <div class="tableWrap" id="suggestedDiscontinuedWrap"></div>
         </div>
         <div id="discontinuedPanel" class="toolPanel">
-          <div class="hint">停產與 Chewy 專售清單皆不在本程式下單；既有 AMZ/JSP 庫存與未到貨訂單仍會顯示。右上角可隨時搜尋完整清單。</div>
+          <div class="hint">停產與 Chewy 專售品不在本程式下單；特規品不提醒補貨，但可手動加入訂單。既有庫存與未到貨訂單仍保留，右上角可搜尋完整清單。</div>
           <div class="tableWrap" id="discontinuedListWrap"></div>
         </div>
         <div id="hotToolPanel" class="toolPanel"><div id="hotToolHost"></div></div>
@@ -1383,6 +1384,7 @@
   <script src="./vendor/xlsx.full.min.js"></script>
   <script src="./product-data.js"></script>
   <script src="./shared/discontinued-products.js"></script>
+  <script src="./shared/sku-correspondence.js"></script>
   <script src="./shared/shared-product-catalog.js"></script>
   <script src="./shared/catalog-update-baseline.js"></script>
   <script type="module" src="./shared/legacy-planning-adapter.js"></script>
@@ -1418,22 +1420,20 @@
     function fmtDateText(value) { return value ? String(value) : "N/A"; }
 
     const equivalentSkuPairs = Array.from(window.SUPPLY_EQUIVALENT_SKU_PAIRS || [], pair => Array.from(pair));
-    const equivalentSkuAliasToCanonical = new Map();
-    const equivalentSkuCanonicalToGroup = new Map();
-    equivalentSkuPairs.forEach(pair => {
-      const group = pair.map(normalizeSkuKey);
-      const canonical = group[0];
-      equivalentSkuCanonicalToGroup.set(canonical, group);
-      group.forEach(alias => equivalentSkuAliasToCanonical.set(alias, canonical));
-    });
+    const skuCorrespondence = window.SupplySkuCorrespondence.createRegistry(equivalentSkuPairs);
+    const equivalentSkuAliasToCanonical = skuCorrespondence.aliasToCanonical;
+    const equivalentSkuCanonicalToGroup = skuCorrespondence.canonicalToGroup;
+    window.SUPPLY_PLANNING_SKU_PAIRS = skuCorrespondence.pairs;
     function getCanonicalSku(sku) { return equivalentSkuAliasToCanonical.get(normalizeSkuKey(sku)) || normalizeSkuKey(sku); }
     function getEquivalentSkuGroup(sku) { return equivalentSkuCanonicalToGroup.get(getCanonicalSku(sku)) || null; }
     function hasEquivalentSku(sku) { const group = getEquivalentSkuGroup(sku); return Boolean(group && group.length > 1); }
     function getEquivalentSkuLabel(sku) { const group = getEquivalentSkuGroup(sku); return group ? group.join(' = ') : ''; }
     function getDiscontinuedEntry(sku) { return window.SupplyDiscontinuedProducts.get(sku) || window.SupplyDiscontinuedProducts.get(getCanonicalSku(sku)); }
-    function isDiscontinuedSku(sku) { return Boolean(getDiscontinuedEntry(sku)); }
+    function isDiscontinuedSku(sku) { const entry = getDiscontinuedEntry(sku); return Boolean(entry && entry.channel !== 'special'); }
+    function isSpecialSku(sku) { return getDiscontinuedEntry(sku)?.channel === 'special'; }
+    function isReplenishmentSuppressed(sku) { return Boolean(getDiscontinuedEntry(sku)); }
     function getDiscontinuedReason(sku) { return getDiscontinuedEntry(sku)?.reason || '未註明'; }
-    function getDiscontinuedLabel(sku) { return getDiscontinuedEntry(sku)?.channel === 'chewy' ? 'Chewy 專售' : '停產'; }
+    function getDiscontinuedLabel(sku) { return ({ chewy:'Chewy 專售', special:'特規品' })[getDiscontinuedEntry(sku)?.channel] || '停產'; }
     function getOrderExclusionMessage(sku) { return `${normalizeSkuKey(sku)}：${getDiscontinuedLabel(sku)}（${getDiscontinuedReason(sku)}），本程式不下單。`; }
 
     const hotSkuList = ["TTS05AM-1","TTSL05","TTS05AM","AFA12AM","GTSL01","GTB01","GTS01","GTB05","TTR01AM","AFA11AM","GTBL05","KTB01AM-4","KTBL05","KTB05AM-1","VTS01-1","GCBL02","KTB01AM","ATA01","KTB05AM","AFA22AM","GBSL03","GSFL02","GTRL01","ASF01","GTPL03","GSCL01","ACBL03","1ABRD004A0","ASCL01"];
@@ -1634,7 +1634,7 @@
       const allSourcesReady = Object.values(sourceReadiness).every(source => source.ready);
       const priorityRows = allSourcesReady && Array.isArray(window.latestDecisionExport?.priority) ? window.latestDecisionExport.priority : [];
       const velocityRiskRows = sourceReadiness.h10.ready && Array.isArray(mainRowsAll)
-        ? mainRowsAll.filter(row => Boolean(row?.velocityAssessment?.velocityRisks?.length))
+        ? mainRowsAll.filter(row => !isReplenishmentSuppressed(row.sku) && Boolean(row?.velocityAssessment?.velocityRisks?.length))
         : [];
       return {
         sourceReadiness,
@@ -1721,16 +1721,18 @@
       return Number.isFinite(n) ? n : 0;
     }
     function isNoOrderSku(sku) {
-      const key = normalizeSkuKey(sku);
+      const key = getCanonicalSku(sku);
       if (!key) return false;
       const rows = Array.isArray(window.mainRowsAll) ? window.mainRowsAll : mainRowsAll;
-      const row = rows.find(r => normalizeSkuKey(r?.sku || r?.productCode || '') === key);
-      return !row || getRowOrderQty(row) <= 0;
+      const row = rows.find(r => getCanonicalSku(r?.sku || r?.productCode || '') === key);
+      if (row && Number(row.orderRaw ?? row.order) > 0) return false;
+      const rawOrders = aggregateSkuNumberMapByEquivalent(parseSkuNumberMap(ordersEl.value || ''));
+      return !(rawOrders.get(key) > 0);
     }
     function applyFilters(list) {
       let rows = applyFactoryFilter(list);
-      if (hideDiscontinuedMode) rows = rows.filter(r => !isDiscontinuedSku(r.sku));
-      if (onlyNoOrderMode) rows = rows.filter(r => getRowOrderQty(r) <= 0);
+      if (hideDiscontinuedMode) rows = rows.filter(r => !isReplenishmentSuppressed(r.sku));
+      if (onlyNoOrderMode) rows = rows.filter(r => isNoOrderSku(r.sku));
       if (itemFilterMode === "onlyNonTurkey") return rows.filter(r => isNonTurkeySkuValue(r.sku));
       if (itemFilterMode === "onlyTurkey") return rows.filter(r => isTurkeySkuValue(r.sku));
       return rows;
@@ -1763,7 +1765,7 @@
 
     function renderSkuCell(sku) {
       const safe = escapeHtml(sku);
-      const isDiscontinued = isDiscontinuedSku(sku), isHero = isHeroHotSku(sku), isHot = isHotSku(sku) && !isHero;
+      const isDiscontinued = isReplenishmentSuppressed(sku), isHero = isHeroHotSku(sku), isHot = isHotSku(sku) && !isHero;
       const tags = [
         isHero ? ' <span class="hero-tag">Hero熱銷品</span>' : '',
         isHot ? ' <span class="hot-tag">熱銷品</span>' : '',
@@ -2165,21 +2167,26 @@
       }
       return aggregated;
     }
-    function mergeSkuNumberMaps(...maps) { const merged = new Map(); maps.forEach(map => map.forEach((qty, sku) => merged.set(sku, (merged.get(sku) ?? 0) + qty))); return merged; }
+    function mergeSkuNumberMaps(...maps) { const merged = new Map(); maps.forEach(map => map.forEach((qty, sku) => merged.set(sku, qty === null || merged.get(sku) === null ? null : (merged.get(sku) ?? 0) + qty))); return merged; }
     function getPhysicalUnitsPerAmazonUnit(sku) {
-      const prod = getProductBySku(sku);
+      const canonical = getCanonicalSku(sku);
+      const prod = getProductBySku(canonical);
+      if (!prod && hasEquivalentSku(canonical)) return null;
       const perPack = Number(prod?.perPack || 0);
       return Number.isFinite(perPack) && perPack > 1 ? perPack : 1;
     }
     function physicalToAmazonUnits(sku, qty) {
       const value = Number(qty || 0);
-      return Number.isFinite(value) ? value / getPhysicalUnitsPerAmazonUnit(sku) : 0;
+      const factor = getPhysicalUnitsPerAmazonUnit(sku);
+      if (factor === null) return null;
+      return Number.isFinite(value) ? value / factor : 0;
     }
     function convertPhysicalMapToAmazonUnits(map) {
       const converted = new Map();
       map.forEach((qty, sku) => {
         const canonicalSku = getCanonicalSku(sku);
-        converted.set(canonicalSku, (converted.get(canonicalSku) || 0) + physicalToAmazonUnits(sku, qty));
+        const quantity = physicalToAmazonUnits(sku, qty);
+        converted.set(canonicalSku, quantity === null || converted.get(canonicalSku) === null ? null : (converted.get(canonicalSku) || 0) + quantity);
       });
       return converted;
     }
@@ -2197,10 +2204,10 @@
     }
     function computeDerived(r) {
       const order = (r.order ?? 0), us = (r.us ?? 0);
-      r.avail = order + us;
+      r.avail = getPhysicalUnitsPerAmazonUnit(r.sku) === null ? null : order + us;
       if (r.planningVelocity === null || r.planningVelocity <= 0) { r.usDays = null; r.days = null; return; }
       r.usDays = Math.max(0, Number(r.usAmz || 0)) / r.planningVelocity;
-      r.days = r.avail / r.planningVelocity;
+      r.days = r.avail === null ? null : r.avail / r.planningVelocity;
     }
     function getBoundedWholeDays(value, fallback, min, max) { const parsed = Number(value); return Math.min(max, Math.max(min, Math.round(Number.isFinite(parsed) ? parsed : fallback))); }
     function getReorderTargetDays(value = daysThresholdEl?.value) { return getBoundedWholeDays(String(value ?? '').trim() ? value : 180, 180, 1, 365); }
@@ -2347,7 +2354,7 @@
       if (!window.SupplyPlanningLegacy) throw new Error('共用補貨核心尚未載入');
       const openOrders = getJamBreakdownForSku(row?.sku).filter(item => !item.isReceived).map(item => ({ ...item, id:item.orderName || 'JAM', quantity:Math.max(0, physicalToAmazonUnits(row?.sku, item.qty)), portArrivalDate:item.arrivalDate }));
       const planningRow = { ...row, planningVelocity:getPlanningVelocityForProduct(row?.sku) };
-      return window.SupplyPlanningLegacy.planLegacyReplenishment({
+      const plan = window.SupplyPlanningLegacy.planLegacyReplenishment({
         asOfDate:getPlanningAsOfDate(),
         row:planningRow,
         readiness:{ amazonInventory:row?.usAmz !== null && row?.usAmz !== undefined, jspInventory:row?.usJsp !== null && row?.usJsp !== undefined, openOrders:Boolean(ordersEl?.value.trim()) || metaIsReady('jamMetaBox') },
@@ -2356,6 +2363,8 @@
         packaging:{ unitsPerPallet:getUnitsPerPallet(getProductSpecByCode(row?.sku)) || null },
         orderDraftQuantity,
       });
+      if (getPhysicalUnitsPerAmazonUnit(row?.sku) === null) return { ...plan, status:'missing-product-spec', canRecommend:false, suggestedQty:0, bookCoverageDays:null, arrivalCoverageDays:null, postArrivalDays:null, totalPostOrderCoverageDays:null, continuousPostOrderCoverageDays:null, missingSources:[...new Set([...(plan.missingSources || []), '產品單位換算規格'])] };
+      return plan;
     }
     function getPlanningUnavailableReason(plan) { if (plan?.status === 'no-velocity') return '無有效速度證據，無法建議'; const missing = Array.isArray(plan?.missingSources) ? plan.missingSources.filter(Boolean) : []; return missing.length ? `缺 ${missing.join('、')}` : '資料不足，無法判斷'; }
     function sortByConfig(rows) {
@@ -2403,7 +2412,7 @@
       const h10RowMap = new Map(h10Rows.map(r => [r.sku, r]));
 
       for (const r of h10Rows) {
-        r.order = orderMap.get(r.sku) ?? 0;
+        r.order = orderMap.has(r.sku) ? orderMap.get(r.sku) : 0;
         r.orderRaw = rawOrderMap.get(r.sku) ?? 0;
         r.usAmz = usAmzMap.has(r.sku) ? usAmzMap.get(r.sku) : null;
         r.usAmzInbound = usAmzInboundMap.get(r.sku) ?? 0;
@@ -2435,7 +2444,7 @@
         return row;
       });
       const threshold = getReorderTargetDays();
-      const reorder = h10Rows.filter(r => r.planningVelocity !== null && r.planningVelocity > 0).map(r => ({ ...r, order: r.order ?? 0, us: r.us ?? 0, avail: r.avail ?? 0, usDays: r.usDays ?? 0, days: r.days ?? 0, leadPlan:getLeadTimePlan(r, threshold) })).filter(r => r.leadPlan.canRecommend && r.leadPlan.suggestedQty > 0);
+      const reorder = h10Rows.filter(r => !isReplenishmentSuppressed(r.sku) && r.planningVelocity !== null && r.planningVelocity > 0).map(r => ({ ...r, order: r.order ?? 0, us: r.us ?? 0, avail: r.avail ?? 0, usDays: r.usDays ?? 0, days: r.days ?? 0, leadPlan:getLeadTimePlan(r, threshold) })).filter(r => r.leadPlan.canRecommend && r.leadPlan.suggestedQty > 0);
 
       mainRowsAll = h10Rows;
       reorderRowsAll = reorder.sort((a, b) => a.days - b.days);
@@ -2469,8 +2478,9 @@
     function renderCoverageDaysCell(value) { const assessment = Number.isFinite(value) ? 'ready' : 'unavailable'; return `<td class="coverageHealthCell">${renderCoverageMeterHtml(value, assessment)}</td>`; }
     function getSharedBookCoverageDays(row) { const plan = getLeadTimePlan(row, 365); return Number.isFinite(plan?.bookCoverageDays) ? plan.bookCoverageDays : row?.days; }
     function renderAmazonUnitCell(value, rawValue, sku, missingText = "(未對應)") {
-      if (value === null || value === undefined) return `<td class="bad">${escapeHtml(missingText)}</td>`;
       const factor = getPhysicalUnitsPerAmazonUnit(sku);
+      if (factor === null && rawValue !== null && rawValue !== undefined) return `<td class="warn"><b>${escapeHtml(fmtQty(rawValue))} 實體包</b><br><span class="miniMetric">AMZ 換算待確認</span></td>`;
+      if (value === null || value === undefined) return `<td class="bad">${escapeHtml(missingText)}</td>`;
       const conversion = factor > 1 && rawValue !== null && rawValue !== undefined
         ? `<br><span class="miniMetric" title="原始實體包數 ÷ ${fmtQty(factor)} 入">${fmtQty(rawValue)} 實體包 ÷ ${fmtQty(factor)} 入</span>`
         : '';
@@ -2616,7 +2626,7 @@
         const orderNames = r.jamOrders && r.jamOrders !== 'N/A' ? r.jamOrders : '訂單來源未對應';
         const sourceNote = plan.sourceLabel ? `<small>${escapeHtml(plan.sourceLabel)}</small>` : '';
         const factor = getPhysicalUnitsPerAmazonUnit(r.sku);
-        const qtyText = factor > 1 ? `${fmtQty(r.orderRaw)} 實體包＝${fmtQty(r.order)} AMZ單位` : `${fmtQty(r.order)} AMZ單位`;
+        const qtyText = factor === null ? `${fmtQty(r.orderRaw)} 實體包（AMZ 換算待確認）` : factor > 1 ? `${fmtQty(r.orderRaw)} 實體包＝${fmtQty(r.order)} AMZ單位` : `${fmtQty(r.order)} AMZ單位`;
         return `<tr><td>${idx + 1}</td>${renderSkuCell(r.sku)}<td><b>${escapeHtml(orderNames)}</b><br><span class="miniMetric">數量 ${escapeHtml(qtyText)}</span></td><td><div class="newLaunchDateStack"><span><small>裝櫃</small> ${escapeHtml(plan.loadingText)}</span><span><small>到港</small> ${escapeHtml(plan.arrivalText)}</span></div></td><td><div class="newLaunchDateStack"><span class="newLaunchDeadline">${escapeHtml(plan.deadlineText)}</span>${sourceNote}</div></td><td><span class="newLaunchStatus ${plan.statusKey}"><i class="fa-solid ${escapeHtml(plan.icon)}"></i>${escapeHtml(plan.statusText)}</span></td></tr>`;
       }).join("");
       newOrderWrap.innerHTML = `<table><thead><tr><th>#</th><th>品號</th><th>訂單</th><th>首批日期</th><th>圖／上架完成期限</th><th>提醒</th></tr></thead><tbody>${body}</tbody></table>`;
@@ -2738,7 +2748,8 @@
       let skuCount = 0, totalQty = 0, matchedSourceQty = 0, unmatchedSkuCount = 0;
       for (let r = 4; r < rows.length; r++) {
         const row = rows[r] || [];
-        const sku = getCanonicalSku(row[skuCol]);
+        const sourceSku = normalizeSkuKey(row[skuCol]);
+        const sku = getCanonicalSku(sourceSku);
         if (!sku || !/^[A-Z0-9][A-Z0-9-]{2,}$/i.test(sku)) continue;
 
         let total = normalizeNumber(row[totalCol]);
@@ -2752,7 +2763,7 @@
         total = Number.isFinite(Number(total)) ? Number(total) : 0;
 
         const allocated = allocateJamBreakdownByRemainingTotal(row, orderCols, total);
-        const breakdown = allocated.breakdown.map(item => ({ ...item, sku }));
+        const breakdown = allocated.breakdown.map(item => ({ ...item, sku, sourceSku, orderSku:sourceSku }));
         const breakdownQty = breakdown.reduce((sum, item) => sum + (Number(item.qty) || 0), 0);
         matchedSourceQty += breakdownQty;
         if (total > 0 && allocated.unmatchedQty > 0) unmatchedSkuCount += 1;
@@ -3841,8 +3852,8 @@
         const total = list.reduce((sum, item) => sum + (Number(item.qty) || 0), 0);
         const factor = getPhysicalUnitsPerAmazonUnit(key);
         const totalAmazonUnits = physicalToAmazonUnits(key, total);
-        const body = list.map((item, idx) => `<tr><td>${idx + 1}</td><td>${escapeHtml(item.orderName)}</td><td class="ok">${fmtQty(item.qty)}</td><td class="ok">${fmtQty(physicalToAmazonUnits(key, item.qty))}</td><td>${escapeHtml(fmtDateText(item.loadingDate))}</td><td>${escapeHtml(fmtDateText(item.arrivalDate))}</td><td>${escapeHtml(getJamSupplyDecisionLabel(item))}</td></tr>`).join('');
-        document.getElementById('jamBreakdownTable').innerHTML = `<thead><tr><th>#</th><th>訂單</th><th>原始實體包數</th><th>Amazon 可售單位${factor > 1 ? `（${fmtQty(factor)}入）` : ''}</th><th>裝櫃日／狀態</th><th>預計到港日</th><th>本次計算判定</th></tr></thead><tbody>${body}<tr><th colspan="2">合計</th><th>${fmtQty(total)}</th><th>${fmtQty(totalAmazonUnits)}</th><th colspan="3"></th></tr></tbody>`;
+        const body = list.map((item, idx) => `<tr><td>${idx + 1}</td><td>${escapeHtml(item.orderName)}</td><td>${escapeHtml(item.sourceSku || item.orderSku || item.sku || key)}</td><td class="ok">${fmtQty(item.qty)}</td><td class="ok">${factor === null ? '換算待確認' : fmtQty(physicalToAmazonUnits(key, item.qty))}</td><td>${escapeHtml(fmtDateText(item.loadingDate))}</td><td>${escapeHtml(fmtDateText(item.arrivalDate))}</td><td>${factor === null ? '保留原始訂單，單位換算待確認' : escapeHtml(getJamSupplyDecisionLabel(item))}</td></tr>`).join('');
+        document.getElementById('jamBreakdownTable').innerHTML = `<thead><tr><th>#</th><th>訂單</th><th>來源品號</th><th>原始實體包數</th><th>Amazon 可售單位${factor > 1 ? `（${fmtQty(factor)}入）` : ''}</th><th>裝櫃日／狀態</th><th>預計到港日</th><th>本次計算判定</th></tr></thead><tbody>${body}<tr><th colspan="3">合計</th><th>${fmtQty(total)}</th><th>${factor === null ? '換算待確認' : fmtQty(totalAmazonUnits)}</th><th colspan="3"></th></tr></tbody>`;
       }
       document.getElementById('jamBreakdownModal').style.display = 'block';
     }
@@ -4075,7 +4086,7 @@
     }
 
     function getOrderDraftStateApi() { return window.SupplyOrderDraftState || null; }
-    function getApprovedOrderSkusForProduct(productSku) { const canonical = getCanonicalSku(productSku); const group = getEquivalentSkuGroup(canonical) || []; return group.map(normalizeSkuKey).filter(orderSku => orderSku && orderSku !== canonical); }
+    function getApprovedOrderSkusForProduct(productSku) { const canonical = getCanonicalSku(productSku); return equivalentSkuPairs.filter(pair => normalizeSkuKey(pair[0]) === canonical).flatMap(pair => pair.slice(1)).map(normalizeSkuKey).filter(orderSku => orderSku && orderSku !== canonical); }
     function getOrderSkuPackagingForDraft(orderSku) { const normalized = normalizeSkuKey(orderSku); return (window.SUPPLY_ORDER_SKU_PACKAGING || []).find(item => normalizeSkuKey(item?.orderSku) === normalized) || null; }
     function getGeneratorDraftContext() { return { getProduct:getProductSpecByCode, isDiscontinuedSku, getApprovedOrderSkus:getApprovedOrderSkusForProduct, getOrderSkuPackaging:getOrderSkuPackagingForDraft, catalogVersion:window.SUPPLY_PRODUCT_CATALOG_META?.catalogVersion || null, getCoverageDays:(productSku, orderDraftQuantity) => { const prod = getProductSpecByCode(productSku); return prod && Number.isFinite(orderDraftQuantity) ? getPostArrivalCoverageDays(prod, orderDraftQuantity, orderDraftQuantity) : null; }, now:() => new Date() }; }
     function getOrderGroupLabel(group) { return ({ vietnam:'越南', taiwan:'台灣', subcontract:'委外' })[group] || group; }
@@ -4208,10 +4219,10 @@
     window.searchProduct = searchProduct;
     function useNativePalletStepper(row) { const input = row?.querySelector('.edit-pallets-input'); if (!input) return; input.step = '0.5'; input.removeAttribute('onkeydown'); row.querySelector('.palletStepButtons')?.remove(); }
     function checkPackageType(prod) { const hasPack = typeof prod.perPack !== 'undefined' && prod.perPack > 0; const hasBox = typeof prod.perBox !== 'undefined' && prod.perBox > 0 && !hasPack; return { hasPack, hasBox }; }
-    function renderEquivalentOrderToggle(code, orderCode = code) { const group = getEquivalentSkuGroup(code); if (!group || group.length < 2) return ''; const currentIndex = group.indexOf(normalizeSkuKey(orderCode)); const nextCode = group[(currentIndex + 1) % group.length] || group[0]; const safeNextCode = escapeHtml(nextCode); return `<button type="button" class="miniBtn equivalentOrderToggle" onclick="toggleEquivalentOrderCode(this)" aria-label="切換下單品號為 ${safeNextCode}" title="切換為 ${safeNextCode}" data-next-order-sku="${safeNextCode}"><i class="fa-solid fa-repeat" aria-hidden="true"></i><span>${safeNextCode}</span></button>`; }
+    function renderEquivalentOrderToggle(code, orderCode = code) { const group = [getCanonicalSku(code), ...getApprovedOrderSkusForProduct(code)]; if (group.length < 2) return ''; const currentIndex = group.indexOf(normalizeSkuKey(orderCode)); const nextCode = group[(currentIndex + 1) % group.length] || group[0]; const safeNextCode = escapeHtml(nextCode); return `<button type="button" class="miniBtn equivalentOrderToggle" onclick="toggleEquivalentOrderCode(this)" aria-label="切換下單品號為 ${safeNextCode}" title="切換為 ${safeNextCode}" data-next-order-sku="${safeNextCode}"><i class="fa-solid fa-repeat" aria-hidden="true"></i><span>${safeNextCode}</span></button>`; }
     function formatPackagingPreviewValue(value, suffix = '') { return Number.isFinite(Number(value)) ? `${formatDraftNumber(Number(value))}${suffix}` : '—'; }
     function confirmPackagingReassignment(preview) { const quantity = preview?.after?.quantities?.orderDraft; const message = [`包裝調整預覽：${preview.productSku}`, `下單品號：${preview.before.orderSku} → ${preview.after.orderSku}`, `包裝版本：${preview.before.packagingVersion || '目前'} → ${preview.after.packagingVersion}`, `訂單數量：${formatPackagingPreviewValue(quantity)}`, `箱數：${formatPackagingPreviewValue(preview.before.cartons)} → ${formatPackagingPreviewValue(preview.after.cartons)}`, `棧板：${formatPackagingPreviewValue(preview.before.pallets)} → ${formatPackagingPreviewValue(preview.after.pallets)}`, `到港覆蓋：${formatPackagingPreviewValue(preview.before.coverageDays, ' 天')} → ${formatPackagingPreviewValue(preview.after.coverageDays, ' 天')}`, `訂單群組：${getOrderGroupLabel(preview.before.orderGroup)} → ${getOrderGroupLabel(preview.after.orderGroup)}`, '', '確認套用這個包裝版本？'].join('\n'); return window.confirm(message); }
-    function toggleEquivalentOrderCode(btn) { const row = btn.closest('tr'), group = getEquivalentSkuGroup(row?.dataset.product); if (!row || !group) return; if (!saveGeneratorDraft()) return; const current = normalizeSkuKey(row.dataset.orderCode || group[0]); const nextOrderSku = group[(group.indexOf(current) + 1) % group.length] || group[0]; const api = getOrderDraftStateApi(); const preview = api?.previewPackagingReassignment?.(generatorDraft, { productSku:row.dataset.product, orderSku:nextOrderSku }, getGeneratorDraftContext()); if (!preview?.ok) { showTip('無法取得下單品號的包裝調整預覽。', 'error'); return; } if (!confirmPackagingReassignment(preview)) return; const result = applyGeneratorDraftCommand({ type:'switch-order-sku', productSku:row.dataset.product, orderSku:nextOrderSku, expectedPackagingVersion:preview.after.packagingVersion }); if (!result) return; persistGeneratorDraft(); setActiveOrderGroup(result.row.orderGroup); renderActiveOrderGroup(); showTip(`已切換下單品號 ${result.row.orderSku}，並移至${getOrderGroupLabel(result.row.orderGroup)}。`, 'success'); }
+    function toggleEquivalentOrderCode(btn) { const row = btn.closest('tr'), group = [getCanonicalSku(row?.dataset.product), ...getApprovedOrderSkusForProduct(row?.dataset.product)]; if (!row || group.length < 2) return; if (!saveGeneratorDraft()) return; const current = normalizeSkuKey(row.dataset.orderCode || group[0]); const nextOrderSku = group[(group.indexOf(current) + 1) % group.length] || group[0]; const api = getOrderDraftStateApi(); const preview = api?.previewPackagingReassignment?.(generatorDraft, { productSku:row.dataset.product, orderSku:nextOrderSku }, getGeneratorDraftContext()); if (!preview?.ok) { showTip('無法取得下單品號的包裝調整預覽。', 'error'); return; } if (!confirmPackagingReassignment(preview)) return; const result = applyGeneratorDraftCommand({ type:'switch-order-sku', productSku:row.dataset.product, orderSku:nextOrderSku, expectedPackagingVersion:preview.after.packagingVersion }); if (!result) return; persistGeneratorDraft(); setActiveOrderGroup(result.row.orderGroup); renderActiveOrderGroup(); showTip(`已切換下單品號 ${result.row.orderSku}，並移至${getOrderGroupLabel(result.row.orderGroup)}。`, 'success'); }
     window.toggleEquivalentOrderCode = toggleEquivalentOrderCode;
     function reassignGeneratorPackaging(btn) { const row = btn.closest('tr'); if (!row || !saveGeneratorDraft()) return; const api = getOrderDraftStateApi(); const productSku = row.dataset.product; const orderSku = row.dataset.orderCode || productSku; const preview = api?.previewPackagingReassignment?.(generatorDraft, { productSku, orderSku }, getGeneratorDraftContext()); if (!preview?.ok) { showTip('無法取得最新包裝版本預覽。', 'error'); return; } if (!confirmPackagingReassignment(preview)) return; const result = applyGeneratorDraftCommand({ type:'reassign-packaging', productSku, orderSku, expectedPackagingVersion:preview.after.packagingVersion }); if (!result) return; if (!persistGeneratorDraft()) return; renderActiveOrderGroup(); showTip(`已套用包裝版本 ${result.row.packagingAssignment.packagingVersion}。`, 'success'); }
     window.reassignGeneratorPackaging = reassignGeneratorPackaging;
@@ -4307,10 +4318,10 @@
     window.handleGeneratorPalletKey = handleGeneratorPalletKey;
     function getPalletRecommendationWarning(warning) { const code = warning?.code || warning; if (code === 'INVALID_PALLET_CATALOG') return '缺少或不相容的棧板資料；已改用最小箱數，請修正產品資料。'; if (code === 'NO_EXECUTABLE_QUANTITY_WITHIN_CEILING') return '最小可下單量會超過 365 天，請人工確認。'; return ''; }
     function getGeneratorRecommendation(row, thresholdDays) { const plan = getLeadTimePlan(row, thresholdDays); return { quantity:plan.suggestedQty, pallets:plan.recommendedPallets, applyBy:plan.recommendationApplyBy, strategy:plan.recommendationStrategy, warning:plan.recommendationWarning }; }
-    function applyPlannedQuantityToGenerator(prod, recommendation) { if (isDiscontinuedSku(prod.productCode)) return null; const quantity = Number(recommendation?.quantity); const pallets = Number(recommendation?.pallets); const applyBy = recommendation?.applyBy || 'none'; if (applyBy === 'none' || (!(pallets > 0) && !(quantity > 0))) return null; if (!generatorDraft && !loadGeneratorDraftState()) return null; const productSku = normalizeSkuKey(prod.productCode); const existing = generatorDraft.rowsByProductSku?.[productSku]; if (existing?.locked) return null; const plannedRow = createGeneratorDraftRow(prod, { recommendation }); if (existing) plannedRow.orderSku = existing.orderSku; const result = applyGeneratorDraftCommand({ type:'upsert-row', row:plannedRow }); if (!result) return null; persistGeneratorDraft(); if (result.row.orderGroup === currentOrderGroup) renderActiveOrderGroup(); return result.row; }
-    function addReorderRowsToGenerator() { const threshold = getReorderTargetDays(); const rows = getReorderRowsForAction(); let missing = [], skipped = []; rows.forEach(row => { if (isDiscontinuedSku(row.sku)) { skipped.push(row.sku); return; } const prod = getProductSpecByCode(row.sku); if (!prod) { missing.push(row.sku); return; } applyPlannedQuantityToGenerator(prod, getGeneratorRecommendation(row, threshold)); }); if (missing.length) showTip(`找不到品項資料：${missing.join(', ')}`, 'error'); if (skipped.length) showTip(`停產品未加入：${skipped.join(', ')}`, 'error'); }
-    function addHotRowsToGenerator() { let missing = [], skipped = []; applyFilters(hotRowsAll).forEach(row => { if (isDiscontinuedSku(row.sku)) { skipped.push(row.sku); return; } const prod = getProductSpecByCode(row.sku); if (!prod) { missing.push(row.sku); return; } addProduct(prod, row.order !== null && Number.isFinite(row.order) ? row.order : null); }); if (missing.length) showTip(`找不到品項資料：${missing.join(', ')}`, 'error'); if (skipped.length) showTip(`停產品未加入：${skipped.join(', ')}`, 'error'); }
-    function addPriorityRowsToGenerator() { if (!latestDecisionExport.priority.length) renderDecisionDashboard(); const threshold = getReorderTargetDays(); let missing = [], skipped = [], added = 0; latestDecisionExport.priority.forEach(row => { if (isDiscontinuedSku(row.sku)) { skipped.push(row.sku); return; } const prod = getProductSpecByCode(row.sku); if (!prod) { missing.push(row.sku); return; } if (applyPlannedQuantityToGenerator(prod, getGeneratorRecommendation(row, threshold))) added++; }); if (added) showTip(`已加入今日優先處理 ${added} 個品項`, 'success'); if (missing.length) showTip(`找不到品項資料：${missing.join(', ')}`, 'error'); if (skipped.length) showTip(`停產品未加入：${skipped.join(', ')}`, 'error'); }
+    function applyPlannedQuantityToGenerator(prod, recommendation) { if (isReplenishmentSuppressed(prod.productCode)) return null; const quantity = Number(recommendation?.quantity); const pallets = Number(recommendation?.pallets); const applyBy = recommendation?.applyBy || 'none'; if (applyBy === 'none' || (!(pallets > 0) && !(quantity > 0))) return null; if (!generatorDraft && !loadGeneratorDraftState()) return null; const productSku = normalizeSkuKey(prod.productCode); const existing = generatorDraft.rowsByProductSku?.[productSku]; if (existing?.locked) return null; const plannedRow = createGeneratorDraftRow(prod, { recommendation }); if (existing) plannedRow.orderSku = existing.orderSku; const result = applyGeneratorDraftCommand({ type:'upsert-row', row:plannedRow }); if (!result) return null; persistGeneratorDraft(); if (result.row.orderGroup === currentOrderGroup) renderActiveOrderGroup(); return result.row; }
+    function addReorderRowsToGenerator() { const threshold = getReorderTargetDays(); const rows = getReorderRowsForAction(); let missing = [], skipped = []; rows.forEach(row => { if (isReplenishmentSuppressed(row.sku)) { skipped.push(row.sku); return; } const prod = getProductSpecByCode(row.sku); if (!prod) { missing.push(row.sku); return; } applyPlannedQuantityToGenerator(prod, getGeneratorRecommendation(row, threshold)); }); if (missing.length) showTip(`找不到品項資料：${missing.join(', ')}`, 'error'); if (skipped.length) showTip(`停產／Chewy／特規品未自動加入：${skipped.join(', ')}`, 'error'); }
+    function addHotRowsToGenerator() { let missing = [], skipped = []; applyFilters(hotRowsAll).forEach(row => { if (isReplenishmentSuppressed(row.sku)) { skipped.push(row.sku); return; } const prod = getProductSpecByCode(row.sku); if (!prod) { missing.push(row.sku); return; } addProduct(prod, row.order !== null && Number.isFinite(row.order) ? row.order : null); }); if (missing.length) showTip(`找不到品項資料：${missing.join(', ')}`, 'error'); if (skipped.length) showTip(`停產／Chewy／特規品未自動加入：${skipped.join(', ')}`, 'error'); }
+    function addPriorityRowsToGenerator() { if (!latestDecisionExport.priority.length) renderDecisionDashboard(); const threshold = getReorderTargetDays(); let missing = [], skipped = [], added = 0; latestDecisionExport.priority.forEach(row => { if (isReplenishmentSuppressed(row.sku)) { skipped.push(row.sku); return; } const prod = getProductSpecByCode(row.sku); if (!prod) { missing.push(row.sku); return; } if (applyPlannedQuantityToGenerator(prod, getGeneratorRecommendation(row, threshold))) added++; }); if (added) showTip(`已加入今日優先處理 ${added} 個品項`, 'success'); if (missing.length) showTip(`找不到品項資料：${missing.join(', ')}`, 'error'); if (skipped.length) showTip(`停產／Chewy／特規品未自動加入：${skipped.join(', ')}`, 'error'); }
     document.getElementById('btnAddReorderToGenerator').addEventListener('click', addReorderRowsToGenerator);
     document.getElementById('btnAddHotToGenerator').addEventListener('click', addHotRowsToGenerator);
     document.getElementById('btnAddPriorityToGenerator').addEventListener('click', addPriorityRowsToGenerator);
@@ -4376,18 +4387,19 @@
       const cls = level === 'red' ? 'risk-red' : level === 'yellow' ? 'risk-yellow' : level === 'green' ? 'risk-green' : 'risk-gray';
       return `<span class="riskBadge ${cls}">${escapeHtml(label)}</span>`;
     }
-    function getDecisionRows() {
+    function getDecisionRows({ includeSuppressed = false } = {}) {
       const salesMap = getSalesAmountMapFiltered();
       const today = new Date();
-      return applyFilters(mainRowsAll).map(row => {
+      return (includeSuppressed ? mainRowsAll : applyFilters(mainRowsAll).filter(row => !isReplenishmentSuppressed(row.sku))).map(row => {
         const sku = normalizeSkuKey(row.sku);
         const planningVelocity = safeNumber(row.planningVelocity, 0);
         const amz = safeNumber(row.usAmz, 0);
-        const jsp = safeNumber(row.usJsp, 0);
-        const us = safeNumber(row.us, amz + jsp);
-        const order = safeNumber(row.order, 0);
+        const unitConversionMissing = getPhysicalUnitsPerAmazonUnit(sku) === null;
+        const jsp = unitConversionMissing ? null : safeNumber(row.usJsp, 0);
+        const us = unitConversionMissing ? null : safeNumber(row.us, amz + jsp);
+        const order = unitConversionMissing ? null : safeNumber(row.order, 0);
         const usDays = planningVelocity > 0 ? amz / planningVelocity : null;
-        const daysWithOrder = planningVelocity > 0 ? (us + order) / planningVelocity : null;
+        const daysWithOrder = !unitConversionMissing && planningVelocity > 0 ? (us + order) / planningVelocity : null;
         const stockoutDate = planningVelocity > 0 ? addDays(today, usDays) : null;
         const stockoutWithOrderDate = planningVelocity > 0 ? addDays(today, daysWithOrder) : null;
         const nextArrival = getNextArrivalInfo(sku);
@@ -4410,7 +4422,7 @@
           level = 'red';
           if (supplyPlan.assumedBeforeNew > 0) { riskLabel = 'ETA待確認'; connectLabel = `舊單已納入建議量；未確認接貨風險 ${supplyPlan.shortageDays.toFixed(1)} 天`; }
           else if (supplyPlan.plannedNotPlaced + supplyPlan.stoppedInbound > 0) { riskLabel = '尚未下單'; connectLabel = `預計補貨未納入；缺口 ${supplyPlan.shortageDays.toFixed(1)} 天`; }
-          else { riskLabel = order <= 0 && jsp <= 0 ? '無已下單供給' : '會斷貨'; connectLabel = `缺口 ${supplyPlan.shortageDays.toFixed(1)} 天`; }
+          else { riskLabel = isNoOrderSku(sku) && jsp <= 0 ? '無已下單供給' : '會斷貨'; connectLabel = `缺口 ${supplyPlan.shortageDays.toFixed(1)} 天`; }
         }
         else if (usDays !== null && usDays < 30) { level = 'red'; riskLabel = '立即危險'; connectLabel = nextArrivalDate ? '需確認入倉' : '無到港日'; }
         else if ((usDays !== null && usDays < 60) || (daysWithOrder !== null && daysWithOrder < 90)) { level = 'yellow'; riskLabel = '需要關注'; connectLabel = nextArrivalDate ? '大致接得上' : '到港日不明'; }
@@ -4432,7 +4444,7 @@
               ? `${fmtQty(supplyPlan.plannedNotPlaced + supplyPlan.stoppedInbound)} 為還沒下單／STOP，未納入供給；真正可售前缺口 ${Number(supplyPlan.shortageDays.toFixed(1))} 天`
               : `逐日扣除 AMZ 銷售，JSP／有 ETA 的 JAM 於轉入 FBA 後補入；真正可售前累計缺口 ${Number(supplyPlan.shortageDays.toFixed(1))} 天`;
         const shortageSort = shortageDays === null ? shortageInfo.sort : shortageDays;
-        const priorityScore = (level === 'red' ? 1000 : level === 'yellow' ? 400 : 0) + Math.min(400, planningVelocity * 3) + Math.min(500, sales / 250) + (order <= 0 ? 220 : 0) + (shortageSort > 0 ? Math.min(260, shortageSort * 6) : 0) + Math.min(300, velocityRiskCount * 100);
+        const priorityScore = (level === 'red' ? 1000 : level === 'yellow' ? 400 : 0) + Math.min(400, planningVelocity * 3) + Math.min(500, sales / 250) + (isNoOrderSku(sku) ? 220 : 0) + (shortageSort > 0 ? Math.min(260, shortageSort * 6) : 0) + Math.min(300, velocityRiskCount * 100);
         return { ...row, sku, planningVelocity, velocityRiskCount, amz, jsp, us, order, usDays, daysWithOrder, stockoutDate, stockoutWithOrderDate, nextArrivalDate, nextSellableDate, nextArrivalOrder: nextSupplyOrder, gapDays, level, riskLabel, connectLabel, sales, revenueAtRisk, shortageDays, shortageDaysText, shortageLogic, shortageSort, priorityScore };
       });
     }
@@ -4443,10 +4455,10 @@
       const rows = getDecisionRows();
       const redRows = rows.filter(r => r.level === 'red');
       const yellowRows = rows.filter(r => r.level === 'yellow');
-      const noOrderRows = rows.filter(r => r.planningVelocity > 0 && r.order <= 0);
+      const noOrderRows = rows.filter(r => r.planningVelocity > 0 && isNoOrderSku(r.sku));
       const transferRows = rows.filter(r => r.planningVelocity > 0 && r.shortageSort > 0 && (r.level === 'red' || r.level === 'yellow')).sort((a,b) => b.shortageSort - a.shortageSort).slice(0, 30);
       const revenueRows = rows.filter(r => r.sales > 0 && (r.level === 'red' || r.level === 'yellow')).sort((a,b) => (b.revenueAtRisk - a.revenueAtRisk) || (b.sales - a.sales)).slice(0, 30);
-      const priorityRows = rows.filter(r => r.level !== 'green' || r.velocityRiskCount > 0 || r.shortageSort > 0 || (r.order <= 0 && r.planningVelocity > 0)).sort((a,b) => b.priorityScore - a.priorityScore).slice(0, 30);
+      const priorityRows = rows.filter(r => r.level !== 'green' || r.velocityRiskCount > 0 || r.shortageSort > 0 || (isNoOrderSku(r.sku) && r.planningVelocity > 0)).sort((a,b) => b.priorityScore - a.priorityScore).slice(0, 30);
       const issues = buildDataIssues(rows);
       const jamImpact = buildJamImpactRows(rows).slice(0, 40);
       latestDecisionExport = { priority: priorityRows, transfer: transferRows, revenue: revenueRows, jamImpact, issues };
@@ -4497,13 +4509,14 @@
         if (leadPlan.canRecommend !== false && leadPlan.stoppedInbound > 0) issues.push({ sku:r.sku, type:'STOP 供給', detail:`${fmtQty(leadPlan.stoppedInbound)} 未納入建議量` });
         if (leadPlan.canRecommend !== false && leadPlan.conflictingScheduleInbound > 0) issues.push({ sku:r.sku, type:'舊單排程衝突', detail:`${fmtQty(leadPlan.conflictingScheduleInbound)} 的裝櫃日晚於本次新單預計到港日，因此未納入` });
         if (leadPlan.canRecommend !== false && leadPlan.unmatchedInbound > 0) issues.push({ sku:r.sku, type:'訂單總數對不到明細', detail:`${fmtQty(leadPlan.unmatchedInbound)} 已依既有訂單假設比新單早到，請追蹤 JAM/FY 明細` });
-        if (r.usJsp === null || r.usJsp === undefined) issues.push({ sku:r.sku, type:'缺 JSP 庫存', detail:'JSP 檔案沒有此 SKU，不能直接當成 0' });
-        if (r.planningVelocity > 0 && r.order <= 0) issues.push({ sku:r.sku, type:'有速度但無訂單', detail:`速度 ${r.planningVelocity}，未到貨訂單為 0` });
+        if (leadPlan.status === 'missing-product-spec') issues.push({ sku:r.sku, type:'產品單位換算待確認', detail:`已保留未到貨 ${fmtQty(r.orderRaw || 0)} 實體包；缺少產品規格，暫不換算 AMZ 單位或建議補貨` });
+        else if (r.usJsp === null || r.usJsp === undefined) issues.push({ sku:r.sku, type:'缺 JSP 庫存', detail:'JSP 檔案沒有此 SKU，不能直接當成 0' });
+        if (r.planningVelocity > 0 && isNoOrderSku(r.sku)) issues.push({ sku:r.sku, type:'有速度但無訂單', detail:`速度 ${r.planningVelocity}，未到貨訂單為 0` });
         if (r.planningVelocity <= 0 && (r.amz + r.jsp) > 0) issues.push({ sku:r.sku, type:'有庫存但無速度', detail:`AMZ+JSP ${fmtQty(r.amz + r.jsp)}` });
         (r.velocityAssessment?.velocityRisks || []).forEach(risk => issues.push({ sku:r.sku, type:'Velocity Risk', detail:`${getVelocityRiskLabel(risk.code)}；可能低估／證據衝突，不代表已證實斷貨` }));
         if (isDiscontinuedSku(r.sku) && r.order > 0) issues.push({ sku:r.sku, type:'停產品仍有訂單', detail:`未到貨 ${fmtQty(r.order)}` });
       });
-      const h10Set = new Set(rows.map(r => r.sku));
+      const h10Set = new Set(mainRowsAll.map(r => getCanonicalSku(r.sku)));
       const rawOrderMap = aggregateSkuNumberMapByEquivalent(parseSkuNumberMap(ordersEl.value || ''));
       rawOrderMap.forEach((qty, sku) => { if (!h10Set.has(sku) && qty > 0) issues.push({ sku, type:'訂單有但 H10 無', detail:`未到貨 ${fmtQty(qty)} 實體包，可能新品或 H10 未抓到` }); });
       return issues.slice(0, 80);
@@ -4542,9 +4555,9 @@
     }
 
     function findDecisionRowBySku(sku) {
-      const key = normalizeSkuKey(sku);
+      const key = getCanonicalSku(sku);
       if (!key) return null;
-      return getDecisionRows().find(r => normalizeSkuKey(r.sku) === key) || null;
+      return getDecisionRows({ includeSuppressed:true }).find(r => getCanonicalSku(r.sku) === key) || null;
     }
     function renderTreeNode(kind, title, desc, tagText) {
       const tagCls = kind === 'okNode' ? 'ok' : kind === 'badNode' ? 'bad' : kind === 'warnNode' ? 'warn' : '';
@@ -4634,7 +4647,7 @@
       const amzNoStock = row.amz < 10 || (planningVelocity > 0 && amzDays < treeDaysThreshold);
       const jspHasStock = row.jsp >= 10;
       const jamList = getJamBreakdownForSku(sku);
-      const hasOrder = row.order > 0 || jamList.length > 0;
+      const hasOrder = !isNoOrderSku(sku) || jamList.some(item => !item.isReceived && Number(item.qty) > 0);
       const discontinued = isDiscontinuedSku(sku);
       const nodes = [];
       const addNode = (kind, title, descText, tagText, descHtml = null) => nodes.push({ kind, title, tagText, descText, descHtml: descHtml ?? escapeHtml(descText) });
@@ -4645,8 +4658,21 @@
         html:`<div class="decisionTree">${nodes.map(n => renderTreeNode(n.kind, n.title, n.descHtml, n.tagText)).join('')}</div>${nextStage ? renderNextStageButton(sku, nextStage) : ''}`
       });
 
-      const coverage = getSkuCoverageSummary(sku);
+      if (isSpecialSku(sku)) {
+        addNode('neutralNode', `${sku} 特規品`, `AMZ：${fmtQty(row.amz)}｜JSP：${fmtQty(row.jsp)}｜未到貨：${fmtQty(row.order)} AMZ單位。${getDiscontinuedReason(sku)}`, '特規品');
+        addNode('okNode', '不提醒補貨，可手動下單', '此品項不常態下單，由工廠不定期產出；不列入補貨建議或漏下單警報，需要時可自行加入訂單。', '手動下單');
+        return finish();
+      }
+
       const factor = getPhysicalUnitsPerAmazonUnit(sku);
+      if (factor === null) {
+        const rawOrderQty = row.orderRaw ?? jamList.filter(item => !item.isReceived).reduce((sum, item) => sum + Number(item.qty || 0), 0);
+        addNode('neutralNode', `${getCanonicalSku(sku)} 單品診斷`, `對照：${getEquivalentSkuLabel(sku)}｜AMZ：${fmtQty(row.amz)}｜未到貨：${fmtQty(rawOrderQty)} 實體包`, 'SKU');
+        if (hasOrder) addNode('okNode', '已辨識未到貨訂單', `${fmtQty(rawOrderQty)} 實體包已合併至相同產品，不會判為漏下單。${jamList.map(item => `${item.sourceSku || item.orderSku || item.sku}／${item.orderName || 'N/A'}：${fmtQty(item.qty)} 實體包`).join('；')}`, 'JAM');
+        addNode('warnNode', '產品單位換算待確認', '已確認品號對照，但缺少產品的 AMZ 單位換算規格；保留原始數量，暫不計算含訂單可售天數或建議補貨。', '資料不足');
+        return finish();
+      }
+      const coverage = getSkuCoverageSummary(sku);
       const unitNote = factor > 1 ? `｜換算：${fmtQty(factor)} 個實體包＝1 個 AMZ 單位` : '';
       addNode('neutralNode', `${sku} 單品診斷`, `速度：${row.planningVelocity || 'N/A'} AMZ單位/天｜AMZ：${fmtQty(row.amz)}｜JSP：${fmtQty(row.jsp)}｜未到貨：${fmtQty(row.order)} AMZ單位${unitNote}｜停產：${discontinued ? '是' : '否'}`, 'SKU');
       addNode(coverage.status === 'unavailable' ? 'warnNode' : 'neutralNode', coverage.title, (Number.isFinite(coverage.days) ? '約 ' + fmtDays(coverage.days) + ' 天。' : '') + coverage.detail, '含訂單', renderSkuCoverageDescription(coverage));
@@ -4719,7 +4745,7 @@
       const rowMap = getRowBySkuMap();
       return Array.from(jspMap.entries())
         .filter(([sku, jspQty]) => {
-          if (Number(jspQty) !== 0 || isDiscontinuedSku(sku)) return false;
+          if (Number(jspQty) !== 0 || isReplenishmentSuppressed(sku)) return false;
           const pendingJamQty = getJamBreakdownForSku(sku)
             .filter(item => !item.isReceived)
             .reduce((sum, item) => sum + safeNumber(item.qty), 0);
@@ -4736,7 +4762,7 @@
             name: getProductNameBySku(sku)
           };
         })
-        .filter(row => row.planningVelocity > 0)
+        .filter(row => row.planningVelocity > 0 && getPhysicalUnitsPerAmazonUnit(row.sku) !== null)
         .sort((a, b) => {
           const aDays = Number.isFinite(a.amzDays) ? a.amzDays : Infinity;
           const bDays = Number.isFinite(b.amzDays) ? b.amzDays : Infinity;
@@ -4896,7 +4922,7 @@
       if (!wrap) return;
       const rows = getAmzOver180Rows();
       if (!rows.length) { wrap.innerHTML = '<div class="hint">目前沒有 AMZ 可售天數超過 180 天的品項。</div>'; return; }
-      const body = rows.map((r, i) => `<tr><td>${i + 1}</td>${renderSkuCell(r.sku)}<td>${escapeHtml(String(r.planningVelocity))}</td><td>${fmtQty(r.amz)}</td><td class="warn">${fmtDays(r.amzDays)}</td><td>${formatCurrency(safeNumber(getSalesAmountMapFiltered().get(normalizeSkuKey(r.sku)), 0))}</td><td>${isDiscontinuedSku(r.sku) ? '<span class="discontinued-tag">停產</span>' : ''}</td></tr>`).join('');
+      const body = rows.map((r, i) => `<tr><td>${i + 1}</td>${renderSkuCell(r.sku)}<td>${escapeHtml(String(r.planningVelocity))}</td><td>${fmtQty(r.amz)}</td><td class="warn">${fmtDays(r.amzDays)}</td><td>${formatCurrency(safeNumber(getSalesAmountMapFiltered().get(normalizeSkuKey(r.sku)), 0))}</td><td>${isReplenishmentSuppressed(r.sku) ? `<span class="discontinued-tag">${getDiscontinuedLabel(r.sku)}</span>` : ''}</td></tr>`).join('');
       wrap.innerHTML = `<table><thead><tr><th>#</th><th>SKU</th><th>速度</th><th>AMZ庫存</th><th>AMZ可售天數</th><th>銷售額</th><th>狀態</th></tr></thead><tbody>${body}</tbody></table>`;
     }
     function renderDiscontinuedList() {
@@ -4937,7 +4963,7 @@
         productSku:row.sku,
         planningVelocity:row.planningVelocity,
         unitsPerPallet:getUnitsPerPallet(getProductSpecByCode(row.sku))
-      })), { isDiscontinuedSku });
+      })), { isDiscontinuedSku:isReplenishmentSuppressed });
       if (count) count.textContent = String(rows.length);
       if (!rows.length) {
         wrap.innerHTML = '<div class="hint">目前沒有「一板可售超過 365 天」的在售品號。</div>';
@@ -5063,7 +5089,7 @@
         }
         const normalizedSku = normalizeSkuKey(sku);
         if (!normalizedSku || !/^[A-Z0-9][A-Z0-9-]{2,}$/.test(normalizedSku)) return;
-        if (hideDiscontinuedMode && isDiscontinuedSku(normalizedSku)) return;
+        if (hideDiscontinuedMode && isReplenishmentSuppressed(normalizedSku)) return;
         if (onlyNoOrderMode && !isNoOrderSku(normalizedSku)) return;
         const amount = parseAmount(amountRaw);
         if (!Number.isFinite(amount)) return;
@@ -5179,8 +5205,8 @@
       const rows = baseRows.filter(r => {
         const sku = normalizeSkuKey(r?.sku || r?.productCode || '');
         if (!sku) return false;
-        if (hideDiscontinuedMode && isDiscontinuedSku(sku)) return false;
-        if (onlyNoOrderMode && getRowOrderQty(r) > 0) return false;
+        if (hideDiscontinuedMode && isReplenishmentSuppressed(sku)) return false;
+        if (onlyNoOrderMode && !isNoOrderSku(sku)) return false;
         const country = getProductBySku(sku)?.country || '';
         const isTw = country === 'TW' || sku.startsWith('E');
         const isTurkey = isTurkeySkuValue(sku);
@@ -5204,7 +5230,7 @@
       return { monthBuckets, mode };
     }
     function getGanttSkuClassName(sku) {
-      if (isDiscontinuedSku(sku)) return 'gantt-item-discontinued';
+      if (isReplenishmentSuppressed(sku)) return 'gantt-item-discontinued';
       if (isHeroHotSku(sku)) return 'gantt-item-hero';
       if (isHotSku(sku)) return 'gantt-item-hot';
       return '';
