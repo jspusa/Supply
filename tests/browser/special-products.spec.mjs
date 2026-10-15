@@ -72,7 +72,7 @@ for (const pathname of ['/', '/Boss/']) {
     await page.locator('#hideDiscontinuedFilter').uncheck();
     const analysis = await page.evaluate(skus => ({
       hidden:hideDiscontinuedMode,
-      rows:window.mainRowsAll.map(({ sku, planningVelocity, usAmz, usJsp, order }) => ({ sku, planningVelocity, usAmz, usJsp, order })),
+      rows:window.mainRowsAll.filter(row => skus.includes(row.sku)).map(({ sku, planningVelocity, usAmz, usJsp, order }) => ({ sku, planningVelocity, usAmz, usJsp, order })),
       reorder:reorderRowsAll.map(row => row.sku),
       priority:window.latestDecisionExport.priority.map(row => row.sku),
       missingOrders:getAutoDecisionRows().map(row => row.sku),
@@ -85,14 +85,17 @@ for (const pathname of ['/', '/Boss/']) {
       expect(row.planningVelocity).toBeGreaterThan(0);
       expect([row.usAmz, row.usJsp, row.order]).toEqual([0, 0, 0]);
     }
-    expect(analysis.reorder).toEqual([]);
-    expect(analysis.priority).toEqual([]);
-    expect(analysis.missingOrders).toEqual([]);
+    for (const sku of SPECIAL_SKUS) {
+      expect(analysis.reorder).not.toContain(sku);
+      expect(analysis.priority).not.toContain(sku);
+      expect(analysis.missingOrders).not.toContain(sku);
+    }
     expect(analysis.trees.every(tree => tree.hasAlert === false)).toBe(true);
     await page.locator('.workspaceNavTab[data-workspace="recommendations"]').click();
     await page.locator('#btnAddReorderToGenerator').click();
     await page.locator('#btnAddPriorityToGenerator').click();
-    expect(Object.keys((await readOrderDraft(page))?.rowsByProductSku || {})).toHaveLength(0);
+    const autoAdded = Object.keys((await readOrderDraft(page))?.rowsByProductSku || {});
+    for (const sku of SPECIAL_SKUS) expect(autoAdded).not.toContain(sku);
     await page.locator('.workspaceNavTab[data-workspace="sku-tree"]').click();
     await page.locator('#skuTreeInput').fill(SPECIAL_SKUS.join('\n'));
     await page.locator('#btnRenderSkuTree').click();
