@@ -1,5 +1,5 @@
 // Supply ordering policy. Chewy items are excluded; special items allow manual orders only.
-// Updated 2026-10-15; retains earlier discontinued items not replaced by this update.
+// Updated 2026-10-27; explicit reactivations removed, other earlier policies retained.
 (function (root) {
   'use strict';
   const entries = Object.freeze([
@@ -26,8 +26,10 @@
     Object.freeze({"sku": "ACA01", "reason": "銷量不佳", "channel": "discontinued"}),
     Object.freeze({"sku": "ACA02", "reason": "銷量不佳", "channel": "discontinued"}),
     Object.freeze({"sku": "ACA03", "reason": "銷量不佳", "channel": "discontinued"}),
-    Object.freeze({"sku": "ACTL05", "reason": "銷量不佳（維持停產）", "channel": "discontinued"}),
-    Object.freeze({"sku": "ACTL08", "reason": "銷量不佳（維持停產）", "channel": "discontinued"}),
+    Object.freeze({"sku": "ACTL05", "reason": "銷量不佳", "channel": "discontinued"}),
+    Object.freeze({"sku": "ACTL06", "reason": "銷量不佳＋毛利不佳", "channel": "discontinued"}),
+    Object.freeze({"sku": "ACTL08", "reason": "銷量不佳", "channel": "discontinued"}),
+    Object.freeze({"sku": "ACTL09", "reason": "銷量不佳＋毛利不佳", "channel": "discontinued"}),
     Object.freeze({"sku": "ADT03", "reason": "銷量不佳", "channel": "discontinued"}),
     Object.freeze({"sku": "ADT03AM", "reason": "銷量不佳", "channel": "discontinued"}),
     Object.freeze({"sku": "AFA135AM", "reason": "做工難＋留長版", "channel": "discontinued"}),
@@ -59,9 +61,8 @@
     Object.freeze({"sku": "GBB01", "reason": "停小留大", "channel": "discontinued"}),
     Object.freeze({"sku": "GBS01", "reason": "停小留大", "channel": "discontinued"}),
     Object.freeze({"sku": "GBS03", "reason": "停小留大", "channel": "discontinued"}),
-    Object.freeze({"sku": "GCTL02", "reason": "銷量不佳", "channel": "discontinued"}),
     Object.freeze({"sku": "GCTL05", "reason": "銷量不佳", "channel": "discontinued"}),
-    Object.freeze({"sku": "GCTL06", "reason": "銷量不佳", "channel": "discontinued"}),
+    Object.freeze({"sku": "GCTL06", "reason": "銷量不佳＋毛利不佳", "channel": "discontinued"}),
     Object.freeze({"sku": "GSCL03", "reason": "銷量不佳", "channel": "discontinued"}),
     Object.freeze({"sku": "GTC01", "reason": "維持停產", "channel": "discontinued"}),
     Object.freeze({"sku": "GTCL01", "reason": "成本考量", "channel": "discontinued"}),
@@ -71,16 +72,14 @@
     Object.freeze({"sku": "HDP01AM", "reason": "銷量不佳", "channel": "discontinued"}),
     Object.freeze({"sku": "HDR01AM", "reason": "銷量不佳", "channel": "discontinued"}),
     Object.freeze({"sku": "HDS03AM", "reason": "銷量不佳", "channel": "discontinued"}),
-    Object.freeze({"sku": "TPZ01AM-4", "reason": "銷量不佳", "channel": "discontinued"}),
-    Object.freeze({"sku": "TPZ03AM-2", "reason": "銷量不佳（維持停產）", "channel": "discontinued"}),
+    Object.freeze({"sku": "TPZ03AM-2", "reason": "銷量不佳", "channel": "discontinued"}),
     Object.freeze({"sku": "TPZL01", "reason": "銷量不佳", "channel": "discontinued"}),
     Object.freeze({"sku": "TPZL03", "reason": "銷量不佳", "channel": "discontinued"}),
     Object.freeze({"sku": "TPZL05", "reason": "銷量不佳（維持停產）", "channel": "discontinued"}),
-    Object.freeze({"sku": "TRP01AM-4", "reason": "銷量不佳", "channel": "discontinued"}),
     Object.freeze({"sku": "TRP05AM", "reason": "銷量不佳", "channel": "discontinued"}),
     Object.freeze({"sku": "TRPL01", "reason": "銷量超不佳", "channel": "discontinued"}),
-    Object.freeze({"sku": "TRPL03", "reason": "銷量不佳", "channel": "discontinued"}),
-    Object.freeze({"sku": "TRPL05", "reason": "銷量不佳", "channel": "discontinued"}),
+    Object.freeze({"sku": "TRPL03", "reason": "銷量超不佳", "channel": "discontinued"}),
+    Object.freeze({"sku": "TRPL05", "reason": "銷量超不佳", "channel": "discontinued"}),
     Object.freeze({"sku": "TTR03AM", "reason": "銷量不佳", "channel": "discontinued"}),
     Object.freeze({"sku": "TTR05AM", "reason": "銷量不佳", "channel": "discontinued"}),
     Object.freeze({"sku": "TTR05AM-1", "reason": "銷量不佳", "channel": "discontinued"}),
@@ -92,8 +91,8 @@
     Object.freeze({"sku": "VBS03", "reason": "銷量不佳", "channel": "discontinued"}),
     Object.freeze({"sku": "VBW01", "reason": "銷量不佳", "channel": "discontinued"}),
     Object.freeze({"sku": "VTB05-1", "reason": "銷量不佳", "channel": "discontinued"}),
-    Object.freeze({"sku": "VTB06-4", "reason": "銷量不佳+自我競爭", "channel": "discontinued"}),
-    Object.freeze({"sku": "VTR01-4", "reason": "委外不便＋自我競爭", "channel": "discontinued"}),
+    Object.freeze({"sku": "VTB06-4", "reason": "銷量不佳", "channel": "discontinued"}),
+    Object.freeze({"sku": "VTR01-4", "reason": "委外生產", "channel": "discontinued"}),
     Object.freeze({"sku": "VTS01-1", "reason": "委外生產", "channel": "discontinued"}),
   ]);
   const bySku = new Map(entries.map(entry => [entry.sku, entry]));

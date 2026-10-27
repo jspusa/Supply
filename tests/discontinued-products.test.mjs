@@ -8,7 +8,7 @@ const root = new URL('../', import.meta.url);
 const policySource = readFileSync(new URL('shared/discontinued-products.js', root), 'utf8');
 const catalogSource = readFileSync(new URL('product-data.js', root), 'utf8');
 
-// Independent transcription of the 2026-10-15 request, with duplicate SKU rows merged.
+// Independent transcription of the 2026-10-27 request, with duplicate SKU rows merged.
 const requestedReasons = new Map([
   ['ACA01', '銷量不佳'],
   ['ACA02', '銷量不佳'],
@@ -17,79 +17,81 @@ const requestedReasons = new Map([
   ['ASA01', '停小留大'],
   ['ATJ01', '停小留大'],
   ['ATN01', '停小留大'],
-  ['ACTL08', '銷量不佳（維持停產）'],
+  ['ACTL08', '銷量不佳'],
   ['TPZL01', '銷量不佳'],
   ['1ABRD003A0', '停小留大'],
   ['TTRL03', '銷量不佳'],
+  ['ABM01', '停小留大'],
+  ['TPZ03AM-2', '銷量不佳'],
+  ['TRPL01', '銷量超不佳'],
+  ['ACTL05', '銷量不佳'],
+  ['TRPL03', '銷量超不佳'],
+  ['TPZL03', '銷量不佳'],
+  ['TRPL05', '銷量超不佳'],
+  ['TTR03AM', '銷量不佳'],
+  ['TPZL05', '銷量不佳（維持停產）'],
+  ['ASF01', '停小留大'],
+  ['ACTL06', '銷量不佳＋毛利不佳'],
+  ['ACTL09', '銷量不佳＋毛利不佳'],
   ['ADT03AM', '銷量不佳'],
   ['AFA135AM', '做工難＋留長版'],
   ['ADT03', '銷量不佳'],
-  ['ABM01', '停小留大'],
-  ['TPZ03AM-2', '銷量不佳（維持停產）'],
-  ['TPZL03', '銷量不佳'],
-  ['TPZL05', '銷量不佳（維持停產）'],
-  ['TTR03AM', '銷量不佳'],
-  ['TRPL01', '銷量超不佳'],
-  ['ASF01', '停小留大'],
-  ['ACTL05', '銷量不佳（維持停產）'],
-  ['1GFTD061A0', '銷量不佳'],
-  ['GTRL03', '銷量不佳'],
+  ['ASCL03', '銷量不佳'],
+  ['TRP05AM', '銷量不佳'],
+  ['TTR05AM', '銷量不佳'],
+  ['TTR05AM-1', '銷量不佳'],
+  ['TTRL01', '銷量不佳'],
+  ['TTRL05', '銷量不佳'],
   ['1GSDD011A0', '停小留大（維持停產）'],
-  ['1GCRD041A0', '停小留大'],
-  ['1GCRD027A0', '改出2LB'],
   ['GCTL05', '銷量不佳'],
+  ['GTC01', '維持停產'],
+  ['GBS01', '停小留大'],
+  ['1GCRD017A0', '改出2LB'],
+  ['1GCRD037A0', '改出2LB'],
+  ['1GQRD017A0', '留2LB（1GQRD016A0）'],
+  ['1GFTD033A0', '停小留大'],
+  ['GSCL03', '銷量不佳'],
+  ['GTRL03', '銷量不佳'],
+  ['1GCRD027A0', '改出2LB'],
   ['1GBRD029A0', '留3LB'],
   ['1GBRD019A0', '出3LB版本'],
   ['GBB01', '停小留大'],
-  ['GCTL06', '銷量不佳'],
+  ['GCTL06', '銷量不佳＋毛利不佳'],
   ['GBS03', '停小留大'],
-  ['1GCRD017A0', '改出2LB'],
-  ['GBS01', '停小留大'],
-  ['1GCRD037A0', '改出2LB'],
   ['GTS03', '銷量不佳'],
   ['GTT03', '銷量不佳（維持停產）'],
   ['1GQRD027A0', '改出2LB'],
-  ['1GQRD017A0', '留2LB（1GQRD016A0）'],
   ['1GFTD043A0', '停小留大'],
-  ['1GFTD033A0', '停小留大'],
   ['1GCRD005A0', '停小留大'],
-  ['GTC01', '維持停產'],
+  ['1GCRD041A0', '停小留大'],
+  ['1GFTD061A0', '銷量不佳'],
   ['HDS03AM', '銷量不佳'],
   ['HDR01AM', '銷量不佳'],
   ['HDP01AM', '銷量不佳'],
   ['VBB01', '銷量不佳'],
   ['VBS03', '銷量不佳'],
-  ['VTB05-1', '銷量不佳'],
-  ['VTB06-4', '銷量不佳+自我競爭'],
-  ['VTR01-4', '委外不便＋自我競爭'],
   ['VBS01', '銷量不佳'],
   ['VBW01', '銷量不佳'],
+  ['VTB05-1', '銷量不佳'],
+  ['VTB06-4', '銷量不佳'],
+  ['VTR01-4', '委外生產'],
 ]);
+const reactivatedSkus = ['AWD010', 'AWD011', 'AWD070', 'AWD071', 'GCTL02', 'TPZ01AM-4', 'TRP01AM-4'];
 const requestedChewy = [
   'ATB03', 'ATP05', 'ATR03', '7ATRD013AB', 'ATP03', 'ATZ03',
   'ATZ01', 'ATS01', 'ATB01', 'ATB05', 'ATP01', 'ATR01',
 ];
-const additionalDiscontinued = ['TRPL03', 'TRPL05', 'GSCL03'];
 const requestedSpecial = ['AFML01', 'AFML03', 'AFML05', '1GXXD002A0', '1AXXD001A0', '1GXXD001A0'];
 
-// Existing index.html policy before this change: items absent from the new request.
+// Earlier discontinued items not overridden or explicitly reactivated by this request.
 const retainedReasons = new Map([
-  ['ASCL03', '銷量不佳'],
   ['ATJL01', '原料因素'],
   ['EZD010AM-3', '取消小包'],
   ['EZD020AM-3', '取消小包'],
   ['EZD040AM-3', '取消小包'],
   ['EZD050AM-3', '取消小包'],
   ['EZD060AM-3', '取消小包'],
-  ['GCTL02', '銷量不佳'],
   ['GTCL01', '成本考量'],
-  ['TPZ01AM-4', '銷量不佳'],
-  ['TRP01AM-4', '銷量不佳'],
-  ['TRP05AM', '銷量不佳'],
-  ['TTR05AM', '銷量不佳'],
-  ['TTR05AM-1', '銷量不佳'],
-  ['TTRL01', '銷量不佳'],
-  ['TTRL05', '銷量不佳'],
   ['VTS01-1', '委外生產'],
 ]);
 
@@ -100,11 +102,12 @@ function loadPolicy() {
   return context;
 }
 
-test('the shared policy contains all 54 requested ordinary SKUs with their exact reasons', () => {
+test('the shared policy contains all 65 requested ordinary SKUs with their exact reasons', () => {
   const policy = loadPolicy().SupplyDiscontinuedProducts;
-  assert.equal(requestedReasons.size, 54);
+  assert.equal(requestedReasons.size, 65);
   for (const [sku, reason] of requestedReasons) {
     assert.equal(policy.isDiscontinued(sku), true, sku);
+    assert.equal(policy.isReplenishmentSuppressed(sku), true, sku);
     assert.equal(policy.get(sku)?.reason, reason, sku);
     assert.equal(policy.get(sku)?.channel, 'discontinued', sku);
   }
@@ -125,15 +128,8 @@ test('all 12 Chewy SKUs are explicitly labelled and excluded, including the fina
   }
 });
 
-test('the follow-up stops three poor sellers without treating special products as forbidden orders', () => {
+test('special products still suppress automatic reminders while allowing manual orders', () => {
   const policy = loadPolicy().SupplyDiscontinuedProducts;
-  for (const sku of additionalDiscontinued) {
-    assert.equal(policy.isDiscontinued(sku), true, sku);
-    assert.equal(policy.isReplenishmentSuppressed(sku), true, sku);
-    assert.equal(policy.isSpecial(sku), false, sku);
-    assert.equal(policy.get(sku)?.reason, '銷量不佳', sku);
-    assert.equal(policy.get(sku)?.channel, 'discontinued', sku);
-  }
   assert.deepEqual(
     Array.from(policy.entries).filter(entry => entry.channel === 'special').map(entry => entry.sku).sort(),
     requestedSpecial.toSorted(),
@@ -150,9 +146,19 @@ test('the follow-up stops three poor sellers without treating special products a
   assert.equal(policy.isReplenishmentSuppressed('1GXXD003A0'), false, 'do not infer unlisted XX identities');
 });
 
+test('all seven reactivated products are absent from the list and eligible for reminders and orders', () => {
+  const policy = loadPolicy().SupplyDiscontinuedProducts;
+  for (const sku of reactivatedSkus) {
+    assert.equal(policy.get(sku), null, sku);
+    assert.equal(policy.isDiscontinued(sku), false, sku);
+    assert.equal(policy.isReplenishmentSuppressed(sku), false, sku);
+    assert.equal(policy.isSpecial(sku), false, sku);
+  }
+});
+
 test('list filters distinguish special products and make manual-order rules searchable', () => {
   const entries = Array.from(loadPolicy().SupplyDiscontinuedProducts.entries);
-  assert.equal(filterDiscontinuedEntries(entries, { channel:'discontinued' }).length, 74);
+  assert.equal(filterDiscontinuedEntries(entries, { channel:'discontinued' }).length, 73);
   assert.equal(filterDiscontinuedEntries(entries, { channel:'chewy' }).length, 12);
   assert.equal(filterDiscontinuedEntries(entries, { channel:'special' }).length, 6);
   for (const query of ['特規品', '可手動下單']) {
@@ -168,8 +174,8 @@ test('the former policy remains intact outside the request and the combined list
     assert.equal(policy.get(sku)?.reason, reason, sku);
     assert.equal(policy.get(sku)?.channel, 'discontinued', sku);
   }
-  const expected = [...requestedReasons.keys(), ...requestedChewy, ...retainedReasons.keys(), ...additionalDiscontinued, ...requestedSpecial].sort();
-  assert.equal(expected.length, 92);
+  const expected = [...requestedReasons.keys(), ...requestedChewy, ...retainedReasons.keys(), ...requestedSpecial].sort();
+  assert.equal(expected.length, 91);
   assert.deepEqual(Array.from(policy.entries, entry => entry.sku).sort(), expected);
   assert.equal(new Set(policy.entries.map(entry => entry.sku)).size, policy.entries.length);
 });
@@ -218,6 +224,13 @@ for (const page of ['index.html', 'Boss/index.html']) {
     }
     for (const sku of ['1GQRD016A0', '7GTSD013AB', '7ATSD019AB', 'ADT03AM-2']) {
       assert.equal(context.isDiscontinuedSku(sku), false, sku);
+    }
+    for (const sku of reactivatedSkus) {
+      for (const identity of context.getEquivalentSkuGroup(sku) || [sku]) {
+        assert.equal(context.isDiscontinuedSku(identity), false, identity);
+        assert.equal(context.isReplenishmentSuppressed(identity), false, identity);
+        assert.equal(context.getDiscontinuedEntry(identity), null, identity);
+      }
     }
     assert.equal(context.getDiscontinuedLabel('7ATSD011AB'), 'Chewy 專售');
   });

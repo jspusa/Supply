@@ -26,12 +26,19 @@ for (const pathname of ['/', '/Boss/']) {
     const filter = dialog.getByLabel('分類', { exact:true });
     await expect(dialog).toBeVisible();
     await expect(search).toBeFocused();
-    await expect(dialog.locator('tbody tr')).toHaveCount(92);
+    await expect(dialog.locator('tbody tr')).toHaveCount(91);
     await expect(dialog.locator('[data-discontinued-sku="AFA135AM"]')).toContainText('做工難＋留長版');
     await expect(dialog.locator('[data-discontinued-sku="GCTL06"]')).toHaveCount(1);
+    await expect(dialog.locator('[data-discontinued-sku="GCTL06"]')).toContainText('銷量不佳＋毛利不佳');
+    for (const sku of ['ACTL06', 'ACTL09']) {
+      await expect(dialog.locator(`[data-discontinued-sku="${sku}"]`)).toContainText('銷量不佳＋毛利不佳');
+    }
+    for (const sku of ['AWD010', 'AWD011', 'AWD070', 'AWD071', 'GCTL02', 'TPZ01AM-4', 'TRP01AM-4']) {
+      await expect(dialog.locator(`[data-discontinued-sku="${sku}"]`)).toHaveCount(0);
+    }
     await search.fill('vtr01-4');
     await expect(dialog.locator('tbody tr')).toHaveCount(1);
-    await expect(dialog.locator('tbody')).toContainText('委外不便＋自我競爭');
+    await expect(dialog.locator('tbody')).toContainText('委外生產');
     await search.fill('留2LB');
     await expect(dialog.locator('tbody')).toContainText('1GQRD017A0');
     await search.fill('');
