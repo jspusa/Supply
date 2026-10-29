@@ -30,7 +30,7 @@ const ORDER_SKU_ALIAS_KEYS = [
   'orderSku',
   'packagingVersions',
 ];
-const ORIGINS = new Set(['KH', 'OTHER', 'TW', 'VN']);
+const ORIGINS = new Set(['KH', 'OTHER', 'TW', 'US', 'VN']);
 const STANDARD_FACTORIES = new Set(['OTHER', 'TW', 'VN']);
 const LIFECYCLES = new Set(['active', 'incomplete', 'retired']);
 const ORDER_SKU_ALIAS_LIFECYCLES = new Set(['approved', 'unmapped-legacy']);

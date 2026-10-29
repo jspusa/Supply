@@ -31,6 +31,7 @@
     ['台灣', 'TW'], ['TW', 'TW'],
     ['越南', 'VN'], ['VN', 'VN'],
     ['柬埔寨', 'KH'], ['KH', 'KH'],
+    ['美國', 'US'], ['US', 'US'],
     ['其他', 'OTHER'], ['OTHER', 'OTHER'],
   ]);
 
@@ -329,7 +330,7 @@
       const dimensions = item.cartonDimensionsCm == null ? null : item.cartonDimensionsCm.map(nullablePositive);
       if (dimensions && (dimensions.length !== 3 || dimensions.some(value => value === null))) throw new Error(`${sku} 的紙箱尺寸不完整`);
       const origin = item.origin == null ? null : text(item.origin).toUpperCase();
-      if (origin && !['TW', 'VN', 'KH', 'OTHER'].includes(origin)) throw new Error(`${sku} 的產地無法辨識`);
+      if (origin && !['TW', 'VN', 'KH', 'US', 'OTHER'].includes(origin)) throw new Error(`${sku} 的產地無法辨識`);
       return {
         sku,
         origin,

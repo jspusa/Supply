@@ -546,6 +546,18 @@ test('workbook compiler rejects inconsistent product facts, missing defaults, an
   );
 });
 
+test('workbook compiler retains US origin independently from an unknown standard factory', () => {
+  for (const origin of ['美國', 'US']) {
+    const catalog = catalogFromProductMasterRows(workbookRows([
+      workbookProductRow({ origin, factory:'待補', aliases:'', lifecycle:'資料待補' }),
+    ]), workbookAliasRows([]));
+    assert.equal(catalog.products[0].origin, 'US');
+    assert.equal(catalog.products[0].standardFactory, null);
+    assert.equal(orderGroupForOrderSku('GTP01', catalog.products[0].standardFactory), 'other');
+    assert.deepEqual(compileCatalog(catalog, supplyCatalogAdapter).products, []);
+  }
+});
+
 test('workbook compiler keeps unknown origin separate and requires a factory only for active products', () => {
   const incomplete = catalogFromProductMasterRows(workbookRows([
     workbookProductRow({
