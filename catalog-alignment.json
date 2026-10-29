@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "catalogVersion": "2026-09-21",
+  "catalogVersion": "2026-10-29",
   "site": "supply",
-  "publicContentHash": "13ce0abdc927313383148dd53efd49fbd8703ac88b3d3297a0f9dd894cf19d8f",
+  "publicContentHash": "b4c8374383828a70765236ca5a9ad115e649f9866ec21abb276a68d457bfb010",
   "expectedPublicContentHashes": {
-    "supply": "13ce0abdc927313383148dd53efd49fbd8703ac88b3d3297a0f9dd894cf19d8f",
-    "fba": "699cd6d566faf3cce756b7d27a30b23f24c3ae260c4a9fb8ff26862dbcb14a14"
+    "supply": "b4c8374383828a70765236ca5a9ad115e649f9866ec21abb276a68d457bfb010",
+    "fba": "03d49e93f8b4e0e1cec8021880ada12e9821c39903b7796b925429585f8fc74b"
   }
 }
