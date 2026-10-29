@@ -546,6 +546,18 @@ test('workbook compiler rejects inconsistent product facts, missing defaults, an
   );
 });
 
+test('workbook compiler retains US origin independently from an unknown standard factory', () => {
+  for (const origin of ['美國', 'US']) {
+    const catalog = catalogFromProductMasterRows(workbookRows([
+      workbookProductRow({ origin, factory:'待補', aliases:'', lifecycle:'資料待補' }),
+    ]), workbookAliasRows([]));
+    assert.equal(catalog.products[0].origin, 'US');
+    assert.equal(catalog.products[0].standardFactory, null);
+    assert.equal(orderGroupForOrderSku('GTP01', catalog.products[0].standardFactory), 'other');
+    assert.deepEqual(compileCatalog(catalog, supplyCatalogAdapter).products, []);
+  }
+});
+
 test('workbook compiler keeps unknown origin separate and requires a factory only for active products', () => {
   const incomplete = catalogFromProductMasterRows(workbookRows([
     workbookProductRow({
@@ -589,13 +601,13 @@ test('checked canonical catalog and generated Supply snapshot stay in sync', () 
 
   assert.equal(actual, expected);
   assert.equal(canonical.schemaVersion, 3);
-  assert.match(canonical.catalogVersion, /^(?:2026-08-28\.4|2026-09-02|2026-09-21)$/);
+  assert.match(canonical.catalogVersion, /^(?:2026-08-28\.4|2026-09-02|2026-09-21|2026-10-29)$/);
   assert.match(canonical.catalogVersion, /^\d{4}-\d{2}-\d{2}(?:\.\d+)?$/);
 });
 
 test('the 15 duplicate SKUs match the exact packaging facts for the checked release', () => {
   const canonical = JSON.parse(fs.readFileSync(path.join(repoRoot, 'catalog', 'product-catalog.json'), 'utf8'));
-  const cleaned = ['2026-09-02', '2026-09-21'].includes(canonical.catalogVersion);
+  const cleaned = ['2026-09-02', '2026-09-21', '2026-10-29'].includes(canonical.catalogVersion);
   const expectedUnits = new Map(Object.entries(cleaned ? {
     '1ABRD002A0':36, GTAL01:30, GTB05:90, GTBL01:26, GTBL03:28,
     GTBL05:24, GTCL01:28, GTP03:90, GTP05:90, GTPL01:24,
@@ -640,8 +652,8 @@ test('raw release promotes 14 complete products while 11 incomplete rows stay ou
   ];
   const bySku = new Map(canonical.products.map(product => [product.productSku, product]));
 
-  assert.match(canonical.catalogVersion, /^(?:2026-08-28\.4|2026-09-02|2026-09-21)$/);
-  assert.equal(canonical.products.length, 360);
+  assert.match(canonical.catalogVersion, /^(?:2026-08-28\.4|2026-09-02|2026-09-21|2026-10-29)$/);
+  assert.equal(canonical.products.length, canonical.catalogVersion === '2026-10-29' ? 363 : 360);
   for (const productSku of promoted) {
     const product = bySku.get(productSku);
     assert.ok(product, productSku);
@@ -662,6 +674,30 @@ test('raw release promotes 14 complete products while 11 incomplete rows stay ou
   assert.equal(projected.products.length, 349);
   assert.equal(promoted.every(productSku => projected.products.some(product => product.productCode === productSku)), true);
   assert.equal(projected.products.some(product => stillIncomplete.includes(product.productCode)), false);
+
+  if (canonical.catalogVersion === '2026-10-29') {
+    for (const [sku, units, weight] of [['1AFAD053A0', 110, 28], ['1AFSD013A0', 70, 16], ['1GVTD013A0', 28, 26]]) {
+      const product = bySku.get(sku);
+      assert.equal(product.origin, 'US', sku);
+      assert.equal(product.standardFactory, null, sku);
+      assert.equal(product.productName, '', sku);
+      assert.equal(product.lifecycle, 'incomplete', sku);
+      assert.equal(product.newOrderPackagingDefaultVersion, '2026-10-29', sku);
+      assert.equal(product.packagingVersions.length, 1, sku);
+      const packaging = product.packagingVersions[0];
+      assert.equal(packaging.unitsPerCarton, units, sku);
+      assert.equal(packaging.grossWeightLb, weight, sku);
+      assert.equal(packaging.cartonsPerPallet, 42, sku);
+      assert.deepEqual(packaging.cartonDimensionsCm, [50, 40, 30], sku);
+      assert.equal(packaging.orderUnit, null, sku);
+      assert.equal(projected.products.some(item => item.productCode === sku), false, sku);
+    }
+    assert.equal(bySku.has('1AFSD015A0'), false, 'explicitly excluded SKU stays absent');
+    const corrected = bySku.get('1GSDD033A0');
+    assert.equal(corrected.newOrderPackagingDefaultVersion, '2026-10-29');
+    assert.equal(corrected.packagingVersions.find(item => item.version === '2026-08-25').unitsPerCarton, 90);
+    assert.equal(corrected.packagingVersions.find(item => item.version === '2026-10-29').unitsPerCarton, 80);
+  }
 
   const airDried = bySku.get('1AWDD773A0').packagingVersions.at(-1);
   assert.equal(airDried.unitsPerCarton, 38);
@@ -684,7 +720,7 @@ test('FBA HEAD positive-weight baseline remains complete in canonical new-order 
     .filter(packaging => typeof packaging.grossWeightLb === 'number' && packaging.grossWeightLb > 0);
 
   // Derived from FBA HEAD 07cf8cd after BUILTIN_CATALOG_ADDITIONS overwrites BUILTIN_CATALOG.
-  assert.equal(positiveWeights.length, 269);
+  assert.equal(positiveWeights.length, canonical.catalogVersion === '2026-10-29' ? 272 : 269);
   assert.equal(currentPackaging.get('AFA12AM').grossWeightLb, 34);
   assert.equal(currentPackaging.get('VBS03').grossWeightLb, 40);
   assert.equal(currentPackaging.get('GTB03').grossWeightLb, 26);
@@ -706,7 +742,7 @@ test('schema v3 retains the 27 FBA legacy 7-SKU packages plus the initialized AT
   const products = new Map(validated.products.map(product => [product.productSku, product]));
 
   assert.equal(canonical.schemaVersion, 3);
-  assert.match(canonical.catalogVersion, /^(?:2026-08-28\.4|2026-09-02|2026-09-21)$/);
+  assert.match(canonical.catalogVersion, /^(?:2026-08-28\.4|2026-09-02|2026-09-21|2026-10-29)$/);
   assert.equal(aliases.size, 28);
   assert.equal(validated.orderSkuAliases.filter(alias => alias.lifecycle === 'approved').length, 22);
   assert.deepEqual(

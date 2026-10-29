@@ -23,6 +23,7 @@ const ORIGINS = new Map([
   ['台灣', 'TW'], ['TW', 'TW'],
   ['越南', 'VN'], ['VN', 'VN'],
   ['柬埔寨', 'KH'], ['KH', 'KH'],
+  ['美國', 'US'], ['US', 'US'],
   ['其他', 'OTHER'], ['OTHER', 'OTHER'],
   ['待補', null],
 ]);

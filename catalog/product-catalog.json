@@ -1,6 +1,6 @@
 {
   "schemaVersion": 3,
-  "catalogVersion": "2026-09-21",
+  "catalogVersion": "2026-10-29",
   "products": [
     {
       "productSku": "1GBRD019A0",
@@ -8945,9 +8945,31 @@
             "kind": "single",
             "units": 1
           }
+        },
+        {
+          "version": "2026-10-29",
+          "effectiveFrom": "2026-10-29",
+          "effectiveTo": null,
+          "unitsPerCarton": 80,
+          "cartonsPerPallet": 42,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 52,
+          "orderUnit": {
+            "kind": "single",
+            "units": 1
+          },
+          "source": {
+            "sheet": "2026",
+            "row": 19
+          }
         }
       ],
-      "newOrderPackagingDefaultVersion": "2026-08-25"
+      "newOrderPackagingDefaultVersion": "2026-10-29"
     },
     {
       "productSku": "1VDFD011A0",
@@ -11585,6 +11607,102 @@
         }
       ],
       "newOrderPackagingDefaultVersion": "2026-08-25"
+    },
+    {
+      "productSku": "1AFAD053A0",
+      "productName": "",
+      "origin": "US",
+      "standardFactory": null,
+      "lifecycle": "incomplete",
+      "approvedOrderSkus": [
+        "1AFAD053A0"
+      ],
+      "newOrderPackagingDefaultVersion": "2026-10-29",
+      "packagingVersions": [
+        {
+          "version": "2026-10-29",
+          "effectiveFrom": "2026-10-29",
+          "effectiveTo": null,
+          "unitsPerCarton": 110,
+          "cartonsPerPallet": 42,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 28,
+          "orderUnit": null,
+          "source": {
+            "sheet": "2026",
+            "row": 89
+          }
+        }
+      ]
+    },
+    {
+      "productSku": "1AFSD013A0",
+      "productName": "",
+      "origin": "US",
+      "standardFactory": null,
+      "lifecycle": "incomplete",
+      "approvedOrderSkus": [
+        "1AFSD013A0"
+      ],
+      "newOrderPackagingDefaultVersion": "2026-10-29",
+      "packagingVersions": [
+        {
+          "version": "2026-10-29",
+          "effectiveFrom": "2026-10-29",
+          "effectiveTo": null,
+          "unitsPerCarton": 70,
+          "cartonsPerPallet": 42,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 16,
+          "orderUnit": null,
+          "source": {
+            "sheet": "2026",
+            "row": 90
+          }
+        }
+      ]
+    },
+    {
+      "productSku": "1GVTD013A0",
+      "productName": "",
+      "origin": "US",
+      "standardFactory": null,
+      "lifecycle": "incomplete",
+      "approvedOrderSkus": [
+        "1GVTD013A0"
+      ],
+      "newOrderPackagingDefaultVersion": "2026-10-29",
+      "packagingVersions": [
+        {
+          "version": "2026-10-29",
+          "effectiveFrom": "2026-10-29",
+          "effectiveTo": null,
+          "unitsPerCarton": 28,
+          "cartonsPerPallet": 42,
+          "cartonDimensionsCm": [
+            50,
+            40,
+            30
+          ],
+          "grossWeightKg": null,
+          "grossWeightLb": 26,
+          "orderUnit": null,
+          "source": {
+            "sheet": "2026",
+            "row": 92
+          }
+        }
+      ]
     }
   ],
   "orderSkuAliases": [

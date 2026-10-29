@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { compileCatalog } from '../catalog/product-catalog.js';
+import { overlayRawProductCatalog } from '../catalog/raw-product-catalog-overlay.js';
+import { supplyCatalogAdapter } from '../catalog/supply-catalog-adapter.js';
 
 await import(`../shared/shared-product-catalog.js?test=${Date.now()}`);
 const api = globalThis.JSPSharedProductCatalog;
@@ -29,6 +32,44 @@ function rawWorkbook() {
 }
 
 const xlsx = { utils:{ sheet_to_json:sheet => sheet.rows } };
+
+test('raw US origin survives catalog import without inventing Supply factory or order-unit facts', () => {
+  const workbook = rawWorkbook();
+  const rows = workbook.Sheets['AMZ 所有SKU'].rows;
+  const row = [...rows[4]];
+  row[1] = 'USPRODUCT01';
+  row[2] = '美國';
+  workbook.Sheets['AMZ 所有SKU'].rows = [...rows.slice(0, 2), row];
+  const payload = api.createPayload(workbook, xlsx, {
+    sourceFile:'raw.xlsx', baseCatalogVersion:'2026-09-21',
+  });
+  assert.equal(payload.records[0].origin, 'US');
+
+  const result = overlayRawProductCatalog({
+    schemaVersion:3, catalogVersion:'2026-09-21', orderSkuAliases:[],
+    products:[{
+      productSku:'EXISTING01', productName:'Existing product', origin:'VN', standardFactory:'VN',
+      lifecycle:'retired', approvedOrderSkus:['EXISTING01'], newOrderPackagingDefaultVersion:'2026-09-21',
+      packagingVersions:[{
+        version:'2026-09-21', effectiveFrom:'2026-09-21', effectiveTo:null,
+        unitsPerCarton:24, cartonsPerPallet:30, cartonDimensionsCm:[48, 38, 28],
+        grossWeightKg:null, grossWeightLb:29, orderUnit:{ kind:'single', units:1 },
+      }],
+    }],
+  }, payload, { catalogVersion:'2026-10-29' });
+  const product = result.catalog.products.find(item => item.productSku === 'USPRODUCT01');
+  assert.equal(product.origin, 'US');
+  assert.equal(product.standardFactory, null);
+  assert.equal(product.productName, '');
+  assert.equal(product.lifecycle, 'incomplete');
+  assert.equal(product.packagingVersions[0].orderUnit, null);
+  assert.equal(product.packagingVersions[0].unitsPerCarton, 24);
+  assert.deepEqual(product.packagingVersions[0].cartonDimensionsCm, [48, 38, 28]);
+  assert.deepEqual(compileCatalog(result.catalog, supplyCatalogAdapter).products, []);
+  const temporarySupplyProducts = [];
+  api.applyToSupplyProducts(temporarySupplyProducts, payload);
+  assert.deepEqual(temporarySupplyProducts, [], 'origin alone does not establish a Supply order group');
+});
 
 test('raw workbook parser keeps the first complete duplicate and reads origin and pallet count', () => {
   const payload = api.createPayload(rawWorkbook(), xlsx, { sourceFile:'raw.xlsx', updatedAt:'2026-08-28T00:00:00Z', baseCatalogVersion:'2026-08-28.4' });

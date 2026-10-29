@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "canonicalOwner": "jspusa/Supply",
-  "catalogVersion": "2026-09-21",
-  "catalogSha256": "40801ecc3574d1bda052344ac46fd178bc4a7854ee286080376fce13589a303d",
+  "catalogVersion": "2026-10-29",
+  "catalogSha256": "15fd2979d6e8fff1088710c297d8d3be4926cc28797a344e6ed44a57309afae1",
   "files": {
-    "catalog-update-baseline.js": "4de95f94b4f9bf5dca5530749a03bd1c212d77ffc0bfce0c99ae33b0ae0798bc",
+    "catalog-update-baseline.js": "1a324e8d3cb5b5e588e72f1b23be7ebb8c39b695f04b1e779d6b962cc9e45d8d",
     "catalog-update-planner.mjs": "169d63e87489e71b4ac86e2b98307381c8db40448839ef1aaa27207a7141e9f1",
-    "catalog-update-product-catalog.mjs": "5913540be3b68ec644d1fb03ede0d8f3cd10063d8ae742b54be10798ae44455e",
+    "catalog-update-product-catalog.mjs": "da9ee64fc884306f18b9550c1b69ea8f16b7eb2ddbe50dbed35299b02f97485d",
     "catalog-update-release.mjs": "169f457b8dcf3cea3b2e251df3416e29f34457b8c3a4e2dc139d6781725e921f",
     "catalog-update-overlay.mjs": "cb8d3cb417fae8e81f45ec3dd58664ef45193222ebd7a463f8995b967c5400fd",
     "catalog-update-change-plan.mjs": "0671d6438260e9fa6c9c6ba5bad198fe762fdc3febec15da89bf6d54a4cb271b"

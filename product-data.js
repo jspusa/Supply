@@ -1,7 +1,7 @@
 // Generated from catalog/product-catalog.json. Do not edit by hand.
 window.SUPPLY_PRODUCT_CATALOG_META = Object.freeze({
   "schemaVersion": 3,
-  "catalogVersion": "2026-09-21"
+  "catalogVersion": "2026-10-29"
 });
 window.SUPPLY_EQUIVALENT_SKU_PAIRS = Object.freeze([
   [
@@ -2947,8 +2947,8 @@ window.SUPPLY_ORDER_SKU_PACKAGING = Object.freeze([
   {
     "orderSku": "1GSDD033A0",
     "canonicalProductSku": "1GSDD033A0",
-    "packagingVersion": "2026-08-25",
-    "perCarton": 90,
+    "packagingVersion": "2026-10-29",
+    "perCarton": 80,
     "perPack": null,
     "perBox": null,
     "perPallet": 42,
@@ -6943,10 +6943,10 @@ window.allProductsData = [
   },
   {
     "productCode": "1GSDD033A0",
-    "packagingVersion": "2026-08-25",
+    "packagingVersion": "2026-10-29",
     "productName": "1GSDD033A0",
     "boxSize": "50*40*30",
-    "perCarton": 90,
+    "perCarton": 80,
     "perPack": null,
     "perBox": null,
     "perPallet": 42,

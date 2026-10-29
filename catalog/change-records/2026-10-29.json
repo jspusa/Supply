@@ -1,0 +1,251 @@
+{
+  "schemaVersion": 1,
+  "previousCatalogVersion": "2026-09-21",
+  "catalogVersion": "2026-10-29",
+  "baselineSha256": "40801ecc3574d1bda052344ac46fd178bc4a7854ee286080376fce13589a303d",
+  "catalogSha256": "46bee07266747bea86183a593600be80bd187a93e3d8e005315e390c88edef7d",
+  "planSha256": "90022188a890574d852c2bcb59c7ddc71fd77925e1e85bdaef0d7ae121dd8ac3",
+  "appliedAt": "2026-10-29T15:28:05.977Z",
+  "selectedEntryIds": [
+    "product:1GSDD033A0",
+    "product:1AFAD053A0",
+    "product:1AFSD013A0",
+    "product:1GVTD013A0"
+  ],
+  "duplicateResolution": null,
+  "changes": [
+    {
+      "id": "product:1GSDD033A0",
+      "entryType": "product",
+      "sku": "1GSDD033A0",
+      "changeType": "updated",
+      "risk": "safe",
+      "fields": [
+        {
+          "field": "packagingVersion",
+          "before": "2026-08-25",
+          "after": "2026-10-29"
+        },
+        {
+          "field": "unitsPerCarton",
+          "before": 90,
+          "after": 80
+        }
+      ]
+    },
+    {
+      "id": "product:1AFAD053A0",
+      "entryType": "product",
+      "sku": "1AFAD053A0",
+      "changeType": "added",
+      "risk": "review",
+      "fields": [
+        {
+          "field": "productName",
+          "before": null,
+          "after": ""
+        },
+        {
+          "field": "origin",
+          "before": null,
+          "after": "US"
+        },
+        {
+          "field": "lifecycle",
+          "before": null,
+          "after": "incomplete"
+        },
+        {
+          "field": "canonicalProductSku",
+          "before": null,
+          "after": "1AFAD053A0"
+        },
+        {
+          "field": "approvedOrderSkus",
+          "before": null,
+          "after": [
+            "1AFAD053A0"
+          ]
+        },
+        {
+          "field": "packagingVersion",
+          "before": null,
+          "after": "2026-10-29"
+        },
+        {
+          "field": "unitsPerCarton",
+          "before": null,
+          "after": 110
+        },
+        {
+          "field": "cartonsPerPallet",
+          "before": null,
+          "after": 42
+        },
+        {
+          "field": "cartonDimensionsIn",
+          "before": null,
+          "after": [
+            20,
+            16,
+            12
+          ]
+        },
+        {
+          "field": "grossWeightLb",
+          "before": null,
+          "after": 28
+        }
+      ]
+    },
+    {
+      "id": "product:1AFSD013A0",
+      "entryType": "product",
+      "sku": "1AFSD013A0",
+      "changeType": "added",
+      "risk": "review",
+      "fields": [
+        {
+          "field": "productName",
+          "before": null,
+          "after": ""
+        },
+        {
+          "field": "origin",
+          "before": null,
+          "after": "US"
+        },
+        {
+          "field": "lifecycle",
+          "before": null,
+          "after": "incomplete"
+        },
+        {
+          "field": "canonicalProductSku",
+          "before": null,
+          "after": "1AFSD013A0"
+        },
+        {
+          "field": "approvedOrderSkus",
+          "before": null,
+          "after": [
+            "1AFSD013A0"
+          ]
+        },
+        {
+          "field": "packagingVersion",
+          "before": null,
+          "after": "2026-10-29"
+        },
+        {
+          "field": "unitsPerCarton",
+          "before": null,
+          "after": 70
+        },
+        {
+          "field": "cartonsPerPallet",
+          "before": null,
+          "after": 42
+        },
+        {
+          "field": "cartonDimensionsIn",
+          "before": null,
+          "after": [
+            20,
+            16,
+            12
+          ]
+        },
+        {
+          "field": "grossWeightLb",
+          "before": null,
+          "after": 16
+        }
+      ]
+    },
+    {
+      "id": "product:1GVTD013A0",
+      "entryType": "product",
+      "sku": "1GVTD013A0",
+      "changeType": "added",
+      "risk": "review",
+      "fields": [
+        {
+          "field": "productName",
+          "before": null,
+          "after": ""
+        },
+        {
+          "field": "origin",
+          "before": null,
+          "after": "US"
+        },
+        {
+          "field": "lifecycle",
+          "before": null,
+          "after": "incomplete"
+        },
+        {
+          "field": "canonicalProductSku",
+          "before": null,
+          "after": "1GVTD013A0"
+        },
+        {
+          "field": "approvedOrderSkus",
+          "before": null,
+          "after": [
+            "1GVTD013A0"
+          ]
+        },
+        {
+          "field": "packagingVersion",
+          "before": null,
+          "after": "2026-10-29"
+        },
+        {
+          "field": "unitsPerCarton",
+          "before": null,
+          "after": 28
+        },
+        {
+          "field": "cartonsPerPallet",
+          "before": null,
+          "after": 42
+        },
+        {
+          "field": "cartonDimensionsIn",
+          "before": null,
+          "after": [
+            20,
+            16,
+            12
+          ]
+        },
+        {
+          "field": "grossWeightLb",
+          "before": null,
+          "after": 26
+        }
+      ]
+    }
+  ],
+  "catalogAlignment": {
+    "state": "pending",
+    "expectedPublicContentHashes": {
+      "supply": "b4c8374383828a70765236ca5a9ad115e649f9866ec21abb276a68d457bfb010",
+      "fba": "03d49e93f8b4e0e1cec8021880ada12e9821c39903b7796b925429585f8fc74b"
+    },
+    "evidenceStages": [
+      "local",
+      "repositoryCi",
+      "deployment",
+      "liveHash",
+      "liveBrowser"
+    ]
+  },
+  "stats": {
+    "selected": 4,
+    "safe": 1,
+    "reviewed": 3
+  }
+}
