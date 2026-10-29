@@ -416,10 +416,11 @@ function dialogMarkup() {
       <button type="button" class="product-update-icon-button" data-product-update-close aria-label="關閉產品資料更新">×</button>
     </header>
     <div class="product-update-dialog-body">
-      <section class="product-update-intro">
-        <strong>直接選擇平常維護的產品資訊 Excel</strong>
+      <section class="product-update-intro" data-product-update-dropzone aria-label="產品資訊 Excel 拖曳區">
+        <strong>把產品資訊 Excel 拖曳到這裡，或按「選擇原始產品資訊 Excel」</strong>
         <p>Excel 只會在這個分頁的記憶體中解析，用 Supply 內建基準建立簽章變更計畫；不會保存原始 Excel、GitHub 憑證，也不會直接發布。重新整理後即清除。</p>
-        <label class="product-update-file-action">選擇原始產品資訊 Excel<input type="file" accept=".xlsx,.xlsm,.xls" data-product-update-raw-file></label>
+        <label class="product-update-file-action">選擇原始產品資訊 Excel<input type="file" accept=".xlsx,.xlsm,.xls" aria-describedby="productUpdateDropHint" data-product-update-raw-file></label>
+        <small id="productUpdateDropHint" class="product-update-drop-hint">支援 .xlsx、.xlsm、.xls；每次一個檔案，最大 32 MB。匯入後先預覽差異。</small>
         <details class="product-update-advanced">
           <summary>進階／恢復：匯入已簽章的變更計畫</summary>
           <p>只有已在本機產生過 Catalog Change Plan JSON 時才需要使用。</p>
@@ -543,6 +544,7 @@ export function createProductUpdateEntry({
   let clearCandidates = [];
   let explicitClears = new Map();
   let planningSequence = 0;
+  let importingRaw = false;
   let lastFocus = null;
 
   const query = selector => dialog.querySelector(selector);
@@ -804,6 +806,44 @@ export function createProductUpdateEntry({
     else { dialog.hidden = true; dialog.removeAttribute('open'); lastFocus?.focus?.(); }
   }
 
+  async function importRawFiles(files) {
+    const selectedFiles = Array.from(files || []);
+    if (!selectedFiles.length) return;
+    if (importingRaw) {
+      message('正在解析 Excel，請完成後再匯入下一個檔案。', 'neutral');
+      return;
+    }
+    if (!query('[data-product-update-confirm]').hidden) {
+      message('請先取消目前的確認，再匯入其他 Excel。', 'neutral');
+      return;
+    }
+    const input = query('[data-product-update-raw-file]');
+    const planInput = query('[data-product-update-file]');
+    const zone = query('[data-product-update-dropzone]');
+    try {
+      if (selectedFiles.length !== 1) fail('MULTIPLE_WORKBOOKS', '一次只能匯入一個產品資訊 Excel，請重新選擇。');
+      if (!/\.(?:xlsx|xlsm|xls)$/i.test(selectedFiles[0].name || '')) {
+        fail('UNSUPPORTED_WORKBOOK', '請選擇 .xlsx、.xlsm 或 .xls 的原始產品資訊 Excel。');
+      }
+      importingRaw = true;
+      input.disabled = true;
+      planInput.disabled = true;
+      zone.setAttribute('aria-busy', 'true');
+      resetPlanState();
+      message(`正在本機解析 ${selectedFiles[0].name} 並建立簽章變更計畫…`, 'neutral');
+      await loadRawWorkbook(selectedFiles[0]);
+    } catch (error) {
+      resetPlanState();
+      message(error?.message || '無法讀取原始產品資訊 Excel。', 'error');
+    } finally {
+      importingRaw = false;
+      input.disabled = false;
+      planInput.disabled = false;
+      zone.removeAttribute('aria-busy');
+      input.value = '';
+    }
+  }
+
   function mount(actions) {
     if (dialog) return { trigger, dialog };
     trigger = element(documentRef, 'button', 'product-update-trigger', '更新產品資料');
@@ -820,16 +860,28 @@ export function createProductUpdateEntry({
     dialog.hidden = !('HTMLDialogElement' in rootRef);
 
     query('[data-product-update-close]').addEventListener('click', close);
-    query('[data-product-update-raw-file]').addEventListener('change', async event => {
-      try {
-        message('正在本機解析 Excel 並建立簽章變更計畫…', 'neutral');
-        await loadRawWorkbook(event.target.files?.[0]);
-      } catch (error) {
-        resetPlanState();
-        message(error?.message || '無法讀取原始產品資訊 Excel。', 'error');
-      } finally {
-        event.target.value = '';
-      }
+    query('[data-product-update-raw-file]').addEventListener('change', event => importRawFiles(event.target.files));
+    const dropzone = query('[data-product-update-dropzone]');
+    const isFileDrag = event => Array.from(event.dataTransfer?.types || []).includes('Files') || event.dataTransfer?.files?.length;
+    for (const eventName of ['dragenter', 'dragover']) dialog.addEventListener(eventName, event => {
+      if (!isFileDrag(event)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      if (dropzone.contains(event.target)) {
+        dropzone.classList.add('is-dragover');
+        if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy';
+      } else dropzone.classList.remove('is-dragover');
+    });
+    dropzone.addEventListener('dragleave', event => {
+      if (!dropzone.contains(event.relatedTarget)) dropzone.classList.remove('is-dragover');
+    });
+    dialog.addEventListener('drop', async event => {
+      if (!isFileDrag(event)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      dropzone.classList.remove('is-dragover');
+      if (dropzone.contains(event.target)) await importRawFiles(event.dataTransfer.files);
+      else message('請把產品資訊 Excel 拖曳到上方藍色區域。', 'neutral');
     });
     query('[data-product-update-file]').addEventListener('change', async event => {
       try {
